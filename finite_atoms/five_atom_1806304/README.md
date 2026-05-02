@@ -1,40 +1,30 @@
 # Five-atom tail certificate
 
-This is the folder to reference for the five-atom part of the $M=1.806304$ finite-atom update for Erdős Problem 1038.
-
-It contains the Lean files for the five-atom tail block, including the full pole-free one-variable interval-box certificate.
-
-Direct link:
-
-[finite_atoms/five_atom_1806304](https://github.com/HKUST-AARON/Erdos-Problem-1038/tree/main/finite_atoms/five_atom_1806304)
-
-## Method
-
-This is a moving finite-atom dual certificate. For each parameter $a$ in a short interval, we build a five-atom positive measure $\lambda_a$. If its logarithmic potential is positive on the allowed primal support, the duality identity
+This folder contains the five-atom tail certificate for the finite-atom lower-bound route at
 
 $$
-\int U_\mu\,d\lambda_a = \int U_{\lambda_a}\,d\mu
+M=1.806304.
 $$
 
-forces at least one of the five swept points to lie in the positive set $\lbrace U_\mu>0\rbrace$.
+It is one proof block inside the larger finite-atom route. The other blocks are the earlier forcing branch, the shared finite-atom selector lemmas, and the route-level arithmetic closure.
 
-For this tail block the swept intervals are disjoint from the already-covered long interval. So the sweep contributes its full parameter length.
+## Role in the route
 
-The analytic check reduces to one variable. Writing $y=x-a$, the potential of $\lambda_a$ is a fixed function $V(y)$. The package records the endpoint and critical-bracket checks, and also includes a separate rational interval-box closure that covers the full pole-free interval.
-
-In the full finite-atom route, this tail block is combined with the earlier forcing branch covering the long interval $(-1.708,0)$. The tail sweep then contributes
+The tail block is used after the long interval contribution has reached $1.708$. The tail sweep contributes
 
 $$
 1.806304-1.708=0.098304,
 $$
 
-so the route closes at
+so the finite route closes at
 
 $$
 1.708+0.098304=1.806304.
 $$
 
-## Certificate
+The mathematical mechanism is the usual finite-atom dual forcing argument. For each parameter $a$, a positive finite measure $\lambda_a$ is chosen. Positivity of its logarithmic potential on the normalized primal support forces at least one of its atoms to lie in the positive set. Sweeping $a$ then gives a length contribution.
+
+## Five atoms
 
 For
 
@@ -42,7 +32,7 @@ $$
 a\in[-1.806304,-1.708],
 $$
 
-the measure is
+the certificate uses
 
 $$
 \lambda_a=
@@ -53,17 +43,17 @@ $$
 +0.180553554\,\delta_{a+2.79017717}.
 $$
 
-The five swept points are therefore
+The five swept points are
 
 $$
-a,\quad
-a+1.80650001,\quad
-a+2.57053197,\quad
-a+2.68367709,\quad
-a+2.79017717.
+a,
+\quad a+1.80650001,
+\quad a+2.57053197,
+\quad a+2.68367709,
+\quad a+2.79017717.
 $$
 
-As $a$ moves through $[-1.806304,-1.708]$, these sweep the five intervals
+As $a$ varies in $[-1.806304,-1.708]$, these sweep the intervals
 
 $$
 [-1.806304,-1.708],
@@ -85,21 +75,23 @@ $$
 [0.98387317,1.08217717].
 $$
 
-The Lean route file checks the exact disjointness arithmetic for these intervals.
+The Lean route file checks the exact disjointness arithmetic for these swept intervals.
 
-After writing $y=x-a$, the potential becomes
+## One-variable potential
+
+Writing $y=x-a$, the five-atom logarithmic potential becomes
 
 $$
 \begin{aligned}
-V(y)={}&\log \lvert y\rvert^{-1}
-+1.174168821\log \lvert y-1.80650001\rvert^{-1}\\
-&+0.025921118\log \lvert y-2.57053197\rvert^{-1}
-+0.118647936\log \lvert y-2.68367709\rvert^{-1}\\
-&+0.180553554\log \lvert y-2.79017717\rvert^{-1}.
+V(y)={}&\log |y|^{-1}
++1.174168821\log |y-1.80650001|^{-1}\\
+&+0.025921118\log |y-2.57053197|^{-1}
++0.118647936\log |y-2.68367709|^{-1}\\
+&+0.180553554\log |y-2.79017717|^{-1}.
 \end{aligned}
 $$
 
-The relevant interval for $y$ is
+The relevant interval is
 
 $$
 0.708\le y\le 2.806304.
@@ -108,75 +100,54 @@ $$
 The four shifted locations
 
 $$
-s_1=1.80650001,\quad s_2=2.57053197,\quad s_3=2.68367709,\quad s_4=2.79017717
+s_1=1.80650001,
+\quad s_2=2.57053197,
+\quad s_3=2.68367709,
+\quad s_4=2.79017717
 $$
 
-are the potential singularities of the one-variable `Real.log` expression.
-The formal one-variable target is therefore pole-free: it asserts positivity
-on the interval above only for $y\ne s_1,s_2,s_3,s_4$, not on the closed
-interval including the poles.
+are poles of the logarithmic potential. The formal Lean target is therefore pole-free: it proves positivity for $y\ne s_1,s_2,s_3,s_4$.
 
-The proof checks positivity at the two endpoints and on these four critical brackets:
-
-$$
-\begin{gathered}
-0.708,\\
-[0.77003805,0.77003806],\\
-[2.52642600,2.52642601],\\
-[2.60759965,2.60759966],\\
-[2.74249871,2.74249872],\\
-2.806304.
-\end{gathered}
-$$
-
-The interval-box closure then covers all five smooth components between the poles, so the final one-variable theorem is not merely a finite list of sampled checks.
-
-## What the Lean files prove
+## Lean files
 
 ```text
 lean/FiveAtom1806304Mathlib.lean
 ```
 
-proves the `Real.log` positivity checks for $V$ using Mathlib logarithm estimates
-and defines the pole-free target `PoleFreeOneVariableLogPositivity`, excluding
-the four potential singularities $s_1,\ldots,s_4$.
+Defines $V$, the pole-free positivity target, and the reusable Mathlib logarithm estimates.
 
 ```text
 lean/FiveAtom1806304BoxCertificate.lean
 ```
 
-proves the unconditional pole-free one-variable target
-`poleFreeOneVariableLogPositivity_from_boxes` by a rational interval-box cover
-of the five smooth components between the poles.
+The main formal certificate for this folder. It proves
 
-This is the main formal certificate for the five-atom positivity statement.
+```text
+poleFreeOneVariableLogPositivity_from_boxes
+```
+
+by a rational interval-box cover of the five smooth components between the poles.
 
 ```text
 lean/FiveAtom1806304Formal.lean
 ```
 
-proves the exact integer arithmetic: the quartic sign changes giving the critical brackets and the ordering of the endpoints and poles.
+Checks exact integer arithmetic for the critical brackets, endpoint ordering, and swept-interval constants.
 
 ```text
 lean/FiveAtom1806304Route.lean
 ```
 
-proves the route-level bookkeeping: the tail length, the swept-interval disjointness facts, the compatibility with the earlier forcing threshold, and the conditional implication from the long-interval forcing step plus the tail selector to the target $M=1.806304$.
+Checks tail length, swept-interval disjointness, compatibility with the forcing threshold, and the conditional route implication from the long interval contribution plus the tail selector.
 
-## Scope
-
-The Lean files in this folder formalize the five-atom tail certificate and its
-route bookkeeping. The standard minimizer reduction, the logarithmic-potential
-duality identity, and the measure-theoretic sweep/additivity framework are used
-as the surrounding mathematical framework for the finite-atom route.
+The multiple Lean files are split by proof obligation. They are not separate mathematical claims: together they form the five-atom tail certificate package.
 
 ## Check it
 
-Run the current finite-atom checks from the repository root:
+From the repository root, run:
 
 ```bash
 finite_atoms/check_all.sh
 ```
 
-The script uses the local Mathlib workspace and handles the temporary `.olean`
-needed by `FiveAtom1806304BoxCertificate.lean`.
+The script uses the local Mathlib workspace and handles the temporary `.olean` needed by `FiveAtom1806304BoxCertificate.lean`.

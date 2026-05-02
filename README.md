@@ -1,156 +1,125 @@
 # Erdős Problem 1038
 
-Lean certificate work for [Erdős Problem #1038](https://www.erdosproblems.com/1038).
+This repository contains Lean certificate files for a finite-atom lower-bound route related to [Erdős Problem #1038](https://www.erdosproblems.com/1038).
 
 ## Problem
 
 For a non-constant monic polynomial $f$ whose roots are all real and lie in $[-1,1]$, determine the infimum and supremum of
 
 $$
-\bigl\lvert \{x\in\mathbb{R}:\ |f(x)|<1\}\bigr\rvert .
+\bigl|\{x\in\mathbb{R}: |f(x)|<1\}\bigr|.
 $$
 
-Equivalently, for the logarithmic potential attached to the empirical root measure, one studies the length of the positive set $\{U>0\}$.
+In the logarithmic-potential formulation, one studies the length of a positive set of the form
 
-## Current result recorded here
+$$
+\{x: U_\mu(x)>0\}.
+$$
 
-The current finite-atom certificate route records the conditional target
+## Current lower-bound certificate
+
+The current files record a finite-atom certificate route at
 
 $$
 M=1.806304.
 $$
 
-The route has two checked finite certificate blocks:
+The route has two finite certificate blocks:
 
-1. A two-parameter forcing branch before the tail block.
-2. A five-atom tail block, including a full pole-free one-variable interval-box certificate.
+1. A two-parameter forcing branch that supplies the long interval part.
+2. A five-atom tail block that supplies the remaining length.
 
-The exact route arithmetic is also checked:
+The exact closing arithmetic is checked in Lean:
 
 ```text
 1.708 + (1.806304 - 1.708) = 1.806304
 1.806304 < 1.836
 ```
 
-The standard minimizer reduction and the logarithmic-potential duality/sweep
-framework are external mathematical inputs from the notes/comments. This
-repository formalizes the finite certificate pieces and the route arithmetic
-around them.
+The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are not duplicated as full measure-theoretic formalizations in this repository.
 
-## How to cite this package in a forum comment
-
-Use the five-atom folder as the direct reference:
-
-[finite_atoms/five_atom_1806304](https://github.com/HKUST-AARON/Erdos-Problem-1038/tree/main/finite_atoms/five_atom_1806304)
-
-A concise description is:
-
-> This is a Lean-checked finite-certificate package for the conditional
-> $M=1.806304$ finite-atom update. It includes the forcing-branch aggregate
-> checks, the five-atom tail certificate, and an unconditional pole-free
-> one-variable interval-box proof for the five-atom potential.
-
-### Five-atom tail block
-
-The first checked block is the five-atom tail certificate at
-
-$$
-M=1.806304.
-$$
-
-It belongs to the finite-atom dual-certificate route. The idea is to place a small positive measure outside a candidate positive set and prove that its logarithmic potential is positive on the allowed support of the primal measure. The symmetry identity for logarithmic potentials then forces at least one point in each moving finite set to lie in $\lbrace U>0\rbrace$. Sweeping the parameter gives extra length.
-
-Folder:
+## Repository layout
 
 ```text
 finite_atoms/five_atom_1806304/
 ```
 
-Lean files:
-
-```text
-finite_atoms/five_atom_1806304/lean/FiveAtom1806304Mathlib.lean
-finite_atoms/five_atom_1806304/lean/FiveAtom1806304BoxCertificate.lean
-finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
-finite_atoms/five_atom_1806304/lean/FiveAtom1806304Route.lean
-```
-
-### Forcing branch before the tail block
-
-The second checked block is the two-parameter forcing branch used before the
-five-atom tail argument:
-
-$$
-a\in[-1.7,-\sqrt2],\qquad b=s(1.82+a),\qquad s\in[0,1],
-$$
-
-$$
-\nu_{a,b}=\delta_a+(1.395-b)\delta_b+C(a,b)\delta_{1.071-b},
-$$
-
-where $C(a,b)$ is chosen by $U_{\nu_{a,b}}(-1)=10^{-4}$.
-
-Folder:
+The five-atom tail certificate. This is the main folder for the five-atom construction at $M=1.806304$. It includes the one-variable logarithmic potential, the pole-free interval-box certificate, exact arithmetic checks, and route bookkeeping for the tail sweep.
 
 ```text
 finite_atoms/forcing_1708/
 ```
 
-This folder contains:
-
-- fixed-constant and domain-arithmetic Lean proofs;
-- the generic `Real.log` interval-box soundness lemma;
-- exact rational arithmetic checks for 980 boxes;
-- finite coverage checks for 23010 elementary cells;
-- box-wise scaled-log analytic precondition checks for the recorded logarithmic bounds.
-
-### Common finite-atom framework
-
-The shared finite dual-forcing implication is in:
+The preceding two-parameter forcing branch. It contains the interval certificate data and Lean checks for the branch that supports the long interval contribution.
 
 ```text
-finite_atoms/common/lean/FiniteAtomFramework.lean
+finite_atoms/common/
 ```
 
-It proves the three-atom and five-atom selector lemmas used after the duality
-identity turns positivity of the dual potential into a positive weighted sum.
-
-### Route closure
-
-The finite-route bookkeeping entry point is in:
+Shared finite-atom selector lemmas. These are the finite algebraic implications used after the logarithmic-potential duality identity has reduced the argument to a positive weighted sum over finitely many atoms.
 
 ```text
-finite_atoms/route_1806304/lean/Route1806304Closure.lean
+finite_atoms/route_1806304/
 ```
 
-It proves the exact closing arithmetic
+The route-level closure file. It checks the arithmetic that combines the long forcing contribution and the five-atom tail contribution to reach $M=1.806304$.
+
+The separation into these folders follows the proof structure: common finite-atom logic, forcing branch, five-atom tail, and final arithmetic closure.
+
+## Five-atom certificate
+
+The five-atom tail block is in:
 
 ```text
-1.708 + (1.806304 - 1.708) = 1.806304
-1.806304 < 1.836
+finite_atoms/five_atom_1806304/
 ```
 
-and packages the final route as an implication from the long forcing
-contribution, the tail contribution, and the disjoint-additivity rule.
+The measure used in the tail block is
 
-Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts can go in separate folders.
+$$
+\lambda_a=
+\delta_a
++1.174168821\,\delta_{a+1.80650001}
++0.025921118\,\delta_{a+2.57053197}
++0.118647936\,\delta_{a+2.68367709}
++0.180553554\,\delta_{a+2.79017717},
+$$
+
+for
+
+$$
+a\in[-1.806304,-1.708].
+$$
+
+The main one-variable theorem in the Lean files is
+
+```text
+poleFreeOneVariableLogPositivity_from_boxes
+```
+
+in
+
+```text
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304BoxCertificate.lean
+```
+
+It proves the pole-free positivity of the five-atom logarithmic potential by a rational interval-box cover of the five smooth components between the poles.
 
 ## Check all finite-atom certificates
 
-The local Mathlib workspace used for these checks is not vendored in this
-repository. On this machine the default is:
+The repository does not vendor Mathlib. On this machine, the local Mathlib workspace is expected at:
 
 ```bash
 /Users/aaron/Downloads/erdos数学问题
 ```
 
-Run every current finite-atom Lean check with:
+Run all current finite-atom checks with:
 
 ```bash
 finite_atoms/check_all.sh
 ```
 
-If Mathlib is in another local folder, run:
+If Mathlib is elsewhere, set:
 
 ```bash
 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
