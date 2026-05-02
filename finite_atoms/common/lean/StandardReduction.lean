@@ -1033,6 +1033,137 @@ lemma finite_barycenter_replacement_potential_le
   finite_barycenter_replacement_jensen s w y kernel C
     hkernel hw_nonneg hw_sum hy_mem
 
+/-- The logarithmic kernel is convex on any interval lying strictly to the left of `x`. -/
+lemma logKernel_convexOn_Iic_left {x c : ℝ} (hc : c < x) :
+    ConvexOn ℝ (Iic c) (fun t : ℝ => Real.log (1 / |x - t|)) := by
+  refine ⟨convex_Iic c, ?_⟩
+  intro y hy z hz a b ha hb hab
+  have hyle : y ≤ c := hy
+  have hzle : z ≤ c := hz
+  have hyx : 0 < x - y := by linarith
+  have hzx : 0 < x - z := by linarith
+  have hcombo_le : a * y + b * z ≤ c := by
+    have hay : a * y ≤ a * c := mul_le_mul_of_nonneg_left hyle ha
+    have hbz : b * z ≤ b * c := mul_le_mul_of_nonneg_left hzle hb
+    have hcweighted : a * c + b * c = c := by
+      calc
+        a * c + b * c = (a + b) * c := by ring
+        _ = c := by rw [hab]; ring
+    linarith
+  have hcombo : 0 < x - (a • y + b • z) := by
+    simp [smul_eq_mul]
+    linarith
+  have hconc := strictConcaveOn_log_Ioi.concaveOn.2
+      (show x - y ∈ Ioi (0 : ℝ) by exact hyx)
+      (show x - z ∈ Ioi (0 : ℝ) by exact hzx)
+      ha hb hab
+  have harg : a • (x - y) + b • (x - z) = x - (a • y + b • z) := by
+    simp [smul_eq_mul]
+    calc
+      a * (x - y) + b * (x - z) = (a + b) * x - (a * y + b * z) := by ring
+      _ = x - (a * y + b * z) := by rw [hab]; ring
+  have hlog :
+      a • Real.log (x - y) + b • Real.log (x - z) ≤
+        Real.log (x - (a • y + b • z)) := by
+    rw [← harg]
+    exact hconc
+  have hyabs : |x - y| = x - y := abs_of_pos hyx
+  have hzabs : |x - z| = x - z := abs_of_pos hzx
+  have hcabs : |x - (a • y + b • z)| = x - (a • y + b • z) :=
+    abs_of_pos hcombo
+  change Real.log (1 / |x - (a • y + b • z)|) ≤
+    a • Real.log (1 / |x - y|) + b • Real.log (1 / |x - z|)
+  rw [hyabs, hzabs, hcabs]
+  have htarget :
+      -Real.log (x - (a • y + b • z)) ≤
+        a * -Real.log (x - y) + b * -Real.log (x - z) := by
+    calc
+      -Real.log (x - (a • y + b • z))
+          ≤ -(a * Real.log (x - y) + b * Real.log (x - z)) := neg_le_neg hlog
+      _ = a * -Real.log (x - y) + b * -Real.log (x - z) := by ring
+  simpa [one_div, Real.log_inv, smul_eq_mul] using htarget
+
+/-- The logarithmic kernel is convex on any interval lying strictly to the right of `x`. -/
+lemma logKernel_convexOn_Ici_right {x c : ℝ} (hc : x < c) :
+    ConvexOn ℝ (Ici c) (fun t : ℝ => Real.log (1 / |x - t|)) := by
+  refine ⟨convex_Ici c, ?_⟩
+  intro y hy z hz a b ha hb hab
+  have hyle : c ≤ y := hy
+  have hzle : c ≤ z := hz
+  have hyx : 0 < y - x := by linarith
+  have hzx : 0 < z - x := by linarith
+  have hcombo_ge : c ≤ a * y + b * z := by
+    have hay : a * c ≤ a * y := mul_le_mul_of_nonneg_left hyle ha
+    have hbz : b * c ≤ b * z := mul_le_mul_of_nonneg_left hzle hb
+    have hcweighted : a * c + b * c = c := by
+      calc
+        a * c + b * c = (a + b) * c := by ring
+        _ = c := by rw [hab]; ring
+    linarith
+  have hcombo : 0 < (a • y + b • z) - x := by
+    simp [smul_eq_mul]
+    linarith
+  have hconc := strictConcaveOn_log_Ioi.concaveOn.2
+      (show y - x ∈ Ioi (0 : ℝ) by exact hyx)
+      (show z - x ∈ Ioi (0 : ℝ) by exact hzx)
+      ha hb hab
+  have harg : a • (y - x) + b • (z - x) = (a • y + b • z) - x := by
+    simp [smul_eq_mul]
+    calc
+      a * (y - x) + b * (z - x) = (a * y + b * z) - (a + b) * x := by ring
+      _ = (a * y + b * z) - x := by rw [hab]; ring
+  have hlog :
+      a • Real.log (y - x) + b • Real.log (z - x) ≤
+        Real.log ((a • y + b • z) - x) := by
+    rw [← harg]
+    exact hconc
+  have hyabs : |x - y| = y - x := by
+    rw [abs_of_neg (by linarith : x - y < 0)]
+    ring
+  have hzabs : |x - z| = z - x := by
+    rw [abs_of_neg (by linarith : x - z < 0)]
+    ring
+  have hcabs : |x - (a • y + b • z)| = (a • y + b • z) - x := by
+    rw [abs_of_neg (by linarith : x - (a • y + b • z) < 0)]
+    ring
+  change Real.log (1 / |x - (a • y + b • z)|) ≤
+    a • Real.log (1 / |x - y|) + b • Real.log (1 / |x - z|)
+  rw [hyabs, hzabs, hcabs]
+  have htarget :
+      -Real.log ((a • y + b • z) - x) ≤
+        a * -Real.log (y - x) + b * -Real.log (z - x) := by
+    calc
+      -Real.log ((a • y + b • z) - x)
+          ≤ -(a * Real.log (y - x) + b * Real.log (z - x)) := neg_le_neg hlog
+      _ = a * -Real.log (y - x) + b * -Real.log (z - x) := by ring
+  simpa [one_div, Real.log_inv, smul_eq_mul] using htarget
+
+theorem finite_barycenter_logKernel_replacement_le_left
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ) {x c : ℝ}
+    (hc : c < x)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hy_mem : ∀ i ∈ s, y i ∈ Iic c) :
+    Real.log (1 / |x - ∑ i ∈ s, w i * y i|) ≤
+      ∑ i ∈ s, w i * Real.log (1 / |x - y i|) :=
+  finite_barycenter_replacement_potential_le s w y
+    (fun t : ℝ => Real.log (1 / |x - t|)) (Iic c)
+    (logKernel_convexOn_Iic_left hc) hw_nonneg hw_sum hy_mem
+
+theorem finite_barycenter_logKernel_replacement_le_right
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ) {x c : ℝ}
+    (hc : x < c)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hy_mem : ∀ i ∈ s, y i ∈ Ici c) :
+    Real.log (1 / |x - ∑ i ∈ s, w i * y i|) ≤
+      ∑ i ∈ s, w i * Real.log (1 / |x - y i|) :=
+  finite_barycenter_replacement_potential_le s w y
+    (fun t : ℝ => Real.log (1 / |x - t|)) (Ici c)
+    (logKernel_convexOn_Ici_right hc) hw_nonneg hw_sum hy_mem
+
 /-!
 ## Translation/reflection normalization layer
 
