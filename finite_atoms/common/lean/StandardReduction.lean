@@ -6,6 +6,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Measure.Prokhorov
 import Mathlib.Topology.Semicontinuity.Basic
@@ -1093,6 +1094,134 @@ theorem admissible_probability_lsc_exists_secondary_minimizer
       {μ : AdmissibleProbability1038 | Argmin μ}
   rcases hsecOn.exists_isMinOn hne hcompact with ⟨μ, hμ, hminsec⟩
   exact ⟨μ, hμ, fun ν hν => hminsec hν⟩
+
+/-!
+## Positive-set objective inner approximation
+
+The length objective in the relaxed problem is the Lebesgue measure of
+`{x | 0 < U x}`.  The next lemmas formalize the inner approximation used in
+the lower-semicontinuity argument: the positive set is the increasing union of
+strict threshold sets `{x | 1/(n+1) < U x}`.
+-/
+
+lemma positiveSet_eq_iUnion_thresholds (U : ℝ → ℝ) :
+    {x : ℝ | 0 < U x} =
+      ⋃ n : ℕ, {x : ℝ | 1 / ((n : ℝ) + 1) < U x} := by
+  ext x
+  constructor
+  · intro hx
+    rcases exists_nat_one_div_lt (show 0 < U x from hx) with ⟨n, hn⟩
+    exact mem_iUnion.mpr ⟨n, hn⟩
+  · intro hx
+    rcases mem_iUnion.mp hx with ⟨n, hn⟩
+    have hpos : 0 < (1 : ℝ) / ((n : ℝ) + 1) := by positivity
+    exact lt_trans hpos hn
+
+lemma monotone_thresholds (U : ℝ → ℝ) :
+    Monotone (fun n : ℕ =>
+      {x : ℝ | 1 / ((n : ℝ) + 1) < U x}) := by
+  intro n m hnm x hx
+  have hden : (n : ℝ) + 1 ≤ (m : ℝ) + 1 := by
+    exact_mod_cast Nat.succ_le_succ hnm
+  have hpos : 0 < (n : ℝ) + 1 := by positivity
+  have hle : (1 : ℝ) / ((m : ℝ) + 1) ≤
+      1 / ((n : ℝ) + 1) := by
+    exact one_div_le_one_div_of_le hpos hden
+  exact lt_of_le_of_lt hle hx
+
+lemma positiveSet_measure_eq_iSup_thresholds (U : ℝ → ℝ) :
+    volume {x : ℝ | 0 < U x} =
+      ⨆ n : ℕ, volume {x : ℝ | 1 / ((n : ℝ) + 1) < U x} := by
+  rw [positiveSet_eq_iUnion_thresholds U]
+  exact (monotone_thresholds U).measure_iUnion
+
+lemma positiveSet_measure_le_of_thresholds_le
+    (U : ℝ → ℝ) {B : ℝ≥0∞}
+    (hB : ∀ n : ℕ,
+      volume {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ≤ B) :
+    volume {x : ℝ | 0 < U x} ≤ B := by
+  rw [positiveSet_measure_eq_iSup_thresholds U]
+  exact iSup_le hB
+
+lemma probability_measure_open_liminf_of_tendsto
+    {Ω ι : Type*} {L : Filter ι}
+    [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
+    [HasOuterApproxClosed Ω]
+    {μ : ProbabilityMeasure Ω} {μs : ι → ProbabilityMeasure Ω}
+    (hμs : Filter.Tendsto μs L (nhds μ)) {G : Set Ω} (hG : IsOpen G) :
+    (μ : Measure Ω) G ≤ L.liminf fun i => (μs i : Measure Ω) G := by
+  exact ProbabilityMeasure.le_liminf_measure_open_of_tendsto hμs hG
+
+theorem positiveSet_measure_le_liminf_of_thresholds_le_liminf
+    {ι : Type*} {L : Filter ι}
+    (U : ℝ → ℝ) (objectives : ι → ℝ≥0∞)
+    (hthreshold :
+      ∀ n : ℕ,
+        volume {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ≤
+          L.liminf objectives) :
+    volume {x : ℝ | 0 < U x} ≤ L.liminf objectives := by
+  exact positiveSet_measure_le_of_thresholds_le U hthreshold
+
+lemma threshold_measure_le_liminf_of_eventually_subset
+    {ι : Type*} {L : Filter ι} (A : Set ℝ) (E : ι → Set ℝ)
+    (hsub : ∀ᶠ i in L, A ⊆ E i) :
+    volume A ≤ L.liminf (fun i => volume (E i)) := by
+  exact Filter.le_liminf_of_le
+    (h := hsub.mono (fun _i hi => measure_mono hi))
+
+theorem variable_positiveSet_measure_le_liminf_of_eventually_threshold_subset
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (hsub : ∀ n : ℕ, ∀ᶠ i in L,
+      {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ⊆
+        {x : ℝ | 0 < Us i x}) :
+    volume {x : ℝ | 0 < U x} ≤
+      L.liminf (fun i => volume {x : ℝ | 0 < Us i x}) := by
+  refine positiveSet_measure_le_of_thresholds_le U ?_
+  intro n
+  exact Filter.le_liminf_of_le
+    (h := (hsub n).mono (fun _i hi => measure_mono hi))
+
+lemma eventually_threshold_subset_of_eventually_pointwise_error
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (n : ℕ)
+    (herr : ∀ᶠ i in L, ∀ x : ℝ,
+      |Us i x - U x| < 1 / ((n : ℝ) + 1)) :
+    ∀ᶠ i in L,
+      {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ⊆
+        {x : ℝ | 0 < Us i x} := by
+  refine herr.mono ?_
+  intro i hi x hx
+  change 0 < Us i x
+  have hx' : 1 / ((n : ℝ) + 1) < U x := hx
+  have hneg : -(1 / ((n : ℝ) + 1)) < Us i x - U x :=
+    (abs_lt.mp (hi x)).1
+  linarith
+
+theorem variable_positiveSet_measure_le_liminf_of_eventually_pointwise_error
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (herr : ∀ n : ℕ, ∀ᶠ i in L, ∀ x : ℝ,
+      |Us i x - U x| < 1 / ((n : ℝ) + 1)) :
+    volume {x : ℝ | 0 < U x} ≤
+      L.liminf (fun i => volume {x : ℝ | 0 < Us i x}) := by
+  exact variable_positiveSet_measure_le_liminf_of_eventually_threshold_subset
+    U Us
+    (fun n =>
+      eventually_threshold_subset_of_eventually_pointwise_error U Us n
+        (herr n))
+
+theorem measureLogPotential_positiveSet_measure_le_liminf
+    {ι : Type*} {L : Filter ι}
+    (μ : Measure ℝ) (μs : ι → Measure ℝ)
+    (herr : ∀ n : ℕ, ∀ᶠ i in L, ∀ x : ℝ,
+      |measureLogPotential (μs i) x - measureLogPotential μ x| <
+        1 / ((n : ℝ) + 1)) :
+    volume {x : ℝ | 0 < measureLogPotential μ x} ≤
+      L.liminf
+        (fun i => volume {x : ℝ | 0 < measureLogPotential (μs i) x}) := by
+  exact variable_positiveSet_measure_le_liminf_of_eventually_pointwise_error
+    (measureLogPotential μ)
+    (fun i => measureLogPotential (μs i))
+    herr
 
 structure MinimizationProblem (α : Type*) [TopologicalSpace α] where
   Admissible : α → Prop
