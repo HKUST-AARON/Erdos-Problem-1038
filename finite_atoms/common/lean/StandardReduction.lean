@@ -1223,6 +1223,67 @@ theorem measureLogPotential_positiveSet_measure_le_liminf
     (fun i => measureLogPotential (μs i))
     herr
 
+lemma eventual_pointwise_error_of_three_errors
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (T : ℕ → ℝ → ℝ) (Ts : ℕ → ι → ℝ → ℝ)
+    (hlimit : ∀ n x,
+      |T n x - U x| < (1 / ((n : ℝ) + 1)) / 3)
+    (hseq : ∀ n, ∀ᶠ i in L, ∀ x,
+      |Ts n i x - Us i x| < (1 / ((n : ℝ) + 1)) / 3)
+    (htrunc : ∀ n, ∀ᶠ i in L, ∀ x,
+      |Ts n i x - T n x| < (1 / ((n : ℝ) + 1)) / 3) :
+    ∀ n : ℕ, ∀ᶠ i in L, ∀ x : ℝ,
+      |Us i x - U x| < 1 / ((n : ℝ) + 1) := by
+  intro n
+  filter_upwards [hseq n, htrunc n] with i hseqi htrunci x
+  have h1 := hseqi x
+  have h2 := htrunci x
+  have h3 := hlimit n x
+  have htriangle : |Us i x - U x| ≤
+      |Us i x - Ts n i x| + |Ts n i x - T n x| +
+        |T n x - U x| := by
+    calc
+      |Us i x - U x| =
+          |(Us i x - Ts n i x) + (Ts n i x - T n x) +
+            (T n x - U x)| := by
+            congr 1
+            ring
+      _ ≤ |Us i x - Ts n i x| + |Ts n i x - T n x| +
+          |T n x - U x| := by
+        calc
+          |(Us i x - Ts n i x) + (Ts n i x - T n x) +
+              (T n x - U x)|
+              ≤ |(Us i x - Ts n i x) + (Ts n i x - T n x)| +
+                |T n x - U x| :=
+            abs_add_le
+              ((Us i x - Ts n i x) + (Ts n i x - T n x))
+              (T n x - U x)
+          _ ≤ |Us i x - Ts n i x| + |Ts n i x - T n x| +
+              |T n x - U x| := by
+            have h :=
+              abs_add_le (Us i x - Ts n i x) (Ts n i x - T n x)
+            linarith
+  have h1' : |Us i x - Ts n i x| <
+      (1 / ((n : ℝ) + 1)) / 3 := by
+    rwa [abs_sub_comm]
+  linarith
+
+theorem variable_positiveSet_measure_le_liminf_of_three_error_scheme
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (T : ℕ → ℝ → ℝ) (Ts : ℕ → ι → ℝ → ℝ)
+    (hlimit : ∀ n x,
+      |T n x - U x| < (1 / ((n : ℝ) + 1)) / 3)
+    (hseq : ∀ n, ∀ᶠ i in L, ∀ x,
+      |Ts n i x - Us i x| < (1 / ((n : ℝ) + 1)) / 3)
+    (htrunc : ∀ n, ∀ᶠ i in L, ∀ x,
+      |Ts n i x - T n x| < (1 / ((n : ℝ) + 1)) / 3) :
+    volume {x : ℝ | 0 < U x} ≤
+      L.liminf (fun i => volume {x : ℝ | 0 < Us i x}) := by
+  exact variable_positiveSet_measure_le_liminf_of_eventually_pointwise_error
+    U Us
+    (eventual_pointwise_error_of_three_errors U Us T Ts
+      hlimit hseq htrunc)
+
 def truncatedLogKernel (ε x : ℝ) (t : ℝ) : ℝ :=
   Real.log (1 / max ε |x - t|)
 
