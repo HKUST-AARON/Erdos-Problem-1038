@@ -77,4 +77,15 @@ This folder contains:
 - finite coverage checks for 23010 elementary cells;
 - box-wise scaled-log analytic precondition checks for the recorded logarithmic bounds.
 
+### Common finite-atom framework
+
+The shared finite dual-forcing implication is in:
+
+```text
+finite_atoms/common/lean/FiniteAtomFramework.lean
+```
+
+It proves the three-atom and five-atom selector lemmas used after the duality
+identity turns positivity of the dual potential into a positive weighted sum.
+
 Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
