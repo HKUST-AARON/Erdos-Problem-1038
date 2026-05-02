@@ -1129,6 +1129,8 @@ def _combined_directional_derivative_residue_log_pair_divided_from_arb(
     limit_A,
     limit_alpha,
     precision: int,
+    base_delta_A=None,
+    base_delta_alpha=None,
 ) -> str:
     """Eta-divided residue-log prototype with paired ell/r sheets.
 
@@ -1170,45 +1172,163 @@ def _combined_directional_derivative_residue_log_pair_divided_from_arb(
     def log_abs(value):
         return abs(value).log()
 
+    def log_one_plus_over_z(z):
+        radius = float(abs(z).upper())
+        if radius >= 0.25:
+            return abs(arb(1) + z).log() / z
+        total = arb(0)
+        power = arb(1)
+        terms = 40
+        for index in range(terms):
+            if index:
+                power *= z
+            term = power / arb(index + 1)
+            total += -term if index % 2 else term
+        tail = radius**terms / ((terms + 1) * (1.0 - radius))
+        return total + arb(f"[+/- {tail!r}]")
+
+    def log_abs_ratio_divided(value, value0, value_div):
+        z = eta * value_div / value0
+        if float(abs(z).upper()) < 0.25 and float((arb(1) + z).lower()) > 0.0:
+            return value_div / value0 * log_one_plus_over_z(z)
+        return log_abs(value / value0) / eta
+
     ell_derivative = (ell - r) * (ell - arb(1))
     ell0_derivative = (ell0 - r) * (ell0 - arb(1))
     r_derivative = (r - ell) * (r - arb(1))
     r0_derivative = (r - ell0) * (r - arb(1))
 
-    ell_preimages = left_preimages(ell, center, scale)
-    ell0_preimages = left_preimages(ell0, center0, scale0)
-    r_preimages = left_preimages(r, center, scale)
-    r0_preimages = left_preimages(r, center0, scale0)
+    tau = base_delta_alpha if base_delta_alpha is not None else (alpha - limit_alpha) / eta
+    A_div = base_delta_A if base_delta_A is not None else (A - limit_A) / eta
+    center_div = (tau - eta) / 2
+    scale_div = -(tau + eta) / 4
 
-    def paired_smooth_divided(x, x0):
+    def preimage_pair_divided(q, q0, q_div):
+        y = (q - center) / scale
+        y0 = (q0 - center0) / scale0
+        root = (y * y - 4).sqrt()
+        outer = (y - root) / 2
+        root0 = (y0 * y0 - 4).sqrt()
+        outer0 = (y0 - root0) / 2
+        inner = 1 / outer
+        inner0 = 1 / outer0
+        outer_div = (q_div - center_div - scale_div * (outer0 + 1 / outer0)) / (
+            scale * (1 - 1 / (outer * outer0))
+        )
+        inner_div = (q_div - center_div - scale_div * (inner0 + 1 / inner0)) / (
+            scale * (1 - 1 / (inner * inner0))
+        )
+        return ((outer, outer0, outer_div), (inner, inner0, inner_div))
+
+    def branch_value_divided(rho, rho0, rho_div):
+        inverse_div = -rho_div / (rho * rho0)
+        return scale_div * (rho0 - 1 / rho0) + scale * (rho_div - inverse_div)
+
+    def quotient_divided(numerator, numerator0, numerator_div, denominator, denominator0, denominator_div):
+        return (numerator_div * denominator0 - numerator0 * denominator_div) / (denominator * denominator0)
+
+    def residue_divided(q, q0, q_div, q_derivative, q0_derivative, q_derivative_div, rho, rho0, rho_div):
+        branch = branch_value(rho, scale)
+        branch0 = branch_value(rho0, scale0)
+        branch_div = branch_value_divided(rho, rho0, rho_div)
+        multiplier = branch / q_derivative
+        multiplier0 = branch0 / q0_derivative
+        multiplier_div = quotient_divided(
+            branch,
+            branch0,
+            branch_div,
+            q_derivative,
+            q0_derivative,
+            q_derivative_div,
+        )
+        numerator = q + A
+        numerator0 = q0 + limit_A
+        numerator_div = q_div + A_div
+        denominator = q - alpha
+        denominator0 = q0 - limit_alpha
+        denominator_div = q_div - tau
+        ratio_div = quotient_divided(
+            numerator,
+            numerator0,
+            numerator_div,
+            denominator,
+            denominator0,
+            denominator_div,
+        )
+        factor = direction_A - numerator * direction_alpha / (2 * denominator)
+        factor0 = direction_A - numerator0 * direction_alpha / (2 * denominator0)
+        factor_div = -direction_alpha * ratio_div / 2
+        return multiplier_div * factor0 + multiplier * factor_div
+
+    ell_q_div = eta
+    r_q_div = arb(0)
+    ell_derivative_div = eta * (ell0 - arb(1)) + eta * (ell - r)
+    r_derivative_div = -eta * (r - arb(1))
+
+    ell_preimage_data = preimage_pair_divided(ell, ell0, ell_q_div)
+    r_preimage_data = preimage_pair_divided(r, r, r_q_div)
+
+    def paired_smooth_divided(x, x0, x_div):
         total = arb(0)
-        for rho_ell, rho_ell0, rho_r, rho_r0 in zip(
-            ell_preimages,
-            ell0_preimages,
-            r_preimages,
-            r0_preimages,
+        for (rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div) in zip(
+            ell_preimage_data,
+            r_preimage_data,
         ):
             a_ell = residue(ell, ell_derivative, rho_ell, A, alpha, scale)
             a_ell0 = residue(ell0, ell0_derivative, rho_ell0, limit_A, limit_alpha, scale0)
             a_r = residue(r, r_derivative, rho_r, A, alpha, scale)
             a_r0 = residue(r, r0_derivative, rho_r0, limit_A, limit_alpha, scale0)
+            a_ell_div = residue_divided(
+                ell,
+                ell0,
+                ell_q_div,
+                ell_derivative,
+                ell0_derivative,
+                ell_derivative_div,
+                rho_ell,
+                rho_ell0,
+                rho_ell_div,
+            )
+            a_r_div = residue_divided(
+                r,
+                r,
+                r_q_div,
+                r_derivative,
+                r0_derivative,
+                r_derivative_div,
+                rho_r,
+                rho_r0,
+                rho_r_div,
+            )
             sum_residue = a_ell + a_r
-            sum_residue0 = a_ell0 + a_r0
+            sum_residue_div = a_ell_div + a_r_div
 
             ratio = (x - rho_ell) / (x - rho_r)
             ratio0 = (x0 - rho_ell0) / (x0 - rho_r0)
+            ratio_div = quotient_divided(
+                x - rho_ell,
+                x0 - rho_ell0,
+                x_div - rho_ell_div,
+                x - rho_r,
+                x0 - rho_r0,
+                x_div - rho_r_div,
+            )
             base = x - rho_r
             base0 = x0 - rho_r0
+            base_div = x_div - rho_r_div
 
-            total += ((a_ell - a_ell0) / eta) * log_abs(ratio0)
-            total += a_ell * log_abs(ratio / ratio0) / eta
-            total += ((sum_residue - sum_residue0) / eta) * log_abs(base0)
-            total += sum_residue * log_abs(base / base0) / eta
+            total += a_ell_div * log_abs(ratio0)
+            total += a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)
+            total += sum_residue_div * log_abs(base0)
+            total += sum_residue * log_abs_ratio_divided(base, base0, base_div)
         return total
 
     def paired_smooth_limit(x0):
         total = arb(0)
-        for rho_ell0, rho_r0 in zip(ell0_preimages, r0_preimages):
+        for (_rho_ell, rho_ell0, _rho_ell_div), (_rho_r, rho_r0, _rho_r_div) in zip(
+            ell_preimage_data,
+            r_preimage_data,
+        ):
             a_ell0 = residue(ell0, ell0_derivative, rho_ell0, limit_A, limit_alpha, scale0)
             a_r0 = residue(r, r0_derivative, rho_r0, limit_A, limit_alpha, scale0)
             total += a_ell0 * log_abs(x0 - rho_ell0) + a_r0 * log_abs(x0 - rho_r0)
@@ -1225,13 +1345,13 @@ def _combined_directional_derivative_residue_log_pair_divided_from_arb(
 
     x_alpha = -arb(1)
     x_alpha0 = -arb(1)
-    x_minus_one = left_preimages(-arb(1), center, scale)[0]
-    x_minus_one0 = left_preimages(-arb(1), center0, scale0)[0]
+    x_alpha_div = arb(0)
+    x_minus_one, x_minus_one0, x_minus_one_div = preimage_pair_divided(-arb(1), -arb(1), arb(0))[0]
 
     divided = -left_weight * (
-        paired_smooth_divided(x_alpha, x_alpha0) + endpoint_pair_divided(x_alpha)
+        paired_smooth_divided(x_alpha, x_alpha0, x_alpha_div) + endpoint_pair_divided(x_alpha)
     ) - (
-        paired_smooth_divided(x_minus_one, x_minus_one0) + endpoint_pair_divided(x_minus_one)
+        paired_smooth_divided(x_minus_one, x_minus_one0, x_minus_one_div) + endpoint_pair_divided(x_minus_one)
     )
     limit_value = -left_weight * paired_smooth_limit(x_alpha0) - paired_smooth_limit(x_minus_one0)
     return str(divided + limit_value / eta)

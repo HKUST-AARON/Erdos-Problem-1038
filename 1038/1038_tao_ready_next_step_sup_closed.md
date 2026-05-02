@@ -993,3 +993,61 @@ so that \(\delta a_q\) is formed directly, rather than as
 \((a_q-a_{q,0})/\eta\).  This is the most likely next implementation to move
 the eta-interval enclosure from the current diagnostic stage toward a real
 continuum Krawczyk certificate.
+
+## J. Eta-Divided Residue Kernel Attempt
+
+The first eta-divided residue-log implementation is now in code behind an
+explicit diagnostic switch:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
+  1038/two_interval_branch_certificate_skeleton.json \
+  --slab 0.00005:0.0001 \
+  --center affine-endpoints \
+  --uv-radii 0.01,0.01 \
+  --arb-box-dk-subdivisions 1,2 \
+  --dk11-eta-radius-report 16 \
+  --dk11-sample-grid 2 \
+  --eta-interval-dk-kernel residue-log
+```
+
+It does two things that the previous prototype did not do:
+
+1. constructs \(A,\alpha\) from the same Arb \(\eta\)-box via
+   \(A=A_0+\eta(\nu\tau+B)\), \(\alpha=\alpha_0+\eta\tau\);
+2. replaces the explicit subtraction quotients in the paired residue-log
+   primitive by eta-divided preimage, branch-value, residue, and log-ratio
+   quotients.
+
+At point values, this kernel matches the analytic Jacobian.  For example, at
+\(\varepsilon=10^{-4}\) it gives
+
+```text
+residue-log DK[1,1] = -0.4332281104105087...
+analytic DK[1,1]    = -0.4332281104058441...
+```
+
+But as an interval kernel it is not yet the right closure.  On the first
+small-\(\varepsilon\) slab, with the same \(u,v\) radii, it reports:
+
+```text
+kernel=acb, eta_subdivisions=16
+  max_interval_radius=1.173797e+00
+  worst_sample=[-4.343975e-01,-4.299223e-01]
+
+kernel=residue-log, eta_subdivisions=16
+  max_interval_radius=2.180000e+00
+  worst_sample=[-4.373654e-01,-4.328054e-01]
+```
+
+So the new formula is algebraically consistent but still too wide.  The
+remaining obstruction is exactly the phrase "common rational expression": the
+implementation divides each preimage/residue/log factor, then adds them.  It
+has not yet combined the full paired smooth contribution into one rational-log
+expression before Arb evaluation.  That next step must cancel the removable
+\(\eta\)-factors across the whole \(\ell/r\) pair first, and only then enclose
+the resulting expression.
+
+For this reason the production default remains the older `acb` kernel; the
+`residue-log` kernel is kept as a checked diagnostic path, not as a claimed
+tightening.

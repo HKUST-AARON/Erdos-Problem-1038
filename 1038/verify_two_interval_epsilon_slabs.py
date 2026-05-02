@@ -330,6 +330,32 @@ def parameter_ranges(
     return min(A_values), max(A_values), min(alpha_values), max(alpha_values)
 
 
+def arb_affine_parameters(
+    solver_module: Any,
+    arb_type: Any,
+    arb_eta: Any,
+    u_low: float,
+    u_high: float,
+    v_low: float,
+    v_high: float,
+    limit_solution: Any,
+    null_slope: float,
+    b_slope: float,
+    b_intercept: float,
+    tau_slope: float,
+    tau_intercept: float,
+) -> tuple[Any, Any, Any, Any]:
+    arb_u = solver_module._arb_interval_from_bounds(u_low, u_high)
+    arb_v = solver_module._arb_interval_from_bounds(v_low, v_high)
+    tau = arb_type(repr(float(tau_slope))) * arb_eta + arb_type(repr(float(tau_intercept))) + arb_v
+    B = arb_type(repr(float(b_slope))) * arb_eta + arb_type(repr(float(b_intercept))) + arb_u
+    base_delta_alpha = tau
+    base_delta_A = arb_type(repr(float(null_slope))) * tau + B
+    alpha = arb_type(repr(float(limit_solution.alpha))) + arb_eta * base_delta_alpha
+    A = arb_type(repr(float(limit_solution.A))) + arb_eta * base_delta_A
+    return A, alpha, base_delta_A, base_delta_alpha
+
+
 def slab_sign_margin(eps_low: float, eps_high: float, A_low: float, A_high: float, alpha_low: float, alpha_high: float) -> float:
     solver_module = load_solver()
     margins = {
@@ -397,6 +423,7 @@ def verify_slab(
     eta_subdivisions: int,
     uv_subdivisions: int,
     eta_interval_dk_check: bool,
+    eta_interval_dk_kernel: str,
 ) -> SlabResult:
     from flint import arb
 
@@ -506,8 +533,21 @@ def verify_slab(
                         eta_interval_low * eta_interval_low,
                         eta_interval_high * eta_interval_high,
                     )
-                    arb_A = solver_module._arb_interval_from_bounds(A_low, A_high)
-                    arb_alpha = solver_module._arb_interval_from_bounds(alpha_low, alpha_high)
+                    arb_A, arb_alpha, base_delta_A, base_delta_alpha = arb_affine_parameters(
+                        solver_module,
+                        arb,
+                        arb_eta,
+                        u_low,
+                        u_high,
+                        v_low,
+                        v_high,
+                        limit_solution,
+                        null_slope,
+                        b_slope,
+                        b_intercept,
+                        tau_slope,
+                        tau_intercept,
+                    )
                     # For an eta interval, keep the Lyapunov-Schmidt direction
                     # unscaled.  Algebraically
                     #
@@ -540,7 +580,23 @@ def verify_slab(
                             192,
                         )
                     )
-                    if eta_interval_dk_check:
+                    if eta_interval_dk_check and eta_interval_dk_kernel == "residue-log":
+                        combined_dG_over_eta = arb(
+                            solver_module._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                                arb_A,
+                                arb_alpha,
+                                arb_eta,
+                                direction_A,
+                                direction_alpha,
+                                arb(repr(float(left_weight))),
+                                arb(repr(float(limit_solution.A))),
+                                arb(repr(float(limit_solution.alpha))),
+                                192,
+                                base_delta_A,
+                                base_delta_alpha,
+                            )
+                        )
+                    elif eta_interval_dk_check:
                         combined_dG = arb(
                             solver_module._combined_contact_minus_one_directional_derivative_acb_from_arb(
                                 arb_A,
@@ -552,6 +608,7 @@ def verify_slab(
                                 192,
                             )
                         )
+                        combined_dG_over_eta = combined_dG / arb_eta
                     else:
                         dG2 = arb(
                             solver_module._potential_minus_one_directional_derivative_acb_from_arb(
@@ -575,10 +632,14 @@ def verify_slab(
                         derivative_columns.append(
                             [
                                 dG1,
-                                combined_dG / arb_eta,
+                                combined_dG_over_eta,
                             ]
                         )
-                    for value, name in [(dG1, "dU(alpha)"), (combined_dG, "dH")]:
+                    for value, name in (
+                        [(dG1, "dU(alpha)"), (combined_dG_over_eta, "dH/eta")]
+                        if eta_interval_dk_check
+                        else [(dG1, "dU(alpha)"), (combined_dG, "dH")]
+                    ):
                         if not value.is_finite():
                             fail(
                                 f"slab {spec.eps_low:g}:{spec.eps_high:g} "
@@ -680,6 +741,7 @@ def report_dk11_eta_radius(
     eta_counts: tuple[int, ...],
     uv_subdivisions: int,
     sample_grid_size: int,
+    eta_interval_dk_kernel: str,
 ) -> None:
     from flint import arb
 
@@ -699,7 +761,7 @@ def report_dk11_eta_radius(
         "DK[1,1] ETA-INTERVAL RADIUS REPORT "
         f"slab={spec.eps_low:g}:{spec.eps_high:g} rows={low_row.index}->{high_row.index} "
         f"uv_subdivisions={uv_subdivisions} sample_grid={sample_grid} "
-        "status=diagnostic-not-continuum-proof"
+        f"kernel={eta_interval_dk_kernel} status=diagnostic-not-continuum-proof"
     )
     for eta_count in eta_counts:
         max_interval_radius = 0.0
@@ -724,7 +786,7 @@ def report_dk11_eta_radius(
                 for v_index in range(uv_subdivisions):
                     v_low = -float(radii[1]) + 2.0 * float(radii[1]) * v_index / uv_subdivisions
                     v_high = -float(radii[1]) + 2.0 * float(radii[1]) * (v_index + 1) / uv_subdivisions
-                    A_low, A_high, alpha_low, alpha_high = parameter_ranges(
+                    _A_low, _A_high, _alpha_low, _alpha_high = parameter_ranges(
                         eta_interval_low,
                         eta_interval_high,
                         u_low,
@@ -738,20 +800,50 @@ def report_dk11_eta_radius(
                         tau_slope,
                         tau_intercept,
                     )
-                    arb_A = solver_module._arb_interval_from_bounds(A_low, A_high)
-                    arb_alpha = solver_module._arb_interval_from_bounds(alpha_low, alpha_high)
-                    combined_dG = arb(
-                        solver_module._combined_contact_minus_one_directional_derivative_acb_from_arb(
-                            arb_A,
-                            arb_alpha,
-                            arb_epsilon,
-                            arb(repr(float(null_slope))),
-                            arb(1),
-                            arb(repr(float(left_weight))),
-                            192,
-                        )
+                    arb_A, arb_alpha, base_delta_A, base_delta_alpha = arb_affine_parameters(
+                        solver_module,
+                        arb,
+                        arb_eta,
+                        u_low,
+                        u_high,
+                        v_low,
+                        v_high,
+                        limit_solution,
+                        null_slope,
+                        b_slope,
+                        b_intercept,
+                        tau_slope,
+                        tau_intercept,
                     )
-                    dk11 = combined_dG / arb_eta
+                    if eta_interval_dk_kernel == "residue-log":
+                        dk11 = arb(
+                            solver_module._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                                arb_A,
+                                arb_alpha,
+                                arb_eta,
+                                arb(repr(float(null_slope))),
+                                arb(1),
+                                arb(repr(float(left_weight))),
+                                arb(repr(float(limit_solution.A))),
+                                arb(repr(float(limit_solution.alpha))),
+                                192,
+                                base_delta_A,
+                                base_delta_alpha,
+                            )
+                        )
+                    else:
+                        combined_dG = arb(
+                            solver_module._combined_contact_minus_one_directional_derivative_acb_from_arb(
+                                arb_A,
+                                arb_alpha,
+                                arb_epsilon,
+                                arb(repr(float(null_slope))),
+                                arb(1),
+                                arb(repr(float(left_weight))),
+                                192,
+                            )
+                        )
+                        dk11 = combined_dG / arb_eta
                     if not dk11.is_finite():
                         fail(
                             f"slab {spec.eps_low:g}:{spec.eps_high:g} eta_count={eta_count} "
@@ -858,6 +950,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--eta-interval-dk-kernel",
+        choices=["acb", "residue-log"],
+        default="acb",
+        help=(
+            "kernel for eta-interval DK[1,*] enclosure. "
+            "The residue-log option is experimental and currently diagnostic."
+        ),
+    )
+    parser.add_argument(
         "--dk11-eta-radius-report",
         type=parse_positive_int_list,
         help=(
@@ -897,6 +998,7 @@ def main() -> int:
                 args.dk11_eta_radius_report,
                 uv_subdivisions,
                 args.dk11_sample_grid,
+                args.eta_interval_dk_kernel,
             )
             return 0
         specs = adjacent_specs(rows_raw) if args.slabs == "adjacent" else [args.slab]
@@ -912,6 +1014,7 @@ def main() -> int:
                 eta_subdivisions,
                 uv_subdivisions,
                 args.eta_interval_dk_check,
+                args.eta_interval_dk_kernel,
             )
             for spec in specs
         ]
