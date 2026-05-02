@@ -247,6 +247,56 @@ theorem standard_minimizer_reduction_baseline_length
     ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet (Potential c)) := by
   exact (hReduction.normalize c hc).baseline_length_le_positiveSet
 
+/--
+Explicit normalization-map form of the variational reduction.
+
+`Config` is the original minimizer configuration type, `Normalized` is the
+normalized configuration type, and `normalize` is the reflection/translation
+normalization map.  The mathematical content is the field `endpointForm`: after
+normalization, every minimizer has the endpoint-mass lower-bound form needed by
+the finite-atom route.
+-/
+structure VariationalNormalizationTheorem
+    (Config Normalized : Type)
+    (IsMinimizer : Config → Prop)
+    (normalize : Config → Normalized)
+    (Potential : Normalized → ℝ → ℝ) where
+  endpointForm :
+    ∀ c : Config, IsMinimizer c →
+      NormalizedEndpointPotential (Potential (normalize c))
+
+/--
+The explicit normalization theorem gives the abstract standard-reduction
+interface used by the finite-atom route.
+-/
+def variational_normalization_implies_standard_reduction
+    {Config Normalized : Type}
+    {IsMinimizer : Config → Prop}
+    {normalize : Config → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (h : VariationalNormalizationTheorem Config Normalized IsMinimizer
+      normalize Potential) :
+    StandardMinimizerReduction Config IsMinimizer
+      (fun c : Config => Potential (normalize c)) where
+  normalize := h.endpointForm
+
+/--
+Compiled endpoint consequence of the variational normalization theorem:
+after normalization, every minimizer has at least the baseline `sqrt 2`
+positive-set contribution.
+-/
+theorem variational_normalization_baseline_length
+    {Config Normalized : Type}
+    {IsMinimizer : Config → Prop}
+    {normalize : Config → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (h : VariationalNormalizationTheorem Config Normalized IsMinimizer
+      normalize Potential)
+    {c : Config} (hc : IsMinimizer c) :
+    ENNReal.ofReal (Real.sqrt 2) ≤
+      volume (PositiveSet (Potential (normalize c))) := by
+  exact (h.endpointForm c hc).baseline_length_le_positiveSet
+
 end
 
 end StandardReduction
