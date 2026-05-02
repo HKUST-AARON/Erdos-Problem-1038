@@ -17,6 +17,7 @@ run_lean() {
 }
 
 run_lean "$REPO_ROOT/finite_atoms/common/lean/FiniteAtomFramework.lean"
+run_lean "$REPO_ROOT/finite_atoms/common/lean/StandardReduction.lean"
 run_lean "$REPO_ROOT/finite_atoms/route_1806304/lean/Route1806304Closure.lean"
 
 run_lean "$REPO_ROOT/finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean"

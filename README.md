@@ -38,6 +38,15 @@ The exact closing arithmetic is checked in Lean:
 
 The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are not duplicated as full measure-theoretic formalizations in this repository.
 
+The repository now includes the first formal layer of the standard reduction:
+the normalized-support consequence that forces the baseline interval
+
+$$
+(-\sqrt2,0)
+$$
+
+into the positive set, except for the atom point where a real-valued logarithmic potential would be infinite.  The remaining external part is the variational theorem that an arbitrary minimizer can be put into this normalized support/mass form.
+
 ## Repository layout
 
 ```text
@@ -56,7 +65,7 @@ The preceding two-parameter forcing branch. It contains the interval certificate
 finite_atoms/common/
 ```
 
-Shared finite-atom selector lemmas. These are the finite algebraic implications used after the logarithmic-potential duality identity has reduced the argument to a positive weighted sum over finitely many atoms.
+Shared finite-atom selector lemmas and the normalized-support baseline interval lemma. These are the finite algebraic and real-variable implications used after the logarithmic-potential reduction has put the problem into normalized form.
 
 ```text
 finite_atoms/route_1806304/
