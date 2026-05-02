@@ -1,4 +1,9 @@
-import Mathlib
+import Mathlib.Tactic
+import Mathlib.Analysis.Convex.Jensen
+import Mathlib.Analysis.Convex.SpecificFunctions.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Sqrt
+import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 
 /-!
 # Normalized-support consequence used in the standard reduction
@@ -23,7 +28,7 @@ noncomputable section
 
 open Set
 open MeasureTheory
-open scoped ENNReal
+open scoped ENNReal BigOperators
 
 /-- Positive set of a real-valued potential. -/
 def PositiveSet (U : ℝ → ℝ) : Set ℝ := {x : ℝ | 0 < U x}
@@ -395,6 +400,278 @@ theorem TaoReducedPotentialData.baseline_length_le_positiveSet
     {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
     ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet U) :=
   D.toNormalizedEndpointPotential.baseline_length_le_positiveSet
+
+/-! ## Algebraic kernel behind Tao's Lemma 3.2 -/
+
+/--
+Pointwise kernel inequality used in Tao's proof of Lemma 3.2.  For
+`0 ≤ x ≤ 1` and `-1 ≤ t ≤ 1`, one has
+
+`|x - t| + x * t ≤ 1`.
+
+After integration, this is the real-variable input behind the estimate that
+the sign of the mean forces one of `(0,1)` or `(-1,0)` into the positive set.
+-/
+lemma abs_sub_add_mul_le_one {x t : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (htlo : -1 ≤ t) (hthi : t ≤ 1) :
+    |x - t| + x * t ≤ 1 := by
+  by_cases htx : t ≤ x
+  · rw [abs_of_nonneg (sub_nonneg.mpr htx)]
+    have hx1nonpos : x - 1 ≤ 0 := by linarith
+    nlinarith
+  · have hxt : x ≤ t := le_of_lt (lt_of_not_ge htx)
+    rw [abs_of_nonpos (sub_nonpos.mpr hxt)]
+    nlinarith
+
+/--
+Equality case in the pointwise kernel inequality.  In the open range
+`0 < x < 1`, equality in `|x-t| + x*t ≤ 1` forces the support point to be an
+endpoint, `t = -1` or `t = 1`.
+-/
+lemma abs_sub_add_mul_eq_one_imp_endpoint {x t : ℝ}
+    (hx0 : 0 < x) (hx1 : x < 1)
+    (h : |x - t| + x * t = 1) :
+    t = -1 ∨ t = 1 := by
+  by_cases htx : t ≤ x
+  · rw [abs_of_nonneg (sub_nonneg.mpr htx)] at h
+    left
+    have hpos : 0 < 1 - x := by linarith
+    nlinarith
+  · have hxt : x ≤ t := le_of_lt (lt_of_not_ge htx)
+    rw [abs_of_nonpos (sub_nonpos.mpr hxt)] at h
+    right
+    have hpos : 0 < 1 + x := by linarith
+    nlinarith
+
+/-!
+## Finite weighted form of the Lemma 3.2 kernel estimate
+
+The measure-theoretic version in Tao's notes integrates the pointwise kernel
+inequality against a probability measure.  The following lemmas formalize the
+finite weighted version.  This is the exact algebraic layer needed before one
+replaces finite sums by measure integrals.
+-/
+
+lemma finite_weighted_kernel_sum_le_one
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1) :
+    ∑ i ∈ s, w i * (|x - t i| + x * t i) ≤ 1 := by
+  calc
+    ∑ i ∈ s, w i * (|x - t i| + x * t i)
+        ≤ ∑ i ∈ s, w i * 1 := by
+          exact Finset.sum_le_sum (fun i hi =>
+            mul_le_mul_of_nonneg_left
+              (abs_sub_add_mul_le_one hx0 hx1
+                (ht_bound i hi).1 (ht_bound i hi).2)
+              (hw_nonneg i hi))
+    _ = 1 := by
+      simp [hw_sum]
+
+lemma finite_weighted_kernel_sum_split
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ} :
+    ∑ i ∈ s, w i * (|x - t i| + x * t i) =
+      ∑ i ∈ s, w i * |x - t i| + x * ∑ i ∈ s, w i * t i := by
+  calc
+    ∑ i ∈ s, w i * (|x - t i| + x * t i)
+        = ∑ i ∈ s, (w i * |x - t i| + x * (w i * t i)) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          ring_nf
+    _ = ∑ i ∈ s, w i * |x - t i| +
+        ∑ i ∈ s, x * (w i * t i) := by
+          rw [Finset.sum_add_distrib]
+    _ = ∑ i ∈ s, w i * |x - t i| +
+        x * ∑ i ∈ s, w i * t i := by
+          rw [Finset.mul_sum]
+
+lemma finite_weighted_abs_sum_le_one_of_nonnegative_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonneg : 0 ≤ ∑ i ∈ s, w i * t i) :
+    ∑ i ∈ s, w i * |x - t i| ≤ 1 := by
+  have hkernel : ∑ i ∈ s, w i * (|x - t i| + x * t i) ≤ 1 :=
+    finite_weighted_kernel_sum_le_one s w t hx0 hx1 hw_nonneg hw_sum ht_bound
+  have hsplit := finite_weighted_kernel_sum_split s w t (x := x)
+  rw [hsplit] at hkernel
+  have hxmean : 0 ≤ x * ∑ i ∈ s, w i * t i :=
+    mul_nonneg hx0 hmean_nonneg
+  nlinarith
+
+lemma finite_weighted_abs_sum_le_one_of_nonpositive_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonpos : ∑ i ∈ s, w i * t i ≤ 0) :
+    ∑ i ∈ s, w i * |x - t i| ≤ 1 := by
+  let t' : ι → ℝ := fun i => -t i
+  have hx0' : 0 ≤ -x := by linarith
+  have hx1' : -x ≤ 1 := by linarith
+  have ht_bound' : ∀ i ∈ s, -1 ≤ t' i ∧ t' i ≤ 1 := by
+    intro i hi
+    have hti := ht_bound i hi
+    constructor <;> simp [t'] <;> linarith
+  have hmean_nonneg' : 0 ≤ ∑ i ∈ s, w i * t' i := by
+    have hneg :
+        ∑ i ∈ s, w i * t' i = -∑ i ∈ s, w i * t i := by
+      calc
+        ∑ i ∈ s, w i * t' i
+            = ∑ i ∈ s, -(w i * t i) := by
+              apply Finset.sum_congr rfl
+              intro i _hi
+              simp [t']
+        _ = -∑ i ∈ s, w i * t i := by
+          rw [Finset.sum_neg_distrib]
+    rw [hneg]
+    linarith
+  have hpos :=
+    finite_weighted_abs_sum_le_one_of_nonnegative_mean
+      s w t' hx0' hx1' hw_nonneg hw_sum ht_bound' hmean_nonneg'
+  have hsum_eq :
+      ∑ i ∈ s, w i * |x - t i| = ∑ i ∈ s, w i * |-x - t' i| := by
+    apply Finset.sum_congr rfl
+    intro i _hi
+    congr 1
+    rw [show -x - t' i = t i - x by
+      simp [t']
+      ring]
+    exact abs_sub_comm x (t i)
+  rw [hsum_eq]
+  exact hpos
+
+/-! ## Finite Jensen/logarithmic-potential layer of Tao's Lemma 3.2 -/
+
+lemma finite_weighted_log_abs_sum_le_log_abs_average
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    ∑ i ∈ s, w i * Real.log |x - t i| ≤
+      Real.log (∑ i ∈ s, w i * |x - t i|) := by
+  have hj := strictConcaveOn_log_Ioi.concaveOn.le_map_sum
+    (t := s) (w := w) (p := fun i => |x - t i|)
+    hw_nonneg hw_sum (fun i hi => hdist_pos i hi)
+  simpa [smul_eq_mul] using hj
+
+lemma finite_weighted_log_abs_sum_nonpos_of_abs_average_le_one
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|)
+    (havg_le_one : ∑ i ∈ s, w i * |x - t i| ≤ 1) :
+    ∑ i ∈ s, w i * Real.log |x - t i| ≤ 0 := by
+  have hj :=
+    finite_weighted_log_abs_sum_le_log_abs_average s w t
+      hw_nonneg hw_sum hdist_pos
+  have havg_nonneg : 0 ≤ ∑ i ∈ s, w i * |x - t i| := by
+    exact Finset.sum_nonneg (fun i hi =>
+      mul_nonneg (hw_nonneg i hi) (le_of_lt (hdist_pos i hi)))
+  have hlog_nonpos :
+      Real.log (∑ i ∈ s, w i * |x - t i|) ≤ 0 :=
+    Real.log_nonpos havg_nonneg havg_le_one
+  exact le_trans hj hlog_nonpos
+
+lemma finite_weighted_log_abs_sum_nonpos_of_nonnegative_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonneg : 0 ≤ ∑ i ∈ s, w i * t i)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    ∑ i ∈ s, w i * Real.log |x - t i| ≤ 0 := by
+  have havg_le_one :=
+    finite_weighted_abs_sum_le_one_of_nonnegative_mean
+      s w t hx0 hx1 hw_nonneg hw_sum ht_bound hmean_nonneg
+  exact finite_weighted_log_abs_sum_nonpos_of_abs_average_le_one
+    s w t hw_nonneg hw_sum hdist_pos havg_le_one
+
+lemma finite_weighted_log_abs_sum_nonpos_of_nonpositive_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonpos : ∑ i ∈ s, w i * t i ≤ 0)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    ∑ i ∈ s, w i * Real.log |x - t i| ≤ 0 := by
+  have havg_le_one :=
+    finite_weighted_abs_sum_le_one_of_nonpositive_mean
+      s w t hx0 hx1 hw_nonneg hw_sum ht_bound hmean_nonpos
+  exact finite_weighted_log_abs_sum_nonpos_of_abs_average_le_one
+    s w t hw_nonneg hw_sum hdist_pos havg_le_one
+
+/-- Finite weighted logarithmic potential associated to weighted atoms. -/
+def finiteWeightedPotential
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) (x : ℝ) : ℝ :=
+  ∑ i ∈ s, w i * Real.log (1 / |x - t i|)
+
+lemma finiteWeightedPotential_eq_neg_log_abs_sum
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    finiteWeightedPotential s w t x =
+      -∑ i ∈ s, w i * Real.log |x - t i| := by
+  unfold finiteWeightedPotential
+  calc
+    ∑ i ∈ s, w i * Real.log (1 / |x - t i|)
+        = ∑ i ∈ s, -(w i * Real.log |x - t i|) := by
+          apply Finset.sum_congr rfl
+          intro i hi
+          have hdist_ne : |x - t i| ≠ 0 := ne_of_gt (hdist_pos i hi)
+          rw [one_div, Real.log_inv]
+          ring
+    _ = -∑ i ∈ s, w i * Real.log |x - t i| := by
+      rw [Finset.sum_neg_distrib]
+
+theorem finiteWeightedPotential_nonneg_of_nonnegative_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonneg : 0 ≤ ∑ i ∈ s, w i * t i)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    0 ≤ finiteWeightedPotential s w t x := by
+  have hlog_nonpos :=
+    finite_weighted_log_abs_sum_nonpos_of_nonnegative_mean
+      s w t hx0 hx1 hw_nonneg hw_sum ht_bound hmean_nonneg hdist_pos
+  rw [finiteWeightedPotential_eq_neg_log_abs_sum s w t hdist_pos]
+  linarith
+
+theorem finiteWeightedPotential_nonneg_of_nonpositive_mean
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) {x : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (ht_bound : ∀ i ∈ s, -1 ≤ t i ∧ t i ≤ 1)
+    (hmean_nonpos : ∑ i ∈ s, w i * t i ≤ 0)
+    (hdist_pos : ∀ i ∈ s, 0 < |x - t i|) :
+    0 ≤ finiteWeightedPotential s w t x := by
+  have hlog_nonpos :=
+    finite_weighted_log_abs_sum_nonpos_of_nonpositive_mean
+      s w t hx0 hx1 hw_nonneg hw_sum ht_bound hmean_nonpos hdist_pos
+  rw [finiteWeightedPotential_eq_neg_log_abs_sum s w t hdist_pos]
+  linarith
 
 end
 
