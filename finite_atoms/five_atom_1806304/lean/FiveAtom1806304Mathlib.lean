@@ -3,13 +3,13 @@ import Mathlib
 /-!
 # Mathlib layer for the five-atom `M = 1.806304` certificate
 
-This file connects the arithmetic certificate to an actual `Real.log`
-definition of the one-variable five-atom potential.
+This file defines the one-variable five-atom potential using `Real.log` and
+proves the endpoint and critical-bracket positivity checks in Mathlib.
 
-It is not yet the final fully internal proof of the logarithmic interval
-inequalities.  The key remaining theorem is `OneVariableLogPositivity`, stated
-below as a proposition rather than assumed as an axiom.  The rest of the tail
-block and sweep arithmetic is proved in Lean/Mathlib without Float.
+The logarithm estimates use rational Taylor/atanh bounds from Mathlib:
+
+* `Real.sum_range_le_log_div`
+* `Real.log_div_le_sum_range_add`
 -/
 
 namespace Erdos1038
@@ -43,13 +43,6 @@ def V (y : ℝ) : ℝ :=
   + w3 * Real.log (|y - s3|)⁻¹
   + w4 * Real.log (|y - s4|)⁻¹
 
-/--
-The missing analytic/log certificate: this is the exact Mathlib statement that
-the Decimal checker is currently supporting externally.
-
-The next formalization step is to prove this theorem internally, using rational
-Taylor bounds for `Real.log`.
--/
 def OneVariableLogPositivity : Prop :=
   ∀ y : ℝ, y ∈ Icc yLo yHi → 0 < V y
 

@@ -3,20 +3,12 @@ import Std
 /-!
 # Exact Lean arithmetic for the five-atom `M = 1.806304` tail certificate
 
-This file is deliberately narrow.  It does **not** claim a full Mathlib
-formalization of Erdős 1038, logarithmic potentials, Lebesgue measure, or
-`Real.log` interval bounds.
+This file proves exact integer and natural-number arithmetic used by the
+five-atom one-variable certificate:
 
-What it does prove in Lean's kernel:
-
-* the exact integer sign checks for the quartic numerator of `V'`;
-* the exact geometry/disjointness arithmetic for the moving five-atom sweep;
-* the exact scaled-length implication `1.708 + 0.098304 = 1.806304`;
-
-The actual logarithmic lower bounds are still checked by the Decimal interval
-checker in `verify_one_variable_certificates.py`.  Without Mathlib's real
-analysis library, this local Lean project cannot honestly state or prove the
-corresponding `Real.log` theorem.
+* quartic critical-bracket sign checks;
+* swept-interval disjointness arithmetic;
+* the scaled-length identity `1.708 + 0.098304 = 1.806304`.
 -/
 
 namespace Erdos1038
