@@ -88,4 +88,22 @@ finite_atoms/common/lean/FiniteAtomFramework.lean
 It proves the three-atom and five-atom selector lemmas used after the duality
 identity turns positivity of the dual potential into a positive weighted sum.
 
+### Route closure
+
+The finite-route bookkeeping entry point is in:
+
+```text
+finite_atoms/route_1806304/lean/Route1806304Closure.lean
+```
+
+It proves the exact closing arithmetic
+
+```text
+1.708 + (1.806304 - 1.708) = 1.806304
+1.806304 < 1.836
+```
+
+and packages the final route as an implication from the long forcing
+contribution, the tail contribution, and the disjoint-additivity rule.
+
 Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
