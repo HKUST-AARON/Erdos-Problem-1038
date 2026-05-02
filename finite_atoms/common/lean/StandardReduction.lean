@@ -919,6 +919,61 @@ theorem measureLogPotential_nonneg_of_nonpositive_mean
   rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos]
   linarith
 
+/-! Continuous reflection/translation symmetries for the logarithmic potential. -/
+
+lemma measureLogPotential_reflect (μ : Measure ℝ) (x : ℝ) :
+    measureLogPotential (Measure.map (fun t : ℝ => -t) μ) (-x) =
+      measureLogPotential μ x := by
+  unfold measureLogPotential
+  rw [integral_map]
+  · apply integral_congr_ae
+    filter_upwards with t
+    have habs : |-x - -t| = |x - t| := by
+      rw [show -x - -t = -(x - t) by ring]
+      exact abs_neg (x - t)
+    rw [habs]
+  · fun_prop
+  · exact (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+
+lemma measureLogPotential_translate (μ : Measure ℝ) (x shift : ℝ) :
+    measureLogPotential (Measure.map (fun t : ℝ => t + shift) μ)
+      (x + shift) =
+    measureLogPotential μ x := by
+  unfold measureLogPotential
+  rw [integral_map]
+  · apply integral_congr_ae
+    filter_upwards with t
+    have habs : |x + shift - (t + shift)| = |x - t| := by
+      congr 1
+      ring
+    rw [habs]
+  · fun_prop
+  · exact (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+
+lemma measure_mean_reflect (μ : Measure ℝ) :
+    (∫ t : ℝ, t ∂Measure.map (fun t : ℝ => -t) μ) =
+      -(∫ t : ℝ, t ∂μ) := by
+  rw [integral_map]
+  · rw [integral_neg]
+  · fun_prop
+  · fun_prop
+
+lemma measure_mean_translate (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (shift : ℝ)
+    (hfirst : Integrable (fun t : ℝ => t) μ) :
+    (∫ t : ℝ, t ∂Measure.map (fun t : ℝ => t + shift) μ) =
+      (∫ t : ℝ, t ∂μ) + shift := by
+  rw [integral_map]
+  · rw [integral_add hfirst (integrable_const shift)]
+    rw [integral_const]
+    simp
+  · fun_prop
+  · fun_prop
+
 /-!
 ## Compactness layer for Tao's Lemma 3.1
 
@@ -1197,6 +1252,44 @@ lemma logKernel_convexOn_Ici_right {x c : ℝ} (hc : x < c) :
       _ = a * -Real.log (y - x) + b * -Real.log (z - x) := by ring
   simpa [one_div, Real.log_inv, smul_eq_mul] using htarget
 
+lemma logKernel_continuousOn_Iic_left {x c : ℝ} (hc : c < x) :
+    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) (Iic c) := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.div₀
+      ((continuousOn_const.sub continuousOn_id).abs)
+      (fun t ht hzero => by
+        have htc : t ≤ c := ht
+        have hxt : x - t ≠ 0 := by
+          intro h
+          linarith
+        exact hxt (abs_eq_zero.mp hzero)))
+  · intro t ht hzero
+    have htc : t ≤ c := ht
+    have hxt : x - t ≠ 0 := by
+      intro h
+      linarith
+    have hpos : 0 < |x - t| := abs_pos.mpr hxt
+    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
+
+lemma logKernel_continuousOn_Ici_right {x c : ℝ} (hc : x < c) :
+    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) (Ici c) := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.div₀
+      ((continuousOn_const.sub continuousOn_id).abs)
+      (fun t ht hzero => by
+        have hct : c ≤ t := ht
+        have hxt : x - t ≠ 0 := by
+          intro h
+          linarith
+        exact hxt (abs_eq_zero.mp hzero)))
+  · intro t ht hzero
+    have hct : c ≤ t := ht
+    have hxt : x - t ≠ 0 := by
+      intro h
+      linarith
+    have hpos : 0 < |x - t| := abs_pos.mpr hxt
+    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
+
 theorem finite_barycenter_logKernel_replacement_le_left
     {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w y : ι → ℝ) {x c : ℝ}
@@ -1222,6 +1315,48 @@ theorem finite_barycenter_logKernel_replacement_le_right
   finite_barycenter_replacement_potential_le s w y
     (fun t : ℝ => Real.log (1 / |x - t|)) (Ici c)
     (logKernel_convexOn_Ici_right hc) hw_nonneg hw_sum hy_mem
+
+lemma measure_barycenter_replacement_jensen
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (f : ℝ → ℝ) (C : Set ℝ)
+    (hf : ConvexOn ℝ C f)
+    (hcont : ContinuousOn f C)
+    (hclosed : IsClosed C)
+    (hmem : ∀ᵐ t ∂μ, t ∈ C)
+    (hid : Integrable (fun t : ℝ => t) μ)
+    (hfint : Integrable f μ) :
+    f (∫ t : ℝ, t ∂μ) ≤ ∫ t : ℝ, f t ∂μ := by
+  exact hf.map_integral_le hcont hclosed hmem hid hfint
+
+theorem measure_barycenter_logKernel_replacement_le_left
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x c : ℝ}
+    (hc : c < x)
+    (hmem : ∀ᵐ t ∂μ, t ∈ Iic c)
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) μ) :
+    Real.log (1 / |x - ∫ t : ℝ, t ∂μ|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂μ := by
+  exact measure_barycenter_replacement_jensen μ
+    (fun t : ℝ => Real.log (1 / |x - t|)) (Iic c)
+    (logKernel_convexOn_Iic_left hc)
+    (logKernel_continuousOn_Iic_left hc)
+    isClosed_Iic hmem hfirst hkernel_int
+
+theorem measure_barycenter_logKernel_replacement_le_right
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x c : ℝ}
+    (hc : x < c)
+    (hmem : ∀ᵐ t ∂μ, t ∈ Ici c)
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) μ) :
+    Real.log (1 / |x - ∫ t : ℝ, t ∂μ|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂μ := by
+  exact measure_barycenter_replacement_jensen μ
+    (fun t : ℝ => Real.log (1 / |x - t|)) (Ici c)
+    (logKernel_convexOn_Ici_right hc)
+    (logKernel_continuousOn_Ici_right hc)
+    isClosed_Ici hmem hfirst hkernel_int
 
 /-!
 ## Finite variance drop under barycenter replacement
@@ -1361,6 +1496,82 @@ theorem measure_barycenter_second_moment_le_original
     (∫ t : ℝ, t ∂μ) ^ 2 ≤ ∫ t : ℝ, t ^ 2 ∂μ := by
   have h := measure_second_moment_sub_mean_sq_nonneg μ hfirst hsecond
   linarith
+
+theorem measure_barycenter_second_moment_eq_imp_ae_eq_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) μ)
+    (heq : (∫ t : ℝ, t ^ 2 ∂μ) = (∫ t : ℝ, t ∂μ) ^ 2) :
+    (fun t : ℝ => t) =ᵐ[μ] fun _ : ℝ => ∫ t : ℝ, t ∂μ := by
+  let m : ℝ := ∫ t : ℝ, t ∂μ
+  have hlin : Integrable (fun t : ℝ => 2 * m * t) μ :=
+    hfirst.const_mul (2 * m)
+  have hsub : Integrable (fun t : ℝ => t ^ 2 - 2 * m * t) μ :=
+    hsecond.sub hlin
+  have hconst : Integrable (fun _ : ℝ => m ^ 2) μ :=
+    integrable_const (m ^ 2)
+  have hcenter_int : Integrable (fun t : ℝ => (t - m) ^ 2) μ := by
+    refine (hsub.add hconst).congr ?_
+    filter_upwards with t
+    change (t ^ 2 - 2 * m * t) + m ^ 2 = (t - m) ^ 2
+    ring
+  have hidentity :
+      (∫ t : ℝ, (t - m) ^ 2 ∂μ) =
+        (∫ t : ℝ, t ^ 2 ∂μ) - m ^ 2 := by
+    calc
+      (∫ t : ℝ, (t - m) ^ 2 ∂μ)
+          = ∫ t : ℝ, (t ^ 2 - 2 * m * t + m ^ 2) ∂μ := by
+            apply integral_congr_ae
+            filter_upwards with t
+            ring
+      _ = ∫ t : ℝ, (t ^ 2 - 2 * m * t) ∂μ +
+          ∫ _ : ℝ, m ^ 2 ∂μ := by
+            rw [integral_add hsub hconst]
+      _ = ((∫ t : ℝ, t ^ 2 ∂μ) - ∫ t : ℝ, 2 * m * t ∂μ) +
+          ∫ _ : ℝ, m ^ 2 ∂μ := by
+            rw [integral_sub hsecond hlin]
+      _ = (∫ t : ℝ, t ^ 2 ∂μ) -
+          2 * m * (∫ t : ℝ, t ∂μ) + m ^ 2 := by
+            rw [integral_const_mul, integral_const]
+            simp [m]
+      _ = (∫ t : ℝ, t ^ 2 ∂μ) - m ^ 2 := by
+            simp [m]
+            ring
+  have hcenter_zero : ∫ t : ℝ, (t - m) ^ 2 ∂μ = 0 := by
+    rw [hidentity]
+    simp [m] at heq ⊢
+    linarith
+  have hsquare_zero : (fun t : ℝ => (t - m) ^ 2) =ᵐ[μ] 0 := by
+    exact (integral_eq_zero_iff_of_nonneg_ae
+      (show 0 ≤ᵐ[μ] fun t : ℝ => (t - m) ^ 2 by
+        filter_upwards with t
+        exact sq_nonneg (t - m)) hcenter_int).mp hcenter_zero
+  filter_upwards [hsquare_zero] with t ht
+  have hdiff : t - m = 0 := sq_eq_zero_iff.mp ht
+  change t = m
+  linarith
+
+lemma measure_eq_dirac_of_ae_eq_const
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] (m : ℝ)
+    (h : (fun t : ℝ => t) =ᵐ[μ] fun _ : ℝ => m) :
+    μ = Measure.dirac m := by
+  calc
+    μ = Measure.map id μ := by rw [Measure.map_id]
+    _ = Measure.map (fun _ : ℝ => m) μ := by
+      exact Measure.map_congr h
+    _ = μ Set.univ • Measure.dirac m := by
+      rw [Measure.map_const]
+    _ = Measure.dirac m := by simp
+
+theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) μ)
+    (heq : (∫ t : ℝ, t ^ 2 ∂μ) = (∫ t : ℝ, t ∂μ) ^ 2) :
+    μ = Measure.dirac (∫ t : ℝ, t ∂μ) := by
+  exact measure_eq_dirac_of_ae_eq_const μ (∫ t : ℝ, t ∂μ)
+    (measure_barycenter_second_moment_eq_imp_ae_eq_mean μ
+      hfirst hsecond heq)
 
 /-!
 ## Translation/reflection normalization layer
