@@ -1574,6 +1574,37 @@ theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
       hfirst hsecond heq)
 
 /-!
+## Coupling the variance selector to barycenter rigidity
+
+The next theorem connects the abstract secondary-minimizer framework to the
+continuous variance equality statement above.  This is the formal version of
+the step: if barycenter replacement is admissible, does not increase the
+primary objective, and cannot strictly reduce the selected variance, then the
+replaced probability block must already be a Dirac mass at its barycenter.
+-/
+
+theorem secondary_minimizer_replacement_forces_block_dirac
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizer P a)
+    (hb_adm : P.Primary.Admissible b)
+    (hb_primary : P.Primary.objective b ≤ P.Primary.objective a)
+    (hb_secondary_le : P.secondaryObjective b ≤ P.secondaryObjective a)
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) μ)
+    (hsecondary_eq_to_second_moment_eq :
+      P.secondaryObjective b = P.secondaryObjective a →
+        (∫ t : ℝ, t ^ 2 ∂μ) = (∫ t : ℝ, t ∂μ) ^ 2) :
+    μ = Measure.dirac (∫ t : ℝ, t ∂μ) := by
+  have hsecondary_eq :
+      P.secondaryObjective b = P.secondaryObjective a :=
+    secondary_minimizer_forces_replacement_rigidity ha
+      hb_adm hb_primary hb_secondary_le
+  exact measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean μ
+    hfirst hsecond (hsecondary_eq_to_second_moment_eq hsecondary_eq)
+
+/-!
 ## Translation/reflection normalization layer
 
 Once the secondary-minimizing minimizer has the rigidity properties needed by
