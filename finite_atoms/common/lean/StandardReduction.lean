@@ -4,6 +4,7 @@ import Mathlib.Analysis.Convex.Integral
 import Mathlib.Analysis.Convex.SpecificFunctions.Basic
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
+import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.Topology.Semicontinuity.Basic
@@ -1163,6 +1164,102 @@ theorem finite_barycenter_logKernel_replacement_le_right
   finite_barycenter_replacement_potential_le s w y
     (fun t : ℝ => Real.log (1 / |x - t|)) (Ici c)
     (logKernel_convexOn_Ici_right hc) hw_nonneg hw_sum hy_mem
+
+/-!
+## Finite variance drop under barycenter replacement
+
+This is the finite weighted form of the variance statement used in Tao's
+argument: replacing a weighted block by its barycenter does not increase the
+second moment, and equality forces every positive-weight point in that block to
+already be the barycenter.
+-/
+
+lemma finite_weighted_second_moment_sub_barycenter_sq_nonneg
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1) :
+    0 ≤ (∑ i ∈ s, w i * y i ^ 2) -
+      (∑ i ∈ s, w i * y i) ^ 2 := by
+  let m : ℝ := ∑ i ∈ s, w i * y i
+  have hsq_nonneg : 0 ≤ ∑ i ∈ s, w i * (y i - m) ^ 2 := by
+    exact Finset.sum_nonneg (fun i hi =>
+      mul_nonneg (hw_nonneg i hi) (sq_nonneg (y i - m)))
+  have hidentity :
+      ∑ i ∈ s, w i * (y i - m) ^ 2 =
+        (∑ i ∈ s, w i * y i ^ 2) - m ^ 2 := by
+    calc
+      ∑ i ∈ s, w i * (y i - m) ^ 2
+          = ∑ i ∈ s, (w i * y i ^ 2 -
+              2 * m * (w i * y i) + m ^ 2 * w i) := by
+            apply Finset.sum_congr rfl
+            intro i _hi
+            ring
+      _ = (∑ i ∈ s, w i * y i ^ 2) -
+          2 * m * (∑ i ∈ s, w i * y i) +
+          m ^ 2 * (∑ i ∈ s, w i) := by
+            simp [Finset.sum_add_distrib, Finset.sum_sub_distrib, Finset.mul_sum]
+      _ = (∑ i ∈ s, w i * y i ^ 2) - m ^ 2 := by
+            rw [hw_sum]
+            simp [m]
+            ring
+  rw [← hidentity]
+  exact hsq_nonneg
+
+theorem finite_barycenter_second_moment_le_original
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1) :
+    (∑ i ∈ s, w i * y i) ^ 2 ≤ ∑ i ∈ s, w i * y i ^ 2 := by
+  have h :=
+    finite_weighted_second_moment_sub_barycenter_sq_nonneg
+      s w y hw_nonneg hw_sum
+  linarith
+
+theorem finite_barycenter_second_moment_eq_imp_const_on_positive_weight
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (heq : (∑ i ∈ s, w i * y i ^ 2) =
+      (∑ i ∈ s, w i * y i) ^ 2) :
+    ∀ i ∈ s, 0 < w i → y i = ∑ j ∈ s, w j * y j := by
+  let m : ℝ := ∑ i ∈ s, w i * y i
+  have hidentity :
+      ∑ i ∈ s, w i * (y i - m) ^ 2 =
+        (∑ i ∈ s, w i * y i ^ 2) - m ^ 2 := by
+    calc
+      ∑ i ∈ s, w i * (y i - m) ^ 2
+          = ∑ i ∈ s, (w i * y i ^ 2 -
+              2 * m * (w i * y i) + m ^ 2 * w i) := by
+            apply Finset.sum_congr rfl
+            intro i _hi
+            ring
+      _ = (∑ i ∈ s, w i * y i ^ 2) -
+          2 * m * (∑ i ∈ s, w i * y i) +
+          m ^ 2 * (∑ i ∈ s, w i) := by
+            simp [Finset.sum_add_distrib, Finset.sum_sub_distrib, Finset.mul_sum]
+      _ = (∑ i ∈ s, w i * y i ^ 2) - m ^ 2 := by
+            rw [hw_sum]
+            simp [m]
+            ring
+  have hsumzero : ∑ i ∈ s, w i * (y i - m) ^ 2 = 0 := by
+    rw [hidentity]
+    simp [m] at heq ⊢
+    linarith
+  have htermzero : ∀ i ∈ s, w i * (y i - m) ^ 2 = 0 := by
+    rw [Finset.sum_eq_zero_iff_of_nonneg] at hsumzero
+    · exact hsumzero
+    · intro i hi
+      exact mul_nonneg (hw_nonneg i hi) (sq_nonneg (y i - m))
+  intro i hi hwi
+  have hzero := htermzero i hi
+  have hsquare : (y i - m) ^ 2 = 0 :=
+    (mul_eq_zero.mp hzero).resolve_left (ne_of_gt hwi)
+  have hdiff : y i - m = 0 := sq_eq_zero_iff.mp hsquare
+  dsimp [m] at hdiff ⊢
+  linarith
 
 /-!
 ## Translation/reflection normalization layer
