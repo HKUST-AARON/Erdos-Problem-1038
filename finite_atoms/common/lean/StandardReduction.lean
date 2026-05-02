@@ -1181,6 +1181,67 @@ theorem variable_positiveSet_measure_le_liminf_of_eventually_threshold_subset
   exact Filter.le_liminf_of_le
     (h := (hsub n).mono (fun _i hi => measure_mono hi))
 
+theorem positiveSet_measure_le_liminf_of_eventually_subset_up_to_error
+    {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
+    (happrox : ∀ n : ℕ, ∀ ε : NNReal, 0 < ε →
+      ∃ A : Set ℝ,
+        volume {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ≤
+          volume A + (ε : ℝ≥0∞) ∧
+        ∀ᶠ i in L, A ⊆ {x : ℝ | 0 < Us i x}) :
+    volume {x : ℝ | 0 < U x} ≤
+      L.liminf (fun i => volume {x : ℝ | 0 < Us i x}) := by
+  refine positiveSet_measure_le_of_thresholds_le U ?_
+  intro n
+  let B : ℝ≥0∞ :=
+    L.liminf (fun i => volume {x : ℝ | 0 < Us i x})
+  by_cases htop : B = ∞
+  · simp [B, htop]
+  · have hle :
+        volume {x : ℝ | 1 / ((n : ℝ) + 1) < U x} ≤ B := by
+      refine ENNReal.le_of_forall_pos_le_add ?_
+      intro ε hε _hB
+      rcases happrox n ε hε with ⟨A, hAmeasure, hAsub⟩
+      have hAle : volume A ≤ B := by
+        exact threshold_measure_le_liminf_of_eventually_subset A
+          (fun i => {x : ℝ | 0 < Us i x}) hAsub
+      have hsum : volume A + (ε : ℝ≥0∞) ≤ B + (ε : ℝ≥0∞) := by
+        simpa [add_comm, add_left_comm, add_assoc] using
+          add_le_add_right hAle (ε : ℝ≥0∞)
+      exact le_trans hAmeasure hsum
+    simpa [B] using hle
+
+lemma lintegral_markov_bound
+    {α : Type*} [MeasurableSpace α] (μ : Measure α)
+    (f : α → ℝ≥0∞) {η C : ℝ≥0∞}
+    (hη0 : η ≠ 0) (hηtop : η ≠ ∞)
+    (hS : MeasurableSet {x : α | η < f x})
+    (hint : ∫⁻ x, f x ∂μ ≤ C) :
+    μ {x : α | η < f x} ≤ C / η := by
+  have hpoint :
+      Set.indicator {x : α | η < f x} (fun _ : α => η) ≤ f := by
+    intro x
+    by_cases hx : x ∈ {x : α | η < f x}
+    · have hxlt : η < f x := hx
+      simp [Set.indicator_of_mem hx, le_of_lt hxlt]
+    · simp [Set.indicator_of_notMem hx]
+  have hint_lower :
+      η * μ {x : α | η < f x} ≤ ∫⁻ x, f x ∂μ := by
+    calc
+      η * μ {x : α | η < f x}
+          = ∫⁻ x,
+              Set.indicator {x : α | η < f x}
+                (fun _ : α => η) x ∂μ := by
+            rw [lintegral_indicator_const hS]
+      _ ≤ ∫⁻ x, f x ∂μ := lintegral_mono hpoint
+  have hmul : μ {x : α | η < f x} * η ≤ C := by
+    calc
+      μ {x : α | η < f x} * η =
+          η * μ {x : α | η < f x} := by
+            rw [mul_comm]
+      _ ≤ ∫⁻ x, f x ∂μ := hint_lower
+      _ ≤ C := hint
+  exact (ENNReal.le_div_iff_mul_le (Or.inl hη0) (Or.inl hηtop)).2 hmul
+
 lemma eventually_threshold_subset_of_eventually_pointwise_error
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
     (n : ℕ)
@@ -1222,6 +1283,24 @@ theorem measureLogPotential_positiveSet_measure_le_liminf
     (measureLogPotential μ)
     (fun i => measureLogPotential (μs i))
     herr
+
+def unitIntervalLogPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) : ℝ :=
+  ∫ t : UnitInterval1038,
+    Real.log (1 / |x - (t : ℝ)|) ∂(μ : Measure UnitInterval1038)
+
+lemma unitIntervalLogPotential_eq_map_subtypeVal
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    unitIntervalLogPotential μ x =
+      measureLogPotential
+        (Measure.map (fun t : UnitInterval1038 => (t : ℝ))
+          (μ : Measure UnitInterval1038)) x := by
+  unfold unitIntervalLogPotential measureLogPotential
+  rw [integral_map]
+  · exact continuous_subtype_val.measurable.aemeasurable
+  · exact (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
 
 lemma eventual_pointwise_error_of_three_errors
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
@@ -1286,6 +1365,60 @@ theorem variable_positiveSet_measure_le_liminf_of_three_error_scheme
 
 def truncatedLogKernel (ε x : ℝ) (t : ℝ) : ℝ :=
   Real.log (1 / max ε |x - t|)
+
+def unitIntervalTruncatedPotential
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) : ℝ :=
+  ∫ t : UnitInterval1038,
+    truncatedLogKernel ε x (t : ℝ) ∂(μ : Measure UnitInterval1038)
+
+def singularTailKernel (ε : ℝ) (x : ℝ) (t : UnitInterval1038) :
+    ℝ≥0∞ :=
+  if |x - (t : ℝ)| < ε then
+    ENNReal.ofReal (Real.log (ε / |x - (t : ℝ)|))
+  else
+    0
+
+def singularTailMass
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) : ℝ≥0∞ :=
+  ∫⁻ t : UnitInterval1038,
+    singularTailKernel ε x t ∂(μ : Measure UnitInterval1038)
+
+lemma singularTail_badSet_volume_le_of_lintegral_bound
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    {η C : ℝ≥0∞}
+    (hη0 : η ≠ 0) (hηtop : η ≠ ∞)
+    (hS : MeasurableSet {x : ℝ | η < singularTailMass ε μ x})
+    (hint : ∫⁻ x : ℝ, singularTailMass ε μ x ∂volume ≤ C) :
+    volume {x : ℝ | η < singularTailMass ε μ x} ≤ C / η := by
+  exact lintegral_markov_bound volume (singularTailMass ε μ)
+    hη0 hηtop hS hint
+
+theorem unitIntervalLogPotential_objective_lsc_from_tail_control
+    {ι : Type*} {L : Filter ι}
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (μs : ι → ProbabilityMeasure UnitInterval1038)
+    (εOf : ℕ → ℝ)
+    (hlimitTail : ∀ n x,
+      |unitIntervalTruncatedPotential (εOf n) μ x -
+        unitIntervalLogPotential μ x| <
+        (1 / ((n : ℝ) + 1)) / 3)
+    (hseqTail : ∀ n, ∀ᶠ i in L, ∀ x,
+      |unitIntervalTruncatedPotential (εOf n) (μs i) x -
+        unitIntervalLogPotential (μs i) x| <
+        (1 / ((n : ℝ) + 1)) / 3)
+    (htruncConv : ∀ n, ∀ᶠ i in L, ∀ x,
+      |unitIntervalTruncatedPotential (εOf n) (μs i) x -
+        unitIntervalTruncatedPotential (εOf n) μ x| <
+        (1 / ((n : ℝ) + 1)) / 3) :
+    volume {x : ℝ | 0 < unitIntervalLogPotential μ x} ≤
+      L.liminf
+        (fun i => volume {x : ℝ | 0 < unitIntervalLogPotential (μs i) x}) := by
+  exact variable_positiveSet_measure_le_liminf_of_three_error_scheme
+    (unitIntervalLogPotential μ)
+    (fun i => unitIntervalLogPotential (μs i))
+    (fun n => unitIntervalTruncatedPotential (εOf n) μ)
+    (fun n i => unitIntervalTruncatedPotential (εOf n) (μs i))
+    hlimitTail hseqTail htruncConv
 
 lemma continuous_truncatedLogKernel {ε x : ℝ} (hε : 0 < ε) :
     Continuous (fun t : ℝ => truncatedLogKernel ε x t) := by
