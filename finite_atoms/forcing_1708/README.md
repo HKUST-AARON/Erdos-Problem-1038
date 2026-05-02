@@ -55,6 +55,18 @@ Defines the `Real.log` forcing potential and proves the generic interval-box
 soundness lemma.
 
 ```text
+lean/Forcing1708AnalyticKernel.lean
+```
+
+Proves the reusable analytic interval lemmas needed to close the remaining
+bridge from rational box data to real logarithmic inequalities:
+
+- Taylor/atanh lower and upper bounds for `Real.log`;
+- distance-to-log bounds for `log |x-t|^{-1}`;
+- numerator/denominator interval bounds for the normalizing coefficient
+  `C(a,b)`.
+
+```text
 lean/Forcing1708BoxData.lean
 lean/box_arith_chunks/Forcing1708BoxArith00.lean
 ...
@@ -83,6 +95,7 @@ Run these from the local Mathlib workspace:
 cd /Users/aaron/Downloads/erdos数学问题
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708Formal.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean
+lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708AnalyticKernel.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708BoxData.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708CoverageIndex.lean
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/box_arith_chunks -name 'Forcing1708BoxArith*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
