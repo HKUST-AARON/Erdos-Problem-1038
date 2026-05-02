@@ -22,6 +22,8 @@ namespace StandardReduction
 noncomputable section
 
 open Set
+open MeasureTheory
+open scoped ENNReal
 
 /-- Positive set of a real-valued potential. -/
 def PositiveSet (U : ℝ → ℝ) : Set ℝ := {x : ℝ | 0 < U x}
@@ -182,6 +184,16 @@ theorem normalized_endpoint_lower_bound_pointwise_positive
     (hx : x ∈ BaselineInterval) (hne : x ≠ -1) :
     0 < U x := by
   exact normalized_endpoint_lower_bound_positive_set hp hU ⟨hx, by simpa using hne⟩
+
+theorem baselineInterval_volume :
+    volume BaselineInterval = ENNReal.ofReal (Real.sqrt 2) := by
+  simp [BaselineInterval, Real.volume_Ioo]
+
+theorem baselinePunctured_volume :
+    volume BaselinePunctured = ENNReal.ofReal (Real.sqrt 2) := by
+  have hnull : volume ({-1} : Set ℝ) = 0 := by simp
+  rw [BaselinePunctured, measure_diff_null hnull]
+  simp [baselineInterval_volume]
 
 end
 

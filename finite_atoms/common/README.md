@@ -42,6 +42,12 @@ lies in the positive set.  The point `-1` is removed only because this Lean file
 uses real-valued `Real.log`; at an atom the logarithmic potential is infinite in
 the underlying potential-theoretic formulation.
 
+The file also proves that this puncture does not change the Lebesgue length:
+
+```text
+baselinePunctured_volume
+```
+
 Check command:
 
 ```bash
