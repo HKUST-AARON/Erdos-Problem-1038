@@ -370,6 +370,32 @@ theorem TaoComponentReductionData.endpointMass_ge_half
   endpoint_mass_ge_half_from_boundary_average D.right_endpoint_positive
     D.boundary_average
 
+/--
+Bridge from Tao's component-reduction data to the normalized endpoint-potential
+interface used by the finite-atom route.  The field `endpointLowerBound` is the
+analytic support-to-potential lower bound obtained from the normalized support
+configuration.
+-/
+structure TaoReducedPotentialData (U : ℝ → ℝ) extends TaoComponentReductionData where
+  endpointLowerBound : HasNormalizedEndpointLowerBound U endpointMass
+
+def TaoReducedPotentialData.toNormalizedEndpointPotential
+    {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
+    NormalizedEndpointPotential U where
+  p := D.endpointMass
+  halfMass := D.toTaoComponentReductionData.endpointMass_ge_half
+  endpointLowerBound := D.endpointLowerBound
+
+theorem TaoReducedPotentialData.baseline_subset_positive
+    {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
+    BaselinePunctured ⊆ PositiveSet U :=
+  D.toNormalizedEndpointPotential.baseline_subset_positive
+
+theorem TaoReducedPotentialData.baseline_length_le_positiveSet
+    {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
+    ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet U) :=
+  D.toNormalizedEndpointPotential.baseline_length_le_positiveSet
+
 end
 
 end StandardReduction

@@ -63,6 +63,22 @@ that a minimizer can be put into normalized endpoint-mass form.  The lemmas
 above prove all downstream baseline-interval consequences once that input is
 available.
 
+The file also separates the part of Tao's Section 3 reduction that is purely
+order/algebra from the heavier variational part:
+
+```text
+TaoComponentReductionData.support_subset_normalized
+TaoComponentReductionData.endpointMass_ge_half
+TaoReducedPotentialData.toNormalizedEndpointPotential
+TaoReducedPotentialData.baseline_length_le_positiveSet
+```
+
+In words, once the component argument has selected the positive component
+containing `(-1,0)`, the Lean file proves that the support is contained in
+`{-1} ∪ [0,1]`, that the endpoint mass is at least `1/2`, and that these data
+feed into the normalized endpoint-potential interface used by the finite-atom
+certificate route.
+
 Check command from the repository root:
 
 ```bash
