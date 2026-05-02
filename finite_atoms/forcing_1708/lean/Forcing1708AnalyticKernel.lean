@@ -223,6 +223,104 @@ lemma logInvLower_from_distance_bound
   rw [Real.log_inv] at hlog_inv
   linarith
 
+/-! ## Power-of-two scaled log bounds
+
+For small distances the direct atanh bound converges slowly.  The certificate
+therefore scales `d` by a power of two so the argument is close to one, and
+uses `log 2` separately.
+-/
+
+def pow2Rat (k : Nat) : Rat := (2 : Rat) ^ k
+
+def logLowerScaledUpRat (n k : Nat) (d : Rat) : Rat :=
+  logLowerRat n (d * pow2Rat k) - (k : Rat) * logUpperRat n (2 : Rat)
+
+def logUpperScaledUpRat (n k : Nat) (d : Rat) : Rat :=
+  logUpperRat n (d * pow2Rat k) - (k : Rat) * logLowerRat n (2 : Rat)
+
+def logLowerScaledDownRat (n k : Nat) (d : Rat) : Rat :=
+  logLowerRat n (d / pow2Rat k) + (k : Rat) * logLowerRat n (2 : Rat)
+
+def logUpperScaledDownRat (n k : Nat) (d : Rat) : Rat :=
+  logUpperRat n (d / pow2Rat k) + (k : Rat) * logUpperRat n (2 : Rat)
+
+lemma pow2Rat_pos (k : Nat) : 0 < pow2Rat k := by
+  unfold pow2Rat
+  positivity
+
+lemma pow2Rat_cast (k : Nat) :
+    ((pow2Rat k : Rat) : ℝ) = (2 : ℝ) ^ k := by
+  unfold pow2Rat
+  norm_num
+
+lemma logLowerScaledUpRat_le_log
+    (n k : Nat) (d : Rat)
+    (hd : 0 < d) (hscaled : 0 < d * pow2Rat k) :
+    ((logLowerScaledUpRat n k d : Rat) : ℝ) ≤ Real.log (d : ℝ) := by
+  have hScaledLog := logLowerRat_le_log n (d * pow2Rat k) hscaled
+  have hTwoLog := log_le_logUpperRat n (2 : Rat) (by norm_num)
+  have hpow : Real.log (((pow2Rat k : Rat) : ℝ)) = (k : ℝ) * Real.log (2 : ℝ) := by
+    rw [pow2Rat_cast, Real.log_pow]
+  have hmul : Real.log ((d : ℝ) * ((pow2Rat k : Rat) : ℝ)) =
+      Real.log (d : ℝ) + Real.log (((pow2Rat k : Rat) : ℝ)) := by
+    rw [Real.log_mul]
+    · exact_mod_cast ne_of_gt hd
+    · exact_mod_cast ne_of_gt (pow2Rat_pos k)
+  norm_num [logLowerScaledUpRat] at hScaledLog hTwoLog ⊢
+  rw [hmul, hpow] at hScaledLog
+  nlinarith
+
+lemma log_le_logUpperScaledUpRat
+    (n k : Nat) (d : Rat)
+    (hd : 0 < d) (hscaled : 0 < d * pow2Rat k) :
+    Real.log (d : ℝ) ≤ ((logUpperScaledUpRat n k d : Rat) : ℝ) := by
+  have hScaledLog := log_le_logUpperRat n (d * pow2Rat k) hscaled
+  have hTwoLog := logLowerRat_le_log n (2 : Rat) (by norm_num)
+  have hpow : Real.log (((pow2Rat k : Rat) : ℝ)) = (k : ℝ) * Real.log (2 : ℝ) := by
+    rw [pow2Rat_cast, Real.log_pow]
+  have hmul : Real.log ((d : ℝ) * ((pow2Rat k : Rat) : ℝ)) =
+      Real.log (d : ℝ) + Real.log (((pow2Rat k : Rat) : ℝ)) := by
+    rw [Real.log_mul]
+    · exact_mod_cast ne_of_gt hd
+    · exact_mod_cast ne_of_gt (pow2Rat_pos k)
+  norm_num [logUpperScaledUpRat] at hScaledLog hTwoLog ⊢
+  rw [hmul, hpow] at hScaledLog
+  nlinarith
+
+lemma logLowerScaledDownRat_le_log
+    (n k : Nat) (d : Rat)
+    (hd : 0 < d) (hscaled : 0 < d / pow2Rat k) :
+    ((logLowerScaledDownRat n k d : Rat) : ℝ) ≤ Real.log (d : ℝ) := by
+  have hScaledLog := logLowerRat_le_log n (d / pow2Rat k) hscaled
+  have hTwoLog := logLowerRat_le_log n (2 : Rat) (by norm_num)
+  have hpow : Real.log (((pow2Rat k : Rat) : ℝ)) = (k : ℝ) * Real.log (2 : ℝ) := by
+    rw [pow2Rat_cast, Real.log_pow]
+  have hdiv : Real.log ((d : ℝ) / ((pow2Rat k : Rat) : ℝ)) =
+      Real.log (d : ℝ) - Real.log (((pow2Rat k : Rat) : ℝ)) := by
+    rw [Real.log_div]
+    · exact_mod_cast ne_of_gt hd
+    · exact_mod_cast ne_of_gt (pow2Rat_pos k)
+  norm_num [logLowerScaledDownRat] at hScaledLog hTwoLog ⊢
+  rw [hdiv, hpow] at hScaledLog
+  nlinarith
+
+lemma log_le_logUpperScaledDownRat
+    (n k : Nat) (d : Rat)
+    (hd : 0 < d) (hscaled : 0 < d / pow2Rat k) :
+    Real.log (d : ℝ) ≤ ((logUpperScaledDownRat n k d : Rat) : ℝ) := by
+  have hScaledLog := log_le_logUpperRat n (d / pow2Rat k) hscaled
+  have hTwoLog := log_le_logUpperRat n (2 : Rat) (by norm_num)
+  have hpow : Real.log (((pow2Rat k : Rat) : ℝ)) = (k : ℝ) * Real.log (2 : ℝ) := by
+    rw [pow2Rat_cast, Real.log_pow]
+  have hdiv : Real.log ((d : ℝ) / ((pow2Rat k : Rat) : ℝ)) =
+      Real.log (d : ℝ) - Real.log (((pow2Rat k : Rat) : ℝ)) := by
+    rw [Real.log_div]
+    · exact_mod_cast ne_of_gt hd
+    · exact_mod_cast ne_of_gt (pow2Rat_pos k)
+  norm_num [logUpperScaledDownRat] at hScaledLog hTwoLog ⊢
+  rw [hdiv, hpow] at hScaledLog
+  nlinarith
+
 lemma abs_sub_le_of_interval
     {y lo hi D : ℝ}
     (hlo : lo ≤ y) (hhi : y ≤ hi)

@@ -97,6 +97,18 @@ lean/geometry_chunks/Forcing1708Geometry09.lean
 Proves the rational geometry checks for the 980 boxes: the recorded bounds for
 `b=s(1.82+a)` and the positive distance bounds used by the analytic log kernel.
 
+```text
+lean/Forcing1708AnalyticPreconditionsIndex.lean
+lean/analytic_precondition_chunks/Forcing1708AnalyticPre00.lean
+...
+lean/analytic_precondition_chunks/Forcing1708AnalyticPre19.lean
+```
+
+Proves the box-wise analytic preconditions by exact rational computation.  Each
+chunk checks the scaled-atanh log bounds for `base_a`, `base_b`, `base_c`, and
+the interval bounds for the coefficient `C(a,b)`.  The chunks use `n=12` terms
+after power-of-two scaling.
+
 ## Check commands
 
 Run these from the local Mathlib workspace:
@@ -109,7 +121,9 @@ lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_170
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708BoxData.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708CoverageIndex.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708GeometryIndex.lean
+lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708AnalyticPreconditionsIndex.lean
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/box_arith_chunks -name 'Forcing1708BoxArith*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/coverage_chunks -name 'Forcing1708CoverageA*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/geometry_chunks -name 'Forcing1708Geometry*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
+find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/analytic_precondition_chunks -name 'Forcing1708AnalyticPre*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 ```

@@ -64,6 +64,7 @@ This folder contains:
 - fixed-constant and domain-arithmetic Lean proofs;
 - the generic `Real.log` interval-box soundness lemma;
 - exact rational arithmetic checks for 980 boxes;
-- finite coverage checks for 23010 elementary cells.
+- finite coverage checks for 23010 elementary cells;
+- box-wise scaled-log analytic precondition checks for the recorded logarithmic bounds.
 
 Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
