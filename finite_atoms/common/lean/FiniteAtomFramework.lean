@@ -11,6 +11,10 @@ finite algebraic implication that the duality identity supplies in the notes:
 if a positive weighted finite sum is positive, while every atom outside the
 positive set has non-positive primal potential, then at least one atom must lie
 inside the positive set.
+
+The theorems named `*_from_duality` formalize the next interface layer: once
+the potential-theoretic duality argument has produced a positive dual quantity
+equal to the finite weighted atom sum, the selector conclusion follows.
 -/
 
 namespace Erdos1038
@@ -71,6 +75,26 @@ theorem finite_dual_forcing
   have hle := weighted_sum_nonpos_of_all_nonpos U atoms hposWeights hall_nonpos
   linarith
 
+/--
+Duality-to-selector bridge for a finite dual measure.
+
+Here `dualMass` is the positive quantity supplied by the
+potential-theoretic side, for instance an integral of the dual potential
+against the primal measure.  The hypothesis `hduality` is the finite-atom form
+of the symmetry identity, identifying that positive quantity with the weighted
+sum of the primal potential over the dual atoms.
+-/
+theorem finite_atom_selector_from_duality
+    (U : ℝ → ℝ) (E : Set ℝ) (atoms : List Atom)
+    (dualMass : ℝ)
+    (hposWeights : ∀ A ∈ atoms, 0 < A.w)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hdualPositive : 0 < dualMass)
+    (hduality : dualMass = weightedPotentialSum U atoms) :
+    ∃ A ∈ atoms, A.x ∈ E := by
+  apply finite_dual_forcing U E atoms hposWeights houtside
+  simpa [hduality] using hdualPositive
+
 /-- Specialized five-atom version used by the tail block. -/
 theorem five_atom_forcing
     (U : ℝ → ℝ) (E : Set ℝ)
@@ -108,6 +132,27 @@ theorem five_atom_forcing
   · exact Or.inr (Or.inr (Or.inr (Or.inl (by simpa [hA] using hAE))))
   · exact Or.inr (Or.inr (Or.inr (Or.inr (by simpa [hA] using hAE))))
 
+/-- Five-atom selector obtained from a duality identity. -/
+theorem five_atom_selector_from_duality
+    (U : ℝ → ℝ) (E : Set ℝ)
+    (x0 x1 x2 x3 x4 w0 w1 w2 w3 w4 : ℝ)
+    (dualMass : ℝ)
+    (hw0 : 0 < w0) (hw1 : 0 < w1) (hw2 : 0 < w2)
+    (hw3 : 0 < w3) (hw4 : 0 < w4)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hdualPositive : 0 < dualMass)
+    (hduality : dualMass =
+        w0 * U x0 + w1 * U x1 + w2 * U x2 + w3 * U x3 + w4 * U x4) :
+    x0 ∈ E ∨ x1 ∈ E ∨ x2 ∈ E ∨ x3 ∈ E ∨ x4 ∈ E := by
+  apply five_atom_forcing U E x0 x1 x2 x3 x4 w0 w1 w2 w3 w4
+  · exact hw0
+  · exact hw1
+  · exact hw2
+  · exact hw3
+  · exact hw4
+  · exact houtside
+  · simpa [hduality] using hdualPositive
+
 /-- Specialized three-atom version used by the forcing branch. -/
 theorem three_atom_forcing
     (U : ℝ → ℝ) (E : Set ℝ)
@@ -136,6 +181,23 @@ theorem three_atom_forcing
   · exact Or.inl (by simpa [hA] using hAE)
   · exact Or.inr (Or.inl (by simpa [hA] using hAE))
   · exact Or.inr (Or.inr (by simpa [hA] using hAE))
+
+/-- Three-atom selector obtained from a duality identity. -/
+theorem three_atom_selector_from_duality
+    (U : ℝ → ℝ) (E : Set ℝ)
+    (x0 x1 x2 w0 w1 w2 : ℝ)
+    (dualMass : ℝ)
+    (hw0 : 0 < w0) (hw1 : 0 < w1) (hw2 : 0 < w2)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hdualPositive : 0 < dualMass)
+    (hduality : dualMass = w0 * U x0 + w1 * U x1 + w2 * U x2) :
+    x0 ∈ E ∨ x1 ∈ E ∨ x2 ∈ E := by
+  apply three_atom_forcing U E x0 x1 x2 w0 w1 w2
+  · exact hw0
+  · exact hw1
+  · exact hw2
+  · exact houtside
+  · simpa [hduality] using hdualPositive
 
 end FiniteAtomFramework
 end Erdos1038
