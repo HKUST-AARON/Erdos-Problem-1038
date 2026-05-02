@@ -677,6 +677,64 @@ theorem finiteWeightedPotential_nonneg_of_nonpositive_mean
   rw [finiteWeightedPotential_eq_neg_log_abs_sum s w t hdist_pos]
   linarith
 
+/-! Finite reflection/translation symmetries for the logarithmic potential. -/
+
+lemma finiteWeightedPotential_reflect
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) (x : ℝ) :
+    finiteWeightedPotential s w (fun i => -t i) (-x) =
+      finiteWeightedPotential s w t x := by
+  unfold finiteWeightedPotential
+  apply Finset.sum_congr rfl
+  intro i _hi
+  have habs : |-x - -t i| = |x - t i| := by
+    rw [show -x - -t i = -(x - t i) by ring]
+    exact abs_neg (x - t i)
+  rw [habs]
+
+lemma finiteWeightedPotential_translate
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) (x shift : ℝ) :
+    finiteWeightedPotential s w (fun i => t i + shift) (x + shift) =
+      finiteWeightedPotential s w t x := by
+  unfold finiteWeightedPotential
+  apply Finset.sum_congr rfl
+  intro i _hi
+  congr 2
+  congr 1
+  congr 1
+  ring_nf
+
+lemma finite_weighted_mean_reflect
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) :
+    ∑ i ∈ s, w i * (-t i) = -∑ i ∈ s, w i * t i := by
+  calc
+    ∑ i ∈ s, w i * (-t i) = ∑ i ∈ s, -(w i * t i) := by
+      apply Finset.sum_congr rfl
+      intro i _hi
+      ring
+    _ = -∑ i ∈ s, w i * t i := by
+      rw [Finset.sum_neg_distrib]
+
+lemma finite_weighted_mean_translate
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w t : ι → ℝ) (shift : ℝ)
+    (hw_sum : ∑ i ∈ s, w i = 1) :
+    ∑ i ∈ s, w i * (t i + shift) =
+      (∑ i ∈ s, w i * t i) + shift := by
+  calc
+    ∑ i ∈ s, w i * (t i + shift)
+        = ∑ i ∈ s, (w i * t i + shift * w i) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          ring
+    _ = (∑ i ∈ s, w i * t i) + shift * (∑ i ∈ s, w i) := by
+          rw [Finset.sum_add_distrib, Finset.mul_sum]
+    _ = (∑ i ∈ s, w i * t i) + shift := by
+          rw [hw_sum]
+          ring
+
 /-!
 ## Continuous probability-measure version of the Lemma 3.2 estimate
 
