@@ -1,9 +1,11 @@
 import Mathlib.Tactic
 import Mathlib.Analysis.Convex.Jensen
+import Mathlib.Analysis.Convex.Integral
 import Mathlib.Analysis.Convex.SpecificFunctions.Basic
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 
 /-!
 # Normalized-support consequence used in the standard reduction
@@ -671,6 +673,190 @@ theorem finiteWeightedPotential_nonneg_of_nonpositive_mean
     finite_weighted_log_abs_sum_nonpos_of_nonpositive_mean
       s w t hx0 hx1 hw_nonneg hw_sum ht_bound hmean_nonpos hdist_pos
   rw [finiteWeightedPotential_eq_neg_log_abs_sum s w t hdist_pos]
+  linarith
+
+/-!
+## Continuous probability-measure version of the Lemma 3.2 estimate
+
+The next lemmas replace finite weighted sums by Bochner integrals against an
+arbitrary probability measure.  They formalize the Jensen/logarithmic-potential
+part of Tao's Lemma 3.2 under the usual real-valued hypotheses needed to avoid
+the logarithmic singularity at `x = t`.
+-/
+
+lemma measure_kernel_integral_le_one_of_nonnegative_x
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hkernel_int : Integrable (fun t : ℝ => |x - t| + x * t) μ) :
+    (∫ t, |x - t| + x * t ∂μ) ≤ 1 := by
+  have hle_ae :
+      (fun t : ℝ => |x - t| + x * t) ≤ᵐ[μ] fun _ : ℝ => (1 : ℝ) :=
+    hsupp.mono (fun t ht =>
+      abs_sub_add_mul_le_one hx0 hx1 ht.1 ht.2)
+  have hle_int :
+      (∫ t, |x - t| + x * t ∂μ) ≤ ∫ _ : ℝ, (1 : ℝ) ∂μ :=
+    integral_mono_ae hkernel_int (integrable_const (1 : ℝ)) hle_ae
+  simpa using hle_int
+
+lemma measure_kernel_integral_le_one_of_nonpositive_x
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hkernel_int : Integrable (fun t : ℝ => |x - t| + x * t) μ) :
+    (∫ t, |x - t| + x * t ∂μ) ≤ 1 := by
+  have hle_ae :
+      (fun t : ℝ => |x - t| + x * t) ≤ᵐ[μ] fun _ : ℝ => (1 : ℝ) := by
+    filter_upwards [hsupp] with t ht
+    have h :=
+      abs_sub_add_mul_le_one
+        (x := -x) (t := -t) (by linarith) (by linarith)
+        (by linarith [ht.2]) (by linarith [ht.1])
+    have habs : |-x - -t| = |x - t| := by
+      rw [show -x - -t = t - x by ring]
+      exact abs_sub_comm t x
+    have hmul : (-x) * (-t) = x * t := by ring
+    rwa [habs, hmul] at h
+  have hle_int :
+      (∫ t, |x - t| + x * t ∂μ) ≤ ∫ _ : ℝ, (1 : ℝ) ∂μ :=
+    integral_mono_ae hkernel_int (integrable_const (1 : ℝ)) hle_ae
+  simpa using hle_int
+
+lemma measure_kernel_integral_split
+    (μ : Measure ℝ) {x : ℝ}
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : Integrable (fun t : ℝ => x * t) μ) :
+    (∫ t, |x - t| + x * t ∂μ) =
+      (∫ t, |x - t| ∂μ) + x * (∫ t, t ∂μ) := by
+  rw [integral_add hdist_int hlinear_int]
+  rw [integral_const_mul]
+
+lemma measure_abs_integral_le_one_of_nonnegative_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : Integrable (fun t : ℝ => x * t) μ)
+    (hmean_nonneg : 0 ≤ ∫ t : ℝ, t ∂μ) :
+    (∫ t, |x - t| ∂μ) ≤ 1 := by
+  have hkernel_int : Integrable (fun t : ℝ => |x - t| + x * t) μ :=
+    hdist_int.add hlinear_int
+  have hkernel :=
+    measure_kernel_integral_le_one_of_nonnegative_x μ hx0 hx1 hsupp hkernel_int
+  rw [measure_kernel_integral_split μ hdist_int hlinear_int] at hkernel
+  have hxmean : 0 ≤ x * (∫ t : ℝ, t ∂μ) :=
+    mul_nonneg hx0 hmean_nonneg
+  nlinarith
+
+lemma measure_abs_integral_le_one_of_nonpositive_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : Integrable (fun t : ℝ => x * t) μ)
+    (hmean_nonpos : (∫ t : ℝ, t ∂μ) ≤ 0) :
+    (∫ t, |x - t| ∂μ) ≤ 1 := by
+  have hkernel_int : Integrable (fun t : ℝ => |x - t| + x * t) μ :=
+    hdist_int.add hlinear_int
+  have hkernel :=
+    measure_kernel_integral_le_one_of_nonpositive_x μ hx0 hx1 hsupp hkernel_int
+  rw [measure_kernel_integral_split μ hdist_int hlinear_int] at hkernel
+  have hxmean : 0 ≤ x * (∫ t : ℝ, t ∂μ) :=
+    mul_nonneg_of_nonpos_of_nonpos hx1 hmean_nonpos
+  nlinarith
+
+lemma measure_log_abs_integral_le_log_abs_integral
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ) :
+    (∫ t, Real.log |x - t| ∂μ) ≤
+      Real.log (∫ t, |x - t| ∂μ) := by
+  have hconc : ConcaveOn ℝ (Ici ε) Real.log :=
+    strictConcaveOn_log_Ioi.concaveOn.subset
+      (fun y hy => lt_of_lt_of_le hε hy) (convex_Ici ε)
+  have hcont : ContinuousOn Real.log (Ici ε) :=
+    Real.continuousOn_log.mono (fun y hy => ne_of_gt (lt_of_lt_of_le hε hy))
+  exact hconc.le_map_integral hcont isClosed_Ici hdist_lower hdist_int hlog_int
+
+lemma measure_log_abs_integral_nonpos_of_abs_integral_le_one
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (havg_le_one : (∫ t, |x - t| ∂μ) ≤ 1) :
+    (∫ t, Real.log |x - t| ∂μ) ≤ 0 := by
+  have hj :=
+    measure_log_abs_integral_le_log_abs_integral μ
+      hε hdist_lower hdist_int hlog_int
+  have havg_nonneg : 0 ≤ ∫ t, |x - t| ∂μ :=
+    integral_nonneg (fun t => abs_nonneg (x - t))
+  have hlog_nonpos : Real.log (∫ t, |x - t| ∂μ) ≤ 0 :=
+    Real.log_nonpos havg_nonneg havg_le_one
+  exact le_trans hj hlog_nonpos
+
+/-- Real-valued logarithmic potential of a probability measure. -/
+def measureLogPotential (μ : Measure ℝ) (x : ℝ) : ℝ :=
+  ∫ t, Real.log (1 / |x - t|) ∂μ
+
+lemma measureLogPotential_eq_neg_log_abs_integral
+    (μ : Measure ℝ) {x : ℝ}
+    (hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t|) :
+    measureLogPotential μ x =
+      -∫ t, Real.log |x - t| ∂μ := by
+  unfold measureLogPotential
+  have hcongr :
+    (fun t : ℝ => Real.log (1 / |x - t|))
+        =ᵐ[μ] fun t : ℝ => -Real.log |x - t| :=
+    hdist_pos.mono (fun t ht => by
+      simp [one_div, Real.log_inv])
+  rw [integral_congr_ae hcongr]
+  rw [integral_neg]
+
+theorem measureLogPotential_nonneg_of_nonnegative_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
+    (hε : 0 < ε)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : Integrable (fun t : ℝ => x * t) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (hmean_nonneg : 0 ≤ ∫ t : ℝ, t ∂μ) :
+    0 ≤ measureLogPotential μ x := by
+  have havg_le_one :=
+    measure_abs_integral_le_one_of_nonnegative_mean μ hx0 hx1 hsupp
+      hdist_int hlinear_int hmean_nonneg
+  have hlog_nonpos :=
+    measure_log_abs_integral_nonpos_of_abs_integral_le_one μ
+      hε hdist_lower hdist_int hlog_int havg_le_one
+  have hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t| :=
+    hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
+  rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos]
+  linarith
+
+theorem measureLogPotential_nonneg_of_nonpositive_mean
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hε : 0 < ε)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : Integrable (fun t : ℝ => x * t) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (hmean_nonpos : (∫ t : ℝ, t ∂μ) ≤ 0) :
+    0 ≤ measureLogPotential μ x := by
+  have havg_le_one :=
+    measure_abs_integral_le_one_of_nonpositive_mean μ hx0 hx1 hsupp
+      hdist_int hlinear_int hmean_nonpos
+  have hlog_nonpos :=
+    measure_log_abs_integral_nonpos_of_abs_integral_le_one μ
+      hε hdist_lower hdist_int hlog_int havg_le_one
+  have hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t| :=
+    hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
+  rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos]
   linarith
 
 end
