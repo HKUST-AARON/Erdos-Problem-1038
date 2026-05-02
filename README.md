@@ -7,7 +7,7 @@ This repository collects proof packages for [Erdős Problem #1038](https://www.e
 Determine the infimum and supremum of
 
 $$
-\left|\left\{x\in\mathbb{R}:\ |f(x)|<1\right\}\right|
+\lvert \lbrace x\in\mathbb{R}:\ \lvert f(x)\rvert<1 \rbrace \rvert
 $$
 
 as $f\in\mathbb{R}[x]$ ranges over all non-constant monic polynomials, all of whose roots are real and lie in the interval $[-1,1]$.
