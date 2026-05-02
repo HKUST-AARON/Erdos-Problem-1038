@@ -162,6 +162,16 @@ def parse_subdivisions(raw: str) -> tuple[int, int]:
     return eta_count, uv_count
 
 
+def parse_positive_int_list(raw: str) -> tuple[int, ...]:
+    try:
+        values = tuple(int(part) for part in raw.split(",") if part)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("expected comma-separated positive integers") from exc
+    if not values or any(value <= 0 for value in values):
+        raise argparse.ArgumentTypeError("expected comma-separated positive integers")
+    return values
+
+
 def parse_slab(raw: str) -> SlabSpec:
     parts = raw.split(":")
     if len(parts) != 2:
@@ -660,6 +670,151 @@ def verify_slab(
     return result
 
 
+def report_dk11_eta_radius(
+    spec: SlabSpec,
+    rows: list[Any],
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    radii: np.ndarray,
+    eta_counts: tuple[int, ...],
+    uv_subdivisions: int,
+    sample_grid_size: int,
+) -> None:
+    from flint import arb
+
+    solver_module = load_solver()
+    low_row = find_endpoint(rows, spec.eps_low)
+    high_row = find_endpoint(rows, spec.eps_high)
+    if low_row.epsilon > high_row.epsilon:
+        low_row, high_row = high_row, low_row
+    assert_adjacent_endpoint_rows(rows, low_row, high_row)
+
+    eta_low = math.sqrt(spec.eps_low)
+    eta_high = math.sqrt(spec.eps_high)
+    b_slope, b_intercept, tau_slope, tau_intercept = affine_coefficients(low_row, high_row)
+    sample_grid = max(sample_grid_size, 2)
+
+    print(
+        "DK[1,1] ETA-INTERVAL RADIUS REPORT "
+        f"slab={spec.eps_low:g}:{spec.eps_high:g} rows={low_row.index}->{high_row.index} "
+        f"uv_subdivisions={uv_subdivisions} sample_grid={sample_grid} "
+        "status=diagnostic-not-continuum-proof"
+    )
+    for eta_count in eta_counts:
+        max_interval_radius = 0.0
+        max_interval_width = 0.0
+        max_sample_span = 0.0
+        max_sample_radius = 0.0
+        max_radius_inflation = 0.0
+        max_sample_outside_gap = 0.0
+        worst_source = "none"
+        worst_interval = (math.nan, math.nan)
+        worst_sample = (math.nan, math.nan)
+
+        for eta_index, (eta_interval_low, eta_interval_high) in enumerate(eta_intervals(eta_low, eta_high, eta_count)):
+            arb_eta = solver_module._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+            arb_epsilon = solver_module._arb_interval_from_bounds(
+                eta_interval_low * eta_interval_low,
+                eta_interval_high * eta_interval_high,
+            )
+            for u_index in range(uv_subdivisions):
+                u_low = -float(radii[0]) + 2.0 * float(radii[0]) * u_index / uv_subdivisions
+                u_high = -float(radii[0]) + 2.0 * float(radii[0]) * (u_index + 1) / uv_subdivisions
+                for v_index in range(uv_subdivisions):
+                    v_low = -float(radii[1]) + 2.0 * float(radii[1]) * v_index / uv_subdivisions
+                    v_high = -float(radii[1]) + 2.0 * float(radii[1]) * (v_index + 1) / uv_subdivisions
+                    A_low, A_high, alpha_low, alpha_high = parameter_ranges(
+                        eta_interval_low,
+                        eta_interval_high,
+                        u_low,
+                        u_high,
+                        v_low,
+                        v_high,
+                        limit_solution,
+                        null_slope,
+                        b_slope,
+                        b_intercept,
+                        tau_slope,
+                        tau_intercept,
+                    )
+                    arb_A = solver_module._arb_interval_from_bounds(A_low, A_high)
+                    arb_alpha = solver_module._arb_interval_from_bounds(alpha_low, alpha_high)
+                    combined_dG = arb(
+                        solver_module._combined_contact_minus_one_directional_derivative_acb_from_arb(
+                            arb_A,
+                            arb_alpha,
+                            arb_epsilon,
+                            arb(repr(float(null_slope))),
+                            arb(1),
+                            arb(repr(float(left_weight))),
+                            192,
+                        )
+                    )
+                    dk11 = combined_dG / arb_eta
+                    if not dk11.is_finite():
+                        fail(
+                            f"slab {spec.eps_low:g}:{spec.eps_high:g} eta_count={eta_count} "
+                            f"eta-slice={eta_index} u-subbox={u_index} v-subbox={v_index}: "
+                            "non-finite DK[1,1] Arb ball"
+                        )
+
+                    sample_values = []
+                    for eta_sample in np.linspace(eta_interval_low, eta_interval_high, sample_grid):
+                        eta_f = float(eta_sample)
+                        center_B, center_tau = center_at(eta_f, low_row, high_row)
+                        for u_sample in np.linspace(u_low, u_high, sample_grid):
+                            for v_sample in np.linspace(v_low, v_high, sample_grid):
+                                J = finite_array(
+                                    "sampled analytic DK",
+                                    solver_module.analytic_rescaled_jacobian(
+                                        center_B + float(u_sample),
+                                        center_tau + float(v_sample),
+                                        eta_f,
+                                        limit_solution,
+                                        left_weight,
+                                        null_slope,
+                                    ),
+                                )
+                                sample_values.append(float(J[1, 1]))
+                    sample_low = min(sample_values)
+                    sample_high = max(sample_values)
+                    sample_span = sample_high - sample_low
+                    sample_radius = 0.5 * sample_span
+                    interval_low = float(dk11.lower())
+                    interval_high = float(dk11.upper())
+                    interval_width = interval_high - interval_low
+                    interval_radius = float(dk11.rad())
+                    outside_gap = max(sample_low - interval_high, interval_low - sample_high, 0.0)
+                    if sample_radius > 0.0:
+                        max_radius_inflation = max(max_radius_inflation, interval_radius / sample_radius)
+                    max_sample_outside_gap = max(max_sample_outside_gap, outside_gap)
+                    max_sample_span = max(max_sample_span, sample_span)
+                    max_sample_radius = max(max_sample_radius, sample_radius)
+                    max_interval_width = max(max_interval_width, interval_width)
+                    if interval_radius > max_interval_radius:
+                        max_interval_radius = interval_radius
+                        worst_source = (
+                            f"eta_slice={eta_index},u_subbox={u_index},v_subbox={v_index},"
+                            f"eta=[{eta_interval_low:.17g},{eta_interval_high:.17g}]"
+                        )
+                        worst_interval = (interval_low, interval_high)
+                        worst_sample = (sample_low, sample_high)
+
+        print(
+            f"  eta_subdivisions={eta_count} "
+            f"max_interval_radius={max_interval_radius:.6e} "
+            f"max_interval_width={max_interval_width:.6e} "
+            f"max_sample_radius={max_sample_radius:.6e} "
+            f"max_sample_span={max_sample_span:.6e} "
+            f"max_radius_inflation={max_radius_inflation:.6e} "
+            f"max_sample_outside_gap={max_sample_outside_gap:.6e} "
+            f"worst_interval=[{worst_interval[0]:.6e},{worst_interval[1]:.6e}] "
+            f"worst_sample=[{worst_sample[0]:.6e},{worst_sample[1]:.6e}] "
+            f"worst_source={worst_source}"
+        )
+
+
 def adjacent_specs(rows: list[Any]) -> list[SlabSpec]:
     endpoints = sorted_endpoints(rows)
     if len(endpoints) < 2:
@@ -702,6 +857,20 @@ def main() -> int:
             "The center correction remains sampled, so this is still diagnostic."
         ),
     )
+    parser.add_argument(
+        "--dk11-eta-radius-report",
+        type=parse_positive_int_list,
+        help=(
+            "print a DK[1,1]-focused eta-interval radius diagnostic for the given "
+            "comma-separated eta subdivision counts and compare against sampled analytic DK"
+        ),
+    )
+    parser.add_argument(
+        "--dk11-sample-grid",
+        type=int,
+        default=3,
+        help="sample points per eta/u/v axis for --dk11-eta-radius-report",
+    )
     parser.add_argument("--quiet", action="store_true", help="print only the final binary diagnostic line")
     args = parser.parse_args()
 
@@ -713,6 +882,23 @@ def main() -> int:
         limit_solution, left_weight, null_slope = payload_constants(payload)
         radii = finite_array("--uv-radii", args.uv_radii)
         eta_subdivisions, uv_subdivisions = args.arb_box_dk_subdivisions
+        if args.dk11_sample_grid <= 0:
+            fail("--dk11-sample-grid: expected positive integer")
+        if args.dk11_eta_radius_report is not None:
+            if args.slab is None:
+                fail("--dk11-eta-radius-report currently requires a single --slab")
+            report_dk11_eta_radius(
+                args.slab,
+                rows_raw,
+                limit_solution,
+                left_weight,
+                null_slope,
+                radii,
+                args.dk11_eta_radius_report,
+                uv_subdivisions,
+                args.dk11_sample_grid,
+            )
+            return 0
         specs = adjacent_specs(rows_raw) if args.slabs == "adjacent" else [args.slab]
 
         results = [

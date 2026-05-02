@@ -870,3 +870,126 @@ first slab eta-interval, 7,7:
 
 The paired residue-log prototype is useful as a localization tool, but it is
 not yet a better verifier.
+
+### I. Tao note calibration and the first hard number after reading it
+
+The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with
+this exact-infimum line.  Its Section 4 writes the Hilbert-transform/Cauchy
+transform ansatz for the one-cut candidate, identifies the numerical endpoint
+data
+
+```text
+x_L = -1.8081073680988165
+x_R =  0.02632310766384517
+M_* = x_R - x_L = 1.8344304757626617
+```
+
+and ends with Problem 4.1: for small \(\varepsilon>0\), construct a positive
+dual measure supported on
+
+\[
+[-1.808+\varepsilon,0.026]\cup[a,1-\varepsilon]
+\]
+
+with nonnegative potential on \([-1,1]\).  This is exactly the corrected
+two-interval branch implemented here, with the endpoint atom at \(1\) included.
+
+The existing solver is therefore not a side route to \(1.8\); it is the local
+model for the conjectural exact value \(M_*=1.8344304757626617\ldots\).  The
+finite-atom \(1.8063\) certificate remains a lower-bound route, while this
+two-interval route is the candidate exact-value route if the global dual
+reduction can be closed.
+
+After adding the DK-focused diagnostic mode
+
+```bash
+.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
+  1038/two_interval_branch_certificate_skeleton.json \
+  --slab 0.00005:0.0001 \
+  --center affine-endpoints \
+  --uv-radii 0.01,0.01 \
+  --arb-box-dk-subdivisions 1,2 \
+  --dk11-eta-radius-report 8,16,32,64 \
+  --dk11-sample-grid 2
+```
+
+the first small-\(\varepsilon\) slab reports:
+
+```text
+eta_subdivisions=8
+  max_interval_radius=1.711198e+00
+  max_sample_radius=2.384146e-03
+  max_radius_inflation=7.295353e+02
+
+eta_subdivisions=64
+  max_interval_radius=7.396337e-01
+  max_sample_radius=2.207919e-03
+  max_radius_inflation=3.429966e+02
+  worst_interval=[-7.396337e-01,7.396337e-01]
+  worst_sample=[-4.342351e-01,-4.299223e-01]
+```
+
+With a coarser \(u,v\) split, even \(\eta\)-subdivision 256 still shows the
+same dependency loss:
+
+```text
+eta_subdivisions=256
+  max_interval_radius=6.367800e-01
+  max_sample_radius=2.189095e-03
+  max_radius_inflation=2.980689e+02
+```
+
+But on the actual worst \(7\times7\) subbox, direct targeted checks show the
+old combined primitive does converge toward the true value when \(\eta\) is
+cut finely:
+
+```text
+N=7:   DK[1,1]=[-1.739483,  1.739483], true≈-0.433834
+N=112: DK[1,1]=[-0.560453, -0.287014], true≈-0.433603
+N=224: DK[1,1]=[-0.521138, -0.326786], true≈-0.433595
+N=448: DK[1,1]=[-0.501622, -0.346586], true≈-0.433583
+```
+
+This gives the first hard post-Tao diagnostic number: the analytic branch is
+stable near \(-0.43\), while the current interval evaluator can inflate the
+same entry by \(300\)-\(700\times\) depending on the box.  Thus the failure is
+not absence of a numerical branch; it is the eta-divided interval enclosure.
+
+The next code-level cut is now precise.  In
+`solve_two_interval_finite_gap.py`,
+`_combined_directional_derivative_residue_log_pair_divided_from_arb` still
+forms terms of the shape
+
+```python
+((sum_residue - sum_residue0) / eta) * log_abs(base0)
+```
+
+with `sum_residue = a_ell + a_r`.  This evaluates the two residues at
+\(\eta>0\) and \(\eta=0\) as unrelated Arb balls.  The next implementation
+should parameterize \(B,\tau,A,\alpha,\ell,\beta,c,\kappa\) as functions of
+\(\eta\) on each slab and compute divided quantities directly:
+
+\[
+\delta q=\frac{q-q_0}{\eta},\quad
+\delta c=\frac{c-c_0}{\eta},\quad
+\delta\kappa=\frac{\kappa-\kappa_0}{\eta},
+\]
+
+\[
+\delta\rho=
+\frac{\delta q-\delta c-\delta\kappa(\rho_0+\rho_0^{-1})}
+{\kappa(1-1/(\rho\rho_0))},
+\]
+
+then apply the quotient rule to the residue
+
+\[
+a_q=
+\frac{\kappa(\rho-\rho^{-1})}{D_q}
+\left(d_A-\frac{q+A}{2(q-\alpha)}d_\alpha\right)
+\]
+
+so that \(\delta a_q\) is formed directly, rather than as
+\((a_q-a_{q,0})/\eta\).  This is the most likely next implementation to move
+the eta-interval enclosure from the current diagnostic stage toward a real
+continuum Krawczyk certificate.
