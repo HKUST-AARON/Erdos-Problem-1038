@@ -1223,6 +1223,17 @@ theorem measureLogPotential_positiveSet_measure_le_liminf
     (fun i => measureLogPotential (μs i))
     herr
 
+lemma probability_measure_integral_boundedContinuousFunction_tendsto
+    {Ω ι : Type*} {L : Filter ι}
+    [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
+    {μ : ProbabilityMeasure Ω} {μs : ι → ProbabilityMeasure Ω}
+    (hμs : Filter.Tendsto μs L (nhds μ))
+    (f : BoundedContinuousFunction Ω ℝ) :
+    Filter.Tendsto
+      (fun i => ∫ x : Ω, f x ∂(μs i : Measure Ω)) L
+      (nhds (∫ x : Ω, f x ∂(μ : Measure Ω))) := by
+  exact (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp hμs) f
+
 structure MinimizationProblem (α : Type*) [TopologicalSpace α] where
   Admissible : α → Prop
   objective : α → ℝ
