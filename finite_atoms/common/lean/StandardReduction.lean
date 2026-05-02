@@ -1393,6 +1393,42 @@ lemma singularTail_badSet_volume_le_of_lintegral_bound
   exact lintegral_markov_bound volume (singularTailMass ε μ)
     hη0 hηtop hS hint
 
+lemma singularTail_total_lintegral_le_of_pointwise_bound
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038) {C : ℝ≥0∞}
+    (hmeas :
+      AEMeasurable
+        (Function.uncurry (fun x t => singularTailKernel ε x t))
+        (volume.prod (μ : Measure UnitInterval1038)))
+    (hbound : ∀ t : UnitInterval1038,
+      (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume) ≤ C) :
+    (∫⁻ x : ℝ, singularTailMass ε μ x ∂volume) ≤ C := by
+  unfold singularTailMass
+  calc
+    (∫⁻ x : ℝ, ∫⁻ t : UnitInterval1038,
+        singularTailKernel ε x t ∂(μ : Measure UnitInterval1038) ∂volume)
+        = ∫⁻ t : UnitInterval1038, ∫⁻ x : ℝ,
+            singularTailKernel ε x t ∂volume ∂(μ : Measure UnitInterval1038) := by
+          exact lintegral_lintegral_swap hmeas
+    _ ≤ ∫⁻ _t : UnitInterval1038, C ∂(μ : Measure UnitInterval1038) := by
+          exact lintegral_mono (fun t => hbound t)
+    _ = C := by simp
+
+lemma singularTail_badSet_volume_le_of_pointwise_lintegral_bound
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    {η C : ℝ≥0∞}
+    (hη0 : η ≠ 0) (hηtop : η ≠ ∞)
+    (hS : MeasurableSet {x : ℝ | η < singularTailMass ε μ x})
+    (hmeas :
+      AEMeasurable
+        (Function.uncurry (fun x t => singularTailKernel ε x t))
+        (volume.prod (μ : Measure UnitInterval1038)))
+    (hbound : ∀ t : UnitInterval1038,
+      (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume) ≤ C) :
+    volume {x : ℝ | η < singularTailMass ε μ x} ≤ C / η := by
+  exact singularTail_badSet_volume_le_of_lintegral_bound ε μ
+    hη0 hηtop hS
+    (singularTail_total_lintegral_le_of_pointwise_bound ε μ hmeas hbound)
+
 theorem unitIntervalLogPotential_objective_lsc_from_tail_control
     {ι : Type*} {L : Filter ι}
     (μ : ProbabilityMeasure UnitInterval1038)
