@@ -7,6 +7,7 @@ import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+import Mathlib.MeasureTheory.Measure.Prokhorov
 import Mathlib.Topology.Semicontinuity.Basic
 
 /-!
@@ -1005,6 +1006,47 @@ theorem compact_predicate_lsc_exists_minimizer
       {a : α | Admissible a} objective hne hcompact hlsc with
     ⟨a, ha, hmin⟩
   exact ⟨a, ha, fun b hb => hmin b hb⟩
+
+/-!
+## Concrete compact admissible class
+
+For the relaxed continuous formulation, the admissible measures are probability
+measures on the compact interval `[-1,1]`.  Mathlib's Prokhorov theorem gives
+compactness of `ProbabilityMeasure E` when `E` is compact; this makes the
+direct-method existence step completely concrete once the objective is known
+to be lower semicontinuous.
+-/
+
+abbrev UnitInterval1038 := {x : ℝ // x ∈ Icc (-1 : ℝ) 1}
+
+instance : CompactSpace UnitInterval1038 := by
+  exact isCompact_iff_compactSpace.mp CompactIccSpace.isCompact_Icc
+
+instance : Inhabited UnitInterval1038 := ⟨⟨0, by norm_num⟩⟩
+
+abbrev AdmissibleProbability1038 := ProbabilityMeasure UnitInterval1038
+
+instance : CompactSpace AdmissibleProbability1038 := by
+  infer_instance
+
+theorem admissible_probability_compact :
+    IsCompact (Set.univ : Set AdmissibleProbability1038) := by
+  exact isCompact_univ
+
+theorem admissible_probability_lsc_exists_minimizer
+    (objective : AdmissibleProbability1038 → ℝ)
+    (hlsc : LowerSemicontinuous objective) :
+    ∃ μ : AdmissibleProbability1038,
+      ∀ ν : AdmissibleProbability1038, objective μ ≤ objective ν := by
+  have hne : (Set.univ : Set AdmissibleProbability1038).Nonempty :=
+    Set.univ_nonempty
+  have hlscOn :
+      LowerSemicontinuousOn objective
+        (Set.univ : Set AdmissibleProbability1038) :=
+    hlsc.lowerSemicontinuousOn (Set.univ : Set AdmissibleProbability1038)
+  rcases hlscOn.exists_isMinOn hne admissible_probability_compact with
+    ⟨μ, _hμ, hmin⟩
+  exact ⟨μ, fun ν => hmin trivial⟩
 
 structure MinimizationProblem (α : Type*) [TopologicalSpace α] where
   Admissible : α → Prop
