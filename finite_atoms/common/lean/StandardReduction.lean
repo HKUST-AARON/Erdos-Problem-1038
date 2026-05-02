@@ -1001,6 +1001,39 @@ theorem secondary_minimizer_forces_replacement_rigidity
   exact le_antisymm hb_secondary_le (le_of_not_gt hnot_lt)
 
 /-!
+## Barycenter replacement Jensen layer
+
+This is the finite weighted Jensen statement behind the barycenter replacement
+step in Tao Section 3.  In the measure proof, the function is the logarithmic
+kernel `t ↦ log (1 / |x - t|)` restricted to a positive component `I`, and
+`x` is outside `I`, so the kernel is convex on that interval.
+-/
+
+lemma finite_barycenter_replacement_jensen
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ) (f : ℝ → ℝ) (C : Set ℝ)
+    (hf : ConvexOn ℝ C f)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hy_mem : ∀ i ∈ s, y i ∈ C) :
+    f (∑ i ∈ s, w i * y i) ≤ ∑ i ∈ s, w i * f (y i) := by
+  have h := hf.map_sum_le (t := s) (w := w) (p := y)
+    hw_nonneg hw_sum hy_mem
+  simpa [smul_eq_mul] using h
+
+lemma finite_barycenter_replacement_potential_le
+    {ι : Type*} [DecidableEq ι]
+    (s : Finset ι) (w y : ι → ℝ) (kernel : ℝ → ℝ) (C : Set ℝ)
+    (hkernel : ConvexOn ℝ C kernel)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hw_sum : ∑ i ∈ s, w i = 1)
+    (hy_mem : ∀ i ∈ s, y i ∈ C) :
+    kernel (∑ i ∈ s, w i * y i) ≤
+      ∑ i ∈ s, w i * kernel (y i) :=
+  finite_barycenter_replacement_jensen s w y kernel C
+    hkernel hw_nonneg hw_sum hy_mem
+
+/-!
 ## Translation/reflection normalization layer
 
 Once the secondary-minimizing minimizer has the rigidity properties needed by
