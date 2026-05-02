@@ -1051,3 +1051,70 @@ the resulting expression.
 For this reason the production default remains the older `acb` kernel; the
 `residue-log` kernel is kept as a checked diagnostic path, not as a claimed
 tightening.
+
+## K. Remote Slab Matrix After Eta Refinement
+
+The remote 24-core machine was used as a parallel diagnostic runner for the
+current adjacent epsilon slabs.  A small driver,
+`parallel_slab_diagnostics.py`, now fans out radius-report jobs; it does not
+change the verifier or the certificate logic.
+
+The key continuum check is the actual interval Krawczyk pass/fail matrix, not
+the radius report.  With the production `acb` kernel, affine endpoint centers,
+and `--eta-interval-dk-check`, the first two small epsilon slabs now close if
+the eta subdivision is increased to 224 and the \(u,v\) radius is reduced to
+`0.0003,0.0003`:
+
+```text
+slab=0.00005:0.0001, radius=0.0003, eta=224
+  PASS, worst_margin=1.476235e-04
+
+slab=0.0001:0.0002, radius=0.0003, eta=224
+  PASS, worst_margin=1.354100e-04
+```
+
+The next three adjacent slabs did not close under the same certification
+setup.  At eta 224 the failures were:
+
+```text
+slab=0.0002:0.0005, radius=0.0003
+  FAIL, margin=-5.605783e-04, dominant=defect
+
+slab=0.0005:0.001, radius=0.0003
+  FAIL, margin=-5.999470e-04, dominant=defect
+
+slab=0.001:0.002, radius=0.0003
+  FAIL, margin=-4.228079e-04, dominant=correction
+```
+
+Increasing eta further does help, but it does not by itself close the
+remaining slabs.  The high-eta remote run gave:
+
+```text
+slab=0.0002:0.0005, radius=0.0003, eta=448
+  FAIL, margin=-5.174021e-04, dominant=defect
+
+slab=0.0005:0.001, radius=0.0003, eta=448
+  FAIL, margin=-1.375342e-04, dominant=correction
+
+slab=0.0005:0.001, radius=0.0003, eta=896
+  FAIL, margin=-2.202244e-05, dominant=correction
+
+slab=0.001:0.002, radius=0.0003, eta=448
+  FAIL, margin=-4.060184e-04, dominant=correction
+
+slab=0.001:0.002, radius=0.0003, eta=896
+  FAIL, margin=-3.434002e-04, dominant=correction
+
+slab=0.001:0.002, radius=0.0006, eta=896
+  FAIL, margin=-2.656767e-04, dominant=correction
+```
+
+The single `slab=0.0002:0.0005, eta=896` job was terminated after the other
+high-eta jobs completed because it was the only remaining long-running
+process and the eta 448 result was still clearly defect-dominated.  This is
+enough to identify the next obstruction: the route is no longer blocked
+uniformly by the first eta singularity.  Two slabs close.  The third still
+needs a tighter DK/defect enclosure, while the top two slabs need a better
+center/radius strategy or a refined continuation step because the Krawczyk
+correction is comparable with, or larger than, the allowed box radius.
