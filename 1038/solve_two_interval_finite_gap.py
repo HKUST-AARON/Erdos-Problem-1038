@@ -1119,6 +1119,124 @@ def _combined_directional_derivative_residue_log_divided_from_arb(
     return str(divided + limit_value / eta)
 
 
+def _combined_directional_derivative_residue_log_pair_divided_from_arb(
+    A,
+    alpha,
+    eta,
+    direction_A,
+    direction_alpha,
+    left_weight,
+    limit_A,
+    limit_alpha,
+    precision: int,
+) -> str:
+    """Eta-divided residue-log prototype with paired ell/r sheets.
+
+    This is a stricter experiment than
+    ``_combined_directional_derivative_residue_log_divided_from_arb``: the two
+    large smooth-pole terms on each Joukowski sheet are paired before interval
+    enclosure, so the cancellation between the ell and r residues is kept
+    inside the same expression.
+    """
+
+    from flint import arb, ctx
+
+    ctx.prec = precision
+    epsilon = eta * eta
+    ell = arb(repr(X_LEFT)) + epsilon
+    ell0 = arb(repr(X_LEFT))
+    r = arb(repr(X_RIGHT))
+    beta = arb(1) - epsilon
+    beta0 = arb(1)
+    center = (alpha + beta) / 2
+    scale = (beta - alpha) / 4
+    center0 = (limit_alpha + beta0) / 2
+    scale0 = (beta0 - limit_alpha) / 4
+
+    def left_preimages(q, q_center, q_scale):
+        y = (q - q_center) / q_scale
+        root = (y * y - 4).sqrt()
+        outer = (y - root) / 2
+        return (outer, 1 / outer)
+
+    def branch_value(rho, q_scale):
+        return q_scale * (rho - 1 / rho)
+
+    def residue(q, q_derivative, rho, q_A, q_alpha, q_scale):
+        return branch_value(rho, q_scale) / q_derivative * (
+            direction_A - (q + q_A) * direction_alpha / (2 * (q - q_alpha))
+        )
+
+    def log_abs(value):
+        return abs(value).log()
+
+    ell_derivative = (ell - r) * (ell - arb(1))
+    ell0_derivative = (ell0 - r) * (ell0 - arb(1))
+    r_derivative = (r - ell) * (r - arb(1))
+    r0_derivative = (r - ell0) * (r - arb(1))
+
+    ell_preimages = left_preimages(ell, center, scale)
+    ell0_preimages = left_preimages(ell0, center0, scale0)
+    r_preimages = left_preimages(r, center, scale)
+    r0_preimages = left_preimages(r, center0, scale0)
+
+    def paired_smooth_divided(x, x0):
+        total = arb(0)
+        for rho_ell, rho_ell0, rho_r, rho_r0 in zip(
+            ell_preimages,
+            ell0_preimages,
+            r_preimages,
+            r0_preimages,
+        ):
+            a_ell = residue(ell, ell_derivative, rho_ell, A, alpha, scale)
+            a_ell0 = residue(ell0, ell0_derivative, rho_ell0, limit_A, limit_alpha, scale0)
+            a_r = residue(r, r_derivative, rho_r, A, alpha, scale)
+            a_r0 = residue(r, r0_derivative, rho_r0, limit_A, limit_alpha, scale0)
+            sum_residue = a_ell + a_r
+            sum_residue0 = a_ell0 + a_r0
+
+            ratio = (x - rho_ell) / (x - rho_r)
+            ratio0 = (x0 - rho_ell0) / (x0 - rho_r0)
+            base = x - rho_r
+            base0 = x0 - rho_r0
+
+            total += ((a_ell - a_ell0) / eta) * log_abs(ratio0)
+            total += a_ell * log_abs(ratio / ratio0) / eta
+            total += ((sum_residue - sum_residue0) / eta) * log_abs(base0)
+            total += sum_residue * log_abs(base / base0) / eta
+        return total
+
+    def paired_smooth_limit(x0):
+        total = arb(0)
+        for rho_ell0, rho_r0 in zip(ell0_preimages, r0_preimages):
+            a_ell0 = residue(ell0, ell0_derivative, rho_ell0, limit_A, limit_alpha, scale0)
+            a_r0 = residue(r, r0_derivative, rho_r0, limit_A, limit_alpha, scale0)
+            total += a_ell0 * log_abs(x0 - rho_ell0) + a_r0 * log_abs(x0 - rho_r0)
+        return total
+
+    def endpoint_pair_divided(x):
+        sqrt_one_minus_alpha = (arb(1) - alpha).sqrt()
+        rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
+        rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
+        coefficient = sqrt_one_minus_alpha / ((arb(1) - ell) * (arb(1) - r)) * (
+            direction_A - (arb(1) + A) * direction_alpha / (2 * (arb(1) - alpha))
+        )
+        return coefficient * log_abs((x - rho_plus) / (x - rho_minus))
+
+    x_alpha = -arb(1)
+    x_alpha0 = -arb(1)
+    x_minus_one = left_preimages(-arb(1), center, scale)[0]
+    x_minus_one0 = left_preimages(-arb(1), center0, scale0)[0]
+
+    divided = -left_weight * (
+        paired_smooth_divided(x_alpha, x_alpha0) + endpoint_pair_divided(x_alpha)
+    ) - (
+        paired_smooth_divided(x_minus_one, x_minus_one0) + endpoint_pair_divided(x_minus_one)
+    )
+    limit_value = -left_weight * paired_smooth_limit(x_alpha0) - paired_smooth_limit(x_minus_one0)
+    return str(divided + limit_value / eta)
+
+
 def contact_derivative_box_acb(
     A_low: float,
     A_high: float,

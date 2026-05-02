@@ -783,3 +783,90 @@ The next proof-level implementation should not sum six separately boxed
 residue-log terms.  It should form the single rational primitive numerator over
 a common denominator, cancel removable factors, and only then take the eta
 divided difference.
+
+### H. Paired smooth-pole experiment
+
+The next attempted reduction paired the two large smooth-pole terms on each
+Joukowski sheet before taking the eta divided difference:
+
+\[
+a_\ell\log|x-\rho_\ell|+a_r\log|x-\rho_r|
+=
+a_\ell\log\left|\frac{x-\rho_\ell}{x-\rho_r}\right|
++(a_\ell+a_r)\log|x-\rho_r|.
+\]
+
+This is implemented as the experimental routine
+`_combined_directional_derivative_residue_log_pair_divided_from_arb`.
+At fixed floating parameters it agrees with the analytic Jacobian values:
+
+```text
+epsilon=0.001:
+  target=-4.5549324580472417e-01,
+  pair-divided ball contains the target
+
+epsilon=0.0001:
+  target=-4.332281104077063e-01,
+  midpoint error about 6.5e-14
+
+epsilon=0.00005:
+  target=-4.29937165414466e-01,
+  midpoint error about 4.0e-13
+```
+
+However, on the first eta interval of the first slab, it still fails badly.  In
+the eta-only version of the worst subbox, with \(u,v\) fixed at the subbox
+center and only eta interval-enclosed, the old combined quadrature gives
+
+```text
+old combined primitive:
+  DK[1,1] radius about 1.7536248
+```
+
+whereas the paired residue-log divided prototype gives
+
+```text
+paired residue-log divided:
+  DK[1,1] radius about 9.0700000
+```
+
+The component diagnosis shows the remaining wide term is not the raw
+\(\ell/r\) cancellation itself.  It is the eta divided variation of the paired
+residue sum on the outer sheet:
+
+```text
+((a_ell+a_r)-(a_ell0+a_r0))/eta:
+  radius about 0.8395
+
+multiplied by log|x-rho_r0|:
+  contributes radius about 2.37
+```
+
+Putting \(a_\ell+a_r\) over a common denominator improves almost nothing:
+
+```text
+naive pair-sum divided radius:   0.839499
+common-denominator divided radius: 0.839051
+```
+
+So the next obstruction is sharper than pairing residues.  The interval engine
+must not form
+
+\[
+\frac{f(\eta)-f(0)}{\eta}
+\]
+by evaluating \(f(\eta)\) and \(f(0)\) as two unrelated balls.  It needs a
+first-order eta Taylor model, affine arithmetic, or an explicitly derived
+divided formula for the paired residue sums themselves.
+
+Current best active checker therefore remains the combined contact/minus-one
+primitive with the unscaled LS direction:
+
+```text
+first slab eta-interval, 7,7:
+  DK[1,1]=[-1.739483, 1.739483],
+  defect=5.341965e-02.
+```
+
+The paired residue-log prototype is useful as a localization tool, but it is
+not yet a better verifier.
