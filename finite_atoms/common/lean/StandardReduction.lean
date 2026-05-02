@@ -1261,6 +1261,49 @@ theorem finite_barycenter_second_moment_eq_imp_const_on_positive_weight
   dsimp [m] at hdiff ⊢
   linarith
 
+/-! Continuous second-moment form of the same variance drop. -/
+
+lemma measure_second_moment_sub_mean_sq_nonneg
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) μ) :
+    0 ≤ (∫ t : ℝ, t ^ 2 ∂μ) - (∫ t : ℝ, t ∂μ) ^ 2 := by
+  let m : ℝ := ∫ t : ℝ, t ∂μ
+  have hcenter_nonneg : 0 ≤ ∫ t : ℝ, (t - m) ^ 2 ∂μ := by
+    exact integral_nonneg (fun t => sq_nonneg (t - m))
+  have hlin : Integrable (fun t : ℝ => 2 * m * t) μ := hfirst.const_mul (2 * m)
+  have hsub : Integrable (fun t : ℝ => t ^ 2 - 2 * m * t) μ := hsecond.sub hlin
+  have hconst : Integrable (fun _ : ℝ => m ^ 2) μ := integrable_const (m ^ 2)
+  have hidentity :
+      (∫ t : ℝ, (t - m) ^ 2 ∂μ) = (∫ t : ℝ, t ^ 2 ∂μ) - m ^ 2 := by
+    calc
+      (∫ t : ℝ, (t - m) ^ 2 ∂μ)
+          = ∫ t : ℝ, (t ^ 2 - 2 * m * t + m ^ 2) ∂μ := by
+            apply integral_congr_ae
+            filter_upwards with t
+            ring
+      _ = ∫ t : ℝ, (t ^ 2 - 2 * m * t) ∂μ + ∫ _ : ℝ, m ^ 2 ∂μ := by
+            rw [integral_add hsub hconst]
+      _ = ((∫ t : ℝ, t ^ 2 ∂μ) - ∫ t : ℝ, 2 * m * t ∂μ) +
+          ∫ _ : ℝ, m ^ 2 ∂μ := by
+            rw [integral_sub hsecond hlin]
+      _ = (∫ t : ℝ, t ^ 2 ∂μ) - 2 * m * (∫ t : ℝ, t ∂μ) + m ^ 2 := by
+            rw [integral_const_mul, integral_const]
+            simp [m]
+      _ = (∫ t : ℝ, t ^ 2 ∂μ) - m ^ 2 := by
+            simp [m]
+            ring
+  rw [← hidentity]
+  exact hcenter_nonneg
+
+theorem measure_barycenter_second_moment_le_original
+    (μ : Measure ℝ) [IsProbabilityMeasure μ]
+    (hfirst : Integrable (fun t : ℝ => t) μ)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) μ) :
+    (∫ t : ℝ, t ∂μ) ^ 2 ≤ ∫ t : ℝ, t ^ 2 ∂μ := by
+  have h := measure_second_moment_sub_mean_sq_nonneg μ hfirst hsecond
+  linarith
+
 /-!
 ## Translation/reflection normalization layer
 
