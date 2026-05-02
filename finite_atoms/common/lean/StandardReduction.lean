@@ -297,6 +297,79 @@ theorem variational_normalization_baseline_length
       volume (PositiveSet (Potential (normalize c))) := by
   exact (h.endpointForm c hc).baseline_length_le_positiveSet
 
+/-! ## Order and algebra pieces from the Tao component reduction -/
+
+/--
+The algebraic endpoint-mass step in Tao's reduction.  If the right endpoint
+`x` of the component is positive and the boundary-distance estimate gives
+
+`1 ≤ (x + 1) p + (1 - x) (1 - p)`,
+
+then the endpoint mass satisfies `p ≥ 1/2`.
+-/
+lemma endpoint_mass_ge_half_from_boundary_average {x p : ℝ}
+    (hx : 0 < x)
+    (havg : 1 ≤ (x + 1) * p + (1 - x) * (1 - p)) :
+    (1 / 2 : ℝ) ≤ p := by
+  nlinarith
+
+/--
+The order-theoretic support conclusion from the component reduction.  If the
+normalized support is contained in `[-1,1]`, the positive component contains
+`(-1,0)`, and the only support point inside that component is the endpoint atom
+`-1`, then the support is contained in `{-1} ∪ [0,1]`.
+-/
+lemma support_subset_endpoint_union_nonnegative
+    {Support : Set ℝ} {xMinus xPlus : ℝ}
+    (hBounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (hInterval : Ioo (-1 : ℝ) 0 ⊆ Ioo xMinus xPlus)
+    (hUniqueInComponent : ∀ t : ℝ, t ∈ Support → t ∈ Ioo xMinus xPlus → t = -1) :
+    Support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  intro t ht
+  have htBound := hBounded ht
+  by_cases htneg : t < 0
+  · have htle : -1 ≤ t := by simpa using htBound.1
+    by_cases htm : t = -1
+    · exact Or.inl (by simp [htm])
+    · have hgt : -1 < t := lt_of_le_of_ne htle (Ne.symm htm)
+      have htBase : t ∈ Ioo (-1 : ℝ) 0 := ⟨hgt, htneg⟩
+      have htComp : t ∈ Ioo xMinus xPlus := hInterval htBase
+      have : t = -1 := hUniqueInComponent t ht htComp
+      exact False.elim (htm this)
+  · have ht0 : 0 ≤ t := le_of_not_gt htneg
+    exact Or.inr ⟨ht0, htBound.2⟩
+
+/--
+Data extracted from the component step of Tao's minimizer reduction after
+reflection and translation have selected the component containing `(-1,0)`.
+This is still an interface for the variational part, but the two conclusions
+below are now proved from its order and algebra fields.
+-/
+structure TaoComponentReductionData where
+  Support : Set ℝ
+  endpointMass : ℝ
+  xMinus : ℝ
+  xPlus : ℝ
+  support_bounded : Support ⊆ Icc (-1 : ℝ) 1
+  baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ Ioo xMinus xPlus
+  unique_support_in_component :
+    ∀ t : ℝ, t ∈ Support → t ∈ Ioo xMinus xPlus → t = -1
+  right_endpoint_positive : 0 < xPlus
+  boundary_average :
+    1 ≤ (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)
+
+theorem TaoComponentReductionData.support_subset_normalized
+    (D : TaoComponentReductionData) :
+    D.Support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 :=
+  support_subset_endpoint_union_nonnegative D.support_bounded
+    D.baseline_inside_component D.unique_support_in_component
+
+theorem TaoComponentReductionData.endpointMass_ge_half
+    (D : TaoComponentReductionData) :
+    (1 / 2 : ℝ) ≤ D.endpointMass :=
+  endpoint_mass_ge_half_from_boundary_average D.right_endpoint_positive
+    D.boundary_average
+
 end
 
 end StandardReduction
