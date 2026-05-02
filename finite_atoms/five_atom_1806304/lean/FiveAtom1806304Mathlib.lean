@@ -43,8 +43,9 @@ def V (y : ℝ) : ℝ :=
   + w3 * Real.log (|y - s3|)⁻¹
   + w4 * Real.log (|y - s4|)⁻¹
 
-def OneVariableLogPositivity : Prop :=
-  ∀ y : ℝ, y ∈ Icc yLo yHi → 0 < V y
+def PoleFreeOneVariableLogPositivity : Prop :=
+  ∀ y : ℝ, y ∈ Icc yLo yHi →
+    y ≠ s1 → y ≠ s2 → y ≠ s3 → y ≠ s4 → 0 < V y
 
 /-! ## Exact real arithmetic for the moving tail interval -/
 
@@ -65,12 +66,16 @@ theorem y_range_of_tail {a x : ℝ}
     exact h
 
 theorem V_positive_on_tail
-    (hlog : OneVariableLogPositivity)
+    (hlog : PoleFreeOneVariableLogPositivity)
     {a x : ℝ}
     (ha : a ∈ Icc (-M) (-T))
-    (hx : x ∈ Icc (-1) 1) :
+    (hx : x ∈ Icc (-1) 1)
+    (hne1 : x - a ≠ s1)
+    (hne2 : x - a ≠ s2)
+    (hne3 : x - a ≠ s3)
+    (hne4 : x - a ≠ s4) :
     0 < V (x - a) :=
-  hlog (x - a) (y_range_of_tail ha hx)
+  hlog (x - a) (y_range_of_tail ha hx) hne1 hne2 hne3 hne4
 
 /-! ## Exact disjointness of the five swept intervals -/
 
@@ -611,6 +616,116 @@ theorem all_five_atom_log_checks_internal :
     (fun y hy => V_r3_bracket_positive_internal hy),
     (fun y hy => V_r4_bracket_positive_internal hy),
     V_yHi_positive_internal⟩
+
+/-! ## Conditional closure from a monotone partition
+
+The internal logarithm checks above certify the two endpoints and the four
+small critical brackets.  The remaining analytic closure is to prove that the
+checked bracket endpoint is a lower bound on each adjacent monotone piece.
+
+This theorem is deliberately stated in that form: it is the exact formal
+interface needed from the derivative/critical-polynomial layer.
+-/
+
+def r1L : ℝ := q 77003805 100000000
+def r1R : ℝ := q 77003806 100000000
+def r2L : ℝ := q 252642600 100000000
+def r2R : ℝ := q 252642601 100000000
+def r3L : ℝ := q 260759965 100000000
+def r3R : ℝ := q 260759966 100000000
+def r4L : ℝ := q 274249871 100000000
+def r4R : ℝ := q 274249872 100000000
+
+theorem poleFreeOneVariableLogPositivity_from_internal_checks_of_monotone_partition
+    (h_yLo_r1 :
+      ∀ y : ℝ, y ∈ Icc yLo r1L → V r1L ≤ V y)
+    (h_r1_s1 :
+      ∀ y : ℝ, y ∈ Icc r1R s1 → y ≠ s1 → V r1R ≤ V y)
+    (h_s1_r2 :
+      ∀ y : ℝ, y ∈ Icc s1 r2L → y ≠ s1 → V r2L ≤ V y)
+    (h_r2_s2 :
+      ∀ y : ℝ, y ∈ Icc r2R s2 → y ≠ s2 → V r2R ≤ V y)
+    (h_s2_r3 :
+      ∀ y : ℝ, y ∈ Icc s2 r3L → y ≠ s2 → V r3L ≤ V y)
+    (h_r3_s3 :
+      ∀ y : ℝ, y ∈ Icc r3R s3 → y ≠ s3 → V r3R ≤ V y)
+    (h_s3_r4 :
+      ∀ y : ℝ, y ∈ Icc s3 r4L → y ≠ s3 → V r4L ≤ V y)
+    (h_r4_s4 :
+      ∀ y : ℝ, y ∈ Icc r4R s4 → y ≠ s4 → V r4R ≤ V y)
+    (h_s4_yHi :
+      ∀ y : ℝ, y ∈ Icc s4 yHi → y ≠ s4 → V yHi ≤ V y) :
+    PoleFreeOneVariableLogPositivity := by
+  intro y hy hne1 hne2 hne3 hne4
+  by_cases hy_r1L : y ≤ r1L
+  · have hcrit : 0 < V r1L := by
+      apply V_r1_bracket_positive_internal (y := r1L)
+      norm_num [r1L, q]
+    exact hcrit.trans_le (h_yLo_r1 y ⟨hy.1, hy_r1L⟩)
+  · have hr1L_y : r1L ≤ y := le_of_lt (lt_of_not_ge hy_r1L)
+    by_cases hy_r1R : y ≤ r1R
+    · exact V_r1_bracket_positive_internal (y := y) (by
+        simpa [r1L, r1R] using (⟨hr1L_y, hy_r1R⟩ : y ∈ Icc r1L r1R))
+    · have hr1R_y : r1R ≤ y := le_of_lt (lt_of_not_ge hy_r1R)
+      by_cases hy_s1 : y < s1
+      · have hcrit : 0 < V r1R := by
+          apply V_r1_bracket_positive_internal (y := r1R)
+          norm_num [r1R, q]
+        exact hcrit.trans_le (h_r1_s1 y ⟨hr1R_y, hy_s1.le⟩ (ne_of_lt hy_s1))
+      · have hs1_y : s1 ≤ y := le_of_not_gt hy_s1
+        have hs1_lt_y : s1 < y := lt_of_le_of_ne hs1_y hne1.symm
+        by_cases hy_r2L : y ≤ r2L
+        · have hcrit : 0 < V r2L := by
+            apply V_r2_bracket_positive_internal (y := r2L)
+            norm_num [r2L, q]
+          exact hcrit.trans_le (h_s1_r2 y ⟨hs1_y, hy_r2L⟩ hne1)
+        · have hr2L_y : r2L ≤ y := le_of_lt (lt_of_not_ge hy_r2L)
+          by_cases hy_r2R : y ≤ r2R
+          · exact V_r2_bracket_positive_internal (y := y) (by
+              simpa [r2L, r2R] using (⟨hr2L_y, hy_r2R⟩ : y ∈ Icc r2L r2R))
+          · have hr2R_y : r2R ≤ y := le_of_lt (lt_of_not_ge hy_r2R)
+            by_cases hy_s2 : y < s2
+            · have hcrit : 0 < V r2R := by
+                apply V_r2_bracket_positive_internal (y := r2R)
+                norm_num [r2R, q]
+              exact hcrit.trans_le (h_r2_s2 y ⟨hr2R_y, hy_s2.le⟩ (ne_of_lt hy_s2))
+            · have hs2_y : s2 ≤ y := le_of_not_gt hy_s2
+              have hs2_lt_y : s2 < y := lt_of_le_of_ne hs2_y hne2.symm
+              by_cases hy_r3L : y ≤ r3L
+              · have hcrit : 0 < V r3L := by
+                  apply V_r3_bracket_positive_internal (y := r3L)
+                  norm_num [r3L, q]
+                exact hcrit.trans_le (h_s2_r3 y ⟨hs2_y, hy_r3L⟩ hne2)
+              · have hr3L_y : r3L ≤ y := le_of_lt (lt_of_not_ge hy_r3L)
+                by_cases hy_r3R : y ≤ r3R
+                · exact V_r3_bracket_positive_internal (y := y) (by
+                    simpa [r3L, r3R] using (⟨hr3L_y, hy_r3R⟩ : y ∈ Icc r3L r3R))
+                · have hr3R_y : r3R ≤ y := le_of_lt (lt_of_not_ge hy_r3R)
+                  by_cases hy_s3 : y < s3
+                  · have hcrit : 0 < V r3R := by
+                      apply V_r3_bracket_positive_internal (y := r3R)
+                      norm_num [r3R, q]
+                    exact hcrit.trans_le (h_r3_s3 y ⟨hr3R_y, hy_s3.le⟩ (ne_of_lt hy_s3))
+                  · have hs3_y : s3 ≤ y := le_of_not_gt hy_s3
+                    have hs3_lt_y : s3 < y := lt_of_le_of_ne hs3_y hne3.symm
+                    by_cases hy_r4L : y ≤ r4L
+                    · have hcrit : 0 < V r4L := by
+                        apply V_r4_bracket_positive_internal (y := r4L)
+                        norm_num [r4L, q]
+                      exact hcrit.trans_le (h_s3_r4 y ⟨hs3_y, hy_r4L⟩ hne3)
+                    · have hr4L_y : r4L ≤ y := le_of_lt (lt_of_not_ge hy_r4L)
+                      by_cases hy_r4R : y ≤ r4R
+                      · exact V_r4_bracket_positive_internal (y := y) (by
+                          simpa [r4L, r4R] using (⟨hr4L_y, hy_r4R⟩ : y ∈ Icc r4L r4R))
+                      · have hr4R_y : r4R ≤ y := le_of_lt (lt_of_not_ge hy_r4R)
+                        by_cases hy_s4 : y < s4
+                        · have hcrit : 0 < V r4R := by
+                            apply V_r4_bracket_positive_internal (y := r4R)
+                            norm_num [r4R, q]
+                          exact hcrit.trans_le (h_r4_s4 y ⟨hr4R_y, hy_s4.le⟩ (ne_of_lt hy_s4))
+                        · have hs4_y : s4 ≤ y := le_of_not_gt hy_s4
+                          exact V_yHi_positive_internal.trans_le
+                            (h_s4_yHi y ⟨hs4_y, hy.2⟩ hne4)
 
 end
 

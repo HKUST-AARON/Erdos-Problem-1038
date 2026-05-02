@@ -44,6 +44,7 @@ Lean files:
 
 ```text
 finite_atoms/five_atom_1806304/lean/FiveAtom1806304Mathlib.lean
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304BoxCertificate.lean
 finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
 finite_atoms/five_atom_1806304/lean/FiveAtom1806304Route.lean
 ```
@@ -107,3 +108,24 @@ and packages the final route as an implication from the long forcing
 contribution, the tail contribution, and the disjoint-additivity rule.
 
 Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
+
+## Check all finite-atom certificates
+
+The local Mathlib workspace used for these checks is not vendored in this
+repository. On this machine the default is:
+
+```bash
+/Users/aaron/Downloads/erdos数学问题
+```
+
+Run every current finite-atom Lean check with:
+
+```bash
+finite_atoms/check_all.sh
+```
+
+If Mathlib is in another local folder, run:
+
+```bash
+MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
+```

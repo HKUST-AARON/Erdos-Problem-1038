@@ -14,7 +14,7 @@ forces at least one of the five swept points to lie in the positive set $\lbrace
 
 For this tail block the swept intervals are disjoint from the already-covered long interval. So the sweep contributes its full parameter length.
 
-The analytic check reduces to one variable. Writing $y=x-a$, the potential of $\lambda_a$ is a fixed function $V(y)$. Away from its poles, any minimum of $V$ on the relevant interval occurs at an endpoint or a critical point. The derivative numerator is a quartic, so the proof brackets the four critical points and checks $V>0$ on those brackets and at the two endpoints.
+The analytic check reduces to one variable. Writing $y=x-a$, the potential of $\lambda_a$ is a fixed function $V(y)$. The package records the endpoint and critical-bracket checks, and also includes a separate rational interval-box closure that covers the full pole-free interval.
 
 ## Certificate
 
@@ -53,6 +53,17 @@ $$
 0.708\le y\le 2.806304.
 $$
 
+The four shifted locations
+
+$$
+s_1=1.80650001,\quad s_2=2.57053197,\quad s_3=2.68367709,\quad s_4=2.79017717
+$$
+
+are the potential singularities of the one-variable `Real.log` expression.
+The formal one-variable target is therefore pole-free: it asserts positivity
+on the interval above only for $y\ne s_1,s_2,s_3,s_4$, not on the closed
+interval including the poles.
+
 The proof checks positivity at the two endpoints and on these four critical brackets:
 
 $$
@@ -72,7 +83,17 @@ $$
 lean/FiveAtom1806304Mathlib.lean
 ```
 
-proves the `Real.log` positivity checks for $V$ using Mathlib logarithm estimates.
+proves the `Real.log` positivity checks for $V$ using Mathlib logarithm estimates
+and packages the monotone-partition closure as `PoleFreeOneVariableLogPositivity`,
+excluding the four potential singularities $s_1,\ldots,s_4$.
+
+```text
+lean/FiveAtom1806304BoxCertificate.lean
+```
+
+proves the unconditional pole-free one-variable target
+`poleFreeOneVariableLogPositivity_from_boxes` by a rational interval-box cover
+of the five smooth components between the poles.
 
 ```text
 lean/FiveAtom1806304Formal.lean
@@ -88,11 +109,11 @@ proves the route-level bookkeeping: the tail length, the swept-interval disjoint
 
 ## Check it
 
-Run this from the folder:
+Run the current finite-atom checks from the repository root:
 
 ```bash
-lake exe cache get
-lake env lean lean/FiveAtom1806304Mathlib.lean
-lake env lean lean/FiveAtom1806304Formal.lean
-lake env lean lean/FiveAtom1806304Route.lean
+finite_atoms/check_all.sh
 ```
+
+The script uses the local Mathlib workspace and handles the temporary `.olean`
+needed by `FiveAtom1806304BoxCertificate.lean`.
