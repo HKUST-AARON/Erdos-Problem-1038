@@ -14,6 +14,16 @@ Equivalently, for the logarithmic potential attached to the empirical root measu
 
 ## Current formal blocks
 
+The current package supports the following precise statement:
+
+> For the conditional finite-atom update at $M=1.806304$, the two finite
+> certificate blocks used in the argument have Lean-checked certificate
+> packages: the preceding forcing branch and the five-atom tail block.
+
+The mathematical inputs not supplied by these finite certificate files are the
+standard minimizer reduction and the duality/sweep framework used in the
+notes/comments.
+
 ### Five-atom tail block
 
 The first checked block is the five-atom tail certificate at
