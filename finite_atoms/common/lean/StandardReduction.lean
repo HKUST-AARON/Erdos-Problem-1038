@@ -1223,6 +1223,64 @@ theorem measureLogPotential_positiveSet_measure_le_liminf
     (fun i => measureLogPotential (μs i))
     herr
 
+def truncatedLogKernel (ε x : ℝ) (t : ℝ) : ℝ :=
+  Real.log (1 / max ε |x - t|)
+
+lemma continuous_truncatedLogKernel {ε x : ℝ} (hε : 0 < ε) :
+    Continuous (fun t : ℝ => truncatedLogKernel ε x t) := by
+  unfold truncatedLogKernel
+  apply Continuous.log
+  · exact continuous_const.div₀
+      (continuous_const.max ((continuous_const.sub continuous_id).abs))
+      (fun t => by
+        have hmax : 0 < max ε |x - t| :=
+          lt_of_lt_of_le hε (le_max_left ε |x - t|)
+        exact ne_of_gt hmax)
+  · intro t
+    have hmax : 0 < max ε |x - t| :=
+      lt_of_lt_of_le hε (le_max_left ε |x - t|)
+    exact div_ne_zero one_ne_zero (ne_of_gt hmax)
+
+noncomputable def truncatedLogKernelBCF (ε x : ℝ) (hε : 0 < ε) :
+    BoundedContinuousFunction UnitInterval1038 ℝ :=
+  BoundedContinuousFunction.mkOfCompact
+    ⟨fun t : UnitInterval1038 => truncatedLogKernel ε x t,
+      (continuous_truncatedLogKernel (x := x) hε).comp
+        continuous_subtype_val⟩
+
+lemma truncatedLogKernel_integral_tendsto
+    {ι : Type*} {L : Filter ι}
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {μs : ι → ProbabilityMeasure UnitInterval1038}
+    (hμs : Filter.Tendsto μs L (nhds μ)) {ε x : ℝ}
+    (hε : 0 < ε) :
+    Filter.Tendsto
+      (fun i => ∫ t : UnitInterval1038,
+        truncatedLogKernel ε x t ∂(μs i : Measure UnitInterval1038)) L
+      (nhds (∫ t : UnitInterval1038,
+        truncatedLogKernel ε x t ∂(μ : Measure UnitInterval1038))) := by
+  simpa [truncatedLogKernelBCF] using
+    (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp hμs)
+      (truncatedLogKernelBCF ε x hε)
+
+lemma truncatedLogKernel_le_logKernel {ε x t : ℝ}
+    (hε : 0 < ε) (hne : x ≠ t) :
+    truncatedLogKernel ε x t ≤ Real.log (1 / |x - t|) := by
+  unfold truncatedLogKernel
+  have hdist : 0 < |x - t| := abs_pos.mpr (sub_ne_zero.mpr hne)
+  have hmaxpos : 0 < max ε |x - t| :=
+    lt_of_lt_of_le hε (le_max_left ε |x - t|)
+  have hden : |x - t| ≤ max ε |x - t| := le_max_right ε |x - t|
+  have hinv : 1 / max ε |x - t| ≤ 1 / |x - t| := by
+    exact one_div_le_one_div_of_le hdist hden
+  exact Real.log_le_log (one_div_pos.mpr hmaxpos) hinv
+
+lemma truncatedLogKernel_eq_logKernel_of_eps_le_dist {ε x t : ℝ}
+    (hε : ε ≤ |x - t|) :
+    truncatedLogKernel ε x t = Real.log (1 / |x - t|) := by
+  unfold truncatedLogKernel
+  rw [max_eq_right hε]
+
 lemma probability_measure_integral_boundedContinuousFunction_tendsto
     {Ω ι : Type*} {L : Filter ι}
     [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
