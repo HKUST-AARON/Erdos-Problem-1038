@@ -1048,6 +1048,52 @@ theorem admissible_probability_lsc_exists_minimizer
     ⟨μ, _hμ, hmin⟩
   exact ⟨μ, fun ν => hmin trivial⟩
 
+lemma argmin_set_eq_sublevel_at_min
+    {α : Type*} [TopologicalSpace α] (objective : α → ℝ) (a0 : α)
+    (hmin : ∀ b : α, objective a0 ≤ objective b) :
+    {a : α | ∀ b : α, objective a ≤ objective b} =
+      objective ⁻¹' Iic (objective a0) := by
+  ext a
+  constructor
+  · intro ha
+    exact ha a0
+  · intro ha b
+    exact le_trans ha (hmin b)
+
+lemma compact_argmin_set_of_lsc
+    {α : Type*} [TopologicalSpace α] [CompactSpace α]
+    (objective : α → ℝ) (a0 : α)
+    (hlsc : LowerSemicontinuous objective)
+    (hmin : ∀ b : α, objective a0 ≤ objective b) :
+    IsCompact {a : α | ∀ b : α, objective a ≤ objective b} := by
+  rw [argmin_set_eq_sublevel_at_min objective a0 hmin]
+  exact (hlsc.isClosed_preimage (objective a0)).isCompact
+
+theorem admissible_probability_lsc_exists_secondary_minimizer
+    (primary secondary : AdmissibleProbability1038 → ℝ)
+    (hprimary_lsc : LowerSemicontinuous primary)
+    (hsecondary_lsc : LowerSemicontinuous secondary) :
+    ∃ μ : AdmissibleProbability1038,
+      (∀ ν : AdmissibleProbability1038, primary μ ≤ primary ν) ∧
+      ∀ ν : AdmissibleProbability1038,
+        (∀ η : AdmissibleProbability1038, primary ν ≤ primary η) →
+          secondary μ ≤ secondary ν := by
+  rcases admissible_probability_lsc_exists_minimizer primary
+      hprimary_lsc with ⟨μ0, hμ0⟩
+  let Argmin : AdmissibleProbability1038 → Prop :=
+    fun μ => ∀ ν : AdmissibleProbability1038, primary μ ≤ primary ν
+  have hne : ∃ μ : AdmissibleProbability1038, Argmin μ := ⟨μ0, hμ0⟩
+  have hcompact : IsCompact {μ : AdmissibleProbability1038 | Argmin μ} := by
+    simpa [Argmin] using
+      compact_argmin_set_of_lsc primary μ0 hprimary_lsc hμ0
+  have hsecOn :
+      LowerSemicontinuousOn secondary
+        {μ : AdmissibleProbability1038 | Argmin μ} :=
+    hsecondary_lsc.lowerSemicontinuousOn
+      {μ : AdmissibleProbability1038 | Argmin μ}
+  rcases hsecOn.exists_isMinOn hne hcompact with ⟨μ, hμ, hminsec⟩
+  exact ⟨μ, hμ, fun ν hν => hminsec hν⟩
+
 structure MinimizationProblem (α : Type*) [TopologicalSpace α] where
   Admissible : α → Prop
   objective : α → ℝ
