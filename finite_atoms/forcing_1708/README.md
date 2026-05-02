@@ -127,3 +127,19 @@ find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/co
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/geometry_chunks -name 'Forcing1708Geometry*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/analytic_precondition_chunks -name 'Forcing1708AnalyticPre*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 ```
+
+For the aggregate index certificates, use:
+
+```bash
+LEAN_JOBS=6 /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/scripts/check_aggregate.sh
+```
+
+This compiles the chunk modules to a temporary local olean directory and then
+checks the four aggregate index files:
+
+```text
+Forcing1708BoxData.lean
+Forcing1708GeometryIndex.lean
+Forcing1708CoverageIndex.lean
+Forcing1708AnalyticPreconditionsIndex.lean
+```
