@@ -6,6 +6,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
+import Mathlib.Topology.Semicontinuity.Basic
 
 /-!
 # Normalized-support consequence used in the standard reduction
@@ -858,6 +859,198 @@ theorem measureLogPotential_nonneg_of_nonpositive_mean
     hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
   rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos]
   linarith
+
+/-!
+## Compactness layer for Tao's Lemma 3.1
+
+Tao's existence step uses the direct method: compactness of the admissible
+class and lower semicontinuity of the objective imply existence of a minimizer.
+The theorem below is the exact general topological statement, with no
+problem-specific placeholder.
+-/
+
+theorem compact_nonempty_lsc_exists_minimizer
+    {α : Type*} [TopologicalSpace α]
+    (s : Set α) (objective : α → ℝ)
+    (hne : s.Nonempty)
+    (hcompact : IsCompact s)
+    (hlsc : LowerSemicontinuousOn objective s) :
+    ∃ a : α, a ∈ s ∧ ∀ b : α, b ∈ s → objective a ≤ objective b := by
+  rcases hlsc.exists_isMinOn hne hcompact with ⟨a, ha, hmin⟩
+  exact ⟨a, ha, fun b hb => hmin hb⟩
+
+/-- Predicate form of `compact_nonempty_lsc_exists_minimizer`. -/
+theorem compact_predicate_lsc_exists_minimizer
+    {α : Type*} [TopologicalSpace α]
+    (Admissible : α → Prop) (objective : α → ℝ)
+    (hne : ∃ a : α, Admissible a)
+    (hcompact : IsCompact {a : α | Admissible a})
+    (hlsc : LowerSemicontinuousOn objective {a : α | Admissible a}) :
+    ∃ a : α, Admissible a ∧ ∀ b : α, Admissible b → objective a ≤ objective b := by
+  rcases compact_nonempty_lsc_exists_minimizer
+      {a : α | Admissible a} objective hne hcompact hlsc with
+    ⟨a, ha, hmin⟩
+  exact ⟨a, ha, fun b hb => hmin b hb⟩
+
+structure MinimizationProblem (α : Type*) [TopologicalSpace α] where
+  Admissible : α → Prop
+  objective : α → ℝ
+  nonempty_admissible : ∃ a : α, Admissible a
+  compact_admissible : IsCompact {a : α | Admissible a}
+  lowerSemicontinuous_objective :
+    LowerSemicontinuousOn objective {a : α | Admissible a}
+
+theorem MinimizationProblem.exists_minimizer
+    {α : Type*} [TopologicalSpace α] (P : MinimizationProblem α) :
+    ∃ a : α, P.Admissible a ∧
+      ∀ b : α, P.Admissible b → P.objective a ≤ P.objective b := by
+  exact compact_predicate_lsc_exists_minimizer P.Admissible P.objective
+    P.nonempty_admissible P.compact_admissible
+    P.lowerSemicontinuous_objective
+
+def IsMinimizer
+    {α : Type*} [TopologicalSpace α] (P : MinimizationProblem α) (a : α) : Prop :=
+  P.Admissible a ∧ ∀ b : α, P.Admissible b → P.objective a ≤ P.objective b
+
+theorem MinimizationProblem.exists_isMinimizer
+    {α : Type*} [TopologicalSpace α] (P : MinimizationProblem α) :
+    ∃ a : α, IsMinimizer P a := by
+  simpa [IsMinimizer] using P.exists_minimizer
+
+/-!
+## Variance-selector layer
+
+After Lemma 3.1 gives at least one minimizer, Tao chooses a minimizer with
+minimal variance.  The next structure packages the exact hypotheses needed for
+that second compactness step, and the theorem proves the selector.
+-/
+
+structure SecondarySelectorProblem
+    (α : Type*) [TopologicalSpace α] where
+  Primary : MinimizationProblem α
+  secondaryObjective : α → ℝ
+  minimizer_set_compact :
+    IsCompact {a : α | IsMinimizer Primary a}
+  secondary_lsc_on_minimizers :
+    LowerSemicontinuousOn secondaryObjective {a : α | IsMinimizer Primary a}
+
+def IsSecondaryMinimizingPrimaryMinimizer
+    {α : Type*} [TopologicalSpace α]
+    (P : SecondarySelectorProblem α) (a : α) : Prop :=
+  IsMinimizer P.Primary a ∧
+    ∀ b : α, IsMinimizer P.Primary b →
+      P.secondaryObjective a ≤ P.secondaryObjective b
+
+theorem SecondarySelectorProblem.exists_secondary_minimizer
+    {α : Type*} [TopologicalSpace α] (P : SecondarySelectorProblem α) :
+    ∃ a : α, IsSecondaryMinimizingPrimaryMinimizer P a := by
+  have hne : ∃ a : α, IsMinimizer P.Primary a :=
+    P.Primary.exists_isMinimizer
+  rcases compact_predicate_lsc_exists_minimizer
+      (fun a : α => IsMinimizer P.Primary a)
+      P.secondaryObjective hne P.minimizer_set_compact
+      P.secondary_lsc_on_minimizers with
+    ⟨a, hmin, hsecondary⟩
+  exact ⟨a, hmin, hsecondary⟩
+
+/-!
+## Replacement/variance contradiction layer
+
+This abstracts Tao's barycenter-replacement move.  If a replacement stays
+admissible, does not increase the primary objective, and strictly decreases the
+secondary objective, then it contradicts the choice of a secondary-minimizing
+primary minimizer.
+-/
+
+lemma replacement_is_primary_minimizer
+    {α : Type*} [TopologicalSpace α]
+    {P : MinimizationProblem α} {a b : α}
+    (ha : IsMinimizer P a)
+    (hb_adm : P.Admissible b)
+    (hb_primary : P.objective b ≤ P.objective a) :
+    IsMinimizer P b := by
+  constructor
+  · exact hb_adm
+  · intro c hc
+    exact le_trans hb_primary (ha.2 c hc)
+
+lemma no_strict_secondary_decreasing_replacement
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizer P a)
+    (hb_adm : P.Primary.Admissible b)
+    (hb_primary : P.Primary.objective b ≤ P.Primary.objective a) :
+    ¬ P.secondaryObjective b < P.secondaryObjective a := by
+  intro hb_secondary
+  have hb_min : IsMinimizer P.Primary b :=
+    replacement_is_primary_minimizer ha.1 hb_adm hb_primary
+  have hsec_le : P.secondaryObjective a ≤ P.secondaryObjective b :=
+    ha.2 b hb_min
+  exact not_lt_of_ge hsec_le hb_secondary
+
+theorem secondary_minimizer_forces_replacement_rigidity
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizer P a)
+    (hb_adm : P.Primary.Admissible b)
+    (hb_primary : P.Primary.objective b ≤ P.Primary.objective a)
+    (hb_secondary_le : P.secondaryObjective b ≤ P.secondaryObjective a) :
+    P.secondaryObjective b = P.secondaryObjective a := by
+  have hnot_lt :=
+    no_strict_secondary_decreasing_replacement ha hb_adm hb_primary
+  exact le_antisymm hb_secondary_le (le_of_not_gt hnot_lt)
+
+/-!
+## Translation/reflection normalization layer
+
+Once the secondary-minimizing minimizer has the rigidity properties needed by
+Tao's component argument, the reflection/translation normalization is encoded
+as a map into a normalized configuration whose potential satisfies
+`NormalizedEndpointPotential`.
+-/
+
+structure SecondaryMinimizerNormalization
+    {α Normalized : Type} [TopologicalSpace α]
+    (P : SecondarySelectorProblem α)
+    (normalize : α → Normalized)
+    (Potential : Normalized → ℝ → ℝ) where
+  endpointForm :
+    ∀ a : α, IsSecondaryMinimizingPrimaryMinimizer P a →
+      NormalizedEndpointPotential (Potential (normalize a))
+
+theorem SecondaryMinimizerNormalization.exists_normalized_endpoint_potential
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hNorm : SecondaryMinimizerNormalization P normalize Potential) :
+    ∃ a : α, IsSecondaryMinimizingPrimaryMinimizer P a ∧
+      Nonempty (NormalizedEndpointPotential (Potential (normalize a))) := by
+  rcases P.exists_secondary_minimizer with ⟨a, ha⟩
+  exact ⟨a, ha, ⟨hNorm.endpointForm a ha⟩⟩
+
+theorem SecondaryMinimizerNormalization.exists_baseline_length
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hNorm : SecondaryMinimizerNormalization P normalize Potential) :
+    ∃ a : α, IsSecondaryMinimizingPrimaryMinimizer P a ∧
+      ENNReal.ofReal (Real.sqrt 2) ≤
+        volume (PositiveSet (Potential (normalize a))) := by
+  rcases hNorm.exists_normalized_endpoint_potential with ⟨a, ha, ⟨hendpoint⟩⟩
+  exact ⟨a, ha, hendpoint.baseline_length_le_positiveSet⟩
+
+def secondary_normalization_gives_standard_reduction
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hNorm : SecondaryMinimizerNormalization P normalize Potential) :
+    StandardMinimizerReduction α
+      (fun a => IsSecondaryMinimizingPrimaryMinimizer P a)
+      (fun a => Potential (normalize a)) where
+  normalize := hNorm.endpointForm
 
 end
 
