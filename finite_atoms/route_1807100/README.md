@@ -1,9 +1,9 @@
-# Route closure for the 1.806304 finite-atom update
+# Route closure for the 1.807100 finite-atom update
 
 This folder is the entry point for the conditional finite-atom update at
 
 ```text
-M = 1.806304
+M = 1.807100
 ```
 
 It records what is internal to the Lean certificate package and what remains an
@@ -12,14 +12,14 @@ external mathematical input.
 ## Lean file
 
 ```text
-lean/Route1806304Closure.lean
+lean/Route1807100Closure.lean
 ```
 
 This file proves the exact arithmetic closure of the route:
 
 ```text
-1.708 + (1.806304 - 1.708) = 1.806304
-1.806304 < 1.836
+1.708 + (1.807100 - 1.708) = 1.807100
+1.807100 < 1.836
 ```
 
 It also packages the finite route as an implication:
@@ -28,14 +28,14 @@ It also packages the finite route as an implication:
 long forcing contribution
 + tail contribution
 + addition rule
-=> final 1.806304 contribution
+=> final 1.807100 contribution
 ```
 
 The finite certificates supplying the two contributions are in:
 
 ```text
 finite_atoms/forcing_1708/
-finite_atoms/five_atom_1806304/
+finite_atoms/five_atom_1807100/
 finite_atoms/common/
 ```
 

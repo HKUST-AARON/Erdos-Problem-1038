@@ -1,20 +1,20 @@
 import Mathlib
 
 /-!
-# Route spine for the `M = 1.806304` finite-atom certificate
+# Route spine for the `M = 1.807100` finite-atom certificate
 
 This file formalizes the bookkeeping layer that combines the earlier forcing
 step with the five-atom tail block.
 
-The one-variable logarithmic checks are in `FiveAtom1806304Mathlib.lean`.
+The one-variable logarithmic checks are in `FiveAtom1807100Mathlib.lean`.
 This file keeps the route-level assumptions explicit: the earlier forcing
 branch, the dual-forcing selector, and the measure-theoretic sweep lemma enter
-as hypotheses.  Under those hypotheses, the final `1.806304` target is proved
+as hypotheses.  Under those hypotheses, the final `1.807100` target is proved
 inside Lean.
 -/
 
 namespace Erdos1038
-namespace FiveAtom1806304Route
+namespace FiveAtom1807100Route
 
 noncomputable section
 
@@ -24,13 +24,13 @@ open scoped ENNReal
 
 def q (n d : ℕ) : ℝ := (n : ℝ) / (d : ℝ)
 
-def M : ℝ := q 1806304 1000000
+def M : ℝ := q 1807100 1000000
 def T : ℝ := q 1708 1000
 
-def s1 : ℝ := q 180650001 100000000
-def s2 : ℝ := q 257053197 100000000
-def s3 : ℝ := q 268367709 100000000
-def s4 : ℝ := q 279017717 100000000
+def s1 : ℝ := q 180710376 100000000
+def s2 : ℝ := q 257979789 100000000
+def s3 : ℝ := q 269319012 100000000
+def s4 : ℝ := q 279229832 100000000
 
 /-! ## Swept intervals -/
 
@@ -244,7 +244,7 @@ theorem tailSelector_length_sum_lower_bound
 
 /-! ## Exact arithmetic -/
 
-theorem tail_length : M - T = q 98304 1000000 := by
+theorem tail_length : M - T = q 99100 1000000 := by
   norm_num [M, T, q]
 
 theorem target_length_arithmetic : T + (M - T) = M := by
@@ -378,9 +378,9 @@ def AddDisjointLengthRule (LengthAtLeast : ℝ → Prop) : Prop :=
   LengthAtLeast T → LengthAtLeast (M - T) → LengthAtLeast M
 
 /--
-Conditional route theorem for the finite-atom update to `M = 1.806304`.
+Conditional route theorem for the finite-atom update to `M = 1.807100`.
 -/
-theorem finite_atom_route_1806304
+theorem finite_atom_route_1807100
     {E : Set ℝ} {LengthAtLeast : ℝ → Prop}
     (long : LongForcingContribution LengthAtLeast)
     (selector : TailSelector E)
@@ -398,14 +398,14 @@ theorem finite_atom_route_target_decimal
     (selector : TailSelector E)
     (tailSweep : TailSweepContribution LengthAtLeast E)
     (addRule : AddDisjointLengthRule LengthAtLeast) :
-    LengthAtLeast (q 1806304 1000000) := by
+    LengthAtLeast (q 1807100 1000000) := by
   simpa [M] using
-    (finite_atom_route_1806304 (E := E) (LengthAtLeast := LengthAtLeast)
+    (finite_atom_route_1807100 (E := E) (LengthAtLeast := LengthAtLeast)
       long selector tailSweep addRule)
 
 /-- Bundle of internal arithmetic and disjointness facts proved in this file. -/
 theorem route_spine_internal_certificate :
-    (M - T = q 98304 1000000) ∧
+    (M - T = q 99100 1000000) ∧
     (T + (M - T) = M) ∧
     (M < q 1836 1000) ∧
     (Disjoint I0 LongInterval ∧
@@ -422,5 +422,5 @@ theorem route_spine_internal_certificate :
 
 end
 
-end FiveAtom1806304Route
+end FiveAtom1807100Route
 end Erdos1038
