@@ -12,9 +12,11 @@ $$
 
 Equivalently, for the logarithmic potential attached to the empirical root measure, one studies the length of the positive set $\lbrace U>0\rbrace$.
 
-## What is here now
+## Current formal blocks
 
-The first checked block is a five-atom tail certificate at
+### Five-atom tail block
+
+The first checked block is the five-atom tail certificate at
 
 $$
 M=1.806304.
@@ -36,4 +38,32 @@ finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
 finite_atoms/five_atom_1806304/lean/FiveAtom1806304Route.lean
 ```
 
-Later finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
+### Forcing branch before the tail block
+
+The second checked block is the two-parameter forcing branch used before the
+five-atom tail argument:
+
+$$
+a\in[-1.7,-\sqrt2],\qquad b=s(1.82+a),\qquad s\in[0,1],
+$$
+
+$$
+\nu_{a,b}=\delta_a+(1.395-b)\delta_b+C(a,b)\delta_{1.071-b},
+$$
+
+where $C(a,b)$ is chosen by $U_{\nu_{a,b}}(-1)=10^{-4}$.
+
+Folder:
+
+```text
+finite_atoms/forcing_1708/
+```
+
+This folder contains:
+
+- fixed-constant and domain-arithmetic Lean proofs;
+- the generic `Real.log` interval-box soundness lemma;
+- exact rational arithmetic checks for 980 boxes;
+- finite coverage checks for 23010 elementary cells.
+
+Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
