@@ -1118,3 +1118,67 @@ uniformly by the first eta singularity.  Two slabs close.  The third still
 needs a tighter DK/defect enclosure, while the top two slabs need a better
 center/radius strategy or a refined continuation step because the Krawczyk
 correction is comparable with, or larger than, the allowed box radius.
+
+## L. Four Of Five Adjacent Slabs Closed By Tuning
+
+The next remote-only tuning pass was run after the section K matrix.  It did
+not change the center model; it only tuned the Krawczyk box radius and eta
+subdivision count in the existing `affine-endpoints` verifier.
+
+The third slab, which previously failed by about \(5\times 10^{-4}\), closes
+in a narrow radius window:
+
+```text
+slab=0.0002:0.0005, radius=0.00028, eta=1344
+  PASS, worst_margin=6.622592e-06
+
+slab=0.0002:0.0005, radius=0.00029, eta=1344
+  PASS, worst_margin=1.640791e-05
+```
+
+The fourth slab also closes once the radius is increased enough to absorb the
+sampled center correction but not so much that the DK defect dominates:
+
+```text
+slab=0.0005:0.001, radius=0.0004, eta=896
+  PASS, worst_margin=7.475216e-05
+
+slab=0.0005:0.001, radius=0.0004, eta=1344
+  PASS, worst_margin=7.527316e-05
+
+slab=0.0005:0.001, radius=0.0006, eta=1344
+  PASS, worst_margin=2.686209e-04
+
+slab=0.0005:0.001, radius=0.0008, eta=1344
+  PASS, worst_margin=3.580990e-05
+```
+
+Together with section K, this gives a four-slab diagnostic closure:
+
+```text
+0.00005:0.0001   PASS, radius=0.0003,  eta=224
+0.0001:0.0002    PASS, radius=0.0003,  eta=224
+0.0002:0.0005    PASS, radius=0.00029, eta=1344
+0.0005:0.001     PASS, radius=0.0006,  eta=1344
+0.001:0.002      open in this verifier
+```
+
+The remaining top slab was improved but not closed:
+
+```text
+slab=0.001:0.002, radius=0.0008,  eta=1344
+  FAIL, margin=-2.030082e-04, dominant=defect
+
+slab=0.001:0.002, radius=0.00065, eta=2688
+  FAIL, margin=-1.115617e-04, dominant=correction
+
+slab=0.001:0.002, radius=0.0009,  eta=2688
+  FAIL, margin=-1.682608e-04, dominant=defect
+```
+
+Seven `eta=4096` top-slab jobs in the radius window
+`0.00060..0.00070` were terminated after more than fifteen minutes without
+producing a result.  That is a useful negative signal: the last slab should
+not be attacked by simply increasing eta subdivisions.  The next mathematical
+cut is to add a better continuation/center model for the top slab, or split
+the row-to-row continuation before applying the same Krawczyk box.
