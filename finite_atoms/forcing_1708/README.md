@@ -87,6 +87,16 @@ lean/coverage_chunks/Forcing1708CoverageA14.lean
 Proves the finite coverage witness table.  The 15 slabs contain
 `15 * 1534 = 23010` elementary `(s,x)` cells.
 
+```text
+lean/Forcing1708GeometryIndex.lean
+lean/geometry_chunks/Forcing1708Geometry00.lean
+...
+lean/geometry_chunks/Forcing1708Geometry09.lean
+```
+
+Proves the rational geometry checks for the 980 boxes: the recorded bounds for
+`b=s(1.82+a)` and the positive distance bounds used by the analytic log kernel.
+
 ## Check commands
 
 Run these from the local Mathlib workspace:
@@ -98,6 +108,8 @@ lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_170
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708AnalyticKernel.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708BoxData.lean
 lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708CoverageIndex.lean
+lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708GeometryIndex.lean
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/box_arith_chunks -name 'Forcing1708BoxArith*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/coverage_chunks -name 'Forcing1708CoverageA*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
+find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/geometry_chunks -name 'Forcing1708Geometry*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
 ```
