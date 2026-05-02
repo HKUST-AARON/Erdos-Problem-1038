@@ -19,6 +19,8 @@ namespace FiveAtom1806304Route
 noncomputable section
 
 open Set
+open MeasureTheory
+open scoped ENNReal
 
 def q (n d : ℕ) : ℝ := (n : ℝ) / (d : ℝ)
 
@@ -55,6 +57,190 @@ set `E`.
 def TailSelector (E : Set ℝ) : Prop :=
   ∀ a : ℝ, a ∈ TailParameter →
     swept0 a ∈ E ∨ swept1 a ∈ E ∨ swept2 a ∈ E ∨ swept3 a ∈ E ∨ swept4 a ∈ E
+
+/-! ## Measure-theoretic sweep contribution -/
+
+def TailPiece0 (E : Set ℝ) : Set ℝ := E ∩ I0
+def TailPiece1 (E : Set ℝ) : Set ℝ := E ∩ I1
+def TailPiece2 (E : Set ℝ) : Set ℝ := E ∩ I2
+def TailPiece3 (E : Set ℝ) : Set ℝ := E ∩ I3
+def TailPiece4 (E : Set ℝ) : Set ℝ := E ∩ I4
+
+def TailPreimage0 (E : Set ℝ) : Set ℝ := I0 ∩ swept0 ⁻¹' E
+def TailPreimage1 (E : Set ℝ) : Set ℝ := I0 ∩ swept1 ⁻¹' E
+def TailPreimage2 (E : Set ℝ) : Set ℝ := I0 ∩ swept2 ⁻¹' E
+def TailPreimage3 (E : Set ℝ) : Set ℝ := I0 ∩ swept3 ⁻¹' E
+def TailPreimage4 (E : Set ℝ) : Set ℝ := I0 ∩ swept4 ⁻¹' E
+
+lemma mem_shifted_tail_interval_iff {a s : ℝ} :
+    a + s ∈ Icc (s - M) (s - T) ↔ a ∈ I0 := by
+  constructor
+  · intro h
+    simp [I0] at h ⊢
+    constructor <;> linarith
+  · intro h
+    simp [I0] at h ⊢
+    constructor <;> linarith
+
+lemma tailPreimage0_eq_piece (E : Set ℝ) :
+    TailPreimage0 E = TailPiece0 E := by
+  ext a
+  simp [TailPreimage0, TailPiece0, swept0, and_comm]
+
+lemma tailPreimage1_eq_shift_preimage_piece (E : Set ℝ) :
+    TailPreimage1 E = swept1 ⁻¹' TailPiece1 E := by
+  ext a
+  simp only [TailPreimage1, TailPiece1, swept1, mem_inter_iff, mem_preimage]
+  constructor
+  · intro h
+    exact ⟨h.2, by
+      simpa [I1] using ((mem_shifted_tail_interval_iff (s := s1)).2 h.1)⟩
+  · intro h
+    exact ⟨(mem_shifted_tail_interval_iff (s := s1)).1 (by
+      simpa [I1] using h.2), h.1⟩
+
+lemma tailPreimage2_eq_shift_preimage_piece (E : Set ℝ) :
+    TailPreimage2 E = swept2 ⁻¹' TailPiece2 E := by
+  ext a
+  simp only [TailPreimage2, TailPiece2, swept2, mem_inter_iff, mem_preimage]
+  constructor
+  · intro h
+    exact ⟨h.2, by
+      simpa [I2] using ((mem_shifted_tail_interval_iff (s := s2)).2 h.1)⟩
+  · intro h
+    exact ⟨(mem_shifted_tail_interval_iff (s := s2)).1 (by
+      simpa [I2] using h.2), h.1⟩
+
+lemma tailPreimage3_eq_shift_preimage_piece (E : Set ℝ) :
+    TailPreimage3 E = swept3 ⁻¹' TailPiece3 E := by
+  ext a
+  simp only [TailPreimage3, TailPiece3, swept3, mem_inter_iff, mem_preimage]
+  constructor
+  · intro h
+    exact ⟨h.2, by
+      simpa [I3] using ((mem_shifted_tail_interval_iff (s := s3)).2 h.1)⟩
+  · intro h
+    exact ⟨(mem_shifted_tail_interval_iff (s := s3)).1 (by
+      simpa [I3] using h.2), h.1⟩
+
+lemma tailPreimage4_eq_shift_preimage_piece (E : Set ℝ) :
+    TailPreimage4 E = swept4 ⁻¹' TailPiece4 E := by
+  ext a
+  simp only [TailPreimage4, TailPiece4, swept4, mem_inter_iff, mem_preimage]
+  constructor
+  · intro h
+    exact ⟨h.2, by
+      simpa [I4] using ((mem_shifted_tail_interval_iff (s := s4)).2 h.1)⟩
+  · intro h
+    exact ⟨(mem_shifted_tail_interval_iff (s := s4)).1 (by
+      simpa [I4] using h.2), h.1⟩
+
+lemma volume_preimage_add_const_eq (c : ℝ) (S : Set ℝ) (hS : MeasurableSet S) :
+    volume ((fun x : ℝ => x + c) ⁻¹' S) = volume S := by
+  rw [← Measure.map_apply (measurable_add_const c) hS]
+  rw [map_add_right_eq_self]
+
+lemma volume_tailPreimage0_eq_piece (E : Set ℝ) :
+    volume (TailPreimage0 E) = volume (TailPiece0 E) := by
+  rw [tailPreimage0_eq_piece]
+
+lemma volume_tailPreimage1_eq_piece (E : Set ℝ) (hE : MeasurableSet E) :
+    volume (TailPreimage1 E) = volume (TailPiece1 E) := by
+  rw [tailPreimage1_eq_shift_preimage_piece]
+  exact volume_preimage_add_const_eq s1 (TailPiece1 E)
+    (hE.inter measurableSet_Icc)
+
+lemma volume_tailPreimage2_eq_piece (E : Set ℝ) (hE : MeasurableSet E) :
+    volume (TailPreimage2 E) = volume (TailPiece2 E) := by
+  rw [tailPreimage2_eq_shift_preimage_piece]
+  exact volume_preimage_add_const_eq s2 (TailPiece2 E)
+    (hE.inter measurableSet_Icc)
+
+lemma volume_tailPreimage3_eq_piece (E : Set ℝ) (hE : MeasurableSet E) :
+    volume (TailPreimage3 E) = volume (TailPiece3 E) := by
+  rw [tailPreimage3_eq_shift_preimage_piece]
+  exact volume_preimage_add_const_eq s3 (TailPiece3 E)
+    (hE.inter measurableSet_Icc)
+
+lemma volume_tailPreimage4_eq_piece (E : Set ℝ) (hE : MeasurableSet E) :
+    volume (TailPreimage4 E) = volume (TailPiece4 E) := by
+  rw [tailPreimage4_eq_shift_preimage_piece]
+  exact volume_preimage_add_const_eq s4 (TailPiece4 E)
+    (hE.inter measurableSet_Icc)
+
+lemma tailParameter_subset_preimage_union {E : Set ℝ}
+    (selector : TailSelector E) :
+    TailParameter ⊆
+      TailPreimage0 E ∪ TailPreimage1 E ∪ TailPreimage2 E ∪
+        TailPreimage3 E ∪ TailPreimage4 E := by
+  intro a ha
+  rcases selector a ha with h0 | h1 | h2 | h3 | h4
+  · exact Or.inl (Or.inl (Or.inl (Or.inl ⟨ha, h0⟩)))
+  · exact Or.inl (Or.inl (Or.inl (Or.inr ⟨ha, h1⟩)))
+  · exact Or.inl (Or.inl (Or.inr ⟨ha, h2⟩))
+  · exact Or.inl (Or.inr ⟨ha, h3⟩)
+  · exact Or.inr ⟨ha, h4⟩
+
+lemma measure_five_union_le_sum (A0 A1 A2 A3 A4 : Set ℝ) :
+    volume (A0 ∪ A1 ∪ A2 ∪ A3 ∪ A4) ≤
+      volume A0 + volume A1 + volume A2 + volume A3 + volume A4 := by
+  calc
+    volume (A0 ∪ A1 ∪ A2 ∪ A3 ∪ A4)
+        ≤ volume (A0 ∪ A1 ∪ A2 ∪ A3) + volume A4 := by
+          exact measure_union_le (μ := volume) (A0 ∪ A1 ∪ A2 ∪ A3) A4
+    _ ≤ (volume (A0 ∪ A1 ∪ A2) + volume A3) + volume A4 := by
+          gcongr
+          exact measure_union_le (μ := volume) (A0 ∪ A1 ∪ A2) A3
+    _ ≤ ((volume (A0 ∪ A1) + volume A2) + volume A3) + volume A4 := by
+          gcongr
+          exact measure_union_le (μ := volume) (A0 ∪ A1) A2
+    _ ≤ (((volume A0 + volume A1) + volume A2) + volume A3) + volume A4 := by
+          gcongr
+          exact measure_union_le (μ := volume) A0 A1
+    _ = volume A0 + volume A1 + volume A2 + volume A3 + volume A4 := by
+          ac_rfl
+
+theorem tailSelector_measure_sum_lower_bound
+    {E : Set ℝ}
+    (hE : MeasurableSet E)
+    (selector : TailSelector E) :
+    volume TailParameter ≤
+      volume (TailPiece0 E) + volume (TailPiece1 E) + volume (TailPiece2 E) +
+        volume (TailPiece3 E) + volume (TailPiece4 E) := by
+  have hcover :
+      volume TailParameter ≤
+        volume (TailPreimage0 E ∪ TailPreimage1 E ∪ TailPreimage2 E ∪
+          TailPreimage3 E ∪ TailPreimage4 E) := by
+    exact measure_mono (μ := volume) (tailParameter_subset_preimage_union selector)
+  have hunion := measure_five_union_le_sum
+    (TailPreimage0 E) (TailPreimage1 E) (TailPreimage2 E)
+    (TailPreimage3 E) (TailPreimage4 E)
+  calc
+    volume TailParameter
+        ≤ volume (TailPreimage0 E ∪ TailPreimage1 E ∪ TailPreimage2 E ∪
+            TailPreimage3 E ∪ TailPreimage4 E) := hcover
+    _ ≤ volume (TailPreimage0 E) + volume (TailPreimage1 E) +
+          volume (TailPreimage2 E) + volume (TailPreimage3 E) +
+          volume (TailPreimage4 E) := hunion
+    _ = volume (TailPiece0 E) + volume (TailPiece1 E) +
+          volume (TailPiece2 E) + volume (TailPiece3 E) +
+          volume (TailPiece4 E) := by
+          rw [volume_tailPreimage0_eq_piece E,
+            volume_tailPreimage1_eq_piece E hE,
+            volume_tailPreimage2_eq_piece E hE,
+            volume_tailPreimage3_eq_piece E hE,
+            volume_tailPreimage4_eq_piece E hE]
+
+theorem tailSelector_length_sum_lower_bound
+    {E : Set ℝ}
+    (hE : MeasurableSet E)
+    (selector : TailSelector E) :
+    ENNReal.ofReal (M - T) ≤
+      volume (TailPiece0 E) + volume (TailPiece1 E) + volume (TailPiece2 E) +
+        volume (TailPiece3 E) + volume (TailPiece4 E) := by
+  have h := tailSelector_measure_sum_lower_bound hE selector
+  have hMT : -T + M = M - T := by ring
+  simpa [TailParameter, I0, Real.volume_Icc, hMT] using h
 
 /-! ## Exact arithmetic -/
 

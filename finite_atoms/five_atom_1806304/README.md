@@ -138,7 +138,16 @@ Checks exact integer arithmetic for the critical brackets, endpoint ordering, an
 lean/FiveAtom1806304Route.lean
 ```
 
-Checks tail length, swept-interval disjointness, compatibility with the forcing threshold, and the conditional route implication from the long interval contribution plus the tail selector.
+Checks tail length, swept-interval disjointness, compatibility with the forcing threshold, and the route-level implication from the long interval contribution plus the tail selector.
+
+It also formalizes the sweep-length step:
+
+```text
+tailSelector_measure_sum_lower_bound
+tailSelector_length_sum_lower_bound
+```
+
+These theorems say that if the five-atom selector holds for every parameter in the tail interval, then the five swept pieces have total measure at least $1.806304-1.708$.
 
 The multiple Lean files are split by proof obligation. They are not separate mathematical claims: together they form the five-atom tail certificate package.
 
