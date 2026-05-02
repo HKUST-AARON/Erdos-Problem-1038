@@ -1,12 +1,6 @@
-# Five-atom certificate for Erdős Problem 1038
+# Five-atom tail certificate
 
-Lean/Mathlib formalization of the five-atom one-variable certificate.
-
-Parameter:
-
-```text
-M = 1.806304
-```
+This folder contains the Lean files for the `M = 1.806304` five-atom tail block in Erdős Problem 1038.
 
 ## Certificate
 
@@ -16,7 +10,7 @@ For
 a ∈ [-1.806304, -1.708]
 ```
 
-use the five-atom measure
+the measure is
 
 ```text
 λ_a =
@@ -27,7 +21,7 @@ use the five-atom measure
   + 0.180553554 δ_(a + 2.79017717)
 ```
 
-Writing `y = x - a`, the one-variable potential is
+After writing `y = x - a`, the potential becomes the one-variable function
 
 ```text
 V(y) =
@@ -38,7 +32,7 @@ V(y) =
   + 0.180553554 log(|y - 2.79017717|⁻¹)
 ```
 
-The formalized checks prove positivity at the endpoints and on the four critical brackets:
+The Lean proof checks positivity at the two endpoints and on these four critical brackets:
 
 ```text
 0.708
@@ -52,16 +46,16 @@ The formalized checks prove positivity at the endpoints and on the four critical
 ## Files
 
 ```text
-lean/FiveAtom1806304Mathlib.lean   # Real.log checks using Mathlib
-lean/FiveAtom1806304Formal.lean    # exact arithmetic/sign/geometry checks
+lean/FiveAtom1806304Mathlib.lean   # Real.log estimates in Mathlib
+lean/FiveAtom1806304Formal.lean    # integer arithmetic, signs, interval geometry
 lean-toolchain
 lakefile.toml
 lake-manifest.json
 ```
 
-## Reproduce
+## Check it
 
-From this folder:
+Run this from the folder:
 
 ```bash
 lake exe cache get
