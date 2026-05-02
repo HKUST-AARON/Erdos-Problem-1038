@@ -1,48 +1,51 @@
 # Five-atom certificate for Erdős Problem 1038
 
-This folder contains a Lean/Mathlib formalization of the five-atom one-variable certificate with parameter $M=1.806304$.
+Lean/Mathlib formalization of the five-atom one-variable certificate.
 
-GitHub renders formulas reliably when this file uses inline `$...$` math and block `$$...$$` math.
+Parameter:
+
+```text
+M = 1.806304
+```
 
 ## Certificate
 
 For
 
-$$
-a\in[-1.806304,-1.708],
-$$
+```text
+a ∈ [-1.806304, -1.708]
+```
 
-consider
+use the five-atom measure
 
-$$
-\lambda_a=
-\delta_a
-+1.174168821\,\delta_{a+1.80650001}
-+0.025921118\,\delta_{a+2.57053197}
-+0.118647936\,\delta_{a+2.68367709}
-+0.180553554\,\delta_{a+2.79017717}.
-$$
+```text
+λ_a =
+  δ_a
+  + 1.174168821 δ_(a + 1.80650001)
+  + 0.025921118 δ_(a + 2.57053197)
+  + 0.118647936 δ_(a + 2.68367709)
+  + 0.180553554 δ_(a + 2.79017717)
+```
 
-Writing `y=x-a`, the one-variable potential is
+Writing `y = x - a`, the one-variable potential is
 
-$$
-\begin{aligned}
-V(y)=&\log |y|^{-1}
-+1.174168821\log |y-1.80650001|^{-1}\\
-&+0.025921118\log |y-2.57053197|^{-1}
-+0.118647936\log |y-2.68367709|^{-1}\\
-&+0.180553554\log |y-2.79017717|^{-1}.
-\end{aligned}
-$$
+```text
+V(y) =
+  log(|y|⁻¹)
+  + 1.174168821 log(|y - 1.80650001|⁻¹)
+  + 0.025921118 log(|y - 2.57053197|⁻¹)
+  + 0.118647936 log(|y - 2.68367709|⁻¹)
+  + 0.180553554 log(|y - 2.79017717|⁻¹)
+```
 
 The formalized checks prove positivity at the endpoints and on the four critical brackets:
 
 ```text
 0.708
-[0.77003805,0.77003806]
-[2.52642600,2.52642601]
-[2.60759965,2.60759966]
-[2.74249871,2.74249872]
+[0.77003805, 0.77003806]
+[2.52642600, 2.52642601]
+[2.60759965, 2.60759966]
+[2.74249871, 2.74249872]
 2.806304
 ```
 

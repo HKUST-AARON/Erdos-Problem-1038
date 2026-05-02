@@ -1,23 +1,36 @@
-# Erdős Problem 1038 proof packages
+# Erdős Problem 1038
 
-This repository collects proof packages for [Erdős Problem #1038](https://www.erdosproblems.com/1038).
+Lean formal proof artifacts for [Erdős Problem #1038](https://www.erdosproblems.com/1038).
 
 ## Problem
 
 Determine the infimum and supremum of
 
-$$
-\lvert \lbrace x\in\mathbb{R}:\ \lvert f(x)\rvert<1 \rbrace \rvert
-$$
-
-as $f\in\mathbb{R}[x]$ ranges over all non-constant monic polynomials, all of whose roots are real and lie in the interval $[-1,1]$.
-
-## Current package
-
-[finite_atoms/five_atom_1806304](finite_atoms/five_atom_1806304/) contains a Lean/Mathlib formalization of the five-atom tail-block certificate with
-
 ```text
-M = 1.806304.
+| { x ∈ ℝ : |f(x)| < 1 } |
 ```
 
-Future packages can be added separately, for example stronger finite-atom certificates, two-interval dual certificates, or global dual-measure approaches.
+where `f ∈ ℝ[x]` ranges over all non-constant monic polynomials whose roots are all real and lie in `[-1, 1]`.
+
+## Current Lean formalization
+
+The current formalized certificate is in:
+
+```text
+finite_atoms/five_atom_1806304/
+```
+
+It formalizes the five-atom tail-block certificate with:
+
+```text
+M = 1.806304
+```
+
+Main Lean files:
+
+```text
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304Mathlib.lean
+```
+
+Additional proof routes can be added later as separate folders.
