@@ -1,28 +1,54 @@
 # Erdős Problem 1038
 
-Lean work for [Erdős Problem #1038](https://www.erdosproblems.com/1038).
+Lean certificate work for [Erdős Problem #1038](https://www.erdosproblems.com/1038).
 
 ## Problem
 
 For a non-constant monic polynomial $f$ whose roots are all real and lie in $[-1,1]$, determine the infimum and supremum of
 
 $$
-\bigl\lvert \lbrace x\in\mathbb{R}:\ \lvert f(x)\rvert<1 \rbrace \bigr\rvert .
+\bigl\lvert \{x\in\mathbb{R}:\ |f(x)|<1\}\bigr\rvert .
 $$
 
-Equivalently, for the logarithmic potential attached to the empirical root measure, one studies the length of the positive set $\lbrace U>0\rbrace$.
+Equivalently, for the logarithmic potential attached to the empirical root measure, one studies the length of the positive set $\{U>0\}$.
 
-## Current formal blocks
+## Current result recorded here
 
-The current package supports the following precise statement:
+The current finite-atom certificate route records the conditional target
 
-> For the conditional finite-atom update at $M=1.806304$, the two finite
-> certificate blocks used in the argument have Lean-checked certificate
-> packages: the preceding forcing branch and the five-atom tail block.
+$$
+M=1.806304.
+$$
 
-The mathematical inputs not supplied by these finite certificate files are the
-standard minimizer reduction and the duality/sweep framework used in the
-notes/comments.
+The route has two checked finite certificate blocks:
+
+1. A two-parameter forcing branch before the tail block.
+2. A five-atom tail block, including a full pole-free one-variable interval-box certificate.
+
+The exact route arithmetic is also checked:
+
+```text
+1.708 + (1.806304 - 1.708) = 1.806304
+1.806304 < 1.836
+```
+
+The standard minimizer reduction and the logarithmic-potential duality/sweep
+framework are external mathematical inputs from the notes/comments. This
+repository formalizes the finite certificate pieces and the route arithmetic
+around them.
+
+## How to cite this package in a forum comment
+
+Use the five-atom folder as the direct reference:
+
+[finite_atoms/five_atom_1806304](https://github.com/HKUST-AARON/Erdos-Problem-1038/tree/main/finite_atoms/five_atom_1806304)
+
+A concise description is:
+
+> This is a Lean-checked finite-certificate package for the conditional
+> $M=1.806304$ finite-atom update. It includes the forcing-branch aggregate
+> checks, the five-atom tail certificate, and an unconditional pole-free
+> one-variable interval-box proof for the five-atom potential.
 
 ### Five-atom tail block
 
@@ -107,7 +133,7 @@ It proves the exact closing arithmetic
 and packages the final route as an implication from the long forcing
 contribution, the tail contribution, and the disjoint-additivity rule.
 
-Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
+Later stronger finite-atom certificates, two-interval certificates, and global-dual attempts can go in separate folders.
 
 ## Check all finite-atom certificates
 
