@@ -185,6 +185,28 @@ theorem normalized_endpoint_lower_bound_pointwise_positive
     0 < U x := by
   exact normalized_endpoint_lower_bound_positive_set hp hU ⟨hx, by simpa using hne⟩
 
+/--
+Packed normalized endpoint consequence.  This is the precise formal object
+needed by the finite-atom lower-bound route after the external variational
+normalization has put a minimizer into endpoint-mass form.
+-/
+structure NormalizedEndpointPotential (U : ℝ → ℝ) where
+  p : ℝ
+  halfMass : (1 / 2 : ℝ) ≤ p
+  endpointLowerBound : HasNormalizedEndpointLowerBound U p
+
+theorem NormalizedEndpointPotential.baseline_subset_positive
+    {U : ℝ → ℝ} (h : NormalizedEndpointPotential U) :
+    BaselinePunctured ⊆ PositiveSet U := by
+  exact normalized_endpoint_lower_bound_positive_set h.halfMass h.endpointLowerBound
+
+theorem NormalizedEndpointPotential.pointwise_positive
+    {U : ℝ → ℝ} (h : NormalizedEndpointPotential U)
+    {x : ℝ} (hx : x ∈ BaselineInterval) (hne : x ≠ -1) :
+    0 < U x := by
+  exact normalized_endpoint_lower_bound_pointwise_positive h.halfMass
+    h.endpointLowerBound hx hne
+
 theorem baselineInterval_volume :
     volume BaselineInterval = ENNReal.ofReal (Real.sqrt 2) := by
   simp [BaselineInterval, Real.volume_Ioo]
@@ -194,6 +216,36 @@ theorem baselinePunctured_volume :
   have hnull : volume ({-1} : Set ℝ) = 0 := by simp
   rw [BaselinePunctured, measure_diff_null hnull]
   simp [baselineInterval_volume]
+
+/--
+Length form of the normalized endpoint consequence.  If the positive set is
+measurable, the baseline interval contributes `sqrt 2` of Lebesgue length.
+-/
+theorem NormalizedEndpointPotential.baseline_length_le_positiveSet
+    {U : ℝ → ℝ}
+    (h : NormalizedEndpointPotential U) :
+    ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet U) := by
+  rw [← baselinePunctured_volume]
+  exact measure_mono (μ := volume) h.baseline_subset_positive
+
+/--
+Abstract statement of the remaining external variational theorem: a minimizer
+can be normalized so that its potential satisfies `NormalizedEndpointPotential`.
+
+This structure records the remaining external variational input.  Downstream Lean files
+can state exactly where the Tao/natso variational reduction is used.
+-/
+structure StandardMinimizerReduction
+    (Config : Type) (IsMinimizer : Config → Prop) (Potential : Config → ℝ → ℝ) where
+  normalize :
+    ∀ c : Config, IsMinimizer c → NormalizedEndpointPotential (Potential c)
+
+theorem standard_minimizer_reduction_baseline_length
+    {Config : Type} {IsMinimizer : Config → Prop} {Potential : Config → ℝ → ℝ}
+    (hReduction : StandardMinimizerReduction Config IsMinimizer Potential)
+    {c : Config} (hc : IsMinimizer c) :
+    ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet (Potential c)) := by
+  exact (hReduction.normalize c hc).baseline_length_le_positiveSet
 
 end
 

@@ -48,6 +48,21 @@ The file also proves that this puncture does not change the Lebesgue length:
 baselinePunctured_volume
 ```
 
+The normalized-support consequence is packaged for route-level use as:
+
+```text
+NormalizedEndpointPotential
+NormalizedEndpointPotential.baseline_subset_positive
+NormalizedEndpointPotential.baseline_length_le_positiveSet
+StandardMinimizerReduction
+standard_minimizer_reduction_baseline_length
+```
+
+`StandardMinimizerReduction` records the remaining external variational input:
+that a minimizer can be put into normalized endpoint-mass form.  The lemmas
+above prove all downstream baseline-interval consequences once that input is
+available.
+
 Check command:
 
 ```bash
