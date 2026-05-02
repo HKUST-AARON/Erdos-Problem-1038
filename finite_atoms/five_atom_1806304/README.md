@@ -78,7 +78,13 @@ proves the `Real.log` positivity checks for $V$ using Mathlib logarithm estimate
 lean/FiveAtom1806304Formal.lean
 ```
 
-proves the exact integer arithmetic: the quartic sign changes giving the critical brackets, the ordering of the endpoints and poles, and the disjointness/length arithmetic for the swept intervals.
+proves the exact integer arithmetic: the quartic sign changes giving the critical brackets and the ordering of the endpoints and poles.
+
+```text
+lean/FiveAtom1806304Route.lean
+```
+
+proves the route-level bookkeeping: the tail length, the swept-interval disjointness facts, the compatibility with the earlier forcing threshold, and the conditional implication from the long-interval forcing step plus the tail selector to the target $M=1.806304$.
 
 ## Check it
 
@@ -86,6 +92,7 @@ Run this from the folder:
 
 ```bash
 lake exe cache get
-lake env lean lean/FiveAtom1806304Formal.lean
 lake env lean lean/FiveAtom1806304Mathlib.lean
+lake env lean lean/FiveAtom1806304Formal.lean
+lake env lean lean/FiveAtom1806304Route.lean
 ```

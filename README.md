@@ -31,8 +31,9 @@ finite_atoms/five_atom_1806304/
 Lean files:
 
 ```text
-finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
 finite_atoms/five_atom_1806304/lean/FiveAtom1806304Mathlib.lean
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304Formal.lean
+finite_atoms/five_atom_1806304/lean/FiveAtom1806304Route.lean
 ```
 
 Later finite-atom certificates, two-interval certificates, and global-dual attempts will go in separate folders.
