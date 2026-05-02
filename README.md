@@ -116,19 +116,7 @@ It proves the pole-free positivity of the five-atom logarithmic potential by a r
 
 ## Check all finite-atom certificates
 
-The repository does not vendor Mathlib. On this machine, the local Mathlib workspace is expected at:
-
-```bash
-/Users/aaron/Downloads/erdos数学问题
-```
-
-Run all current finite-atom checks with:
-
-```bash
-finite_atoms/check_all.sh
-```
-
-If Mathlib is elsewhere, set:
+The repository does not vendor Mathlib. Use any local Lean/Mathlib workspace and pass it through `MATHLIB_WORKSPACE`:
 
 ```bash
 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh

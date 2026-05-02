@@ -111,31 +111,19 @@ after power-of-two scaling.
 
 ## Check commands
 
-Run these from the local Mathlib workspace:
+From the repository root, use any local Lean/Mathlib workspace through `MATHLIB_WORKSPACE`:
 
 ```bash
-cd /Users/aaron/Downloads/erdos数学问题
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708Formal.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708AnalyticKernel.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708BoxData.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708CoverageIndex.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708GeometryIndex.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/Forcing1708AnalyticPreconditionsIndex.lean
-find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/box_arith_chunks -name 'Forcing1708BoxArith*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
-find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/coverage_chunks -name 'Forcing1708CoverageA*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
-find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/geometry_chunks -name 'Forcing1708Geometry*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
-find /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/lean/analytic_precondition_chunks -name 'Forcing1708AnalyticPre*.lean' -print | sort | xargs -n 1 -P 4 sh -c 'lake env lean "$0"'
+MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
 ```
 
-For the aggregate index certificates, use:
+For only the forcing aggregate certificates, use:
 
 ```bash
-LEAN_JOBS=6 /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/forcing_1708/scripts/check_aggregate.sh
+LEAN_JOBS=6 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/forcing_1708/scripts/check_aggregate.sh
 ```
 
-This compiles the chunk modules to a temporary local olean directory and then
-checks the four aggregate index files:
+The aggregate script compiles the chunk modules to a temporary local `.olean` directory and then checks:
 
 ```text
 Forcing1708BoxData.lean

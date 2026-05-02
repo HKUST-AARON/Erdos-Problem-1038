@@ -2,13 +2,14 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-MATHLIB_WORKSPACE="${MATHLIB_WORKSPACE:-/Users/aaron/Downloads/erdos数学问题}"
+: "${MATHLIB_WORKSPACE:?Set MATHLIB_WORKSPACE=/path/to/mathlib and retry.}"
 
 if [[ ! -d "$MATHLIB_WORKSPACE" ]]; then
   echo "Mathlib workspace not found: $MATHLIB_WORKSPACE" >&2
-  echo "Set MATHLIB_WORKSPACE=/path/to/a/local/Mathlib workspace and retry." >&2
   exit 1
 fi
+
+export MATHLIB_WORKSPACE
 
 run_lean() {
   local file="$1"

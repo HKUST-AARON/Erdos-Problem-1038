@@ -159,4 +159,4 @@ From the repository root, run:
 finite_atoms/check_all.sh
 ```
 
-The script uses the local Mathlib workspace and handles the temporary `.olean` needed by `FiveAtom1806304BoxCertificate.lean`.
+The script uses the Mathlib workspace provided by `MATHLIB_WORKSPACE` and handles the temporary `.olean` needed by `FiveAtom1806304BoxCertificate.lean`.

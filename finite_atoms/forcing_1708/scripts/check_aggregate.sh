@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-MATHLIB_WORKSPACE="${MATHLIB_WORKSPACE:-/Users/aaron/Downloads/erdos数学问题}"
+: "${MATHLIB_WORKSPACE:?Set MATHLIB_WORKSPACE=/path/to/mathlib and retry.}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LEAN_ROOT="$ROOT/lean"
 BUILD_DIR="${LEAN_BUILD_DIR:-/tmp/erdos1038_forcing1708_olean}"

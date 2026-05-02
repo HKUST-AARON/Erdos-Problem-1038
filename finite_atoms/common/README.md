@@ -63,10 +63,8 @@ that a minimizer can be put into normalized endpoint-mass form.  The lemmas
 above prove all downstream baseline-interval consequences once that input is
 available.
 
-Check command:
+Check command from the repository root:
 
 ```bash
-cd /Users/aaron/Downloads/erdos数学问题
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/common/lean/FiniteAtomFramework.lean
-lake env lean /Users/aaron/Downloads/Erdos-Problem-1038/finite_atoms/common/lean/StandardReduction.lean
+MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
 ```
