@@ -1,0 +1,26 @@
+{
+  "name": "piecewise_five_atom_181460_560blocks_required_domain_certificate",
+  "timestamp": "2026-05-04",
+  "certificate_file": "piecewise_five_atom_181460_560blocks_margin_tuned_candidate.json",
+  "M": 1.8146,
+  "K": 560,
+  "mode": "conditional",
+  "support_assumption": "supp(mu) subset {-1} union [0,1]",
+  "required_check_formula": "U_{lambda_a}(x)>0 on {-1} U [0,1] for all a in blocks",
+  "required_domains_in_y": "[C-1, A-1] U [C, A+1] (per block)",
+  "irrelevant_gap": "[A-1, C] (corresponds x in (-1,0), not required)",
+  "result": "PASS",
+  "all_required_blocks_ok": true,
+  "overall_worst_required": {
+    "value": 9.534343713646365e-06,
+    "block": 0,
+    "argmin_y": 2.6719155537902646
+  },
+  "num_blocks": 560,
+  "bad_required_blocks": [],
+  "irrelevant_gap_worst": {
+    "value": -0.026968569241559534,
+    "block": 370,
+    "argmin_y": 0.9083694408167348
+  }
+}
