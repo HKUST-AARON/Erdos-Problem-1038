@@ -18,13 +18,19 @@ $$
 
 ## Current lower-bound certificate
 
-The current files record a finite-atom certificate route at
+The repository currently records two finite-atom lower-bound routes:
 
 $$
 M=1.807100.
 $$
 
-The route has two finite certificate blocks:
+and
+
+$$
+M=1.814600 \quad\text{(piecewise five-atom, 560 blocks, conditional domain check).}
+$$
+
+Each route has the same two-part structure:
 
 1. A two-parameter forcing branch that supplies the long interval part.
 2. A five-atom tail block that supplies the remaining length.
@@ -33,7 +39,7 @@ The exact closing arithmetic is checked in Lean:
 
 ```text
 1.708 + (1.807100 - 1.708) = 1.807100
-1.807100 < 1.836
+1.708 + (1.814600 - 1.708) = 1.814600
 ```
 
 The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are not duplicated as full measure-theoretic formalizations in this repository.
@@ -46,6 +52,15 @@ $$
 $$
 
 into the positive set, except for the atom point where a real-valued logarithmic potential would be infinite.  The remaining external part is the variational theorem that an arbitrary minimizer can be put into this normalized support/mass form.
+
+The 1.814600 branch uses a required-domain interpretation of positivity:
+
+$$
+U_{\lambda_a}(x)>0\ \text{on}\ \{-1\}\cup[0,1]
+$$
+
+for each block parameter $a\in[-A,-C]$, which corresponds to the $y$-domains
+$[C-1,A-1]\cup[C,A+1]$ in the checker.
 
 ## Repository layout
 
@@ -72,6 +87,21 @@ finite_atoms/route_1807100/
 ```
 
 The route-level closure file. It checks the arithmetic that combines the long forcing contribution and the five-atom tail contribution to reach $M=1.807100$.
+
+```text
+finite_atoms/piecewise_five_atom_181460_560/
+```
+
+The piecewise five-atom 560-block branch for $M=1.814600$. It includes the exact
+geometry checks, block weights, and required-domain positivity checker and
+certificate output.
+
+```text
+finite_atoms/route_181460_560/
+```
+
+The route arithmetic for the piecewise branch, matching the same forcing split as
+the 1.807100 folder.
 
 The separation into these folders follows the proof structure: common finite-atom logic, forcing branch, five-atom tail, and final arithmetic closure.
 
@@ -113,6 +143,8 @@ finite_atoms/five_atom_1807100/lean/FiveAtom1807100BoxCertificate.lean
 ```
 
 It proves the pole-free positivity of the five-atom logarithmic potential by a rational interval-box cover of the five smooth components between the poles.
+The 1.814600 branch contributes a generated required-domain certificate in
+`finite_atoms/piecewise_five_atom_181460_560/certificates`.
 
 ## Check all finite-atom certificates
 
