@@ -4109,6 +4109,96 @@ The next scalar lemma should compare the possible ranges of
 included.  Proving that no parameter set with \(|E|<M_*\) satisfies this
 weighted efficiency identity would remove the first high-genus escape.
 
+### 16.11 Kernel-shape split at \(\theta=1/2\)
+
+Both efficiencies are instances of the same one-parameter function
+
+\[
+A_\alpha(x)
+=
+\frac{x(x+1)}{x+\alpha}\log\frac{x+1}{x},
+\qquad 0<\alpha<1,\quad x>0.
+\]
+
+Indeed
+
+\[
+A_L(r;\theta)=A_\theta(r),\qquad
+A_R(s;\theta)=A_{1-\theta}(s).
+\]
+
+The endpoint limits are
+
+\[
+\lim_{x\downarrow0}A_\alpha(x)=0,\qquad
+\lim_{x\to\infty}A_\alpha(x)=1.
+\]
+
+Its derivative is
+
+\[
+A_\alpha'(x)
+=
+\frac{
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha)}
+{(x+\alpha)^2}.
+\]
+
+At infinity,
+
+\[
+A_\alpha(x)
+=
+1+\frac{1/2-\alpha}{x}+O(x^{-2}).
+\]
+
+Thus the neutral value is \(\alpha=1/2\).  For \(\alpha>1/2\), far-away mass
+has efficiency approaching \(1\) from below; for \(\alpha<1/2\), it approaches
+\(1\) from above and the function must have an interior overshoot.
+
+Since \(A_R=A_{1-\theta}\), the escaping atom position splits the \(g=2\)
+problem into two regimes.
+
+**Regime I: \(\theta\le1/2\).**  The atom is at or to the left of the midpoint
+of the escaping component.  Then
+
+\[
+q\log\frac{1-\theta}{\theta}\ge0,
+\]
+
+so the efficiency identity requires
+
+\[
+\mathbb E_R[A_R]\ge \mathbb E_L[A_L].
+\]
+
+But the rational balance forces right compensation close to \(v\), where
+\(A_R\) is small, while the \(-1\) atom contributes a fixed left efficiency.
+This is the easier contradiction regime.
+
+**Regime II: \(\theta>1/2\).**  The atom is closer to the right endpoint.
+Then
+
+\[
+q\log\frac{1-\theta}{\theta}<0,
+\]
+
+so the efficiency identity allows \(\mathbb E_R[A_R]<\mathbb E_L[A_L]\).
+This is the genuinely dangerous case.  However it is also exactly the
+pinching case \(b=(1-\theta)\ell<a\): the singular atom is already biased
+toward the right endpoint, and the rational balance then forces additional
+right-collar compensation near that same endpoint.
+
+The next proof target is therefore sharpened:
+
+\[
+\boxed{
+\theta\le1/2\text{ should be excluded by the efficiency inequality, while }
+\theta>1/2\text{ should force right-endpoint pinching and degeneration.}
+}
+\]
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

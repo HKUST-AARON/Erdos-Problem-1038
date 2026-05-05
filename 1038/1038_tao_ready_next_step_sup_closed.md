@@ -1072,6 +1072,63 @@ The next proof target is now a one-variable kernel comparison: show that,
 under \(|E|<M_*\), the forced right-collar compensation cannot make the boxed
 efficiency identity hold together with finite-gap positivity.
 
+### E9. Kernel-shape split
+
+Both efficiencies have the form
+
+\[
+A_\alpha(x)
+=
+\frac{x(x+1)}{x+\alpha}\log\frac{x+1}{x}.
+\]
+
+They satisfy
+
+\[
+\lim_{x\downarrow0}A_\alpha(x)=0,\qquad
+\lim_{x\to\infty}A_\alpha(x)=1,
+\]
+
+and
+
+\[
+A_\alpha'(x)
+=
+\frac{
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha)}
+{(x+\alpha)^2}.
+\]
+
+Moreover
+
+\[
+A_\alpha(x)=1+\frac{1/2-\alpha}{x}+O(x^{-2}).
+\]
+
+Thus \(\alpha=1/2\) is the neutral split.  Since
+
+\[
+A_L=A_\theta,\qquad A_R=A_{1-\theta},
+\]
+
+the proof naturally divides into:
+
+\[
+\theta\le1/2,
+\]
+
+where the right side of the endpoint identity is nonnegative and near-right
+collar mass should be too inefficient to match the fixed left contribution;
+and
+
+\[
+\theta>1/2,
+\]
+
+where the atom is already biased toward the right endpoint and the same
+collar forcing should become a pinching/degeneration argument.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
