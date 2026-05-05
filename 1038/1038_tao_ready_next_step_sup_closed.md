@@ -1225,6 +1225,97 @@ pinching limit of the finite-gap transform.  If positivity of residues and
 density survives the blow-up, the limit loses one gap and returns to the
 \(g=1\) two-interval branch; otherwise the \(g=2\) candidate is impossible.
 
+### E12. Overshoot kernel is single-peaked
+
+For
+
+\[
+0<\alpha<1/2,
+\]
+
+the efficiency kernel \(A_\alpha\) has exactly one critical point.  With
+
+\[
+N_\alpha(x)
+=
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha),
+\]
+
+one has \(A_\alpha'=N_\alpha/(x+\alpha)^2\) and
+
+\[
+N_\alpha'(x)
+=
+2(x+\alpha)\log\frac{x+1}{x}
+-
+\frac{2x^2+(2\alpha+1)x+\alpha}{x(x+1)}.
+\]
+
+The inequality
+
+\[
+\log\frac{x+1}{x}
+<
+\frac{2x+1}{2x(x+1)}
+\]
+
+gives \(N_\alpha'(x)<0\).  Since
+
+\[
+N_\alpha(0+)=+\infty,\qquad N_\alpha(\infty)=\alpha-\frac12<0,
+\]
+
+there is exactly one critical point.  Therefore \(A_\alpha\) rises from
+\(0\), overshoots above \(1\), and decreases to \(1\) from above.
+
+For \(A_R=A_{1-\theta}\) in the branch \(\theta>1/2\), this says: high
+right-side logarithmic efficiency only comes from mass away from the immediate
+right collar; the collar itself has low efficiency.
+
+### E13. Dangerous branch mass scale
+
+In the dangerous branch write
+
+\[
+\kappa=a/b>1,\qquad \ell=b(\kappa+1).
+\]
+
+The fixed \(-1\) atom gives an \(O(1)\) left contribution to the rational
+balance.  A right packet at \(t=v+b\tau\) contributes
+
+\[
+K_R(t)m
+=
+\frac{\tau+1}{b\,\tau(\tau+\kappa+1)}m.
+\]
+
+Thus rational balance forces the \(b\)-scale right compensating mass to be
+
+\[
+m=O(b).
+\]
+
+The endpoint identity
+
+\[
+\ell B(\mathbb E_R[A_R]-\mathbb E_L[A_L])
+=
+-q\log\kappa
+\]
+
+then forces
+
+\[
+q=O\!\left(\frac{b}{\log\kappa}\right)
+\]
+
+whenever \(\kappa\) does not collapse to \(1\).  Thus the escaping atom and
+its right compensating cluster both vanish in the pinching limit.  The only
+remaining alternatives are the neutral split \(\kappa\downarrow1\), a
+secondary blow-up \(\kappa\to\infty\), or actual finite-gap endpoint
+pinching.  In none of these does a new non-degenerate \(g=2\) extremal remain.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

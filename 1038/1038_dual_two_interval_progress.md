@@ -4402,6 +4402,180 @@ already isolated \(g=1\) two-interval branch.  Thus the exact lower bound
 reduces to proving that the blow-up limit above preserves positivity of
 residues and density only in the pinched \(g=1\) configuration.
 
+### 16.14 The overshoot side is unimodal
+
+The complementary kernel regime is also elementary.  For
+
+\[
+0<\alpha<\frac12,
+\]
+
+the function
+
+\[
+A_\alpha(x)=
+\frac{x(x+1)}{x+\alpha}\log\frac{x+1}{x}
+\]
+
+has exactly one critical point; it increases from \(0\), reaches one maximum
+larger than \(1\), and then decreases to \(1\) from above.
+
+Use the same numerator
+
+\[
+N_\alpha(x)
+=
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha),
+\qquad
+A_\alpha'(x)=\frac{N_\alpha(x)}{(x+\alpha)^2}.
+\]
+
+Its derivative is
+
+\[
+N_\alpha'(x)
+=
+2(x+\alpha)\log\frac{x+1}{x}
+-
+\frac{2x^2+(2\alpha+1)x+\alpha}{x(x+1)}.
+\]
+
+The sharp elementary upper bound
+
+\[
+\log\frac{x+1}{x}
+<
+\frac{2x+1}{2x(x+1)}
+\]
+
+is just
+
+\[
+\log y<\frac{y^2-1}{2y},\qquad y>1,
+\]
+
+with \(y=(x+1)/x\).  Substituting it gives
+
+\[
+N_\alpha'(x)<0.
+\]
+
+Thus \(N_\alpha\) is strictly decreasing.  Since
+
+\[
+\lim_{x\downarrow0}N_\alpha(x)=+\infty,\qquad
+\lim_{x\to\infty}N_\alpha(x)=\alpha-\frac12<0,
+\]
+
+there is a unique root \(x_\alpha\).  Hence \(A_\alpha\) increases on
+\((0,x_\alpha)\) and decreases on \((x_\alpha,\infty)\).  The asymptotic
+
+\[
+A_\alpha(x)=1+\frac{1/2-\alpha}{x}+O(x^{-2})
+\]
+
+shows that the limiting value \(1\) is approached from above, so the maximum
+is strictly larger than \(1\).
+
+For the \(g=2\) escape this means that in the dangerous branch
+
+\[
+\theta>1/2,\qquad A_R=A_{1-\theta},
+\]
+
+right-side logarithmic efficiency larger than \(1\) can only come from mass
+away from the immediate collar.  The collar itself has \(A_R\to0\).  Thus the
+right side faces a strict alternative:
+
+\[
+\boxed{
+\text{near-right mass balances rationally but has poor log efficiency; far
+right mass can have high log efficiency but loses rational strength.}
+}
+\]
+
+This is the scalar form of the blow-up/pinching dichotomy.
+
+### 16.15 Mass-scale consequence of the dangerous blow-up
+
+The blow-up variables also give a quantitative weak-limit statement.
+
+Assume \(\theta>1/2\), so \(a>b\), and write
+
+\[
+\kappa=\frac{a}{b}>1.
+\]
+
+Suppose first that \(\kappa\) stays bounded away from \(1\).  The rational
+balance has a fixed contribution from the atom at \(-1\):
+
+\[
+B\ge
+\frac12\frac{c+1}{(u+1)(v+1)}.
+\]
+
+This is \(O(1)\) and bounded below as long as the extra component remains in
+\((0,1)\).  On the right \(b\)-scale, a compensating packet of mass \(m_b\)
+near
+
+\[
+t=v+b\tau
+\]
+
+has rational size
+
+\[
+K_R(t)m_b
+\asymp
+\frac{m_b}{b}
+\frac{\tau+1}{\tau(\tau+\kappa+1)}.
+\]
+
+Therefore rational balance with an \(O(1)\) left side forces
+
+\[
+\boxed{
+m_b=O(b)
+}
+\]
+
+for the entire \(b\)-scale compensating cluster.
+
+The endpoint identity gives
+
+\[
+\ell B(\mathbb E_R[A_R]-\mathbb E_L[A_L])
+=
+q\log\frac{b}{a}
+=
+-q\log\kappa.
+\]
+
+Since \(\ell=b(\kappa+1)\), the left side is \(O(b)\) in every
+non-pinching compact \(\tau\)-window.  Hence, if \(\kappa\) is also bounded
+above, or more generally if \(\log\kappa\) does not vanish, then
+
+\[
+\boxed{
+q=O\!\left(\frac{b}{\log\kappa}\right).
+}
+\]
+
+Thus the singular atom inside the escaping component also loses mass in the
+pinching limit.  The only ways out are now explicit:
+
+1. \(\kappa\downarrow1\), which returns to the neutral \(\theta=1/2\) split;
+2. \(\kappa\to\infty\), where the atom approaches the right endpoint much
+faster than the left endpoint and a second blow-up is needed;
+3. an actual endpoint pinching of the finite-gap branch.
+
+In the main dangerous regime, the weak limit therefore deletes the escaping
+component: both the interior atom and the nearby compensating right cluster
+carry vanishing mass.  The candidate \(g=2\) extremal cannot survive as a
+new non-degenerate object; it must converge to the \(g=1\) two-interval
+branch unless the length bound has already been met.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
