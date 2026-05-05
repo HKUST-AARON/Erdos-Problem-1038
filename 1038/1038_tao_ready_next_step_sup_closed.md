@@ -2525,6 +2525,45 @@ tangent vector, and compare the coefficient with \(Q_c\).  Then repeat with an
 endpoint-transfer coordinate included to recover the mixed \(\Gamma d_\pm\)
 terms.
 
+Correction: a pure elementary jet such as \(\xi_c\) is not itself a valid
+first-order perturbation.  A density perturbation must satisfy
+
+\[
+\langle\kappa_1,d\xi\rangle=0,\qquad
+\langle\kappa_2,d\xi\rangle=0.
+\]
+
+So the neck direction must first be projected to the tangent space.  A useful
+gauge is to take \((\xi_u,\xi_v,\xi_-,\xi_+)\) free and solve for
+\((\xi_0,\xi_c)\).  The neck coordinate should then be represented by the
+anti-symmetric relative-endpoint transfer \(\xi_-=-1,\xi_+=1\), with
+\(\xi_0,\xi_c\) determined by the compatibility equations.  H2-H3 must be
+computed only after this tangent projection.
+
+In determinant form, write
+
+\[
+D=\kappa_{10}\kappa_{2c}-\kappa_{1c}\kappa_{20}.
+\]
+
+For free \(h=(h_u,h_v,h_-,h_+)\), let
+
+\[
+R_j(h)=\kappa_{ju}h_u+\kappa_{jv}h_v+\kappa_{j-}h_-+\kappa_{j+}h_+.
+\]
+
+Then the tangent lift is
+
+\[
+\xi_0(h)=\frac{-R_1(h)\kappa_{2c}+\kappa_{1c}R_2(h)}{D},
+\qquad
+\xi_c(h)=\frac{-\kappa_{10}R_2(h)+\kappa_{20}R_1(h)}{D}.
+\]
+
+The relevant directions are \(T_u=T(1,0,0,0)\),
+\(T_v=T(0,1,0,0)\), and \(T_\zeta=T(0,0,-1,1)\).  The remaining proof is the
+pullback of the reduced bordered Hessian to these tangent vectors.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

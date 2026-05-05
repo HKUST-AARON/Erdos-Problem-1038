@@ -7870,6 +7870,201 @@ and H3 are proved, the compact \(g=2\) obstruction is no longer a numerical
 or heuristic statement; it becomes a standard Hessian positive-semidefinite
 argument.
 
+### 16.61 Tangent-space correction for the neck coordinate
+
+There is another important correction before computing H2-H3.  A "pure neck
+jet" is not automatically a valid first-order perturbation.  The linearised
+constraints are
+
+\[
+A\,dy+B\,d\xi=0.
+\]
+
+Thus a density-side perturbation \(d\xi\) is tangent only if it is annihilated
+by the adjoint cokernel:
+
+\[
+\boxed{
+\langle \kappa_1,d\xi\rangle=0,\qquad
+\langle \kappa_2,d\xi\rangle=0.
+}
+\]
+
+Equivalently,
+
+\[
+d\xi\in\ker((\ker A^T)B).
+\]
+
+This means that none of the six elementary density jets
+
+\[
+\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+
+\]
+
+should be used alone as a solved tangent coordinate.  In particular, the neck
+coordinate is not simply "turn on \(\xi_c\)."  It must be the projection of the
+neck direction to the four-dimensional first-order tangent space.
+
+The correct procedure is:
+
+1. choose four free density-side coordinates;
+2. solve the two compatibility equations
+   \[
+   \langle \kappa_1,d\xi\rangle=0,\qquad
+   \langle \kappa_2,d\xi\rangle=0
+   \]
+   for the two dependent density jets;
+3. solve \(A\,dy=-B\,d\xi\) for the local variables \(dy\);
+4. compute the second variation on this solved tangent vector.
+
+A convenient gauge is to take
+
+\[
+(\xi_u,\xi_v,\xi_-,\xi_+)
+\]
+
+as free and solve for
+
+\[
+(\xi_0,\xi_c).
+\]
+
+This gauge keeps the two endpoint-transfer directions visible while allowing
+the neck coordinate to be represented by a constrained combination of
+\(\xi_-\) and \(\xi_+\).  In this gauge, the neck direction should be the
+anti-symmetric transfer between the two relative endpoint rows:
+
+\[
+\zeta:\qquad \xi_-=-1,\qquad \xi_+=1,
+\]
+
+with \(\xi_0,\xi_c\) then determined by the two compatibility equations.  The
+endpoint-transfer directions are represented by the \(\xi_u\) and \(\xi_v\)
+coordinates, again with \(\xi_0,\xi_c\) solved.
+
+This correction is essential.  The Hessian entries H2-H3 must be computed
+after this tangent projection.  Otherwise \(Q_c\) and \(\Gamma\) can be
+misidentified by adding forbidden normal components.
+
+The next exact calculation is therefore not "differentiate in \(\xi_c\)."  It
+is:
+
+\[
+\boxed{
+\text{write the projected tangent basis }
+T_u,T_v,T_\zeta
+\text{ in the }(\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+)\text{ coordinates.}
+}
+\]
+
+Only after this projection should one compare the reduced Hessian entries with
+\(Q_c\) and \(\Gamma\).
+
+### 16.62 Projected tangent basis in determinant form
+
+The tangent projection can be written cleanly without expanding all
+coefficients.  Write
+
+\[
+\kappa_j=(\kappa_{j0},\kappa_{ju},\kappa_{jc},
+\kappa_{jv},\kappa_{j-},\kappa_{j+})
+\qquad(j=1,2),
+\]
+
+and set
+
+\[
+D=\kappa_{10}\kappa_{2c}-\kappa_{1c}\kappa_{20}.
+\]
+
+Assume \(D\ne0\).  This is the non-degenerate compact chart in which
+\((\xi_0,\xi_c)\) can be solved from the two compatibility equations.
+
+For a free vector
+
+\[
+h=(h_u,h_v,h_-,h_+)
+\]
+
+meaning
+
+\[
+\xi_u=h_u,\qquad \xi_v=h_v,\qquad \xi_-=h_-,\qquad \xi_+=h_+,
+\]
+
+define
+
+\[
+R_j(h)=\kappa_{ju}h_u+\kappa_{jv}h_v+\kappa_{j-}h_-+\kappa_{j+}h_+.
+\]
+
+Then the unique tangent lift is
+
+\[
+\boxed{
+\xi_0(h)=\frac{-R_1(h)\kappa_{2c}+\kappa_{1c}R_2(h)}{D},
+}
+\]
+
+and
+
+\[
+\boxed{
+\xi_c(h)=\frac{-\kappa_{10}R_2(h)+\kappa_{20}R_1(h)}{D}.
+}
+\]
+
+Thus the projected tangent vector is
+
+\[
+T(h)=
+(\xi_0(h),h_u,\xi_c(h),h_v,h_-,h_+).
+\]
+
+The three directions needed for H2-H3 are now concrete:
+
+\[
+T_u=T(1,0,0,0),\qquad
+T_v=T(0,1,0,0),
+\]
+
+and
+
+\[
+\boxed{
+T_\zeta=T(0,0,-1,1).
+}
+\]
+
+The projected neck direction \(T_\zeta\) is the correct object for computing
+the neck diagonal Hessian.  It is not the elementary vector \(e_c\).
+
+This determinant form also explains why the previous first-order cokernel
+calculation is still useful.  The same coefficients \(\kappa_1,\kappa_2\)
+define the tangent chart.  What remains genuinely second-order is the pullback
+of the bordered Hessian to the three tangent vectors:
+
+\[
+\boxed{
+H_{ij}^{\rm red}=
+T_i^T\,\mathsf H_{\rm eff}\,T_j,
+\qquad
+i,j\in\{u,v,\zeta\}.
+}
+\]
+
+The target identities H2-H3 now become:
+
+\[
+H_{\zeta\zeta}^{\rm red}=\lambda Q_c,\qquad
+H_{u\zeta}^{\rm red}=-\frac{\lambda}{2}\Gamma(c-u),\qquad
+H_{v\zeta}^{\rm red}=\frac{\lambda}{2}\Gamma(v-c),
+\]
+
+with positive normalisation \(\lambda\) after matching the left/right endpoint
+charts.  This is the exact algebraic form of the remaining proof.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
