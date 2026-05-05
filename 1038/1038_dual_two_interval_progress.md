@@ -3577,12 +3577,24 @@ max_condition_regularized=8.231365e+00
 orientation_mismatches=0
 ```
 
+With `--arb-fd-det`, the same checker also evaluates the regularized
+finite-difference Jacobian determinant as an Arb ball.  This is still not the
+analytic derivative theorem, but it removes floating-point ambiguity from the
+determinant nonzero check:
+
+```text
+TWO-INTERVAL REGULARIZED EQUIVALENCE: PASS-DIAGNOSTIC
+rows=7
+min_arb_fd_det_abs_lower=2.998339e+04
+arb_fd_det_contains_zero=0
+```
+
 An extra near-singular diagnostic down to \(\varepsilon=3\cdot10^{-10}\) also
 keeps the Jacobian non-singular and orientation-consistent, but residuals rise
 to about \(5.7\cdot10^{-5}\), which is the current double/quadrature accuracy
 floor rather than a proof artifact.  The proof-grade version still needs Arb
-interval equations for the equivalence identity and a uniform lower bound for
-the regularized Jacobian determinant.
+interval equations for the equivalence identity and an analytic derivative
+formula giving a uniform lower bound for the regularized Jacobian determinant.
 
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
