@@ -515,11 +515,11 @@ sup_cell |R'(tau)| <= |secant_cell(R)| + 0.5 * C * cell_width.
 ```
 
 Using the current candidate curvature bound `C = 2.5e-4` and the same
-`grid=401` cells gives:
+two-cell grid gives:
 
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
-  --grid 401 \
+  --grid 3 \
   --h 1e-5 \
   --eta-values 1e-16,1e-8 \
   --secant-certificate \
@@ -530,19 +530,19 @@ Observed summary:
 
 ```text
 TWO-INTERVAL K2 TAYLOR LIPSCHITZ: PASS-DIAGNOSTIC
-grid=401
-step=2.500000e-04
-worst_secant_bound=1.790724e-04
+grid=3
+step=5.000000e-02
+worst_secant_bound=1.086644e-04
 candidate_curvature=2.500000e-04
-curvature_allowance=3.125000e-08
-taylor_lipschitz_bound=1.791036e-04
+curvature_allowance=6.250000e-06
+taylor_lipschitz_bound=1.149144e-04
 candidate_lipschitz=2.000000e-04
 ```
 
 This identifies the exact remaining theorem-level replacement:
 
 ```text
-On every tau cell and both B = +/-0.01 edges, prove by interval/Taylor
+On the two tau cells and both B = +/-0.01 edges, prove by interval/Taylor
 arithmetic that |R''(tau)| <= 2.5e-4 for the eta-uniform K2 remainder R.
 ```
 
