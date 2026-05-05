@@ -3498,6 +3498,34 @@ finite proof-grade winding is closed down to \(10^{-8}\), but the final
 singular gap still needs a stronger joint \(\eta=0\) residual kernel or a
 sharper analytic cancellation before it can become a continuum theorem.
 
+The next diagnostic cut identifies the bad term.  With solver debug algebra
+enabled, the worst point contains
+
+```text
+limit_layer_joint_identity:combined_limit = -6.872079e-9
+limit_layer_joint_analytic_limit_over_eta:combined = -0.6872079
+```
+
+This single leftover \(O(\eta)\) joint-limit term accounts for essentially all
+of the failed ratio.  If the diagnostic subtracts that removable joint-limit
+layer before comparing with \(K_0\), the same sampled box gives:
+
+```text
+TWO-INTERVAL SMALL-ETA REMAINDER: PASS-DIAGNOSTIC
+max_remainder=1.690799e-04
+limiting_min_origin=7.063335e-03
+ratio=2.393769e-02
+```
+
+This is still not a proof.  It says the promising next proof kernel is not more
+epsilon slicing; it is a joint residual-level expression in which the
+limit-layer \(O(\eta)\) term is cancelled before the final eta division.  A
+direct finite-value check also shows that raw direct, paired, and renormalized
+K2 values differ off branch, while they agree to zero on the solved branch.
+Thus the immediate blocker is to define the exact residual map used for the
+continuum winding and prove its equivalence to the original equations, rather
+than only tuning the existing diagnostic.
+
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
 

@@ -54,6 +54,14 @@ def main() -> int:
     parser.add_argument("--edge-samples", type=int, default=16)
     parser.add_argument("--precision", type=int, default=192)
     parser.add_argument("--fail-ratio", type=float, default=1.0)
+    parser.add_argument(
+        "--renormalize-limit-layer",
+        action="store_true",
+        help=(
+            "Diagnostic only: subtract the joint limit-layer limit/eta term "
+            "reported by the solver debug algebra before comparing with K0."
+        ),
+    )
     args = parser.parse_args()
 
     if not (0.0 < args.eta_min <= args.eta_max):
@@ -117,6 +125,7 @@ def main() -> int:
             A = arb(repr(float(limit_solution.A))) + arb_eta * base_delta_A
             alpha = arb(repr(float(limit_solution.alpha))) + arb_eta * base_delta_alpha
             try:
+                debug_terms = [] if args.renormalize_limit_layer else None
                 K1 = arb_mid(
                     solver._potential_residue_log_value_divided_from_arb(
                         A,
@@ -141,8 +150,13 @@ def main() -> int:
                         args.precision,
                         base_delta_A,
                         base_delta_alpha,
+                        debug_terms=debug_terms,
                     )
                 )
+                if debug_terms is not None:
+                    for label, value in debug_terms:
+                        if label == "limit_layer_joint_analytic_limit_over_eta:combined":
+                            K2 -= arb_mid(value)
             except Exception as exc:  # noqa: BLE001 - diagnostic reports exact blocker.
                 failures += 1
                 current = (float("inf"), eta, B, tau, side, f"{type(exc).__name__}: {exc}")
