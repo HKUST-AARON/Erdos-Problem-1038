@@ -269,3 +269,16 @@ wide; the remaining proof needs an analytic second-tau-divided K2 kernel.
 This folder does not claim a complete proof of the 1038 infimum.  It is a
 local two-interval branch artifact.  A global finite-gap reduction and a
 matching upper construction are separate requirements.
+
+Current completion audit:
+
+```text
+small-eta theorem status: OPEN
+sampled/diagnostic gates: PASS
+remaining local proof obligation:
+  build an analytic second-tau-divided K2 kernel and prove
+  |R_second_tau_tau| <= 2.5e-4 on the four K2 edge tau boxes.
+cheap route ruled out:
+  direct black-box Arb second-difference boxes are too wide by many orders of
+  magnitude, so this must be proved after cancellation/regularization.
+```
