@@ -1460,3 +1460,37 @@ The diagnostic bottleneck is now clear: \([2\cdot10^{-4},5\cdot10^{-4}]\) has
 the thinnest sampled boundary clearance.  If a continuum boundary-degree
 certificate is attempted next, that slab is the first one to intervalize and
 split if necessary.
+
+An interval boundary-exclusion switch was then added:
+
+```text
+--interval-boundary-exclusion ETA,EDGE
+```
+
+It subdivides the tube boundary and checks the necessary precondition
+\(0\notin K(\partial Q_\eta)\) on each boundary box.  This is still only the
+boundary-exclusion part of a degree proof, not the winding proof.
+
+The direct Arb value kernel fails on the bottleneck slab even with much finer
+eta subdivision:
+
+```text
+slab=0.0002:0.0005, eta=8, edge=8
+  FAIL eta=0,right=0
+  K1=[+/- 0.263], K2=[+/- 4.48]
+
+slab=0.0002:0.0005, eta=512, edge=16
+  FAIL eta=0,right=0
+  K1=[+/- 4.38e-3], K2=[+/- 0.0711]
+
+slab=0.0002:0.0005, eta=4096, edge=32
+  FAIL eta=0,right=0
+  K1=[+/- 7.78e-4], K2=[+/- 9.56e-3]
+```
+
+This is a useful negative result.  The sampled boundary degree signal is real,
+but a continuum boundary-degree proof cannot be obtained by direct Arb
+evaluation of \(U(\alpha)/\eta\) and \(H/\eta^2\).  The same removable-factor
+cancellation that broke the center correction also breaks direct interval
+boundary exclusion.  Therefore the next implementation has to be the
+eta-divided residual value kernel, not more subdivision.

@@ -161,6 +161,127 @@ def sampled_boundary_degree(
     return worst_abs_degree, min_norm, max_jump
 
 
+def interval_boundary_exclusion(
+    low_row: Any,
+    high_row: Any,
+    radii: np.ndarray,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    eta_subdivisions: int,
+    edge_subdivisions: int,
+) -> tuple[float, str]:
+    """Check the interval precondition 0 notin K(boundary tube boxes)."""
+
+    if eta_subdivisions <= 0 or edge_subdivisions <= 0:
+        return float("inf"), "disabled"
+    from flint import arb
+
+    solver = v.load_solver()
+    eta_low = low_row.epsilon ** 0.5
+    eta_high = high_row.epsilon ** 0.5
+    b_slope, b_intercept, tau_slope, tau_intercept = v.affine_coefficients(low_row, high_row)
+    worst_separation = float("inf")
+    worst_source = "none"
+
+    def component_separation(value: Any) -> float:
+        lower = float(value.lower())
+        upper = float(value.upper())
+        if lower <= 0.0 <= upper:
+            return 0.0
+        return min(abs(lower), abs(upper))
+
+    def check_box(
+        eta_interval_low: float,
+        eta_interval_high: float,
+        u_low: float,
+        u_high: float,
+        tau_low: float,
+        tau_high: float,
+        source: str,
+    ) -> None:
+        nonlocal worst_separation, worst_source
+        arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+        arb_A, arb_alpha, _base_delta_A, _base_delta_alpha = v.arb_affine_parameters(
+            solver,
+            arb,
+            arb_eta,
+            u_low,
+            u_high,
+            tau_low,
+            tau_high,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        U_alpha = arb(solver._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+        H = arb(
+            solver._combined_contact_minus_one_potential_acb_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_epsilon,
+                arb(repr(float(left_weight))),
+                192,
+            )
+        )
+        if not U_alpha.is_finite() or not H.is_finite():
+            v.fail(f"interval boundary exclusion {source}: non-finite K value")
+        K1 = U_alpha / arb_eta
+        K2 = H / (arb_eta * arb_eta)
+        sep = max(component_separation(K1), component_separation(K2))
+        if sep <= 0.0:
+            v.fail(f"interval boundary exclusion {source}: both K components contain 0; K1={K1}, K2={K2}")
+        if sep < worst_separation:
+            worst_separation = sep
+            worst_source = source
+
+    for eta_index, (eta_interval_low, eta_interval_high) in enumerate(v.eta_intervals(eta_low, eta_high, eta_subdivisions)):
+        for edge_index in range(edge_subdivisions):
+            t0 = -1.0 + 2.0 * edge_index / edge_subdivisions
+            t1 = -1.0 + 2.0 * (edge_index + 1) / edge_subdivisions
+            check_box(
+                eta_interval_low,
+                eta_interval_high,
+                float(radii[0]),
+                float(radii[0]),
+                t0 * float(radii[1]),
+                t1 * float(radii[1]),
+                f"eta={eta_index},right={edge_index}",
+            )
+            check_box(
+                eta_interval_low,
+                eta_interval_high,
+                t0 * float(radii[0]),
+                t1 * float(radii[0]),
+                float(radii[1]),
+                float(radii[1]),
+                f"eta={eta_index},top={edge_index}",
+            )
+            check_box(
+                eta_interval_low,
+                eta_interval_high,
+                -float(radii[0]),
+                -float(radii[0]),
+                t0 * float(radii[1]),
+                t1 * float(radii[1]),
+                f"eta={eta_index},left={edge_index}",
+            )
+            check_box(
+                eta_interval_low,
+                eta_interval_high,
+                t0 * float(radii[0]),
+                t1 * float(radii[0]),
+                -float(radii[1]),
+                -float(radii[1]),
+                f"eta={eta_index},bottom={edge_index}",
+            )
+    return worst_separation, worst_source
+
+
 def verify_tube(
     config: TubeConfig,
     rows: list[Any],
@@ -170,7 +291,8 @@ def verify_tube(
     kernel: str,
     max_weighted_defect: float,
     boundary_degree_samples: tuple[int, int],
-) -> tuple[float, str, float, float, float, float, int, float, float]:
+    interval_boundary_subdivisions: tuple[int, int],
+) -> tuple[float, str, float, float, float, float, int, float, float, float, str]:
     from flint import arb
 
     solver = v.load_solver()
@@ -189,6 +311,16 @@ def verify_tube(
         null_slope,
         boundary_degree_samples[0],
         boundary_degree_samples[1],
+    )
+    interval_boundary_sep, interval_boundary_source = interval_boundary_exclusion(
+        low_row,
+        high_row,
+        config.radii,
+        limit_solution,
+        left_weight,
+        null_slope,
+        interval_boundary_subdivisions[0],
+        interval_boundary_subdivisions[1],
     )
 
     eta_low = low_row.epsilon ** 0.5
@@ -319,6 +451,8 @@ def verify_tube(
         sampled_degree,
         sampled_boundary_min_norm,
         sampled_boundary_max_jump,
+        interval_boundary_sep,
+        interval_boundary_source,
     )
 
 
@@ -334,6 +468,13 @@ def main() -> int:
         default=(0, 0),
         metavar="ETA,EDGE",
         help="Diagnostic only: sample K on the tube boundary at ETA eta slices and EDGE points per edge.",
+    )
+    parser.add_argument(
+        "--interval-boundary-exclusion",
+        type=v.parse_subdivisions,
+        default=(0, 0),
+        metavar="ETA,EDGE",
+        help="Interval precondition check: subdivide the tube boundary and verify 0 is outside every K box.",
     )
     args = parser.parse_args()
 
@@ -356,6 +497,8 @@ def main() -> int:
                 sampled_degree,
                 sampled_boundary_min_norm,
                 sampled_boundary_max_jump,
+                interval_boundary_sep,
+                interval_boundary_source,
             ) = verify_tube(
                 config,
                 rows,
@@ -365,6 +508,7 @@ def main() -> int:
                 args.eta_interval_dk_kernel,
                 args.max_weighted_defect,
                 args.sample_boundary_degree,
+                args.interval_boundary_exclusion,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
@@ -378,6 +522,8 @@ def main() -> int:
                 f"sampled_degree_abs={sampled_degree:d} "
                 f"sampled_boundary_min_norm={sampled_boundary_min_norm:.6e} "
                 f"sampled_boundary_max_jump={sampled_boundary_max_jump:.6e} "
+                f"interval_boundary_sep={interval_boundary_sep:.6e} "
+                f"interval_boundary_source={interval_boundary_source} "
                 f"worst_source={source}"
             )
             if value > worst:
