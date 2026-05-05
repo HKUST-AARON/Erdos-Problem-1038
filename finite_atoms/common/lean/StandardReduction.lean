@@ -7493,6 +7493,43 @@ theorem componentBlock_logKernel_jensen_scaled_of_probability_block
     _ = ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
           hblock_kernel.symm
 
+/--
+Component-block Jensen comparison using the canonical normalized component
+block.
+
+This removes the external normalized-block identification data from
+`componentBlock_logKernel_jensen_scaled_of_probability_block`; only positive
+component mass and the two integrability hypotheses for the normalized block
+remain.
+-/
+theorem componentBlock_logKernel_jensen_scaled_normalized
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hmass_pos : 0 < componentMass C)
+    (hstrict : StrictOutsideComponent C x)
+    (hfirst :
+      Integrable (fun t : ℝ => t)
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ))
+    (hkernel_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
+    (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  refine componentBlock_logKernel_jensen_scaled_of_probability_block
+    C ((componentBlockFiniteMeasure C).normalize : Measure ℝ)
+    hstrict ?_ hfirst hkernel_int ?_ ?_
+  · simpa [PositiveComponent.interval_eq] using
+      normalized_componentBlock_ae_mem_interval C hmass_pos
+  · exact componentBarycenter_eq_normalized_componentBlock_integral C hmass_pos
+  · have hscale := componentBlock_integral_eq_mass_mul_normalized C
+      (fun t : ℝ => Real.log (1 / |x - t|))
+    have hmass_eq :
+        ((componentBlockFiniteMeasure C).mass : ℝ) =
+          (componentMass C).toReal := by
+      rw [componentBlockFiniteMeasure_mass C]
+      rfl
+    simpa [hmass_eq] using hscale
+
 /-!
 ## Finite variance drop under barycenter replacement
 

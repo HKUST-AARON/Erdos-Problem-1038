@@ -116,6 +116,7 @@ componentReplacement_potential_le_of_decomposition_and_block_jensen
 componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 componentReplacement_objective_le_of_strictOutside_logKernel_jensen
 componentBlock_logKernel_jensen_scaled_of_probability_block
+componentBlock_logKernel_jensen_scaled_normalized
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -158,6 +159,9 @@ The normalized probability block is now represented canonically by
 inside the component transfers to this normalized block, that integrals against
 `componentBlock C` scale by its finite mass, and that `componentBarycenter C`
 is the mean of the normalized component block whenever `componentMass C > 0`.
+The canonical normalized block is now wired directly into the scaled Jensen
+comparison, so no external normalized-block identification is needed for the
+Jensen step.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -172,9 +176,10 @@ The following review findings remain real Lean gaps, not solved claims:
 3. The component-replacement objective lemma still consumes the outside
    log-kernel integrability data as assumptions.  The normalized probability
    block, a.e. support transfer, integral scaling, barycenter identification,
-   log-kernel specialization, scalar assembly, and scaled Jensen bridge are
-   formalized; the remaining local analytic task is to discharge the required
-   log-kernel integrability hypotheses for an arbitrary strict outside point.
+   log-kernel specialization, scalar assembly, and canonical normalized-block
+   Jensen bridge are formalized; the remaining local analytic task is to
+   discharge the required log-kernel integrability hypotheses for an arbitrary
+   strict outside point.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
