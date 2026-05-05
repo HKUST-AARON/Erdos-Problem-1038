@@ -171,6 +171,7 @@ def interval_boundary_exclusion(
     eta_subdivisions: int,
     edge_subdivisions: int,
     value_kernel: str,
+    debug_terms: int = 0,
 ) -> tuple[float, str]:
     """Check the interval precondition 0 notin K(boundary tube boxes)."""
 
@@ -191,6 +192,19 @@ def interval_boundary_exclusion(
         if lower <= 0.0 <= upper:
             return 0.0
         return min(abs(lower), abs(upper))
+
+    def radius(value: Any) -> float:
+        return max(0.0, (float(value.upper()) - float(value.lower())) / 2.0)
+
+    def format_debug_terms(raw_terms: list[tuple[str, str]]) -> str:
+        parsed = []
+        for label, raw in raw_terms:
+            value = arb(raw)
+            parsed.append((radius(value), float(value.mid()), label))
+        parsed.sort(reverse=True)
+        return ", ".join(
+            f"{label}:rad={rad:.3g}:mid={mid:.3g}" for rad, mid, label in parsed[:debug_terms]
+        )
 
     def sampled_lipschitz_component(
         eta_interval_low: float,
@@ -319,6 +333,7 @@ def interval_boundary_exclusion(
             tau_slope,
             tau_intercept,
         )
+        k2_debug_terms: list[tuple[str, str]] = []
         if value_kernel == "direct":
             U_alpha = arb(solver._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
             H = arb(
@@ -352,7 +367,18 @@ def interval_boundary_exclusion(
             K1 = arb(K1_raw)
             K2 = arb(K2_raw)
         elif value_kernel == "residue-log-divided":
-            K1_raw, K2_raw = solver._rescaled_residue_log_divided_values_from_arb(
+            K1_raw = solver._potential_residue_log_value_divided_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                "contact",
+                192,
+                _base_delta_A,
+                _base_delta_alpha,
+            )
+            K2_raw = solver._combined_residue_log_value_second_divided_from_arb(
                 arb_A,
                 arb_alpha,
                 arb_eta,
@@ -362,6 +388,7 @@ def interval_boundary_exclusion(
                 192,
                 _base_delta_A,
                 _base_delta_alpha,
+                k2_debug_terms if debug_terms > 0 else None,
             )
             K1 = arb(K1_raw)
             K2 = arb(K2_raw)
@@ -371,7 +398,10 @@ def interval_boundary_exclusion(
             v.fail(f"interval boundary exclusion {source}: non-finite K value")
         sep = max(component_separation(K1), component_separation(K2))
         if sep <= 0.0:
-            v.fail(f"interval boundary exclusion {source}: both K components contain 0; K1={K1}, K2={K2}")
+            extra = ""
+            if debug_terms > 0 and k2_debug_terms:
+                extra = f"; K2_terms={format_debug_terms(k2_debug_terms)}"
+            v.fail(f"interval boundary exclusion {source}: both K components contain 0; K1={K1}, K2={K2}{extra}")
         if sep < worst_separation:
             worst_separation = sep
             worst_source = source
@@ -430,6 +460,7 @@ def verify_tube(
     boundary_degree_samples: tuple[int, int],
     interval_boundary_subdivisions: tuple[int, int],
     interval_boundary_value_kernel: str,
+    interval_boundary_debug_terms: int,
 ) -> tuple[float, str, float, float, float, float, int, float, float, float, str]:
     from flint import arb
 
@@ -460,6 +491,7 @@ def verify_tube(
         interval_boundary_subdivisions[0],
         interval_boundary_subdivisions[1],
         interval_boundary_value_kernel,
+        interval_boundary_debug_terms,
     )
 
     eta_low = low_row.epsilon ** 0.5
@@ -621,6 +653,13 @@ def main() -> int:
         default="direct",
         help="Value kernel used by --interval-boundary-exclusion.",
     )
+    parser.add_argument(
+        "--interval-boundary-debug-terms",
+        type=int,
+        default=0,
+        metavar="N",
+        help="On interval-boundary failure, print the N largest K2 term radii for residue-log-divided.",
+    )
     args = parser.parse_args()
 
     try:
@@ -655,6 +694,7 @@ def main() -> int:
                 args.sample_boundary_degree,
                 args.interval_boundary_exclusion,
                 args.interval_boundary_value_kernel,
+                args.interval_boundary_debug_terms,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(

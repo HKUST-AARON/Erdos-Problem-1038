@@ -1779,7 +1779,9 @@ def _potential_residue_log_value_divided_from_arb(
     else:
         raise ValueError(f"unknown x_kind {x_kind!r}")
 
-    total = -log_abs_ratio_divided(x, x0, x_div)
+    # Since z(w)=scale*(w-rho0)*(w-rho1)/w for the two preimages of z=0,
+    # the x-log, zero-preimage logs, and coordinate pole combine to this.
+    total = -log_abs_ratio_divided(scale, scale0, scale_div) - log_abs_ratio_divided(w_x, w_x0, w_x_div)
 
     ell_derivative = (ell - r) * (ell - one)
     ell0_derivative = (ell0 - r) * (ell0 - one)
@@ -1837,22 +1839,14 @@ def _potential_residue_log_value_divided_from_arb(
         total -= sum_residue_div * log_abs(base0)
         total -= sum_residue * log_abs_ratio_divided(base, base0, base_div)
 
-    # The -1/z normalization poles at z=0 have constant residue -1.
-    for rho, rho0, rho_div in preimage_pair_divided(zero, zero, zero):
-        total += log_abs_ratio_divided(w_x - rho, w_x0 - rho0, w_x_div - rho_div)
-
-    # The coordinate pole at w=0 has residue 2.
-    total -= 2 * log_abs_ratio_divided(w_x, w_x0, w_x_div)
-
     # Endpoint atom at z=1 is absent at eta=0; keep the two endpoint sheets
     # paired before dividing by eta.
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
     rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
     rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
-    for rho in (rho_minus, rho_plus):
-        a = (one + A) * branch_value(rho, scale) / one_derivative
-        total -= (a / eta) * log_abs(w_x - rho)
+    a_minus = (one + A) * branch_value(rho_minus, scale) / one_derivative
+    total -= (a_minus / eta) * log_abs((w_x - rho_minus) / (w_x - rho_plus))
 
     return str(total)
 
@@ -1909,6 +1903,7 @@ def _combined_residue_log_value_second_divided_from_arb(
     precision: int,
     base_delta_A=None,
     base_delta_alpha=None,
+    debug_terms=None,
 ) -> str:
     """Term-paired box for ``(left_weight*U(alpha)+U(-1))/eta^2``.
 
@@ -1998,6 +1993,7 @@ def _combined_residue_log_value_second_divided_from_arb(
         return quotient_divided(numerator, numerator0, numerator_div, q_derivative, q0_derivative, q_derivative_div)
 
     contact = {
+        "label": "contact",
         "weight": left_weight,
         "x": alpha,
         "x0": limit_alpha,
@@ -2008,6 +2004,7 @@ def _combined_residue_log_value_second_divided_from_arb(
     }
     w_minus, w_minus0, w_minus_div = preimage_pair_divided(-one, -one, zero)[0]
     minus_one = {
+        "label": "minus_one",
         "weight": one,
         "x": -one,
         "x0": -one,
@@ -2019,8 +2016,22 @@ def _combined_residue_log_value_second_divided_from_arb(
     contexts = (contact, minus_one)
 
     combined_first_divided = arb(0)
+
+    def add_combined_term(label, value):
+        nonlocal combined_first_divided
+        combined_first_divided += value
+        if debug_terms is not None:
+            debug_terms.append((label, str(value / eta)))
+
     for item in contexts:
-        combined_first_divided -= item["weight"] * log_abs_ratio_divided(item["x"], item["x0"], item["x_div"])
+        add_combined_term(
+            f"xzero_coord:{item['label']}",
+            -item["weight"]
+            * (
+                log_abs_ratio_divided(scale, scale0, scale_div)
+                + log_abs_ratio_divided(item["w"], item["w0"], item["w_div"])
+            ),
+        )
 
     ell_derivative = (ell - r) * (ell - one)
     ell0_derivative = (ell0 - r) * (ell0 - one)
@@ -2033,7 +2044,9 @@ def _combined_residue_log_value_second_divided_from_arb(
 
     ell_preimages = preimage_pair_divided(ell, ell0, ell_q_div)
     r_preimages = preimage_pair_divided(r, r, r_q_div)
-    for (rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div) in zip(ell_preimages, r_preimages):
+    for sheet_index, ((rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div)) in enumerate(
+        zip(ell_preimages, r_preimages)
+    ):
         a_ell = residue(ell, ell_derivative, rho_ell, A, scale)
         a_r = residue(r, r_derivative, rho_r, A, scale)
         a_ell_div = residue_divided(
@@ -2074,33 +2087,34 @@ def _combined_residue_log_value_second_divided_from_arb(
             base = item["w"] - rho_r
             base0 = item["w0"] - rho_r0
             base_div = item["w_div"] - rho_r_div
-            item_term = (
-                -a_ell_div * log_abs(ratio0)
-                - a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)
-                - sum_residue_div * log_abs(base0)
-                - sum_residue * log_abs_ratio_divided(base, base0, base_div)
+            add_combined_term(
+                f"smooth:s{sheet_index}:ratio_coeff:{item['label']}",
+                item["weight"] * (-a_ell_div * log_abs(ratio0)),
             )
-            combined_first_divided += item["weight"] * item_term
-
-    for rho, rho0, rho_div in preimage_pair_divided(zero, zero, zero):
-        for item in contexts:
-            combined_first_divided += item["weight"] * log_abs_ratio_divided(
-                item["w"] - rho,
-                item["w0"] - rho0,
-                item["w_div"] - rho_div,
+            add_combined_term(
+                f"smooth:s{sheet_index}:ratio_log:{item['label']}",
+                item["weight"] * (-a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)),
             )
-
-    for item in contexts:
-        combined_first_divided -= 2 * item["weight"] * log_abs_ratio_divided(item["w"], item["w0"], item["w_div"])
+            add_combined_term(
+                f"smooth:s{sheet_index}:base_coeff:{item['label']}",
+                item["weight"] * (-sum_residue_div * log_abs(base0)),
+            )
+            add_combined_term(
+                f"smooth:s{sheet_index}:base_log:{item['label']}",
+                item["weight"] * (-sum_residue * log_abs_ratio_divided(base, base0, base_div)),
+            )
 
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
     rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
     rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
-    for rho in (rho_minus, rho_plus):
-        a = (one + A) * branch_value(rho, scale) / one_derivative
-        for item in contexts:
-            combined_first_divided -= item["weight"] * (a / eta) * log_abs(item["w"] - rho)
+    a_minus = (one + A) * branch_value(rho_minus, scale) / one_derivative
+    for item in contexts:
+        endpoint_ratio = (item["w"] - rho_minus) / (item["w"] - rho_plus)
+        add_combined_term(
+            f"endpoint:{item['label']}",
+            -item["weight"] * (a_minus / eta) * log_abs(endpoint_ratio),
+        )
 
     return str(combined_first_divided / eta)
 
