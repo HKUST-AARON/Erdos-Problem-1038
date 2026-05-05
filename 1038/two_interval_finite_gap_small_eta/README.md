@@ -125,6 +125,8 @@ TWO-INTERVAL ASYMPTOTIC OBLIGATION:
 theorem_status=OPEN
 sampled_gate=PASS
 target_bound=7.000000e-03
+k2_reduced_obligation='prove |R_second_tau_tau| <= 2.500000e-04 on four K2 edge tau boxes'
+k2_edge_tau_boxes='right-lower; right-upper; left-lower; left-upper'
 ```
 
 Component blocker diagnostic:

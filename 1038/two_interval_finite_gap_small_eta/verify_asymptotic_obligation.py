@@ -158,6 +158,18 @@ def main() -> int:
     sampled_slack_to_target = args.target_bound - worst_norm
     sampled_ok = failures == 0 and worst_norm < args.target_bound < limiting_min_origin
     theorem_status = "OPEN"
+    k2_edge_curvature_target = 2.5e-4
+    k2_edge_lipschitz_target = 2.0e-4
+    k2_edge_tau_cells = (
+        (args.radius_B, tau0 - args.radius_tau, tau0, "right-lower"),
+        (args.radius_B, tau0, tau0 + args.radius_tau, "right-upper"),
+        (-args.radius_B, tau0 - args.radius_tau, tau0, "left-lower"),
+        (-args.radius_B, tau0, tau0 + args.radius_tau, "left-upper"),
+    )
+    k2_cell_text = ";".join(
+        f"{label}:B={B:+.6g},tau=[{low:.12e},{high:.12e}]"
+        for B, low, high, label in k2_edge_tau_cells
+    )
 
     print(
         "TWO-INTERVAL ASYMPTOTIC OBLIGATION: "
@@ -170,6 +182,9 @@ def main() -> int:
         f"sampled_slack_to_target={sampled_slack_to_target:.6e} "
         f"sampled_ratio={sampled_ratio:.6e} target_ratio={target_ratio:.6e} "
         f"needed_certificate='uniform Arb bound for K_eta-K0 below target_bound on boundary boxes' "
+        f"k2_reduced_obligation='prove |R_second_tau_tau| <= {k2_edge_curvature_target:.6e} "
+        f"on four K2 edge tau boxes, yielding Lipschitz <= {k2_edge_lipschitz_target:.6e}' "
+        f"k2_edge_tau_boxes='{k2_cell_text}' "
         f"worst={worst!r}"
     )
     return 0 if sampled_ok else 1
