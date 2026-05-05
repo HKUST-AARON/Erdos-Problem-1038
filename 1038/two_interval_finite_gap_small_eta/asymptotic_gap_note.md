@@ -593,3 +593,51 @@ candidate_curvature=2.500000e-04
 This is still sampled, but it is now aligned with the exact future proof
 artifact: prove the curvature bound on these four boxes using interval/Taylor
 arithmetic in the combined K2 residual-level kernel.
+
+## Conditional K2 Edge Closure Lemma
+
+The diagnostics above reduce the K2 right/left edge step to the following
+conditional lemma.
+
+Let
+
+```text
+R_B(tau, eta) = K2_eta(B,tau) - K2_0(B,tau),
+B in {+0.01,-0.01},
+eta in [1e-16,1e-8],
+tau in [tau0-0.05,tau0+0.05].
+```
+
+Assume that, on the four boxes listed above,
+
+```text
+|d^2/dtau^2 R_B(tau,eta)| <= 2.5e-4.
+```
+
+The eta-uniform secant diagnostic gives
+
+```text
+max_cell |secant_cell(R_B)| <= 1.086644e-4.
+```
+
+Each cell has width `0.05`, so Taylor's theorem gives
+
+```text
+sup |d/dtau R_B|
+<= 1.086644e-4 + 0.5 * 2.5e-4 * 0.05
+= 1.149144e-4
+< 2e-4.
+```
+
+The hybrid edge diagnostic then gives
+
+```text
+|R_B(tau,eta)| <= 6.414311e-5
+```
+
+against the available K2 edge target `7e-3`.  Therefore, a proof-grade
+interval/Taylor certificate of the four-box curvature bound is enough to close
+the current K2 edge part of the small-eta singular gap.
+
+This is a conditional closure statement, not yet the theorem itself: the
+four-box curvature bound still has to be certified by interval arithmetic.
