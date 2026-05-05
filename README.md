@@ -73,13 +73,14 @@ The checked repository status is:
   Lean/Mathlib finite-atom tail certificate, route arithmetic, and forcing package checks.
 
 1.814600:
-  Lean/Mathlib exact geometry and route arithmetic.
+  Lean/Mathlib exact geometry, block coverage, required-domain mapping,
+  non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
   Generated 560-block required-domain certificate with Python verification.
   Required-domain worst margin: 9.534343713646365e-06.
   Bad required-domain blocks: 0.
 ```
 
-The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate and the 560 individual logarithmic positivity blocks are not yet expanded into 560 standalone Lean proof terms.
+The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate and the 560 individual logarithmic positivity blocks are still checked by the generated certificate rather than expanded into 560 standalone Lean proof terms.
 
 ## Repository layout
 

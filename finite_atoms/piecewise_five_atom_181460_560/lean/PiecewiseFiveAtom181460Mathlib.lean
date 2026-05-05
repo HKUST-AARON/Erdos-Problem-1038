@@ -35,6 +35,16 @@ def K : Nat := 560
 /-- Block length h = L / K -/
 def h : ℝ := L / K
 
+/-- Right endpoint of block `i` in the positive parameter `r = -a`. -/
+def blockA (i : Nat) : ℝ := M - (i : ℝ) * h
+
+/-- Left endpoint of block `i` in the positive parameter `r = -a`. -/
+def blockC (i : Nat) : ℝ := M - ((i : ℝ) + 1) * h
+
+/-- The two required `y = x - a` domains for a block `[C,A]`. -/
+def requiredDomain (C A : ℝ) : Set ℝ :=
+  Icc (C - 1) (A - 1) ∪ Icc C (A + 1)
+
 /-- The four shifts (d1, d2, d3, d4) -/
 def d1 : ℝ := q 18146001 10000000   -- 1.8146001
 def d2 : ℝ := q 255506 100000       -- 2.55506
@@ -60,6 +70,100 @@ def V (w1 w2 w3 w4 : ℝ) (y : ℝ) : ℝ :=
 /-- Verified: tail length -/
 theorem tail_length : M - B = q 1066 10000 := by
   norm_num [M, B, q]
+
+theorem h_pos : 0 < h := by
+  norm_num [h, L, M, B, K, q]
+
+theorem K_mul_h : (K : ℝ) * h = L := by
+  norm_num [h, L, M, B, K, q]
+
+theorem blockC_le_blockA (i : Nat) : blockC i ≤ blockA i := by
+  have hh := h_pos
+  simp [blockC, blockA]
+  nlinarith
+
+/--
+The 560 blocks cover the full tail parameter interval `[B,M]`.
+The endpoint case `r = B` is assigned to the last block.
+-/
+theorem block_cover_tail {r : ℝ} (hr : r ∈ Icc B M) :
+    ∃ i : Nat, i < K ∧ r ∈ Icc (blockC i) (blockA i) := by
+  by_cases hrB : r = B
+  · refine ⟨559, by norm_num [K], ?_⟩
+    simp [blockC, blockA, h, L, M, B, K, q, hrB]
+    norm_num
+  · have hBlt : B < r := by
+      have hBr : B ≤ r := hr.1
+      exact lt_of_le_of_ne hBr (Ne.symm hrB)
+    let u : ℝ := (M - r) / h
+    have hu_nonneg : 0 ≤ u := by
+      have hrM : r ≤ M := hr.2
+      have hh : 0 < h := h_pos
+      exact div_nonneg (sub_nonneg.mpr hrM) hh.le
+    have hu_lt_K : u < (K : ℝ) := by
+      have hh : 0 < h := h_pos
+      have hlt : M - r < M - B := by linarith
+      have hKh : (K : ℝ) * h = M - B := by
+        simpa [L] using K_mul_h
+      have hlt' : M - r < (K : ℝ) * h := by
+        simpa [hKh] using hlt
+      rw [show (K : ℝ) = ((K : ℝ) * h) / h by field_simp [ne_of_gt hh]]
+      exact div_lt_div_of_pos_right hlt' hh
+    let i : Nat := Nat.floor u
+    have hi_lt : i < K := by
+      simpa [i] using (Nat.floor_lt (R := ℝ) (n := K) hu_nonneg).2 hu_lt_K
+    refine ⟨i, hi_lt, ?_⟩
+    have hle_u : (i : ℝ) ≤ u := by
+      simpa [i] using Nat.floor_le (R := ℝ) hu_nonneg
+    have hu_lt_succ : u < (i : ℝ) + 1 := by
+      simpa [i] using Nat.lt_floor_add_one (R := ℝ) u
+    have hh : 0 < h := h_pos
+    have hright : r ≤ blockA i := by
+      have : (i : ℝ) * h ≤ M - r := by
+        calc
+          (i : ℝ) * h ≤ u * h := mul_le_mul_of_nonneg_right hle_u hh.le
+          _ = M - r := by
+                simp [u]
+                field_simp [ne_of_gt hh]
+      simp [blockA]
+      linarith
+    have hleft : blockC i ≤ r := by
+      have : M - r < ((i : ℝ) + 1) * h := by
+        calc
+          M - r = u * h := by
+            simp [u]
+            field_simp [ne_of_gt hh]
+          _ < ((i : ℝ) + 1) * h := mul_lt_mul_of_pos_right hu_lt_succ hh
+      simp [blockC]
+      linarith
+    exact ⟨hleft, hright⟩
+
+/--
+For a block `[C,A]`, normalized support `{-1} ∪ [0,1]` maps into exactly the
+two required `y`-domains used by the checker.
+-/
+theorem requiredDomain_of_normalized_support
+    {C A r x : ℝ}
+    (hr : r ∈ Icc C A)
+    (hx : x = -1 ∨ x ∈ Icc 0 1) :
+    x + r ∈ requiredDomain C A := by
+  rcases hx with hx | hx
+  · left
+    simp [hx] at *
+    constructor <;> linarith
+  · right
+    simp at *
+    constructor <;> linarith
+
+theorem requiredDomain_of_negative_parameter
+    {C A a x : ℝ}
+    (ha : a ∈ Icc (-A) (-C))
+    (hx : x = -1 ∨ x ∈ Icc 0 1) :
+    x - a ∈ requiredDomain C A := by
+  have hr : -a ∈ Icc C A := by
+    simp at ha ⊢
+    constructor <;> linarith
+  simpa [sub_eq_add_neg] using requiredDomain_of_normalized_support (C := C) (A := A) hr hx
 
 /-- Verified: first shift after M -/
 theorem first_shift_after_M : M < d1 := by

@@ -95,6 +95,69 @@ theorem finite_atom_selector_from_duality
   apply finite_dual_forcing U E atoms hposWeights houtside
   simpa [hduality] using hdualPositive
 
+/-- If all atom weights are non-negative and no positive-weight atom lies in
+`E`, then the weighted potential sum is non-positive.  This is the variant
+needed for piecewise certificates where some generated weights are exactly
+zero. -/
+lemma weighted_sum_nonpos_of_no_positive_weight_atom_in_E
+    (U : ℝ → ℝ) (E : Set ℝ) :
+    ∀ atoms : List Atom,
+      (∀ A ∈ atoms, 0 ≤ A.w) →
+      (∀ x : ℝ, x ∉ E → U x ≤ 0) →
+      (∀ A ∈ atoms, 0 < A.w → A.x ∉ E) →
+      weightedPotentialSum U atoms ≤ 0
+  | [], _, _, _ => by simp [weightedPotentialSum]
+  | A :: rest, hnonneg, houtside, hnotE => by
+      have hA_nonneg : 0 ≤ A.w := hnonneg A (by simp)
+      have hterm : A.w * U A.x ≤ 0 := by
+        by_cases hApos : 0 < A.w
+        · exact mul_nonpos_of_nonneg_of_nonpos hA_nonneg (houtside A.x (hnotE A (by simp) hApos))
+        · have hAzero : A.w = 0 := by linarith
+          simp [hAzero]
+      have hrest : weightedPotentialSum U rest ≤ 0 := by
+        apply weighted_sum_nonpos_of_no_positive_weight_atom_in_E
+        · intro B hB
+          exact hnonneg B (by simp [hB])
+        · exact houtside
+        · intro B hB hBpos
+          exact hnotE B (by simp [hB]) hBpos
+      have hrest' : (rest.map fun A => A.w * U A.x).sum ≤ 0 := by
+        simpa [weightedPotentialSum] using hrest
+      simp [weightedPotentialSum]
+      linarith
+
+/--
+Non-negative finite dual-forcing lemma.  If all weights are non-negative and the
+weighted sum is strictly positive, then at least one positive-weight atom must
+lie in `E`.
+-/
+theorem finite_dual_forcing_nonneg
+    (U : ℝ → ℝ) (E : Set ℝ) (atoms : List Atom)
+    (hnonnegWeights : ∀ A ∈ atoms, 0 ≤ A.w)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hsum : 0 < weightedPotentialSum U atoms) :
+    ∃ A ∈ atoms, 0 < A.w ∧ A.x ∈ E := by
+  by_contra hnone
+  have hnotE : ∀ A ∈ atoms, 0 < A.w → A.x ∉ E := by
+    intro A hA hApos hAE
+    exact hnone ⟨A, hA, hApos, hAE⟩
+  have hle :=
+    weighted_sum_nonpos_of_no_positive_weight_atom_in_E
+      U E atoms hnonnegWeights houtside hnotE
+  linarith
+
+/-- Duality-to-selector bridge allowing zero-weight atoms. -/
+theorem finite_atom_selector_from_duality_nonneg
+    (U : ℝ → ℝ) (E : Set ℝ) (atoms : List Atom)
+    (dualMass : ℝ)
+    (hnonnegWeights : ∀ A ∈ atoms, 0 ≤ A.w)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hdualPositive : 0 < dualMass)
+    (hduality : dualMass = weightedPotentialSum U atoms) :
+    ∃ A ∈ atoms, 0 < A.w ∧ A.x ∈ E := by
+  apply finite_dual_forcing_nonneg U E atoms hnonnegWeights houtside
+  simpa [hduality] using hdualPositive
+
 /-- Specialized five-atom version used by the tail block. -/
 theorem five_atom_forcing
     (U : ℝ → ℝ) (E : Set ℝ)
@@ -145,6 +208,66 @@ theorem five_atom_selector_from_duality
         w0 * U x0 + w1 * U x1 + w2 * U x2 + w3 * U x3 + w4 * U x4) :
     x0 ∈ E ∨ x1 ∈ E ∨ x2 ∈ E ∨ x3 ∈ E ∨ x4 ∈ E := by
   apply five_atom_forcing U E x0 x1 x2 x3 x4 w0 w1 w2 w3 w4
+  · exact hw0
+  · exact hw1
+  · exact hw2
+  · exact hw3
+  · exact hw4
+  · exact houtside
+  · simpa [hduality] using hdualPositive
+
+/-- Five-atom selector with non-negative weights, used by piecewise generated
+certificates that may contain zero weights. -/
+theorem five_atom_forcing_nonneg
+    (U : ℝ → ℝ) (E : Set ℝ)
+    (x0 x1 x2 x3 x4 w0 w1 w2 w3 w4 : ℝ)
+    (hw0 : 0 ≤ w0) (hw1 : 0 ≤ w1) (hw2 : 0 ≤ w2)
+    (hw3 : 0 ≤ w3) (hw4 : 0 ≤ w4)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hsum : 0 <
+        w0 * U x0 + w1 * U x1 + w2 * U x2 + w3 * U x3 + w4 * U x4) :
+    x0 ∈ E ∨ x1 ∈ E ∨ x2 ∈ E ∨ x3 ∈ E ∨ x4 ∈ E := by
+  let atoms : List Atom := [
+    { x := x0, w := w0 },
+    { x := x1, w := w1 },
+    { x := x2, w := w2 },
+    { x := x3, w := w3 },
+    { x := x4, w := w4 }]
+  have hnonnegWeights : ∀ A ∈ atoms, 0 ≤ A.w := by
+    intro A hA
+    simp [atoms] at hA
+    rcases hA with hA | hA | hA | hA | hA
+    · simpa [hA] using hw0
+    · simpa [hA] using hw1
+    · simpa [hA] using hw2
+    · simpa [hA] using hw3
+    · simpa [hA] using hw4
+  have hsumAtoms : 0 < weightedPotentialSum U atoms := by
+    simp [weightedPotentialSum, atoms]
+    linarith
+  rcases finite_dual_forcing_nonneg U E atoms hnonnegWeights houtside hsumAtoms with
+    ⟨A, hA, _hApos, hAE⟩
+  simp [atoms] at hA
+  rcases hA with hA | hA | hA | hA | hA
+  · exact Or.inl (by simpa [hA] using hAE)
+  · exact Or.inr (Or.inl (by simpa [hA] using hAE))
+  · exact Or.inr (Or.inr (Or.inl (by simpa [hA] using hAE)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl (by simpa [hA] using hAE))))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr (by simpa [hA] using hAE))))
+
+/-- Five-atom selector from a duality identity with non-negative weights. -/
+theorem five_atom_selector_from_duality_nonneg
+    (U : ℝ → ℝ) (E : Set ℝ)
+    (x0 x1 x2 x3 x4 w0 w1 w2 w3 w4 : ℝ)
+    (dualMass : ℝ)
+    (hw0 : 0 ≤ w0) (hw1 : 0 ≤ w1) (hw2 : 0 ≤ w2)
+    (hw3 : 0 ≤ w3) (hw4 : 0 ≤ w4)
+    (houtside : ∀ x : ℝ, x ∉ E → U x ≤ 0)
+    (hdualPositive : 0 < dualMass)
+    (hduality : dualMass =
+        w0 * U x0 + w1 * U x1 + w2 * U x2 + w3 * U x3 + w4 * U x4) :
+    x0 ∈ E ∨ x1 ∈ E ∨ x2 ∈ E ∨ x3 ∈ E ∨ x4 ∈ E := by
+  apply five_atom_forcing_nonneg U E x0 x1 x2 x3 x4 w0 w1 w2 w3 w4
   · exact hw0
   · exact hw1
   · exact hw2

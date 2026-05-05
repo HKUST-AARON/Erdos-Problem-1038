@@ -62,10 +62,19 @@ The sweeps and critical geometry are formalized in
 
 - This is **not** a full `[-1,1]` positivity certificate.
 
-- The Lean files in this folder formalize the exact geometry, route arithmetic,
-  and all 560 block weights. The 560 individual one-variable logarithmic
-  positivity blocks are checked by the generated required-domain certificate,
-  not expanded as 560 standalone Lean proof terms.
+- The Lean files in this folder formalize the exact geometry, all 560 block
+  weights, the block coverage of `[1.708,1.814600]`, and the required-domain
+  map from normalized support to `[C-1,A-1] ∪ [C,A+1]`.
+
+- The route folder formalizes the actual tail sweep lemma: a selector on
+  `[-1.814600,-1.708]` gives a length contribution of `1.814600 - 1.708`.
+
+- The finite-atom framework now includes the non-negative-weight selector
+  needed for blocks with zero generated weights.
+
+- The 560 individual one-variable logarithmic positivity blocks are checked by
+  the generated required-domain certificate, not expanded as 560 standalone Lean
+  proof terms.
 
 ## Verification artifacts
 
