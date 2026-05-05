@@ -3556,6 +3556,34 @@ equivalence/regularity lemma saying that the regularized residual map has the
 same zero set as the original equations and admits uniform Arb remainder bounds
 as \(\eta\to0\).
 
+The finite-eta consistency part of that lemma is now checked by
+`1038/verify_two_interval_regularized_equivalence.py`.  It solves the branch
+at selected epsilons and compares:
+
+1. the original rescaled residual;
+2. the regularized residual;
+3. the finite-difference Jacobian determinants and orientation signs.
+
+Default run:
+
+```text
+TWO-INTERVAL REGULARIZED EQUIVALENCE: PASS-DIAGNOSTIC
+rows=7
+worst_original=3.505319e-08
+worst_regularized=3.340711e-07
+min_abs_det_original=2.998338e+04
+min_abs_det_regularized=2.998339e+04
+max_condition_regularized=8.231365e+00
+orientation_mismatches=0
+```
+
+An extra near-singular diagnostic down to \(\varepsilon=3\cdot10^{-10}\) also
+keeps the Jacobian non-singular and orientation-consistent, but residuals rise
+to about \(5.7\cdot10^{-5}\), which is the current double/quadrature accuracy
+floor rather than a proof artifact.  The proof-grade version still needs Arb
+interval equations for the equivalence identity and a uniform lower bound for
+the regularized Jacobian determinant.
+
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
 
