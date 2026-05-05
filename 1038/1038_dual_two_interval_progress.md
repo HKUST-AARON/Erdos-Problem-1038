@@ -6492,35 +6492,82 @@ contradiction, and the compact \(g=2\) branch can be connected back to the
 global lower-bound proof.  The later tasks remain: higher-gap
 degeneration/induction and the matching upper construction at \(M_*\).
 
-### 16.43 What the KKT ledger must contain
+### 16.43 Corrected KKT ledger criterion
 
-The ledger now has a precise acceptance criterion.  Starting from an interior
-compact \(g=2\) minimising counterexample, the adjoint condition must imply
-that the density variation \(G\) is orthogonal to at least the following six
-local rows:
+There is one more linear-algebra correction.  KKT does not automatically say
+that the adjoint density \(G\) is separately orthogonal to six named rows.
+What it gives is an annihilator relation after the local variables
+\((q,a,b,c)\) are eliminated.  Therefore the correct ledger target is a
+rank/equivalence statement about the eliminated density constraint map.
+
+Let
+
+\[
+\mathcal R(G)
+=
+\left(
+R_0(G),R_u(G),R_c(G),R_v(G),R_-(G),R_+(G)
+\right),
+\]
+
+where
 
 \[
 \begin{aligned}
-&\int_J G\omega,\qquad
-\int_J\frac{G\omega}{x-u},\qquad
-\int_J\frac{G\omega}{x-c},\qquad
-\int_J\frac{G\omega}{x-v},\\
-&\int_JL_-G\omega,\qquad
-\int_JL_+G\omega.
+R_0(G)&=\int_J G\omega,\qquad
+R_u(G)=\int_J\frac{G\omega}{x-u},\\
+R_c(G)&=\int_J\frac{G\omega}{x-c},\qquad
+R_v(G)=\int_J\frac{G\omega}{x-v},\\
+R_-(G)&=\int_JL_-G\omega,\qquad
+R_+(G)=\int_JL_+G\omega.
 \end{aligned}
 \]
 
-It may also be orthogonal to the period row
+The compact KKT elimination must show that the density part of every
+admissible tangent variation is constrained exactly by \(\mathcal R\), up to
+invertible changes of row coordinates and the extra period row.  Equivalently,
+after removing \(q,a,b,c\), the density annihilator contains the annihilator of
+\(\mathcal R\):
+
+\[
+\boxed{
+\mathcal R(G)=0
+\quad\Longrightarrow\quad
+G\text{ is an admissible density tangent for the local block,}
+}
+\]
+
+or dually, every compact adjoint \(G\) satisfies
+
+\[
+\boxed{
+R_0(G)=R_u(G)=R_c(G)=R_v(G)=R_-(G)=R_+(G)=0
+}
+\]
+
+after an invertible row change.  This is the precise point that must be
+proved; it cannot be assumed from KKT notation alone.
+
+The period equation may add the separate row
 
 \[
 \int_J\pi_0G\omega.
 \]
 
-The period row is not a problem.  The hard part is to justify the six local
-rows without overcounting the eliminated variables \(q,a,b,c\).  The local
-endpoint equations supply \(L_-,L_+\); the zero \(F(c)=0\) supplies
-\((x-c)^{-1}\); stationarity supplies the endpoint jets
-\((x-u)^{-1},(x-v)^{-1}\); and mass normalisation supplies \(1\).
+That row is not used in the six-kernel determinant, but it must be present in
+the complete KKT ledger.
+
+The hard part is now sharply stated: prove that the augmented KKT block,
+including the objective row \(d\mathcal L=d(v-u)\), has Schur complement row
+rank six on the density kernels
+\[
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
+\]
+The objective row is essential: the five constraint rows
+\((M,F_c,E_-,E_+,S)\) alone cannot have rank six.  If the augmented rank is
+only five, the six-kernel Chebyshev argument does not yet apply; one must
+either find the missing independent row or weaken the variation-diminishing
+step.
 
 Thus the next proof step is a row-by-row derivation of these six equations
 from the KKT first variation.
@@ -6600,10 +6647,12 @@ non-degenerate coefficients.  Together with independent variations of
 It is recorded in the ledger but is not needed for the six-kernel determinant.
 
 The remaining technical point is to make the phrase "supply the rows"
-precise: after local variables \((q,a,b,c)\) are eliminated, the row rank of
-the density part must still contain the six displayed local rows.  This is a
-finite-dimensional Schur-complement statement.  The non-zero endpoint pivots
-and \(F'(c)<0\) are the ingredients needed to prove it.
+precise.  A single stationarity equation gives one Schur row, not two
+independent endpoint derivative rows by itself.  The claim that both
+\((x-u)^{-1}\) and \((x-v)^{-1}\) occur independently must come from the full
+Jacobian block involving \(E_-,E_+,S\) and the eliminated variables \(a,b\).
+This is exactly the finite-dimensional Schur-complement rank calculation that
+still has to be proved.
 
 ### 16.45 Review after this step
 
@@ -6618,16 +6667,98 @@ seven-function Chebyshev determinant.  The proof should be organised as:
    \(H=(x-c)G\).
 
 The next most needed mathematical task is therefore the finite-dimensional
-Schur-complement rank lemma:
+augmented Schur-complement rank lemma, stated without hiding this issue:
 
 \[
 \boxed{
-\text{after eliminating }q,a,b,c,\text{ the density row span contains }
+\text{the eliminated augmented KKT block }(d\mathcal L,dM,dF_c,dE_-,dE_+,dS)
+\text{ has rank six on }
 1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
 }
 \]
 
 This is now the smallest remaining compact \(g=2\) mouth.
+
+### 16.46 Schur rank matrix to compute
+
+The rank lemma can be reduced to an explicit matrix calculation.  The
+augmented KKT rows should be ordered as
+
+\[
+(\mathcal L,M,F_c,E_-,E_+,S)
+\]
+
+together with the local variables
+
+\[
+(q,a,b,c).
+\]
+
+For a density perturbation, record the six local jets
+
+\[
+\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+
+\]
+
+corresponding to
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\ L_-,\ L_+.
+\]
+
+The linearisation has block form
+
+\[
+d\mathcal K
+=
+A\,d(q,a,b,c)+B\,\xi,
+\]
+
+where \(d\mathcal K\) denotes the six augmented rows, \(A\) is the
+local-variable Jacobian, and \(B\) is the density-jet matrix.  Endpoint pivots
+and \(F'(c)<0\) show that a large part of \(A\) has full rank.  The exact
+Schur complement is
+
+\[
+B_{\rm Schur}
+=
+B_{\rm free}-A_{\rm free}A_{\rm piv}^{-1}B_{\rm piv}.
+\]
+
+The compact \(g=2\) mouth is now:
+
+\[
+\boxed{
+\operatorname{rank}B_{\rm Schur}=6.
+}
+\]
+
+If this rank is six, the six moment equations are legitimate and the
+Chebyshev contradiction closes the compact branch.  If it is five, then even
+the objective row does not supply enough local jet information, and the proof
+must identify which geometric equation supplies the missing independent
+condition.
+
+### 16.47 Review after the augmented-row correction
+
+This correction is important.  The previous "rank six" statement for five
+constraint rows was impossible on linear-algebra grounds.  The correct KKT
+object is the augmented row set containing the objective \(d\mathcal L\).  This
+is natural: at an interior minimiser, the obstruction is precisely that
+\(d\mathcal L\) lies in the span of the active constraint differentials.
+
+The next most needed calculation is therefore explicit:
+
+\[
+\boxed{
+\text{write the }6\times6\text{ density-jet matrix for }
+(\mathcal L,M,F_c,E_-,E_+,S)
+\text{ after eliminating }q,a,b,c.
+}
+\]
+
+This is the current smallest mathematical hard mouth for closing compact
+\(g=2\).
 
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 

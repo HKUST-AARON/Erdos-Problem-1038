@@ -2113,10 +2113,51 @@ The intended sources of the six rows are:
 5. the period equation gives the separate \(\pi_0\) row, recorded but not
    needed for the determinant.
 
-The remaining compact \(g=2\) mouth is now a finite-dimensional
-Schur-complement rank lemma: after eliminating \(q,a,b,c\), the density row
-span still contains those six local rows.  Once this is proved, the six-kernel
-oriented Chebyshev determinant gives the sign-variation contradiction.
+The remaining compact \(g=2\) mouth is now a finite-dimensional augmented
+Schur-complement rank lemma.  More precisely, after eliminating \(q,a,b,c\),
+the augmented KKT block
+
+\[
+(\mathcal L,M,F_c,E_-,E_+,S)
+\]
+
+must have rank six on the density kernels
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\ L_-,\ L_+.
+\]
+
+The objective row \(\mathcal L=v-u\) is essential: the five constraint rows
+alone cannot have rank six.  This is stronger and more precise than saying
+stationarity simply "gives" two endpoint derivative rows.  Once this augmented
+rank-six statement is proved, the six-kernel oriented Chebyshev determinant
+gives the sign-variation contradiction.
+
+### E39. Schur rank matrix
+
+The next calculation should write
+
+\[
+d\mathcal K=A\,d(q,a,b,c)+B\,\xi,
+\]
+
+where
+
+\[
+\xi=(\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+)
+\]
+
+are the six density jets, and \(d\mathcal K\) contains
+\((d\mathcal L,dM,dF_c,dE_-,dE_+,dS)\).  After pivoting on the endpoint
+equations and \(F'(c)<0\), the needed statement is
+
+\[
+\boxed{\operatorname{rank}B_{\rm Schur}=6.}
+\]
+
+If the rank is six, compact \(g=2\) closes by the Chebyshev argument.  If it
+is five, the route is missing one independent geometric equation even after
+including the objective row.
 
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
