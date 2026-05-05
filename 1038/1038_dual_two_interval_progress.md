@@ -7297,6 +7297,205 @@ If yes, the compact \(g=2\) branch closes by the ratio-monotonicity lemma.  If
 not, the current two-dimensional adjoint kernel is missing one more algebraic
 relation, probably the second-variation inequality.
 
+### 16.54 Explicit logarithmic coefficients and the new obstruction
+
+The two logarithmic Wronskian coefficients can now be written without any
+large determinant expansion.  Put
+
+\[
+\Gamma=\frac{-A_u+aA_{2,u}+B_v+bB_{2,v}}{U_u},
+\]
+
+and
+
+\[
+Q_c=
+\frac{
+A_u^2-A_uaA_{2,u}-A_uB_v-A_ubB_{2,v}
++aA_{2,u}U_u+bB_{2,v}U_u
+}{F_cU_u}.
+\]
+
+Then
+
+\[
+R_2(x)=
+\frac{p(-A_u+aA_{2,u}+B_v+bB_{2,v})}{U_u}
++\frac{a}{x-u}+\frac{Q_c}{x-c}+\frac{b}{x-v},
+\]
+
+so
+
+\[
+\boxed{
+C_+(x)=
+-\frac{a}{(x-u)^2}
+-\frac{Q_c}{(x-c)^2}
+-\frac{b}{(x-v)^2}
++\Gamma\left(\frac1{x-u}-\frac1{x-c}\right).
+}
+\]
+
+Similarly, write
+
+\[
+P_c=-\frac{A_uU_v-B_vU_u}{F_cU_u},\qquad
+\Alpha=\frac{U_v}{U_u}<0.
+\]
+
+Since
+
+\[
+R_1(x)=\frac{-U_ur+U_vp}{U_u}+\frac{P_c}{x-c},
+\]
+
+we get
+
+\[
+\boxed{
+C_-(x)=
+\Alpha\left(
+-\frac{a}{(x-u)^2}
+-\frac{Q_c}{(x-c)^2}
+-\frac{b}{(x-v)^2}
+\right)
++\Gamma\frac{P_c}{(x-c)^2}
+-\Gamma\left(\frac1{x-c}-\frac1{x-v}\right).
+}
+\]
+
+This is the first point where the compact route becomes visibly non-trivial.
+The signs of \(a,b,U_u,U_v,F_c\) alone do not determine the signs of
+\(\Gamma,Q_c,P_c\).  Therefore a proof of Wronskian monotonicity cannot come
+from the basic orientation inequalities only.  It must use at least one of the
+stationarity equations in a sharper form.
+
+The required stationarity strengthening should be:
+
+\[
+\boxed{
+Q_c\ge0,\qquad
+\Gamma\left(\frac1{x-u}-\frac1{x-c}\right)
+\le
+\frac{a}{(x-u)^2}+\frac{Q_c}{(x-c)^2}
+\quad (x\in I_1),
+}
+\]
+
+and the analogous right-oval inequality
+
+\[
+\boxed{
+Q_c\ge0,\qquad
+-\Gamma\left(\frac1{x-c}-\frac1{x-v}\right)
+\le
+\frac{Q_c}{(x-c)^2}+\frac{b}{(x-v)^2}
+\quad (x\in I_2).
+}
+\]
+
+If these two inequalities hold, then \(C_+\le0\) on the left oval and the
+corresponding oriented \(C_-\) inequality holds on the right oval, giving the
+first half of the ratio-monotonicity proof.
+
+This reveals the next exact hard lemma:
+
+\[
+\boxed{
+\text{derive the two displayed one-oval inequalities from endpoint
+stationarity and }W''>0.
+}
+\]
+
+Equivalently, the compact ansatz must imply that \(\Gamma\) is not an
+independent parameter; it is bounded by the convex endpoint curvatures
+\(aA_{2,u}\) and \(bB_{2,v}\).  Without that curvature control, \(C_\pm\) can
+change sign and the ratio-monotonicity route does not close.
+
+### 16.55 Curvature clamp for the one-oval inequalities
+
+The one-oval inequalities in 16.54 have an exact elementary reduction.  On
+\(I_1=(u,c)\), put
+
+\[
+A=x-u>0,\qquad B=c-x>0,\qquad d_-=c-u.
+\]
+
+Then \(A+B=d_-\) and
+
+\[
+\frac1{x-u}-\frac1{x-c}=\frac1A+\frac1B=\frac{d_-}{AB}.
+\]
+
+Thus
+
+\[
+\Gamma\left(\frac1{x-u}-\frac1{x-c}\right)
+\le
+\frac{a}{(x-u)^2}+\frac{Q_c}{(x-c)^2}
+\]
+
+for every \(x\in I_1\) is equivalent, when \(Q_c\ge0\), to
+
+\[
+\Gamma d_-AB\le aB^2+Q_cA^2
+\qquad(A,B>0,\ A+B=d_-).
+\]
+
+The sharp lower bound
+
+\[
+\inf_{A,B>0}
+\frac{aB^2+Q_cA^2}{d_-AB}
+=\frac{2\sqrt{aQ_c}}{d_-}
+\]
+
+gives the exact condition
+
+\[
+\boxed{
+\Gamma\le \frac{2\sqrt{aQ_c}}{c-u}.
+}
+\]
+
+If \(\Gamma\le0\), the left-oval inequality is automatic; the displayed bound
+is the sharp positive-\(\Gamma\) condition.
+
+Similarly, on \(I_2=(c,v)\), with
+
+\[
+A=x-c>0,\qquad B=v-x>0,\qquad d_+=v-c,
+\]
+
+the right-oval inequality is equivalent to
+
+\[
+-\Gamma\le \frac{2\sqrt{bQ_c}}{v-c}.
+\]
+
+Therefore the two one-oval logarithmic coefficient bounds collapse to the
+single curvature clamp
+
+\[
+\boxed{
+Q_c\ge0,\qquad
+-\frac{2\sqrt{bQ_c}}{v-c}
+\le \Gamma \le
+\frac{2\sqrt{aQ_c}}{c-u}.
+}
+\]
+
+This is the cleanest mathematical formulation reached so far.  It says that
+the compact \(g=2\) branch will close by the Wronskian-ratio route if endpoint
+stationarity and second variation imply the curvature clamp above, together
+with the remaining rational term \(C_0\) endpoint cancellation.
+
+This also gives a precise failure test.  If the actual finite-gap
+stationarity equations allow \(\Gamma\) outside this interval, then the current
+two-dimensional adjoint-ratio argument cannot prove monotonicity; one must add
+the second-variation inequality as an independent condition rather than hoping
+it is hidden inside first-order stationarity.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

@@ -2361,6 +2361,79 @@ force the signs of \(C_-,C_+,C_0\), after endpoint cancellations, from
 stationarity, \(W''>0\), and the signs
 \(U_u>0,U_v<0,F_c<0,a,b>0\).
 
+Writing
+
+\[
+\Gamma=\frac{-A_u+aA_{2,u}+B_v+bB_{2,v}}{U_u},
+\]
+
+and
+
+\[
+Q_c=
+\frac{
+A_u^2-A_uaA_{2,u}-A_uB_v-A_ubB_{2,v}
++aA_{2,u}U_u+bB_{2,v}U_u
+}{F_cU_u},
+\]
+
+one obtains the explicit coefficient
+
+\[
+C_+(x)=
+-\frac{a}{(x-u)^2}
+-\frac{Q_c}{(x-c)^2}
+-\frac{b}{(x-v)^2}
++\Gamma\left(\frac1{x-u}-\frac1{x-c}\right).
+\]
+
+Thus the basic signs alone are insufficient: the next mathematical lemma must
+show that endpoint stationarity and \(W''>0\) bound \(\Gamma\) by the endpoint
+curvatures.  In practical form, one needs one-oval inequalities such as
+
+\[
+\Gamma\left(\frac1{x-u}-\frac1{x-c}\right)
+\le
+\frac{a}{(x-u)^2}+\frac{Q_c}{(x-c)^2}
+\quad (x\in I_1),
+\]
+
+with the analogous right-oval inequality.  This is now the smallest explicit
+gap in the compact two-interval proof.
+
+The one-oval inequalities are equivalent to a sharp parameter clamp.  On
+\(I_1=(u,c)\), set \(A=x-u\), \(B=c-x\), \(d_-=c-u\).  Since
+
+\[
+\frac1{x-u}-\frac1{x-c}=\frac{d_-}{AB},
+\]
+
+the left inequality holds for all \(x\in I_1\) exactly when
+
+\[
+\Gamma\le \frac{2\sqrt{aQ_c}}{c-u}
+\]
+
+provided \(Q_c\ge0\).  The right oval similarly gives
+
+\[
+-\Gamma\le \frac{2\sqrt{bQ_c}}{v-c}.
+\]
+
+Thus the next compact-branch target is the curvature clamp
+
+\[
+\boxed{
+Q_c\ge0,\qquad
+-\frac{2\sqrt{bQ_c}}{v-c}
+\le \Gamma\le
+\frac{2\sqrt{aQ_c}}{c-u}.
+}
+\]
+
+If endpoint stationarity plus second variation imply this clamp, then the
+logarithmic part of the Wronskian has the required oriented sign.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
