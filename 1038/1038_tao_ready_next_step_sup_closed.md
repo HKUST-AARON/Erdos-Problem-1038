@@ -2007,6 +2007,44 @@ After that, the six-kernel Chebyshev lemma forces oriented sign variation of
 \(G\), hence forbidden sign variation of \(H=(x-c)G\) on the real density
 ovals.
 
+### E35. Review and next target
+
+Current status of this branch:
+
+1. The naive three-kernel determinant was corrected.
+2. The full Schur functional replaced the insufficient scalar
+   \(\mathfrak S_q\).
+3. The six local jet kernels have a determinant proof skeleton via an averaged
+   Cauchy determinant.
+
+What remains for the compact \(g=2\) branch is the exact KKT row ledger.  After
+clearing the positive weight \(\omega\), the adjoint density should satisfy
+six moment equations against
+
+\[
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+.
+\]
+
+The important possible gap is the period-normalisation row.  More precisely,
+after eliminating the local variables, its density kernel must lie in the
+six-kernel span:
+
+\[
+\boxed{
+K_{\rm period}(x)
+\in
+\operatorname{span}\{1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+\}.
+}
+\]
+
+If this kernel-span identity holds, the six-kernel Chebyshev lemma closes the
+compact non-pinched \(g=2\) branch.  If it fails, it identifies the exact
+seventh kernel that must be added.
+
+For the full 1038 exact proof, two larger tasks still remain after compact
+\(g=2\): rule out higher-gap \(g\ge3\) escapes by degeneration/induction, and
+write the matching upper construction at \(M_*\) in the same normalization.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
