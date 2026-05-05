@@ -3639,6 +3639,40 @@ small-\(\eta\) theorem.  It is still finite-difference and sampled; the
 proof-grade replacement must be an analytic/Arb derivative enclosure for the
 canonical regularized residual.
 
+The current branch-defect scale diagnostic is
+`1038/verify_two_interval_regularized_defect_scale.py`.  It evaluates the
+canonical regularized residual on the original solved branch and then applies
+one Newton correction in \((B,\tau)\) using the regularized Jacobian.  On the
+default range \(10^{-8}\le\varepsilon\le10^{-5}\), it gives:
+
+```text
+TWO-INTERVAL REGULARIZED DEFECT SCALE: PASS-DIAGNOSTIC
+rows=7
+worst_defect=6.590994e-05
+worst_correction=1.562740e-04
+loglog_slope=-1.003484e+00
+```
+
+After the correction, the residual drops to about \(10^{-9}\) at
+\(\varepsilon=10^{-8}\) and to \(10^{-12}\) by \(\varepsilon=10^{-5}\).  A
+near-singular diagnostic down to \(\varepsilon=3\cdot10^{-10}\) still keeps the
+correction below \(7.65\cdot10^{-4}\).  This strongly suggests the right
+small-\(\eta\) closure is not raw zero-set equivalence, but a corrected center
+curve:
+
+\[
+(B,\tau)_{\mathrm{reg}}
+=
+(B,\tau)_{\mathrm{raw}}
+\Delta(B,\tau,\eta),
+\qquad
+\|\Delta\|=O(\eta^{-1}\text{defect}),
+\]
+
+with the regularized Jacobian inverse bounded uniformly.  The proof-grade task
+is therefore to enclose the defect and the Newton correction in Arb intervals,
+not to keep searching for a different finite branch.
+
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
 
