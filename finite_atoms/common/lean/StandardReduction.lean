@@ -2598,6 +2598,64 @@ lemma componentReplacementMeasure_def
       (realMeasure μ).restrict C.intervalᶜ +
         componentMass C • Measure.dirac (componentBarycenter C) := rfl
 
+/--
+Integral decomposition of the original measure into the outside restriction and
+the component block.
+
+This is the companion identity to `integral_componentReplacementMeasure_eq`.
+It is the formal partition-of-measure step used before comparing the component
+block with the barycenter atom.
+-/
+lemma integral_realMeasure_eq_outside_add_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (f : ℝ → ℝ)
+    (houtside :
+      Integrable f ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock : Integrable f (componentBlock C)) :
+    (∫ t : ℝ, f t ∂realMeasure μ) =
+      (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
+        (∫ t : ℝ, f t ∂componentBlock C) := by
+  have hsum :
+      (realMeasure μ).restrict C.intervalᶜ +
+          (realMeasure μ).restrict C.interval =
+        realMeasure μ :=
+    Measure.restrict_compl_add_restrict (μ := realMeasure μ)
+      C.measurableSet_interval
+  calc
+    (∫ t : ℝ, f t ∂realMeasure μ)
+        = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
+            (realMeasure μ).restrict C.interval) := by rw [hsum]
+    _ = (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
+          (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.interval)) := by
+          exact integral_add_measure houtside (by
+            simpa [componentBlock] using hblock)
+    _ = (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
+          (∫ t : ℝ, f t ∂componentBlock C) := by
+          simp [componentBlock]
+
+/--
+Integral decomposition for the component-replacement measure.
+
+This is the measure-level identity behind the replacement potential
+decomposition: integration against the replacement measure is integration over
+the outside restriction plus the component mass times evaluation at the
+barycenter.
+-/
+lemma integral_componentReplacementMeasure_eq
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (f : ℝ → ℝ)
+    (houtside :
+      Integrable f ((realMeasure μ).restrict C.intervalᶜ))
+    (hatom :
+      Integrable f (componentMass C • Measure.dirac (componentBarycenter C))) :
+    (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
+      (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
+        (componentMass C).toReal * f (componentBarycenter C) := by
+  rw [componentReplacementMeasure_def C]
+  rw [integral_add_measure houtside hatom]
+  rw [integral_smul_measure]
+  simp [smul_eq_mul, mul_comm]
+
 def componentReplacementPotential
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : ℝ → ℝ :=
   measureLogPotential (componentReplacementMeasure C)
