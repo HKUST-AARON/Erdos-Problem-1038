@@ -8147,6 +8147,61 @@ theorem componentReplacement_objective_le_of_strictOutside_supportHit_null
     _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
           simp [hpair, hnull]
 
+/-- The singular support-hit set is contained in the support of the outside
+restriction. -/
+lemma strictOutsideSupportHitSet_subset_outsideSupport
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    strictOutsideSupportHitSet C ⊆
+      ((realMeasure μ).restrict C.intervalᶜ).support := by
+  intro x hx
+  exact hx.2
+
+/-- A null outside-restriction support makes the singular support-hit branch
+null. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hnull :
+      volume (((realMeasure μ).restrict C.intervalᶜ).support) = 0) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact measure_mono_null (strictOutsideSupportHitSet_subset_outsideSupport C)
+    hnull
+
+/-- A countable outside-restriction support makes the singular support-hit
+branch null. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hcount :
+      (((realMeasure μ).restrict C.intervalᶜ).support).Countable) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null C
+    (hcount.measure_zero volume)
+
+/-- Component replacement does not increase the objective if the outside
+restriction has null support. -/
+theorem componentReplacement_objective_le_of_outsideSupport_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hnull :
+      volume (((realMeasure μ).restrict C.intervalᶜ).support) = 0) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null C hnull)
+
+/-- Component replacement does not increase the objective if the outside
+restriction has countable support. -/
+theorem componentReplacement_objective_le_of_outsideSupport_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hcount :
+      (((realMeasure μ).restrict C.intervalᶜ).support).Countable) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C hcount)
+
 /-!
 ## Finite variance drop under barycenter replacement
 

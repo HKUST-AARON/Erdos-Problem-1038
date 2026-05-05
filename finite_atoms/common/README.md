@@ -142,6 +142,11 @@ componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
 componentReplacement_objective_le_of_strictOutside_supportCase
 componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
 componentReplacement_objective_le_of_strictOutside_supportHit_null
+strictOutsideSupportHitSet_subset_outsideSupport
+strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
+strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
+componentReplacement_objective_le_of_outsideSupport_null
+componentReplacement_objective_le_of_outsideSupport_countable
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -235,6 +240,10 @@ That singular branch is now packaged as `strictOutsideSupportHitSet C`.  Lean
 proves that if this exceptional set is Lebesgue-null, then the component
 replacement objective still does not increase; endpoints are handled as the
 same finite null exception as before.
+Lean also proves two sufficient criteria for this exceptional set to be null:
+the outside-restriction support itself is null, or it is countable.  Under
+either criterion, component replacement objective non-increase is now a direct
+theorem.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -256,8 +265,9 @@ The following review findings remain real Lean gaps, not solved claims:
    Jensen bridge are formalized, and the normalized first-moment integrability
    plus barycenter-atom/component-block/normalized-block log-kernel
    integrability are internal.  The remaining local analytic task is to prove
-   nullity or harmlessness of `strictOutsideSupportHitSet C` from actual
-   minimizer/component topology data.
+   one of the support-null/countable support criteria from actual
+   minimizer/component topology data, or to handle the singular support-hit
+   branch by another endpoint/extended-potential argument.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
