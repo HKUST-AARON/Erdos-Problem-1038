@@ -7671,8 +7671,204 @@ coordinate and compare it with }Q_c.
 }
 \]
 
-No new entity is needed for this.  It is the same \(A\)-matrix from 16.50,
-viewed now as a Hessian block rather than as a cokernel block.
+The \(A\)-matrix from 16.50 is still needed, but it cannot by itself be the
+Hessian.  It is the first-variation constraint Jacobian.  The second-variation
+calculation needs the bordered Hessian obtained by adjoining the second
+derivatives of the finite-gap Lagrangian in the endpoint/neck variables.
+
+### 16.58 Correction: the first-order block is not the Hessian
+
+This is an important correction.  The local matrix \(A\) in 16.50 records the
+linearised constraints:
+
+\[
+d\mathcal K=A\,dy+B\,d\xi .
+\]
+
+It determines the cokernel
+
+\[
+\ker(A^T)B
+\]
+
+and hence the adjoint two-dimensional space
+\(\mathcal K_{\rm adj}\).  It does not determine the second variation.  The
+curvature clamp requires the second derivative of the reduced Lagrangian, so
+the correct object is a bordered Hessian:
+
+\[
+\boxed{
+\mathsf H_{\rm bord}
+=
+\begin{pmatrix}
+\mathsf H_{yy}&A^T\\
+A&0
+\end{pmatrix},
+}
+\]
+
+where \(y=(q,a,b,c)\), and \(\mathsf H_{yy}\) is the genuine second derivative
+matrix of the finite-gap Lagrangian in the local variables.  After eliminating
+the constrained local variables, the effective second variation in the
+endpoint/neck directions is a Schur complement:
+
+\[
+\boxed{
+\mathsf H_{\rm eff}
+=
+\mathsf H_{\xi\xi}
+-\mathsf H_{\xi y}\mathsf H_{yy}^{-1}\mathsf H_{y\xi}
+\quad\text{inside the tangent space }d\mathcal K=0.
+}
+\]
+
+Equivalently, one may compute it through the bordered inverse of
+\(\mathsf H_{\rm bord}\).  The previous phrase "view the same \(A\)-matrix as a
+Hessian block" was too strong; the correct statement is:
+
+\[
+\boxed{
+A\text{ supplies the constraints for the Schur complement; }
+\mathsf H_{yy},\mathsf H_{\xi y},\mathsf H_{\xi\xi}
+\text{ supply the curvature.}
+}
+\]
+
+This correction matters because \(Q_c\) and \(\Gamma\) have only been obtained
+from the first-order cokernel calculation so far.  To prove the curvature
+clamp mathematically, one must show that the same combinations occur in the
+reduced bordered Hessian.  That is a nontrivial second-order identity, not a
+consequence of \(A\) alone.
+
+### 16.59 Minimal second-order data needed
+
+The proof now needs exactly three reduced Hessian entries.  Let
+\(\theta_-\), \(\theta_+\), and \(\zeta\) denote respectively the left
+endpoint-transfer, right endpoint-transfer, and neck coordinates.  The
+required reduced Hessian entries are:
+
+\[
+\boxed{
+\mathsf H_{\theta_-\theta_-}=\lambda_-a,\qquad
+\mathsf H_{\zeta\zeta}=\lambda_-Q_c,\qquad
+2\mathsf H_{\theta_-\zeta}=-\lambda_-\Gamma(c-u)
+}
+\]
+
+for the left block, and
+
+\[
+\boxed{
+\mathsf H_{\theta_+\theta_+}=\lambda_+b,\qquad
+\mathsf H_{\zeta\zeta}=\lambda_+Q_c,\qquad
+2\mathsf H_{\theta_+\zeta}=\lambda_+\Gamma(v-c)
+}
+\]
+
+for the right block, with \(\lambda_\pm>0\).  These six scalar identities are
+the whole missing Hessian identification.
+
+The diagonal endpoint entries are the easiest: in the Cauchy-transform
+normalisation, moving an endpoint edge mode differentiates the simple pole
+coefficient at that endpoint, so positivity of the compact density gives the
+positive weights \(a\) and \(b\).
+
+The neck diagonal entry is the real issue.  It must be shown that after
+eliminating \(q,a,b,c\), the second derivative in the neck coordinate equals
+the same Schur coefficient \(Q_c\) that appears in the cokernel vector
+\(\kappa_2\), up to positive orientation.
+
+The mixed entries are the second issue.  The endpoint/neck cross derivative
+should be the first-order change of the neck equation under endpoint transfer;
+after barycentric rescaling this is exactly the coefficient \(\Gamma(c-u)\) on
+the left and \(-\Gamma(v-c)\) on the right.
+
+Thus the next mathematical proof has three subclaims:
+
+\[
+\begin{aligned}
+\text{(H1)}\quad&\text{endpoint diagonal }=a,b;\\
+\text{(H2)}\quad&\text{neck diagonal }=Q_c;\\
+\text{(H3)}\quad&\text{endpoint-neck mixed terms }=\mp\Gamma d_\pm.
+\end{aligned}
+\]
+
+If H1-H3 are proved, positive semidefiniteness of the reduced Hessian gives
+the curvature clamp from 16.55, and the logarithmic Wronskian obstruction is
+closed.
+
+This is now the current smallest honest hard mouth.  It is also the right
+place to stop using first-order rank language: the remaining gap is a
+second-order Schur-complement identity.
+
+### 16.60 What part of H1-H3 is already mathematical
+
+Among H1-H3, H1 is not a serious obstruction.  The endpoint-transfer
+coordinate is a square-root edge displacement.  In the Cauchy-transform
+normalisation, the compact density near a regular endpoint has the local form
+
+\[
+\rho(x)\,dx
+=
+\sigma_u\sqrt{x-u}\,dx
+\quad\text{near }u,
+\qquad
+\rho(x)\,dx
+=
+\sigma_v\sqrt{v-x}\,dx
+\quad\text{near }v,
+\]
+
+with \(\sigma_u,\sigma_v>0\).  Moving the endpoint by a square-root coordinate
+\(\theta\) changes the active interval only to second order, and the second
+variation is the positive edge coefficient times \(\theta^2\).  After matching
+the local Cauchy normalisation used in 16.50, these edge coefficients are
+precisely the positive endpoint weights called \(a\) and \(b\).  Thus H1 is
+the standard endpoint-edge positivity:
+
+\[
+\boxed{
+\mathsf H_{\theta_-\theta_-}>0,\qquad
+\mathsf H_{\theta_+\theta_+}>0,
+}
+\]
+
+and, after normalisation,
+
+\[
+\mathsf H_{\theta_-\theta_-}=\lambda_-a,\qquad
+\mathsf H_{\theta_+\theta_+}=\lambda_+b.
+\]
+
+The real remaining proof is therefore H2-H3:
+
+\[
+\boxed{
+\text{identify the neck diagonal as }Q_c
+\text{ and the endpoint-neck mixed terms as }\mp\Gamma d_\pm.
+}
+\]
+
+This is important because it prevents a false closure.  Endpoint positivity
+alone only gives the diagonal \(a,b>0\).  It does not control \(\Gamma\).
+Control of \(\Gamma\) requires the mixed endpoint-neck Hessian entries, and
+control of \(Q_c\) requires the neck diagonal Schur complement.
+
+The next best calculation is consequently:
+
+1. write the neck perturbation as the local variation that changes the common
+   level at \(c\) while preserving mass and the endpoint flatness equations;
+2. solve the first-order constraints using the same \(A\)-block;
+3. evaluate the second derivative of the Lagrangian along this solved tangent
+   vector;
+4. compare the resulting coefficient with \(Q_c\);
+5. repeat with one endpoint-transfer coordinate added to get the mixed
+   coefficient \(\Gamma d_\pm\).
+
+This is exactly where the full exact-value proof still needs work.  Once H2
+and H3 are proved, the compact \(g=2\) obstruction is no longer a numerical
+or heuristic statement; it becomes a standard Hessian positive-semidefinite
+argument.
 
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 

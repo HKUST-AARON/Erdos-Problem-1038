@@ -2476,6 +2476,55 @@ So the next calculation is to compare \(Q_c\) with the Schur-complement neck
 Hessian coefficient of the local KKT block.  If it agrees up to positive
 normalisation, the curvature clamp follows from second-variation positivity.
 
+Important correction: the first-order matrix \(A\) is not itself the Hessian.
+It is the constraint Jacobian used to compute \(\ker(A^T)B\).  The curvature
+clamp requires a bordered Hessian,
+
+\[
+\mathsf H_{\rm bord}=
+\begin{pmatrix}
+\mathsf H_{yy}&A^T\\
+A&0
+\end{pmatrix},
+\]
+
+where \(\mathsf H_{yy}\) contains genuine second derivatives of the finite-gap
+Lagrangian in the local variables.  The next proof must identify the reduced
+endpoint/neck Schur-complement entries:
+
+\[
+\mathsf H_{\theta_-\theta_-}=\lambda_-a,\quad
+\mathsf H_{\zeta\zeta}=\lambda_-Q_c,\quad
+2\mathsf H_{\theta_-\zeta}=-\lambda_-\Gamma(c-u),
+\]
+
+and
+
+\[
+\mathsf H_{\theta_+\theta_+}=\lambda_+b,\quad
+\mathsf H_{\zeta\zeta}=\lambda_+Q_c,\quad
+2\mathsf H_{\theta_+\zeta}=\lambda_+\Gamma(v-c),
+\]
+
+with \(\lambda_\pm>0\).  These are the exact second-order identities needed to
+turn Hessian positive semidefiniteness into the curvature clamp.
+
+Of these, the endpoint diagonal identities are standard edge-positivity
+statements: regular compact endpoints have positive square-root edge weights,
+which give \(a,b>0\) after the local Cauchy normalisation.  The hard part is
+not H1; it is H2-H3:
+
+\[
+\text{neck diagonal }=Q_c,\qquad
+\text{endpoint-neck mixed terms }=\mp\Gamma d_\pm.
+\]
+
+So the immediate next mathematical task is to solve the first-order constraints
+for a pure neck perturbation, evaluate the second derivative along that solved
+tangent vector, and compare the coefficient with \(Q_c\).  Then repeat with an
+endpoint-transfer coordinate included to recover the mixed \(\Gamma d_\pm\)
+terms.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
