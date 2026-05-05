@@ -3,6 +3,7 @@ import Mathlib.Analysis.Convex.Jensen
 import Mathlib.Analysis.Convex.Integral
 import Mathlib.Analysis.Convex.SpecificFunctions.Basic
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
 import Mathlib.Analysis.SpecialFunctions.Sqrt
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
@@ -1383,6 +1384,186 @@ def singularTailMass
   ∫⁻ t : UnitInterval1038,
     singularTailKernel ε x t ∂(μ : Measure UnitInterval1038)
 
+lemma singularTailKernel_lintegral_le_ofReal_two_mul
+    (ε : ℝ) (t : UnitInterval1038) :
+    (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume) ≤ ENNReal.ofReal (2 * ε) := by
+  by_cases hεpos : 0 < ε
+  ·
+    let g : ℝ → ℝ≥0∞ :=
+      Set.indicator (Set.Ioo (-ε) ε) (fun x => ENNReal.ofReal (Real.log (ε / |x|)))
+    let f : ℝ → ℝ := fun x => Real.log (ε / |x|)
+    have hmeas : MeasurableSet (Set.Ioo (-ε) ε) := isOpen_Ioo.measurableSet
+    have htranslate :
+        (fun x : ℝ => singularTailKernel ε x t) =ᵐ[volume] fun x : ℝ => g (x - (t : ℝ)) := by
+      filter_upwards with x
+      by_cases hx : |x - (t : ℝ)| < ε
+      · have hxmem : x - (t : ℝ) ∈ Set.Ioo (-ε) ε := by
+          simpa [Set.mem_Ioo] using (abs_lt.mp hx)
+        simp [singularTailKernel, g, hxmem, hx]
+      · have hxmem : x - (t : ℝ) ∉ Set.Ioo (-ε) ε := by
+          intro hxm
+          exact hx (abs_lt.2 (by simpa [Set.mem_Ioo] using hxm))
+        simp [singularTailKernel, g, hxmem, hx]
+    have hshift :
+        (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume) =
+          ∫⁻ x : ℝ, g (x - (t : ℝ)) ∂volume := by
+      exact MeasureTheory.lintegral_congr_ae htranslate
+    have hshift' :
+        (∫⁻ x : ℝ, g (x - (t : ℝ)) ∂volume) =
+          ∫⁻ x : ℝ, g x ∂volume := by
+      simpa [sub_eq_add_neg, add_comm, add_left_comm, add_assoc] using
+        (MeasureTheory.lintegral_add_right_eq_self (μ := volume) (f := g) (-(t : ℝ)))
+    have href :
+        (∫⁻ x : ℝ, g x ∂volume) =
+          ∫⁻ x : ℝ in Set.Ioo (-ε) ε, ENNReal.ofReal (Real.log (ε / |x|)) ∂volume := by
+      simp [g]
+    have hint :
+        (∫⁻ x : ℝ, g x ∂volume) = ENNReal.ofReal (2 * ε) := by
+      have hnn : 0 ≤ᵐ[volume.restrict (Set.Ioo (-ε) ε)] f := by
+        refine (ae_restrict_iff' isOpen_Ioo.measurableSet).2 ?_
+        refine Filter.Eventually.of_forall ?_
+        intro x hx
+        by_cases hx0 : x = 0
+        · simp [f, hx0]
+        · have hxa : |x| < ε := by
+            exact (abs_lt).2 (by simpa [Set.mem_Ioo] using hx)
+          have h1 : 1 ≤ ε / |x| := (one_le_div (abs_pos.2 hx0)).2 (le_of_lt hxa)
+          have hlog : 0 ≤ Real.log (ε / |x|) := Real.log_nonneg h1
+          simpa [f] using hlog
+      have hfm : AEStronglyMeasurable f (volume.restrict (Set.Ioo (-ε) ε)) := by
+        have hmf : Measurable f := by
+          measurability
+        exact hmf.aestronglyMeasurable
+      have hEq_toReal :
+          (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε))) =
+            (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε))).toReal := by
+        exact MeasureTheory.integral_eq_lintegral_of_nonneg_ae hnn hfm
+      have hIoo_to_Int :
+          (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε))) =
+            ∫ (x : ℝ) in (-ε)..ε, f x ∂volume := by
+        calc
+          (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε)))
+              = ∫ (x : ℝ) in Set.Ioo (-ε) ε, f x ∂volume := by simp
+          _ = ∫ (x : ℝ) in Set.Ioc (-ε) ε, f x ∂volume := by
+            simpa using (MeasureTheory.integral_Ioc_eq_integral_Ioo (μ := volume) (f := f)).symm
+          _ = ∫ (x : ℝ) in (-ε)..ε, f x ∂volume := by
+            simpa [Set.uIcc_of_le (show -ε ≤ ε by nlinarith)] using
+              (intervalIntegral.integral_of_le (μ := volume) (f := f)
+                (a := -ε) (b := ε) (by nlinarith)).symm
+      have hnegEq :
+          (∫ (x : ℝ) in (-ε)..0, f x ∂volume) = (∫ (x : ℝ) in 0..ε, f x ∂volume) := by
+        calc
+          (∫ (x : ℝ) in (-ε)..0, f x ∂volume)
+              = ∫ (x : ℝ) in 0..ε, f (-x) ∂volume := by
+                  simp
+          _ = ∫ (x : ℝ) in 0..ε, f x ∂volume := by
+                simp [f]
+      have hEqOn : Set.EqOn f (fun x => Real.log ε - Real.log x) (Set.uIoc 0 ε) := by
+        intro x hx
+        have hx' : x ∈ Set.Ioc 0 ε := by
+          simpa [Set.uIoc_of_le hεpos.le] using hx
+        have hxpos : 0 < x := hx'.1
+        have hxabs : |x| = x := abs_of_pos hxpos
+        have hxne : x ≠ 0 := ne_of_gt hxpos
+        simp [f, hxabs, Real.log_div hεpos.ne' hxne]
+      have h0_eq : ∀ᵐ x ∂volume, x ∈ Set.uIoc 0 ε →
+          f x = Real.log ε - Real.log x := by
+        exact Filter.Eventually.of_forall hEqOn
+      have hconst : IntervalIntegrable (fun _ : ℝ => Real.log ε) volume 0 ε :=
+        intervalIntegral.intervalIntegrable_const
+      have hlog : IntervalIntegrable (fun x : ℝ => Real.log x) volume 0 ε :=
+        intervalIntegral.intervalIntegrable_log'
+      have hsub : IntervalIntegrable (fun x : ℝ => Real.log ε - Real.log x) volume 0 ε :=
+        hconst.sub hlog
+      have h_int : IntervalIntegrable f volume 0 ε :=
+        (intervalIntegrable_congr hEqOn).2 hsub
+      have hposInt : (∫ (x : ℝ) in 0..ε, f x ∂volume) = ε := by
+        have hconstInt : (∫ (x : ℝ) in 0..ε, (fun _ : ℝ => Real.log ε) x ∂volume) = (ε - 0) * Real.log ε := by
+          rw [intervalIntegral.integral_const]
+          simp [smul_eq_mul]
+        calc
+          (∫ (x : ℝ) in 0..ε, f x ∂volume)
+              = ∫ (x : ℝ) in 0..ε, (fun x => Real.log ε - Real.log x) x ∂volume := by
+                  exact intervalIntegral.integral_congr_ae h0_eq
+          _ = ∫ (x : ℝ) in 0..ε, (fun _ : ℝ => Real.log ε) x ∂volume
+                - ∫ (x : ℝ) in 0..ε, (fun x => Real.log x) x ∂volume := by
+                  simpa [sub_eq_add_neg] using (intervalIntegral.integral_sub hconst hlog)
+          _ = (ε - 0) * Real.log ε - (ε * Real.log ε - ε) := by
+                rw [hconstInt, integral_log_from_zero_of_pos hεpos]
+          _ = ε := by
+                ring
+      have hnegInt : IntervalIntegrable f volume (-ε) 0 := by
+        have haux : IntervalIntegrable (fun x : ℝ => f (x * (-1 : ℝ)))
+            volume (0 / -1) (ε / -1) :=
+          h_int.comp_mul_right (c := (-1 : ℝ))
+        have haux' : IntervalIntegrable (fun x : ℝ => f (x * (-1 : ℝ))) volume (-ε) 0 := by
+          simpa [div_eq_mul_inv] using haux.symm
+        exact (intervalIntegrable_congr (by
+          intro x hx
+          simp [f])).2 haux'
+      have hhalf :
+          (∫ (x : ℝ) in (-ε)..ε, f x ∂volume) =
+            2 * ∫ (x : ℝ) in 0..ε, f x ∂volume := by
+        calc
+          (∫ (x : ℝ) in (-ε)..ε, f x ∂volume)
+              = (∫ (x : ℝ) in (-ε)..0, f x ∂volume)
+                  + ∫ (x : ℝ) in 0..ε, f x ∂volume := by
+                exact (intervalIntegral.integral_add_adjacent_intervals hnegInt h_int).symm
+          _ = (∫ (x : ℝ) in 0..ε, f x ∂volume)
+                + ∫ (x : ℝ) in 0..ε, f x ∂volume := by
+                rw [hnegEq]
+          _ = 2 * ∫ (x : ℝ) in 0..ε, f x ∂volume := by ring
+      have hIntIoo :
+          (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε))) = 2 * ε := by
+        calc
+          (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε)))
+              = ∫ (x : ℝ) in (-ε)..ε, f x ∂volume := hIoo_to_Int
+          _ = 2 * ∫ (x : ℝ) in 0..ε, f x ∂volume := hhalf
+          _ = 2 * ε := by rw [hposInt]
+      have htoReal :
+          (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε))).toReal = 2 * ε := by
+        calc
+          (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε))).toReal
+              = (∫ x : ℝ, f x ∂(volume.restrict (Set.Ioo (-ε) ε))) := hEq_toReal.symm
+          _ = 2 * ε := hIntIoo
+      have htoTop :
+          (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε)) ) ≠ ⊤ := by
+        intro htop
+        rw [htop, ENNReal.toReal_top] at htoReal
+        nlinarith [hεpos]
+      have htoReal' : (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε))).toReal = 2 * (ENNReal.ofReal ε).toReal := by
+        simpa [ENNReal.toReal_ofReal hεpos.le] using htoReal
+      have htarget :
+          (∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε)) ) = ENNReal.ofReal (2 * ε) := by
+        apply
+          (ENNReal.toReal_eq_toReal_iff'
+            (x := ∫⁻ x : ℝ, ENNReal.ofReal (f x) ∂(volume.restrict (Set.Ioo (-ε) ε)))
+            (y := ENNReal.ofReal (2 * ε)) htoTop ENNReal.ofReal_ne_top).1
+        simpa [ENNReal.toReal_ofReal (show 0 ≤ 2 * ε by positivity)] using htoReal'
+      calc
+        (∫⁻ x : ℝ, g x ∂volume) =
+            ∫⁻ x : ℝ in Set.Ioo (-ε) ε, ENNReal.ofReal (f x) ∂volume := href
+        _ = ENNReal.ofReal (2 * ε) := by
+              simpa [f] using htarget
+    exact le_of_eq (by
+      calc
+        (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume)
+            = ∫⁻ x : ℝ, g (x - (t : ℝ)) ∂volume := hshift
+        _ = ∫⁻ x : ℝ, g x ∂volume := hshift'
+        _ = ENNReal.ofReal (2 * ε) := hint)
+  ·
+    have hε : ε ≤ 0 := le_of_not_gt hεpos
+    have hε' : 2 * ε ≤ 0 := by
+      nlinarith
+    have hzero : ∀ x : ℝ, singularTailKernel ε x t = 0 := by
+      intro x
+      have hnot : ¬ |x - (t : ℝ)| < ε := by
+        exact not_lt_of_ge (le_trans hε (abs_nonneg (x - (t : ℝ))))
+      simp [singularTailKernel, hnot]
+    have hzeroInt : (∫⁻ x : ℝ, singularTailKernel ε x t ∂volume) = 0 := by
+      simp [hzero]
+    simpa [hε', ENNReal.ofReal_of_nonpos hε'] using hzeroInt
+
 lemma singularTail_badSet_volume_le_of_lintegral_bound
     (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
     {η C : ℝ≥0∞}
@@ -2084,7 +2265,7 @@ theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (hfirst : Integrable (fun t : ℝ => t) μ)
     (hsecond : Integrable (fun t : ℝ => t ^ 2) μ)
     (heq : (∫ t : ℝ, t ^ 2 ∂μ) = (∫ t : ℝ, t ∂μ) ^ 2) :
-    μ = Measure.dirac (∫ t : ℝ, t ∂μ) := by
+    μ = MeasureTheory.Measure.dirac (∫ t : ℝ, t ∂μ) := by
   exact measure_eq_dirac_of_ae_eq_const μ (∫ t : ℝ, t ∂μ)
     (measure_barycenter_second_moment_eq_imp_ae_eq_mean μ
       hfirst hsecond heq)
@@ -2172,7 +2353,131 @@ def secondary_normalization_gives_standard_reduction
       (fun a => Potential (normalize a)) where
   normalize := hNorm.endpointForm
 
+def secondary_normalization_gives_variational_normalization
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hNorm : SecondaryMinimizerNormalization P normalize Potential) :
+    VariationalNormalizationTheorem α Normalized
+      (fun a => IsSecondaryMinimizingPrimaryMinimizer P a)
+      normalize Potential where
+  endpointForm := hNorm.endpointForm
+
+theorem SecondaryMinimizerNormalization.baseline_length
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hNorm : SecondaryMinimizerNormalization P normalize Potential)
+    {a : α} (ha : IsSecondaryMinimizingPrimaryMinimizer P a) :
+    ENNReal.ofReal (Real.sqrt 2) ≤
+      volume (PositiveSet (Potential (normalize a))) := by
+  exact (hNorm.endpointForm a ha).baseline_length_le_positiveSet
+
 end
+
+end StandardReduction
+
+namespace StandardReduction
+
+/-!
+## Tao-style workflow lemmas (named for the paper)
+
+Theorems in this block give short, explicit entry points for the five key steps
+in the reduction chain as discussed in Tao's notes:
+
+1. compact + lower-semicontinuous minimization (`Lemma 3.1`, existence);
+2. secondary minimization by variance (`Lemma 3.1`, two-step selector);
+3. finite kernel convexity/Jensen and continuous measure replacement;
+4. variance equality implies a Dirac block (`Lemma 3.1`/`3.2` consequence);
+5. endpoint normalization package (`Lemma 3.2` consequence).
+
+These are not additional assumptions; they repackage the already-developed
+infrastructure above.
+-/
+
+open scoped ENNReal
+
+/--
+Tao's first step (existence): a compact admissible class + lower semicontinuous
+objective has a minimizer.
+-/
+theorem lemma_3_1_primary_existence
+    (primary : AdmissibleProbability1038 → ℝ)
+    (hprimary_lsc : LowerSemicontinuous primary) :
+    ∃ μ : AdmissibleProbability1038,
+      ∀ ν : AdmissibleProbability1038, primary μ ≤ primary ν := by
+  exact admissible_probability_lsc_exists_minimizer primary hprimary_lsc
+
+/--
+Tao's second step (secondary selector): among primary minimizers, choose one
+minimizing the second-moment objective.
+-/
+theorem lemma_3_1_secondary_selector
+    (primary secondary : AdmissibleProbability1038 → ℝ)
+    (hprimary_lsc : LowerSemicontinuous primary)
+    (hsecondary_lsc : LowerSemicontinuous secondary) :
+    ∃ μ : AdmissibleProbability1038,
+      (∀ ν : AdmissibleProbability1038, primary μ ≤ primary ν) ∧
+      ∀ ν : AdmissibleProbability1038,
+        (∀ η : AdmissibleProbability1038, primary ν ≤ primary η) →
+          secondary μ ≤ secondary ν := by
+  exact admissible_probability_lsc_exists_secondary_minimizer primary secondary
+    hprimary_lsc hsecondary_lsc
+
+/--
+Finite weighted Jensen / mean-replacement formulas specialize to the measure kernel
+statements in this file.  This theorem just packages that transfer as a single
+named bridge for use in writeups.
+-/
+theorem lemma_3_2_finite_to_continuous_transfer
+    (μ : MeasureTheory.Measure ℝ) (hμ : MeasureTheory.IsProbabilityMeasure μ) {x ε : ℝ}
+    (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
+    (hε : 0 < ε)
+    (hsupp : ∀ᵐ t ∂μ, -1 ≤ t ∧ t ≤ 1)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : MeasureTheory.Integrable (fun t : ℝ => |x - t|) μ)
+    (hlinear_int : MeasureTheory.Integrable (fun t : ℝ => x * t) μ)
+    (hlog_int : MeasureTheory.Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (hmean_nonpos : (∫ t : ℝ, t ∂μ) ≤ 0) :
+    0 ≤ measureLogPotential μ x := by
+  letI : MeasureTheory.IsProbabilityMeasure μ := hμ
+  exact measureLogPotential_nonneg_of_nonpositive_mean μ hx0 hx1 hε hsupp hdist_lower
+    hdist_int hlinear_int hlog_int hmean_nonpos
+
+/--
+Variance rigidity step used in Tao's contradiction argument:
+if replacing a positive-mass component keeps the primary objective nonincreasing and
+does not reduce the selected second moment, then the replaced component is already
+Dirac at its mean.
+-/
+theorem lemma_3_2_variance_rigidity
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblem α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizer P a)
+    (hb_adm : P.Primary.Admissible b)
+    (hb_primary : P.Primary.objective b ≤ P.Primary.objective a)
+    (hb_secondary_le : P.secondaryObjective b ≤ P.secondaryObjective a)
+    (μ : MeasureTheory.Measure ℝ) (hμ : MeasureTheory.IsProbabilityMeasure μ)
+    (hfirst : MeasureTheory.Integrable (fun t : ℝ => t) μ)
+    (hsecond : MeasureTheory.Integrable (fun t : ℝ => t ^ 2) μ)
+    (hsecondary_eq_to_second_moment_eq :
+      P.secondaryObjective b = P.secondaryObjective a →
+        (∫ t : ℝ, t ^ 2 ∂μ) = (∫ t : ℝ, t ∂μ) ^ 2) :
+    μ = MeasureTheory.Measure.dirac (∫ t : ℝ, t ∂μ) := by
+  exact
+    secondary_minimizer_replacement_forces_block_dirac ha hb_adm hb_primary
+      hb_secondary_le μ hfirst hsecond hsecondary_eq_to_second_moment_eq
+
+/--
+Normalization output: a one-step conversion from the component-reduction data to the
+abstract endpoint lower-bound interface already required by the finite-atom certificate.
+-/
+def lemma_3_2_normalization_bridge
+    {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
+    NormalizedEndpointPotential U := by
+  simpa using D.toNormalizedEndpointPotential
 
 end StandardReduction
 end Erdos1038
