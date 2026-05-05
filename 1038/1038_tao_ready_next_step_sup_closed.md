@@ -1511,3 +1511,27 @@ The sampled boundary clearance on this slab is only about \(1.8\cdot10^{-5}\).
 So brute subdivision is still two orders of magnitude away and would not be a
 clean proof artifact.  The next kernel must reduce \(H/\eta^2\) at expression
 level.
+
+As a possible shortcut, the bottleneck slab was split by solving additional
+rows at epsilon \(3\cdot10^{-4}\) and \(4\cdot10^{-4}\).  With the original
+radius \(2.9\cdot10^{-4}\), the continuation-tube matrix check passes on all
+three subslabs:
+
+```text
+0.0002:0.0003  weighted_defect=2.253819e-01
+0.0003:0.0004  weighted_defect=1.777547e-01
+0.0004:0.0005  weighted_defect=1.540034e-01
+```
+
+However direct interval boundary exclusion still fails even on the split
+slabs:
+
+```text
+eta=2048, edge=32, direct value kernel
+0.0002:0.0003  K1=[+/- 6.62e-4], K2=[+/- 7.61e-3]
+0.0003:0.0004  K1=[+/- 5.43e-4], K2=[+/- 4.51e-3]
+0.0004:0.0005  K1=[+/- 4.81e-4], K2=[+/- 3.13e-3]
+```
+
+So splitting helps the matrix part but does not remove the value-kernel
+obstruction.
