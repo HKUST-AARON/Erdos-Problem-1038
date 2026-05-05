@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from flint import arb
 
 
@@ -58,9 +59,27 @@ def main() -> int:
     jacobian = solver.limit_jacobian()
     j00 = float(jacobian[0, 0])
     forcing = float(forcing_ratios[-1][1])
-    curvature = float(curvature)
     tau0 = float(tau0)
+    left_null = np.asarray([float(left_weight), 1.0], dtype=float)
     eta = solver._arb_interval_from_bounds(args.eta_low, args.eta_high)
+
+    def second_coefficients() -> tuple[float, float, float]:
+        h = 1.0e-4
+        base = np.asarray(solver.limit_equations(np.asarray([limit.A, limit.alpha])), dtype=float)
+
+        def q(B_value: float, tau_value: float) -> float:
+            delta = np.asarray([h * (float(null_slope) * tau_value + B_value), h * tau_value], dtype=float)
+            point = np.asarray([limit.A, limit.alpha], dtype=float) + delta
+            value = np.asarray(solver.limit_equations(point), dtype=float)
+            linear = jacobian @ delta
+            return float(left_null @ (value - base - linear) / (h * h))
+
+        q20 = q(1.0, 0.0)
+        q02 = q(0.0, 1.0)
+        q11 = q(1.0, 1.0) - q20 - q02
+        return q20, q11, q02
+
+    q20, q11, q02 = second_coefficients()
 
     def box(low: float, high: float) -> Any:
         return solver._arb_interval_from_bounds(low, high)
@@ -100,7 +119,12 @@ def main() -> int:
             )
         )
         K01 = arb(repr(float(j00))) * B
-        K02 = arb(repr(float(forcing))) + arb(repr(float(curvature))) * tau * tau
+        K02 = (
+            arb(repr(float(forcing)))
+            + arb(repr(float(q20))) * B * B
+            + arb(repr(float(q11))) * B * tau
+            + arb(repr(float(q02))) * tau * tau
+        )
         D1 = K1 - K01
         D2 = K2 - K02
         bound = math.hypot(arb_abs_upper(D1), arb_abs_upper(D2))

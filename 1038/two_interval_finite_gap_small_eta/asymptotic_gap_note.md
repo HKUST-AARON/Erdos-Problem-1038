@@ -290,7 +290,15 @@ edge_boxes=64   worst_bound ~= 2.49
 edge_boxes=256  worst_bound ~= 0.654
 ```
 
+Splitting eta does not materially change this bound:
+
+```text
+eta=[1e-16,1e-12], edge_boxes=256  worst_bound ~= 0.654
+eta=[1e-12,1e-8],  edge_boxes=256  worst_bound ~= 0.654
+eta=[1e-10,1e-8],  edge_boxes=256  worst_bound ~= 0.654
+```
+
 Thus the endpoint-safe K1 fix succeeded, but the next blocker is K2 dependency
 on the right/left boundary boxes.  The next kernel should reduce K2 directly on
 fixed \(B=\pm0.01\) edges, rather than relying on generic interval dependency
-over \(\tau\).
+over \(\tau\).  The blocker is tau/right-edge dependency, not eta-width.
