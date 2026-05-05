@@ -34,6 +34,7 @@ verify_two_interval_continuation_tube.py
 verify_two_interval_small_eta_limit.py
 verify_two_interval_small_eta_remainder.py
 verify_corrected_center_tube.py
+verify_asymptotic_obligation.py
 ```
 
 The folder keeps the route-specific solver/verifiers together so the forum
@@ -104,6 +105,21 @@ Expected summary:
 TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=9
 interval_winding_checked=8
 interval_winding_min_origin=8.354314e-03
+```
+
+Asymptotic obligation gate:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/verify_asymptotic_obligation.py
+```
+
+Expected summary:
+
+```text
+TWO-INTERVAL ASYMPTOTIC OBLIGATION:
+theorem_status=OPEN
+sampled_gate=PASS
+target_bound=7.000000e-03
 ```
 
 ## Caveat
