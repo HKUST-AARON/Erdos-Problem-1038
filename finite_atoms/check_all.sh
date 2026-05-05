@@ -48,7 +48,12 @@ run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean"
 
 "$REPO_ROOT/finite_atoms/forcing_1708/scripts/check_aggregate.sh"
 
-# Piecewise 560-block five-atom tail candidate (M = 1.814600, conditional support).
+# Piecewise 560-block five-atom tail certificate (M = 1.814600, conditional support).
+if [[ "${SKIP_PIECEWISE_BOX_CHUNKS:-0}" == "1" ]]; then
+  echo "skipping 560 piecewise Lean box-list chunks (SKIP_PIECEWISE_BOX_CHUNKS=1)"
+else
+  "$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/scripts/check_lean_box_list_chunks.sh"
+fi
 "$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/scripts/verify_piecewise_181460_560_test.sh"
 
 echo "all finite-atom certificate checks passed"

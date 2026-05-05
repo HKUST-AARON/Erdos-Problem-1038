@@ -30,9 +30,9 @@ The interval $(A-1,C)$ corresponds to $x\in(-1,0)$ and is not part of the
 normalized support (except the point $x=-1$ already handled separately), so it is
 not required.
 
-## Candidate data
+## Certificate data
 
-Candidate file:
+Data file:
 
 - `data/piecewise_five_atom_181460_560blocks_margin_tuned_candidate.json`
 
@@ -52,10 +52,10 @@ For each block $a\in[-A,-C]$ the measure is
 The sweeps and critical geometry are formalized in
 `lean/PiecewiseFiveAtom181460Formal.lean`.
 
-## Certificate Status
+## Certificate status
 
 - Required-domain positivity, the domain relevant for support `{-1}∪[0,1]`, is
-  verified by the generated checker with margin
+  verified with margin
   \[
   9.534343713646365\times 10^{-6}.
   \]
@@ -72,9 +72,10 @@ The sweeps and critical geometry are formalized in
 - The finite-atom framework now includes the non-negative-weight selector
   needed for blocks with zero generated weights.
 
-- The 560 individual one-variable logarithmic positivity blocks are checked by
-  the generated required-domain certificate, not expanded as 560 standalone Lean
-  proof terms.
+- The 560 individual one-variable logarithmic positivity blocks are expanded as
+  Lean chunks in `lean/box_list_chunks/`.  Each block file proves:
+  box validity, fixed weights, coverage of the two required domains, and the
+  resulting `Real.log` positivity theorem for that block.
 
 ## Verification artifacts
 
@@ -97,8 +98,32 @@ bash scripts/verify_piecewise_181460_560_test.sh
 `verify_piecewise_181460_560_test.sh` runs the checker, regenerates the
 certificate summary, and checks the PASS condition.
 
-## Caveat
+## Scope
 
 This package proves the finite tail block in the normalized-support setting.
 It should be cited together with the standard reduction and the long forcing
 branch.
+
+
+## Lean box chunks
+
+The directory `lean/box_list_chunks/` contains 560 generated Lean chunks, one per piecewise block.
+Each chunk stores the rational boxes for its block and proves, by exact `Rat`
+computation, that the boxes cover the two required domains and satisfy the
+logarithmic lower-bound inequalities required by the `Real.log` bridge in
+`PiecewiseFiveAtom181460BoxListCore.lean`.
+
+Run the full block proof with:
+
+```bash
+MATHLIB_WORKSPACE=/path/to/mathlib PIECEWISE_BOX_JOBS=8 \
+  finite_atoms/piecewise_five_atom_181460_560/scripts/check_lean_box_list_chunks.sh
+```
+
+`finite_atoms/check_all.sh` now invokes this Lean chunk check before the independent Python required-domain verifier.
+For quick non-chunk checks after the 560 chunks have already passed, use:
+
+```bash
+MATHLIB_WORKSPACE=/path/to/mathlib SKIP_PIECEWISE_BOX_CHUNKS=1 \
+  finite_atoms/check_all.sh
+```
