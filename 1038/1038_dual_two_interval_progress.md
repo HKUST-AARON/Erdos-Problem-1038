@@ -3526,6 +3526,33 @@ Thus the immediate blocker is to define the exact residual map used for the
 continuum winding and prove its equivalence to the original equations, rather
 than only tuning the existing diagnostic.
 
+The solver now exposes this as an explicit experimental kernel:
+`regularize_joint_limit_layer=True`, and
+`verify_two_interval_continuation_tube.py` has the matching
+`--regularize-joint-limit-layer` switch.  This removes the debug-label
+post-processing from the diagnostic and makes the next kernel test reproducible.
+The result is mixed:
+
+```text
+small-eta remainder with --renormalize-limit-layer:
+  ratio=2.393769e-02  PASS-DIAGNOSTIC
+
+tiny-slab continuation, original residue-log-mv kernel:
+  PASS on eta slice 0:1, min_origin=4.193370e-03
+
+tiny-slab continuation, regularized residue-log-mv kernel:
+  FAIL; top-edge box has origin_lb=4.644815e-03
+        but diag_radius=5.366787e-03
+```
+
+So the regularized kernel fixes the sampled \(K_\eta-K_0\) comparison, but it
+is not yet a drop-in replacement for the continuation winding verifier.  The
+next proof task is to derive the regularized residual map with its own center
+curve and Arb mean-value derivative bounds, then prove that its zero set is
+equivalent to the original equations.  Without that equivalence lemma, the
+regularized kernel remains diagnostic evidence rather than closure of
+\(0<\varepsilon<10^{-8}\).
+
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
 

@@ -1841,6 +1841,7 @@ def _combined_residue_log_value_second_divided_from_arb(
     base_delta_alpha_limit=None,
     base_delta_alpha_slope=None,
     eta_variation_mid=None,
+    regularize_joint_limit_layer: bool = False,
 ) -> str:
     """Term-paired box for ``(left_weight*U(alpha)+U(-1))/eta^2``.
 
@@ -2912,7 +2913,7 @@ def _combined_residue_log_value_second_divided_from_arb(
         )
 
     use_analytic_limit_layer = False
-    if debug_terms is not None:
+    if debug_terms is not None or regularize_joint_limit_layer:
         current_limit_layer_terms = dict(limit_layer_terms)
         for item in contexts:
             current_limit_layer_terms[item["label"]] += current_base_product_values[item["label"]]
@@ -2945,7 +2946,11 @@ def _combined_residue_log_value_second_divided_from_arb(
             append_debug_term(f"limit_layer_joint_identity_context:{label}", context_limit)
 
         if use_analytic_limit_layer:
-            if analytic_limit_layer_limit.is_zero():
+            if regularize_joint_limit_layer:
+                if not analytic_limit_layer_value.is_finite():
+                    append_debug_term("limit_layer_joint_regularized_blocker:nonfinite_value", arb("[+/- 0]"))
+                add_direct_second_term("limit_layer_joint_regularized_second:combined", analytic_limit_layer_second)
+            elif analytic_limit_layer_limit.is_zero():
                 add_direct_second_term("limit_layer_joint_analytic_second:combined", analytic_limit_layer_second)
             else:
                 add_direct_second_term(
@@ -3020,6 +3025,7 @@ def _combined_residue_log_value_second_divided_eta_variation_from_arb(
     base_delta_A_slope=None,
     base_delta_alpha_limit=None,
     base_delta_alpha_slope=None,
+    regularize_joint_limit_layer: bool = False,
 ) -> str:
     """Enclose ``K2(eta_box)-K2(eta_mid)`` using the grouped second-divided K2 algebra."""
 
@@ -3039,6 +3045,7 @@ def _combined_residue_log_value_second_divided_eta_variation_from_arb(
         base_delta_alpha_limit=base_delta_alpha_limit,
         base_delta_alpha_slope=base_delta_alpha_slope,
         eta_variation_mid=eta_mid,
+        regularize_joint_limit_layer=regularize_joint_limit_layer,
     )
 
 

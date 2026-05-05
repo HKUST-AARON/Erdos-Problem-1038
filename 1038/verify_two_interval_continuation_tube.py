@@ -217,6 +217,7 @@ def residue_log_affine_value_box(
     tau_slope: float,
     tau_intercept: float,
     debug_terms: int = 0,
+    regularize_joint_limit_layer: bool = False,
 ) -> tuple[Any, Any, list[tuple[str, str]]]:
     """Proof-grade eta value box plus affine u/tau derivative inflation."""
 
@@ -275,6 +276,7 @@ def residue_log_affine_value_box(
             base_delta_A_slope=base_delta_A_slope,
             base_delta_alpha_limit=base_delta_alpha_limit,
             base_delta_alpha_slope=base_delta_alpha_slope,
+            regularize_joint_limit_layer=regularize_joint_limit_layer,
         )
     )
 
@@ -348,6 +350,7 @@ def residue_log_mv_value_box(
     tau_slope: float,
     tau_intercept: float,
     debug_terms: int = 0,
+    regularize_joint_limit_layer: bool = False,
 ) -> tuple[Any, Any, list[tuple[str, str]]]:
     """Midpoint residue-log value plus Arb mean-value inflation."""
 
@@ -408,6 +411,31 @@ def residue_log_mv_value_box(
     )
     base_delta_A_slope = arb(repr(float(null_slope * tau_slope + b_slope)))
     eta_kernel_debug_terms: list[tuple[str, str]] = []
+    if regularize_joint_limit_layer:
+        K1_mid_raw = solver._potential_residue_log_value_divided_from_arb(
+            eta_midpoint_A,
+            eta_midpoint_alpha,
+            arb(repr(float(eta_mid))),
+            arb(repr(float(limit_solution.A))),
+            arb(repr(float(limit_solution.alpha))),
+            "contact",
+            192,
+            eta_midpoint_delta_A,
+            eta_midpoint_delta_alpha,
+        )
+        K2_mid_raw = solver._combined_residue_log_value_second_divided_from_arb(
+            eta_midpoint_A,
+            eta_midpoint_alpha,
+            arb(repr(float(eta_mid))),
+            arb(repr(float(left_weight))),
+            arb(repr(float(limit_solution.A))),
+            arb(repr(float(limit_solution.alpha))),
+            192,
+            eta_midpoint_delta_A,
+            eta_midpoint_delta_alpha,
+            regularize_joint_limit_layer=True,
+        )
+        K_mid = [arb(K1_mid_raw), arb(K2_mid_raw)]
 
     def eta_value_inflation(row_idx: int) -> float:
         if row_idx == 0:
@@ -521,6 +549,7 @@ def interval_boundary_exclusion(
     edge_subdivisions: int,
     value_kernel: str,
     debug_terms: int = 0,
+    regularize_joint_limit_layer: bool = False,
 ) -> tuple[str, float, str]:
     """Check the interval precondition 0 notin K(boundary tube boxes)."""
 
@@ -739,6 +768,7 @@ def interval_boundary_exclusion(
                 _base_delta_A,
                 _base_delta_alpha,
                 k2_debug_terms if debug_terms > 0 else None,
+                regularize_joint_limit_layer=regularize_joint_limit_layer,
             )
             K1 = arb(K1_raw)
             K2 = arb(K2_raw)
@@ -760,6 +790,7 @@ def interval_boundary_exclusion(
                 tau_slope,
                 tau_intercept,
                 debug_terms,
+                regularize_joint_limit_layer,
             )
         elif value_kernel == "residue-log-mv":
             K1, K2, k2_debug_terms = residue_log_mv_value_box(
@@ -781,6 +812,7 @@ def interval_boundary_exclusion(
                 tau_slope,
                 tau_intercept,
                 debug_terms,
+                regularize_joint_limit_layer,
             )
         else:
             v.fail(f"interval boundary exclusion {source}: unknown value kernel {value_kernel!r}")
@@ -852,6 +884,7 @@ def interval_boundary_winding(
     debug_terms: int = 0,
     adaptive_depth: int = 0,
     eta_index_slice: tuple[int, int] | None = None,
+    regularize_joint_limit_layer: bool = False,
 ) -> tuple[str, int, float, float, str]:
     """Certify the interval winding of K around 0 on ordered boundary boxes."""
 
@@ -1073,6 +1106,7 @@ def interval_boundary_winding(
                 base_delta_A,
                 base_delta_alpha,
                 k2_debug_terms if debug_terms > 0 else None,
+                regularize_joint_limit_layer=regularize_joint_limit_layer,
             )
             K1 = arb(K1_raw)
             K2 = arb(K2_raw)
@@ -1096,6 +1130,7 @@ def interval_boundary_winding(
                 tau_slope,
                 tau_intercept,
                 debug_terms,
+                regularize_joint_limit_layer,
             )
             if debug_terms > 0 and k2_debug_terms:
                 debug = f"; K2_terms={format_debug_terms(k2_debug_terms)}"
@@ -1119,6 +1154,7 @@ def interval_boundary_winding(
                 tau_slope,
                 tau_intercept,
                 debug_terms,
+                regularize_joint_limit_layer,
             )
             if debug_terms > 0 and k2_debug_terms:
                 debug = f"; MV_terms={format_debug_terms(k2_debug_terms)}"
@@ -1395,6 +1431,7 @@ def verify_tube(
     interval_boundary_winding_adaptive_depth: int,
     interval_boundary_winding_eta_slice: tuple[int, int] | None,
     skip_weighted_defect: bool,
+    regularize_joint_limit_layer: bool,
 ) -> tuple[float, str, float, float, float, float, int, float, float, str, float, str, str, int, float, float, str]:
     from flint import arb
 
@@ -1428,6 +1465,7 @@ def verify_tube(
         interval_boundary_debug_terms,
         interval_boundary_winding_adaptive_depth,
         interval_boundary_winding_eta_slice,
+        regularize_joint_limit_layer,
     )
     interval_boundary_status, interval_boundary_sep, interval_boundary_source = interval_boundary_exclusion(
         low_row,
@@ -1440,6 +1478,7 @@ def verify_tube(
         interval_boundary_subdivisions[1],
         interval_boundary_value_kernel,
         interval_boundary_debug_terms,
+        regularize_joint_limit_layer,
     )
 
     eta_low = low_row.epsilon ** 0.5
@@ -1652,6 +1691,14 @@ def main() -> int:
         action="store_true",
         help="Skip the weighted DK-defect diagnostic after boundary winding; proof gate remains boundary winding plus sign margins.",
     )
+    parser.add_argument(
+        "--regularize-joint-limit-layer",
+        action="store_true",
+        help=(
+            "Diagnostic proof experiment: use the regularized residue-log K2 kernel "
+            "that removes the joint limit-layer term before final eta division."
+        ),
+    )
     args = parser.parse_args()
 
     try:
@@ -1697,6 +1744,7 @@ def main() -> int:
                 args.interval_boundary_winding_adaptive_depth,
                 args.interval_boundary_winding_eta_slice,
                 args.skip_weighted_defect,
+                args.regularize_joint_limit_layer,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
