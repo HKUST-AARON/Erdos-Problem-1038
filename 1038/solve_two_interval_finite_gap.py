@@ -2143,11 +2143,23 @@ def _combined_residue_log_value_second_divided_from_arb(
 
     combined_first_divided = arb(0)
     combined_second_divided_direct = arb(0)
+    limit_layer_terms = {item["label"]: arb(0) for item in contexts}
 
     def add_combined_term(label, value):
         nonlocal combined_first_divided
         combined_first_divided += value
         append_debug_value(label, value)
+
+    def add_limit_layer_term(context_label, value):
+        limit_layer_terms[context_label] += value
+
+    def flush_limit_layer_terms():
+        total = arb(0)
+        for item in contexts:
+            context_value = limit_layer_terms[item["label"]]
+            total += context_value
+            append_debug_value(f"limit_layer_joint_context:{item['label']}", context_value)
+        add_combined_term("limit_layer_joint:combined", total)
 
     def add_direct_second_term(label, value):
         nonlocal combined_second_divided_direct
@@ -2155,8 +2167,8 @@ def _combined_residue_log_value_second_divided_from_arb(
         append_debug_term(label, value)
 
     for item in contexts:
-        add_combined_term(
-            f"xzero_coord:{item['label']}",
+        add_limit_layer_term(
+            item["label"],
             -item["weight"]
             * (
                 log_abs_ratio_divided(scale, scale0, scale_div)
@@ -2232,12 +2244,12 @@ def _combined_residue_log_value_second_divided_from_arb(
                     base_div,
                 )
             )
-            add_combined_term(
-                f"smooth:s{sheet_index}:ratio_coeff:{item['label']}",
+            add_limit_layer_term(
+                item["label"],
                 item["weight"] * (-a_ell_div * log_abs(ratio0)),
             )
-            add_combined_term(
-                f"smooth:s{sheet_index}:ratio_log:{item['label']}",
+            add_limit_layer_term(
+                item["label"],
                 item["weight"] * (-a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)),
             )
 
@@ -2679,8 +2691,8 @@ def _combined_residue_log_value_second_divided_from_arb(
     if use_analytic_paired_base:
         for item in contexts:
             base_limit, base_second = analytic_base_product_values[item["label"]]
-            add_combined_term(
-                f"smooth:paired_base_product_limit:{item['label']}",
+            add_limit_layer_term(
+                item["label"],
                 base_limit,
             )
             add_direct_second_term(
@@ -2700,8 +2712,8 @@ def _combined_residue_log_value_second_divided_from_arb(
                 arb("[+/- 0]"),
             )
         for item in contexts:
-            add_combined_term(
-                f"smooth:paired_base_product:{item['label']}",
+            add_limit_layer_term(
+                item["label"],
                 current_base_product_values[item["label"]],
             )
 
@@ -2712,10 +2724,12 @@ def _combined_residue_log_value_second_divided_from_arb(
     a_minus = (one + A) * branch_value(rho_minus, scale) / one_derivative
     for item in contexts:
         endpoint_ratio = (item["w"] - rho_minus) / (item["w"] - rho_plus)
-        add_combined_term(
-            f"endpoint:{item['label']}",
+        add_limit_layer_term(
+            item["label"],
             -item["weight"] * (a_minus / eta) * log_abs(endpoint_ratio),
         )
+
+    flush_limit_layer_terms()
 
     return str(combined_first_divided / eta + combined_second_divided_direct)
 
