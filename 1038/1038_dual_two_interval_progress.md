@@ -2845,15 +2845,17 @@ comfortably below \(10^{-1}\).  These are generous enough that the line is not
 blocked by local conditioning; the real work is still certified evaluation of
 the logarithmic/endpoint-singular integrals.
 
-This sampled stress evidence has now been superseded, for the bottleneck
-\(\varepsilon\)-slab recorded below, by a proof-grade interval winding
-certificate.  The sampled grid remains useful as an independent conditioning
-diagnostic, but it is no longer the branch-existence evidence for that slab.
+This sampled stress evidence has now been superseded, for the stored finite
+\(\varepsilon\)-range recorded below, by proof-grade interval winding
+certificates.  The sampled grid remains useful as an independent conditioning
+diagnostic, but it is no longer the branch-existence evidence for these slabs.
 
-### 15.3.1 Current branch closure: proof-grade winding certificate on \([0.0002,0.0005]\)
+### 15.3.1 Current branch closure: proof-grade winding certificate on \([0.00005,0.002]\)
 
 This subsection records exactly what has now been connected back to the current
-two-interval branch.  Let
+two-interval branch.  The first proof-grade closure was obtained on
+\([0.0002,0.0005]\); the remaining stored slabs have now been promoted to the
+same interval-winding certificate status.  Let
 \[
 \eta=\sqrt{\varepsilon},\qquad
 (A,\alpha)=(A_0,\alpha_0)+\eta(B+\nu\tau,\tau),
@@ -2871,7 +2873,7 @@ K(B,\tau,\eta)
 \right).
 \]
 
-For the slab
+For the initial slab
 \[
 \varepsilon\in[0.0002,0.0005],
 \]
@@ -2907,6 +2909,38 @@ checked artifact for commit `914ec72` gives:
 remote_final logs=1024 pass=1024 fail=0
 min_origin=1.178783e-05
 max_angle=1.535505
+```
+
+The remaining stored slabs were then run with the same certification kernel,
+the same winding boundary split (`ETA,8`), and adaptive depth 2, using the
+diagnostic radii recorded in §16.3.  The remote run on `hkgai-studio`
+(`100.72.237.101`) split every eta subdivision as an individual half-open
+slice and used 20 workers.  It returned:
+
+```text
+0.00005:0.0001   radius=0.0003  eta=224   pass=224/224   fail=0
+                 min_origin=9.443237e-05  max_angle=0.3061034
+0.0001:0.0002    radius=0.0003  eta=224   pass=224/224   fail=0
+                 min_origin=7.015515e-05  max_angle=0.4437094
+0.0005:0.001     radius=0.0006  eta=1344  pass=1344/1344 fail=0
+                 min_origin=1.566601e-04  max_angle=0.3207439
+0.001:0.00125    radius=0.0002  eta=224   pass=224/224   fail=0
+                 min_origin=5.013406e-05  max_angle=0.4173290
+0.00125:0.0015   radius=0.0002  eta=224   pass=224/224   fail=0
+                 min_origin=5.429313e-05  max_angle=0.3893125
+0.0015:0.00175   radius=0.0002  eta=224   pass=224/224   fail=0
+                 min_origin=4.912411e-05  max_angle=0.4545586
+0.00175:0.002    radius=0.0002  eta=224   pass=224/224   fail=0
+                 min_origin=5.765748e-05  max_angle=0.3794442
+```
+
+Thus the complete stored finite range now has proof-grade branch-existence
+coverage:
+
+```text
+[0.00005,0.0001]  union [0.0001,0.0002] union [0.0002,0.0005]
+union [0.0005,0.001] union [0.001,0.00125] union [0.00125,0.0015]
+union [0.0015,0.00175] union [0.00175,0.002].
 ```
 
 Representative slice outputs are:
@@ -2950,15 +2984,17 @@ used for this proof certificate.
 What is now closed:
 
 1. the local branch-existence certificate on
-   \(\varepsilon\in[0.0002,0.0005]\);
-2. the proof-grade replacement of the sampled center correction for this slab;
+   \(\varepsilon\in[0.00005,0.002]\), split into the eight stored slabs above;
+2. the proof-grade replacement of the sampled center correction for this finite
+   stored range;
 3. a reproducible command package and remote parallel verification record;
 4. orientation-correct adaptive boundary splitting and strict eta-slice
    coverage checks.
 
 What is not yet closed:
 
-1. extension of the same certificate to the remaining \(\varepsilon\)-ranges;
+1. the singular range \(0<\varepsilon<0.00005\), which needs a small-\(\eta\)
+   theorem rather than another finite row sampling run;
 2. positivity/support verification for the full extracted dual measure on all
    required \(x\)-regions, beyond the sign-regime checks recorded here;
 3. the global reduction from arbitrary candidate sets \(E\) to this
@@ -3629,43 +3665,36 @@ one important local lower-side branch certificate.
 |---|---|---|---|
 | Conditional finite-atom lower bound \(1.806304\) | strongest closed local lower-bound package | `FiveAtom1806304Mathlib.lean`, `FiveAtom1806304Formal.lean`, five-atom Decimal/Lean checks | A separate finite-atom lower-bound route; useful but not close to \(1.83\). |
 | Two-interval sign regime | proof-grade for exported boxes as an external verifier | `.venv/bin/python 1038/verify_two_interval_sign_box.py --quiet --self-test-tamper` | Checks \(1<A<-\ell\), \(\ell<-1<r<\alpha<\beta<1\), atom residue signs, and density sign on exported branch/Krawczyk boxes. |
-| Two-interval local branch on \([0.0002,0.0005]\) | proof-grade interval winding certificate | `verify_two_interval_continuation_tube.py` with `residue-log-mv`; remote split run `1024/1024 PASS` | For each certified eta slice, \(K(B,\tau,\eta)\) has a zero in the tube by winding degree \(1\). |
-| Two-interval branch on \([0.00005,0.002]\) | diagnostic plus matrix/nondegeneracy subartifact | `verify_two_interval_epsilon_slabs.py`, branch skeleton checks | Strong evidence that the analytic branch persists, but not yet a full branch-existence proof for all slabs. |
+| Two-interval branch on \([0.00005,0.002]\) | proof-grade interval winding certificate for all stored slabs | `verify_two_interval_continuation_tube.py` with `residue-log-mv`; remote split runs `1024/1024 PASS` on \([0.0002,0.0005]\) and `2688/2688 PASS` on the remaining slabs | For each certified eta slice, \(K(B,\tau,\eta)\) has a zero in the tube by winding degree \(1\). |
 | Singular range \(0<\varepsilon<0.00005\) | open | none | Needs an asymptotic/small-\(\eta\) theorem, not finite row sampling. |
 | Full \(U_\lambda\ge0\) on \(S\) | open beyond sign-chart reduction | no standalone global positivity verifier yet | Needs endpoint/stationary-point interval lower bounds for the potential on all required real segments. |
 | Global reduction from arbitrary \(E\) | open | only recorded as a required Tao/natso/global lemma | Must show any relevant candidate set reduces to one/two-interval obstruction or receives another dual certificate. |
 | Upper construction at \(M_*\) | open in this repo | Tao one-cut candidate endpoints recorded, but no full construction proof | Needs an admissible approximating polynomial/measure sequence with \(|E|\to M_*\). |
 
-### 16.3 Epsilon coverage gap
+### 16.3 Epsilon coverage status
 
-The current proof-grade branch-existence certificate is only:
-\[
-\varepsilon\in[0.0002,0.0005].
-\]
-
-The stored diagnostic range is:
+The current proof-grade branch-existence certificate covers the stored finite
+range
 \[
 \varepsilon\in[0.00005,0.002],
 \]
 split across the endpoint rows in
 `1038/two_interval_branch_certificate_top_split.json`.
 
-The minimum next certification task is to promote the remaining diagnostic
-slabs to the same proof-grade winding status as §15.3.1.  The recorded
-diagnostic slab settings are:
+The proof-grade winding settings are:
 
 ```text
-0.00005:0.0001   radius=0.0003   eta subdivisions=224
-0.0001:0.0002    radius=0.0003   eta subdivisions=224
-0.0002:0.0005    radius=0.00029  proof-grade winding done
-0.0005:0.001     radius=0.0006   eta subdivisions=1344
-0.001:0.00125    radius=0.0002   eta subdivisions=224
-0.00125:0.0015   radius=0.0002   eta subdivisions=224
-0.0015:0.00175   radius=0.0002   eta subdivisions=224
-0.00175:0.002    radius=0.0002   eta subdivisions=224
+0.00005:0.0001   radius=0.0003   eta subdivisions=224    PASS 224/224
+0.0001:0.0002    radius=0.0003   eta subdivisions=224    PASS 224/224
+0.0002:0.0005    radius=0.00029  eta subdivisions=1024   PASS 1024/1024
+0.0005:0.001     radius=0.0006   eta subdivisions=1344   PASS 1344/1344
+0.001:0.00125    radius=0.0002   eta subdivisions=224    PASS 224/224
+0.00125:0.0015   radius=0.0002   eta subdivisions=224    PASS 224/224
+0.0015:0.00175   radius=0.0002   eta subdivisions=224    PASS 224/224
+0.00175:0.002    radius=0.0002   eta subdivisions=224    PASS 224/224
 ```
 
-For each remaining slab, the target command shape is:
+The command shape for each slab is:
 
 ```bash
 .venv/bin/python 1038/verify_two_interval_continuation_tube.py \
@@ -3781,16 +3810,16 @@ lower-bound statements such as \(L_-\ge1.83\), not the exact equality
 
 The next work should be done in this order:
 
-1. **Extend proof-grade winding coverage** from \([0.0002,0.0005]\) to the
-   remaining stored slabs.
-2. **Write the global potential-positivity verifier** for the two-interval
+1. **Write the global potential-positivity verifier** for the two-interval
    measure, using residue-log primitives and real critical-point isolation.
-3. **Prove the small-\(\eta\) branch theorem** for
+2. **Prove the small-\(\eta\) branch theorem** for
    \(0<\varepsilon<0.00005\).
-4. **Formulate the global finite-gap reduction lemma** precisely enough that it
+3. **Formulate the global finite-gap reduction lemma** precisely enough that it
    can be attacked or refuted.
-5. **Separate the upper construction** into its own proof note, so the lower
+4. **Separate the upper construction** into its own proof note, so the lower
    and upper sides do not get conflated.
 
-The first item is the best immediate engineering task.  The fourth item is the
-hardest mathematical gap.
+The previous first item, extending proof-grade winding coverage across the
+stored finite slabs, is now closed.  The new first item is the best immediate
+engineering task.  The finite-gap reduction item is the hardest mathematical
+gap.
