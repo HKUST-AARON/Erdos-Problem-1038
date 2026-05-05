@@ -7075,6 +7075,228 @@ controlled zero count in the ambient Chebyshev span.  What remains is to
 translate the compact positivity/period conditions into a lower bound on the
 number of zeros or sign alternations required of \(sK_1+tK_2\).
 
+### 16.52 The next sign-pattern reduction
+
+The adjoint-kernel calculation changes the shape of the compact proof.  We no
+longer need to prove six independent moment equations.  We need to prove that
+the two-dimensional family
+
+\[
+K_{s,t}=sK_1+tK_2
+\]
+
+cannot be the first variation of an admissible compact \(g=2\) dual measure.
+The useful way to phrase this is as a sign-pattern exclusion.
+
+Let the two compact intervals be
+
+\[
+I_1=[u,c],\qquad I_2=[c,v],
+\]
+
+with \(u<c<v\).  In the compact branch the exterior potential is flat on the
+active intervals and non-negative on the forbidden set.  A one-sided endpoint
+motion therefore has a fixed sign: moving an endpoint outward cannot lower the
+Lagrangian at first order, while moving it inward cannot improve the active
+flatness without violating positivity.  In adjoint language this means that an
+admissible \(K_{s,t}\) must have alternating one-sided signs at
+
+\[
+u,\ c^-,\ c^+,\ v
+\]
+
+after multiplying by the orientation of the corresponding endpoint motion.
+The period row gives one more sign reversal: the variation that transfers
+density from \(I_1\) to \(I_2\) has zero total period, so \(K_{s,t}\) cannot
+keep a single sign on both ovals unless it is orthogonal to a positive measure
+on each oval.  Since the period weights are positive, that forces at least one
+interior zero on each oval.
+
+Thus the compact branch would imply the following lower bound:
+
+\[
+\boxed{
+K_{s,t}\not\equiv0
+\quad\Longrightarrow\quad
+K_{s,t}\text{ has at least six alternating real zeros counted with the oval
+orientations.}
+}
+\]
+
+The six zeros are:
+
+1. one sign change forced by the left endpoint \(u\);
+2. one zero inside \(I_1\) from the period balance;
+3. one sign change at \(c^-\);
+4. one sign change at \(c^+\);
+5. one zero inside \(I_2\) from the period balance;
+6. one sign change forced by the right endpoint \(v\).
+
+This is the exact mathematical mouth that remains.  To close it one needs the
+following Chebyshev lemma in the local six-kernel span:
+
+\[
+\boxed{
+\text{No non-zero element of }
+\operatorname{span}\{K_1,K_2\}
+\text{ can have the above six alternating oval zeros.}
+}
+\]
+
+The ambient six-kernel Chebyshev determinant is not by itself enough, because
+six zeros are possible for a general six-dimensional span.  The extra saving
+must come from the special two-dimensional coefficient surface
+\(\operatorname{span}\{\kappa_1,\kappa_2\}\).  Concretely, the next proof must
+show that the ratio
+
+\[
+R(x)=\frac{K_1(x)}{K_2(x)}
+\]
+
+is strictly monotone on each oval after the correct orientation, and that the
+two oriented ranges overlap in the wrong order.  If this is proved, then a
+single value \(-t/s\) cannot be assumed once on each of the six required
+alternation slots, so no admissible compact \(g=2\) branch exists.
+
+The remaining compact proof is therefore reduced to three purely mathematical
+lemmas:
+
+\[
+\begin{aligned}
+\text{(A) endpoint sign lemma: }&
+\text{ admissibility fixes the four oriented endpoint signs;}\\
+\text{(B) period-zero lemma: }&
+\text{ positivity of the period weights forces one interior zero on each oval;}\\
+\text{(C) adjoint ratio lemma: }&
+R=K_1/K_2\text{ is oriented-monotone with incompatible oval ranges.}
+\end{aligned}
+\]
+
+This is progress because it removes the earlier vague "rank" target.  The
+hardest remaining item is now exactly lemma (C).  It should be attacked by
+writing the Wronskian
+
+\[
+K_1K_2'-K_1'K_2
+\]
+
+over the common denominator
+
+\[
+(x-u)^2(x-c)^2(x-v)^2
+\]
+
+plus the two logarithmic primitives \(L_\pm\), then using the stationarity
+relations to cancel the removable endpoint factors.  After cancellation, the
+desired sign should be a low-degree rational inequality with coefficients
+controlled by
+
+\[
+U_u>0,\quad U_v<0,\quad F_c<0,\quad a,b>0,\quad W''>0.
+\]
+
+If the Wronskian sign cannot be forced under these hypotheses, then this
+compact \(g=2\) line is not yet a complete exact-value proof; it will need an
+additional extremality relation, most likely the second-variation positivity
+of the two-interval Cauchy-transform ansatz.
+
+### 16.53 Wronskian normal form
+
+The Wronskian calculation has a useful general normal form.  Write
+
+\[
+K_1=R_1+\alpha L_-+\beta L_+,\qquad
+K_2=R_2+\gamma L_-+\delta L_+,
+\]
+
+where \(R_1,R_2\) are rational combinations of
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1}.
+\]
+
+In the present cokernel basis,
+
+\[
+\alpha=\frac{U_v}{U_u},\qquad \beta=1,\qquad
+\gamma=\frac{-A_u+aA_{2,u}+B_v+bB_{2,v}}{U_u},\qquad \delta=0.
+\]
+
+Since
+
+\[
+L_-'=\frac1{x-u}-\frac1{x-c},\qquad
+L_+'=\frac1{x-c}-\frac1{x-v},
+\]
+
+the Wronskian
+
+\[
+W_{12}=K_1K_2'-K_1'K_2
+\]
+
+has no \(L_-L_+\), \(L_-^2\), or \(L_+^2\) terms.  It is exactly
+
+\[
+\boxed{
+W_{12}=C_0(x)+C_-(x)L_-(x)+C_+(x)L_+(x),
+}
+\]
+
+with
+
+\[
+\begin{aligned}
+C_-(x)
+&=\alpha R_2'(x)-\gamma R_1'(x)
+  +(\alpha\delta-\beta\gamma)L_+'(x),\\
+C_+(x)
+&=\beta R_2'(x)-\delta R_1'(x)
+  +(\beta\gamma-\delta\alpha)L_-'(x),\\
+C_0(x)
+&=R_1R_2'-R_1'R_2
+  +R_1(\gamma L_-'+\delta L_+')
+  -R_2(\alpha L_-'+\beta L_+').
+\end{aligned}
+\]
+
+For this basis \(\delta=0\), hence the two logarithmic coefficients simplify to
+
+\[
+\boxed{
+C_-(x)=\alpha R_2'(x)-\gamma R_1'(x)-\gamma L_+'(x),
+}
+\]
+
+and
+
+\[
+\boxed{
+C_+(x)=R_2'(x)+\gamma L_-'(x).
+}
+\]
+
+This is a stronger reduction than the previous informal Wronskian target:
+only two rational coefficient functions control the logarithmic obstruction.
+Therefore the next hand proof should first try to show that, after substituting
+the explicit \(R_1,R_2,\alpha,\beta,\gamma\), both \(C_-\) and \(C_+\) have the
+same oriented sign on the two ovals.  If that succeeds, the remaining
+non-logarithmic term \(C_0\) can be bounded by the endpoint values of
+\(L_\pm\) and the removable endpoint cancellations.
+
+The key unresolved mathematical question is now precise:
+
+\[
+\boxed{
+\text{Do stationarity and }W''>0\text{ force the signs of }
+C_-,C_+,C_0\text{ needed for }W_{12}\text{ to have one sign?}
+}
+\]
+
+If yes, the compact \(g=2\) branch closes by the ratio-monotonicity lemma.  If
+not, the current two-dimensional adjoint kernel is missing one more algebraic
+relation, probably the second-variation inequality.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

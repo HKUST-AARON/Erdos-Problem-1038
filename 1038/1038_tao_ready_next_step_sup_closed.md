@@ -2282,6 +2282,85 @@ Therefore
 The compact \(g=2\) target is now explicit: prove that no non-zero
 \(sK_1+tK_2\) has the admissible compact sign pattern on the two real ovals.
 
+### E42. Sign-pattern reduction after the cokernel basis
+
+The compact branch is now reduced to a concrete two-dimensional exclusion.  A
+candidate first variation has the form
+
+\[
+K_{s,t}=sK_1+tK_2.
+\]
+
+Admissibility would force oriented endpoint signs at \(u,c^-,c^+,v\).  The
+period row then forces one interior zero on each oval, because the transfer
+variation between the two compact intervals has positive period weights and
+cannot keep one sign on both ovals.  Hence any admissible compact branch would
+force at least six oriented sign alternations/zeros for a non-zero
+\(K_{s,t}\).
+
+The ambient six-kernel Chebyshev determinant only controls the full
+six-dimensional span, so the required extra input is the special
+two-dimensionality of
+
+\[
+\mathcal K_{\rm adj}=\operatorname{span}\{K_1,K_2\}.
+\]
+
+The next exact lemma is therefore:
+
+\[
+\boxed{
+R(x)=K_1(x)/K_2(x)
+\text{ is oriented-monotone on each oval, and the two oval ranges are
+incompatible with the six required signs.}
+}
+\]
+
+Equivalently, one should prove a fixed sign for the Wronskian
+
+\[
+K_1K_2'-K_1'K_2
+\]
+
+after writing it over the common rational-log kernel and cancelling removable
+endpoint factors using the stationarity equations.  This is the current
+smallest mathematical hard mouth for the compact two-interval branch.
+
+The Wronskian has a useful normal form.  If
+
+\[
+K_1=R_1+\alpha L_-+\beta L_+,\qquad
+K_2=R_2+\gamma L_-+\delta L_+,
+\]
+
+then no quadratic logarithmic terms survive:
+
+\[
+K_1K_2'-K_1'K_2=C_0(x)+C_-(x)L_-(x)+C_+(x)L_+(x).
+\]
+
+Here
+
+\[
+C_-=\alpha R_2'-\gamma R_1'+(\alpha\delta-\beta\gamma)L_+',
+\]
+
+\[
+C_+=\beta R_2'-\delta R_1'+(\beta\gamma-\delta\alpha)L_-'.
+\]
+
+For the explicit cokernel basis above, \(\beta=1\) and \(\delta=0\), so
+
+\[
+C_-=\alpha R_2'-\gamma R_1'-\gamma L_+',\qquad
+C_+=R_2'+\gamma L_-'.
+\]
+
+Thus the next proof is not an unstructured determinant problem.  It is to
+force the signs of \(C_-,C_+,C_0\), after endpoint cancellations, from
+stationarity, \(W''>0\), and the signs
+\(U_u>0,U_v<0,F_c<0,a,b>0\).
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
