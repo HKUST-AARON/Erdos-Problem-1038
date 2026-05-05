@@ -799,6 +799,102 @@ remaining mathematical work is to prove this quantitative inequality, or to
 show that every equality/near-equality case degenerates to the one-cut
 construction or the corrected two-interval branch.
 
+### E4. First high-genus target: \(g=2\)
+
+The next mathematical target is not the whole \(g\ge2\) problem at once.  The
+first possible escape from the corrected two-interval branch is \(g=2\).
+
+For
+
+\[
+Z_0=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+\]
+
+the dual Stieltjes transform has the finite-gap shape
+
+\[
+F(z)=
+\frac{P(z)}{Q(z)}
+\sqrt{(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)}.
+\]
+
+If the first extra positive component is
+
+\[
+I=(u,v),\qquad \mu|_I=q\delta_c,\quad u<c<v,
+\]
+
+then the primal and dual conditions are
+
+\[
+(c-u)U_\mu'(u)=(v-c)|U_\mu'(v)|,
+\qquad
+F(c)=0,\quad F'(c)<0.
+\]
+
+So \(P\) must carry a simple real zero at the escaping atom, with the zero
+interlacing the finite-gap poles and cuts in a positive Stieltjes way.  The
+concrete target is
+
+\[
+\boxed{
+(R_0-L_0)+(v-u)\ge M_*.
+}
+\]
+
+If this fails, the failure is a genuine normalized counterexample to the
+exact lower bound.  If it holds, and if the statement is stable under pinching
+of higher gaps, the higher-genus cases can be removed inductively.
+
+### E5. Local cancellation lemma for the escaping atom
+
+On the extra component write
+
+\[
+U_\mu(x)=q\log\frac1{|x-c|}+W(x),
+\]
+
+where \(W\) is the external field from all mass outside \(I\).  Then
+
+\[
+U_\mu'(u)=\frac{q}{c-u}+W'(u),
+\qquad
+U_\mu'(v)=-\frac{q}{v-c}+W'(v).
+\]
+
+The length-stationarity condition gives
+
+\[
+\boxed{
+(c-u)W'(u)+(v-c)W'(v)=0.
+}
+\]
+
+The endpoint zero equations give
+
+\[
+\boxed{
+W(v)-W(u)=q\log\frac{v-c}{c-u}.
+}
+\]
+
+Since
+
+\[
+W''(x)=\int_{\mathbb R\setminus I}\frac{d\mu(t)}{(x-t)^2}>0,
+\]
+
+the external field is strictly convex on \(I\).  Therefore any escaping
+component must contain the unique minimum of \(W\), with
+
+\[
+W'(u)<0<W'(v).
+\]
+
+This is the next usable mathematical reduction: the \(g=2\) obstruction is no
+longer just a topology issue; it is a convex external-field system coupled to
+the finite-gap interlacing condition \(F(c)=0\).
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
