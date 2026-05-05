@@ -103,6 +103,7 @@ The Lean file has internalized several downstream pieces of this chain:
 ```text
 measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
+endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
 endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
 TaoComponentReductionData.support_subset_normalized
@@ -110,10 +111,16 @@ TaoComponentReductionData.endpointMass_ge_half
 TaoReducedPotentialData.toNormalizedEndpointPotential
 ```
 
-The last item added in this layer is
-`endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate`, which
-matches the mathematical proof's split between `x_+ > 0` and the degenerate
-two-point `x_+ = 0` case.
+The most recent additions in this layer are:
+
+```text
+endpoint_lower_bound_from_normalized_support_decomposition
+endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
+```
+
+The first is the named support-decomposition-to-endpoint-lower-bound bridge.
+The second matches the mathematical proof's split between `x_+ > 0` and the
+degenerate two-point `x_+ = 0` case.
 
 The following review findings remain real Lean gaps, not solved claims:
 

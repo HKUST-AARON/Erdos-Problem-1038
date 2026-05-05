@@ -199,6 +199,31 @@ theorem endpoint_lower_bound_from_normalized_remainder_measure
   have hdecomp := hU_decomp x hx
   nlinarith
 
+/--
+Named version of the normalized-support endpoint lower-bound theorem.
+
+This is the direct formal counterpart of the mathematical step:
+an endpoint atom of mass `p` at `-1`, plus a remainder of mass `1-p` supported
+in `[0,1]`, implies the lower bound used by the normalized finite-atom route.
+
+The theorem still assumes the caller has supplied the actual potential
+decomposition lower bound `hU_decomp`; it does not construct the decomposition
+from an arbitrary minimizer.
+-/
+theorem endpoint_lower_bound_from_normalized_support_decomposition
+    {U : ℝ → ℝ} {remainder : Measure ℝ} {p : ℝ}
+    (hrem_supp : ∀ᵐ t ∂remainder, 0 ≤ t ∧ t ≤ 1)
+    (hrem_mass : remainder Set.univ = ENNReal.ofReal (1 - p))
+    (hrem_mass_nonneg : 0 ≤ 1 - p)
+    (hkernel_int : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder)
+    (hU_decomp : ∀ x : ℝ, x ∈ BaselinePunctured →
+      p * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x) :
+    HasNormalizedEndpointLowerBound U p :=
+  endpoint_lower_bound_from_normalized_remainder_measure
+    hrem_supp hrem_mass hrem_mass_nonneg hkernel_int hU_decomp
+
 lemma half_endpoint_average_eq_half_product {x : ℝ}
     (hx : x ∈ BaselineInterval) (hne : x ≠ -1) :
     (1 / 2 : ℝ) * Real.log (1 / |x + 1|) +
