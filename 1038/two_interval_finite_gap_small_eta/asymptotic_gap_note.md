@@ -117,3 +117,45 @@ an Arb interval version:
 
 Until that uniform interval remainder lemma exists, this remains a
 certificate-backed route, not a completed proof of the singular endpoint.
+
+## Why Not Keep Slicing Smaller?
+
+An attempted deeper finite stress test confirms that pushing finite eta slabs
+below the current bridge is the wrong proof strategy:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/verify_corrected_center_tube.py \
+  --center-mode limiting \
+  --epsilons 3e-32,1e-30,3e-28,1e-26,3e-24,1e-22,3e-20,1e-18,3e-16 \
+  --max-correction 0.001 \
+  --tube-radius-B 0.02 \
+  --tube-radius-tau 0.02 \
+  --max-corrected-residual 1e-4 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3
+```
+
+Observed failure mode:
+
+```text
+epsilon=3.000000e-32 ... corrected_inf=1.065876e-01 degree=0
+epsilon=1.000000e-30 ... corrected_inf=6.825498e-02 degree=0
+...
+interval slab ... status=FAIL
+source=residue-log-mv u derivative: expected finite Arb ball, got nan
+```
+
+This should be read as a numerical/representation failure, not as evidence
+against the branch.  At these eta values the finite positive-eta kernel is
+being asked to resolve cancellations far below the precision and algebraic
+conditioning of the current value/derivative primitives.
+
+The conclusion is important:
+
+```text
+Do not close 0 < epsilon < 3e-16 by more finite slabs.
+Close it by an eta=0 analytic remainder theorem.
+```
+
+The finite bridge is already close enough to zero that the remaining endpoint
+must be handled by the limiting normal form plus a uniform remainder bound.
