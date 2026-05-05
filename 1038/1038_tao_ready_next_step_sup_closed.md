@@ -1182,3 +1182,68 @@ producing a result.  That is a useful negative signal: the last slab should
 not be attacked by simply increasing eta subdivisions.  The next mathematical
 cut is to add a better continuation/center model for the top slab, or split
 the row-to-row continuation before applying the same Krawczyk box.
+
+## M. Top Slab Closed By Splitting The Continuation
+
+The next remote run tested exactly the split-continuation option suggested in
+section L.  Instead of trying to certify the long slab
+
+```text
+0.001:0.002
+```
+
+with one affine endpoint center, the solver generated intermediate rows at
+
+```text
+0.00125, 0.0015, 0.00175
+```
+
+and wrote the augmented certificate skeleton to
+`two_interval_branch_certificate_top_split.json`.
+
+With those intermediate rows, the top slab is no longer the obstruction.  All
+four split subslabs close with the same light verifier setting
+`radius=0.0002,0.0002` and `eta,uv subdivisions=224,2`:
+
+```text
+slab=0.001:0.00125
+  PASS, worst_margin=1.408377e-04
+
+slab=0.00125:0.0015
+  PASS, worst_margin=1.506551e-04
+
+slab=0.0015:0.00175
+  PASS, worst_margin=1.585710e-04
+
+slab=0.00175:0.002
+  PASS, worst_margin=1.625447e-04
+```
+
+Combining this with the tuned lower slabs gives the current eight-slab
+diagnostic closure over the whole stored epsilon range:
+
+```text
+0.00005:0.0001     PASS, radius=0.0003,  eta=224
+0.0001:0.0002      PASS, radius=0.0003,  eta=224
+0.0002:0.0005      PASS, radius=0.00029, eta=1344
+0.0005:0.001       PASS, radius=0.0006,  eta=1344
+0.001:0.00125      PASS, radius=0.0002,  eta=224
+0.00125:0.0015     PASS, radius=0.0002,  eta=224
+0.0015:0.00175     PASS, radius=0.0002,  eta=224
+0.00175:0.002      PASS, radius=0.0002,  eta=224
+```
+
+The remote replay of these eight commands ended with:
+
+```text
+FULL TOP-SPLIT CHECK PASS failed 0
+```
+
+This changes the route status.  The previous top-slab failure was not evidence
+against the finite-gap branch; it was an artifact of using a center path that
+was too long for the current interval Krawczyk enclosure.  After splitting the
+continuation, the stored range up to epsilon \(2\times10^{-3}\) is
+diagnostically closed.  The remaining work is to promote this diagnostic
+certificate into a cleaner proof artifact: remove the sampled center
+correction, make the interval enclosure fully continuum-grade, and then extend
+or connect this epsilon range to the global lower/upper-bound argument.
