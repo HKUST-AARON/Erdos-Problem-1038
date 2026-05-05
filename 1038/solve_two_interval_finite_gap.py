@@ -1168,185 +1168,6 @@ def _combined_contact_minus_one_directional_derivative_acb_from_arb(
     return str(atom_part + continuous_part.real + tail_radius())
 
 
-def _combined_directional_derivative_residue_log_from_arb(
-    A,
-    alpha,
-    epsilon,
-    direction_A,
-    direction_alpha,
-    left_weight,
-    precision: int,
-) -> str:
-    """Residue-log box for ``left_weight*dU(alpha) + dU(-1)``.
-
-    This uses the full differentiated Cauchy transform
-
-        F_s(z) = R(z)/D(z) * (direction_A - (z + A) direction_alpha/(2(z-alpha)))
-
-    in the Joukowski coordinate.  It avoids splitting the derivative measure
-    into endpoint atoms plus a continuous density, which is exactly where the
-    eta-slab K2/tau interval check loses the leading cancellation.
-    """
-
-    from flint import arb, ctx
-
-    ctx.prec = precision
-    ell = arb(repr(X_LEFT)) + epsilon
-    r = arb(repr(X_RIGHT))
-    beta = arb(1) - epsilon
-    eta = epsilon.sqrt()
-    center = (alpha + beta) / 2
-    scale = (beta - alpha) / 4
-
-    def preimages(q):
-        y = (q - center) / scale
-        root = (y * y - 4).sqrt()
-        return ((y - root) / 2, (y + root) / 2)
-
-    def left_preimages(q):
-        y = (q - center) / scale
-        root = (y * y - 4).sqrt()
-        outer = (y - root) / 2
-        return (outer, 1 / outer)
-
-    def branch_value(rho):
-        return scale * (rho - 1 / rho)
-
-    sqrt_one_minus_alpha = (arb(1) - alpha).sqrt()
-    one_preimages = (
-        (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta),
-        (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta),
-    )
-    pole_data = (
-        (ell, (ell - r) * (ell - arb(1)), left_preimages(ell)),
-        (r, (r - ell) * (r - arb(1)), left_preimages(r)),
-        (arb(1), (arb(1) - ell) * (arb(1) - r), one_preimages),
-    )
-
-    def residue(q, q_derivative, rho):
-        return branch_value(rho) / q_derivative * (
-            direction_A - (q + A) * direction_alpha / (2 * (q - alpha))
-        )
-
-    def log_abs(value):
-        return abs(value).log()
-
-    def primitive(w):
-        total = arb(0)
-        for q, q_derivative, explicit_preimages in pole_data:
-            q_preimages = explicit_preimages if explicit_preimages is not None else preimages(q)
-            for rho in q_preimages:
-                total += residue(q, q_derivative, rho) * log_abs(w - rho)
-        return total
-
-    y_minus_one = (-arb(1) - center) / scale
-    w_minus_one = (y_minus_one - (y_minus_one * y_minus_one - 4).sqrt()) / 2
-    return str(-left_weight * primitive(-arb(1)) - primitive(w_minus_one))
-
-
-def _combined_directional_derivative_residue_log_divided_from_arb(
-    A,
-    alpha,
-    eta,
-    direction_A,
-    direction_alpha,
-    left_weight,
-    limit_A,
-    limit_alpha,
-    precision: int,
-) -> str:
-    """Eta-divided residue-log box for the rescaled K2 derivative.
-
-    Returns ``H_s(A, alpha, eta) / eta`` using the eta-divided form
-
-    where ``H_s = left_weight*dU(alpha)[s] + dU(-1)[s]`` and the direction
-    ``s`` is ``direction_A*dA + direction_alpha*dalpha`` at fixed eta.  This is
-    the quantity needed in the second row of the eta-slab DK check.
-    """
-
-    from flint import arb, ctx
-
-    ctx.prec = precision
-    epsilon = eta * eta
-    ell = arb(repr(X_LEFT)) + epsilon
-    ell0 = arb(repr(X_LEFT))
-    r = arb(repr(X_RIGHT))
-    beta = arb(1) - epsilon
-    beta0 = arb(1)
-    center = (alpha + beta) / 2
-    scale = (beta - alpha) / 4
-    center0 = (limit_alpha + beta0) / 2
-    scale0 = (beta0 - limit_alpha) / 4
-
-    def left_preimages(q, q_center, q_scale):
-        y = (q - q_center) / q_scale
-        root = (y * y - 4).sqrt()
-        outer = (y - root) / 2
-        return (outer, 1 / outer)
-
-    def branch_value(rho, q_scale):
-        return q_scale * (rho - 1 / rho)
-
-    def residue(q, q_derivative, rho, q_A, q_alpha, q_scale):
-        return branch_value(rho, q_scale) / q_derivative * (
-            direction_A - (q + q_A) * direction_alpha / (2 * (q - q_alpha))
-        )
-
-    def log_abs(value):
-        return abs(value).log()
-
-    def divided_smooth_term(q, q0, q_derivative, q0_derivative, x, x0):
-        total = arb(0)
-        current_preimages = left_preimages(q, center, scale)
-        limit_preimages = left_preimages(q0, center0, scale0)
-        for rho, rho0 in zip(current_preimages, limit_preimages):
-            a = residue(q, q_derivative, rho, A, alpha, scale)
-            a0 = residue(q0, q0_derivative, rho0, limit_A, limit_alpha, scale0)
-            b = x - rho
-            b0 = x0 - rho0
-            total += ((a - a0) / eta) * log_abs(b0)
-            total += a * log_abs(b / b0) / eta
-        return total
-
-    def endpoint_pair_divided(x):
-        sqrt_one_minus_alpha = (arb(1) - alpha).sqrt()
-        rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
-        rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
-        coefficient = sqrt_one_minus_alpha / ((arb(1) - ell) * (arb(1) - r)) * (
-            direction_A - (arb(1) + A) * direction_alpha / (2 * (arb(1) - alpha))
-        )
-        return coefficient * log_abs((x - rho_plus) / (x - rho_minus))
-
-    ell_derivative = (ell - r) * (ell - arb(1))
-    ell0_derivative = (ell0 - r) * (ell0 - arb(1))
-    r_derivative = (r - ell) * (r - arb(1))
-    r0_derivative = (r - ell0) * (r - arb(1))
-
-    x_alpha = -arb(1)
-    x_alpha0 = -arb(1)
-    x_minus_one = left_preimages(-arb(1), center, scale)[0]
-    x_minus_one0 = left_preimages(-arb(1), center0, scale0)[0]
-
-    def primitive_divided(x, x0):
-        return (
-            divided_smooth_term(ell, ell0, ell_derivative, ell0_derivative, x, x0)
-            + divided_smooth_term(r, r, r_derivative, r0_derivative, x, x0)
-            + endpoint_pair_divided(x)
-        )
-
-    def primitive_limit(x0):
-        total = arb(0)
-        for q0, q0_derivative in ((ell0, ell0_derivative), (r, r0_derivative)):
-            for rho0 in left_preimages(q0, center0, scale0):
-                a0 = residue(q0, q0_derivative, rho0, limit_A, limit_alpha, scale0)
-                total += a0 * log_abs(x0 - rho0)
-        return total
-
-    divided = -left_weight * primitive_divided(x_alpha, x_alpha0) - primitive_divided(x_minus_one, x_minus_one0)
-    limit_value = -left_weight * primitive_limit(x_alpha0) - primitive_limit(x_minus_one0)
-    return str(divided + limit_value / eta)
-
-
 def _combined_directional_derivative_residue_log_pair_divided_from_arb(
     A,
     alpha,
@@ -1360,13 +1181,11 @@ def _combined_directional_derivative_residue_log_pair_divided_from_arb(
     base_delta_A=None,
     base_delta_alpha=None,
 ) -> str:
-    """Eta-divided residue-log prototype with paired ell/r sheets.
+    """Eta-divided residue-log derivative with paired ell/r sheets.
 
-    This is a stricter experiment than
-    ``_combined_directional_derivative_residue_log_divided_from_arb``: the two
-    large smooth-pole terms on each Joukowski sheet are paired before interval
-    enclosure, so the cancellation between the ell and r residues is kept
-    inside the same expression.
+    The two large smooth-pole terms on each Joukowski sheet are paired before
+    interval enclosure, so the cancellation between the ell and r residues is
+    kept inside the same expression.
     """
 
     from flint import arb, ctx
@@ -1677,6 +1496,11 @@ def _potential_residue_log_value_divided_from_arb(
     precision: int,
     base_delta_A=None,
     base_delta_alpha=None,
+    base_delta_A_limit=None,
+    base_delta_A_slope=None,
+    base_delta_alpha_limit=None,
+    base_delta_alpha_slope=None,
+    eta_variation_mid=None,
 ) -> str:
     """First eta-divided residue-log value primitive.
 
@@ -1689,6 +1513,116 @@ def _potential_residue_log_value_divided_from_arb(
     ctx.prec = precision
     one = arb(1)
     zero = arb(0)
+    eta_variation_delta = None
+
+    class EtaDiff:
+        def __init__(self, value, mid, divided):
+            self.value = value
+            self.mid = mid
+            self.divided = divided
+
+        @staticmethod
+        def const(value):
+            q_value = value if isinstance(value, arb) else arb(value)
+            return EtaDiff(q_value, q_value, zero)
+
+        @staticmethod
+        def affine(value, mid, divided):
+            return EtaDiff(value, mid, divided)
+
+        @staticmethod
+        def coerce(value):
+            return value if isinstance(value, EtaDiff) else EtaDiff.const(value)
+
+        def variation(self):
+            return eta_variation_delta * self.divided
+
+        def lower(self):
+            return self.value.lower()
+
+        def upper(self):
+            return self.value.upper()
+
+        def __abs__(self):
+            return abs(self.value)
+
+        def __str__(self):
+            return str(self.value)
+
+        def __add__(self, other):
+            other = EtaDiff.coerce(other)
+            return EtaDiff(self.value + other.value, self.mid + other.mid, self.divided + other.divided)
+
+        __radd__ = __add__
+
+        def __neg__(self):
+            return EtaDiff(-self.value, -self.mid, -self.divided)
+
+        def __sub__(self, other):
+            return self + (-EtaDiff.coerce(other))
+
+        def __rsub__(self, other):
+            return EtaDiff.coerce(other) + (-self)
+
+        def __mul__(self, other):
+            other = EtaDiff.coerce(other)
+            return EtaDiff(
+                self.value * other.value,
+                self.mid * other.mid,
+                self.divided * other.mid
+                + self.mid * other.divided
+                + eta_variation_delta * self.divided * other.divided,
+            )
+
+        __rmul__ = __mul__
+
+        def inv(self):
+            return EtaDiff(one / self.value, one / self.mid, -self.divided / (self.value * self.mid))
+
+        def __truediv__(self, other):
+            return self * EtaDiff.coerce(other).inv()
+
+        def __rtruediv__(self, other):
+            return EtaDiff.coerce(other) * self.inv()
+
+        def sqrt(self):
+            value = self.value.sqrt()
+            mid = self.mid.sqrt()
+            return EtaDiff(value, mid, self.divided / (value + mid))
+
+        def log_abs(self):
+            z = eta_variation_delta * self.divided / self.mid
+            if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
+                return EtaDiff(
+                    abs(self.value).log(),
+                    abs(self.mid).log(),
+                    self.divided / self.mid * log_one_plus_over_z(z),
+                )
+            return EtaDiff(abs(self.value).log(), abs(self.mid).log(), abs(self.value / self.mid).log() / eta_variation_delta)
+
+    if eta_variation_mid is not None:
+        eta_mid = eta_variation_mid if isinstance(eta_variation_mid, arb) else arb(eta_variation_mid)
+        eta_variation_delta = eta - eta_mid
+        eta = EtaDiff.affine(eta, eta_mid, one)
+        if (
+            base_delta_A_limit is not None
+            and base_delta_A_slope is not None
+            and base_delta_alpha_limit is not None
+            and base_delta_alpha_slope is not None
+        ):
+            base_delta_A = EtaDiff.affine(
+                base_delta_A,
+                base_delta_A_limit + eta_mid * base_delta_A_slope,
+                base_delta_A_slope,
+            )
+            base_delta_alpha = EtaDiff.affine(
+                base_delta_alpha,
+                base_delta_alpha_limit + eta_mid * base_delta_alpha_slope,
+                base_delta_alpha_slope,
+            )
+            A = limit_A + eta * base_delta_A
+            alpha = limit_alpha + eta * base_delta_alpha
+
     epsilon = eta * eta
     ell = arb(repr(X_LEFT)) + epsilon
     ell0 = arb(repr(X_LEFT))
@@ -1705,6 +1639,8 @@ def _potential_residue_log_value_divided_from_arb(
     scale_div = -(tau + eta) / 4
 
     def log_abs(value):
+        if isinstance(value, EtaDiff):
+            return value.log_abs()
         return abs(value).log()
 
     def log_one_plus_over_z(z):
@@ -1848,49 +1784,45 @@ def _potential_residue_log_value_divided_from_arb(
     a_minus = (one + A) * branch_value(rho_minus, scale) / one_derivative
     total -= (a_minus / eta) * log_abs((w_x - rho_minus) / (w_x - rho_plus))
 
+    if eta_variation_mid is not None and isinstance(total, EtaDiff):
+        return str(total.variation())
     return str(total)
 
 
-def _rescaled_residue_log_divided_values_from_arb(
+def _potential_residue_log_value_divided_eta_variation_from_arb(
     A,
     alpha,
     eta,
-    left_weight,
+    eta_mid,
     limit_A,
     limit_alpha,
+    x_kind: str,
     precision: int,
-    base_delta_A=None,
-    base_delta_alpha=None,
-) -> tuple[str, str]:
-    """Return first-order divided K1 and provisional K2 boxes."""
+    base_delta_A,
+    base_delta_alpha,
+    base_delta_A_limit=None,
+    base_delta_A_slope=None,
+    base_delta_alpha_limit=None,
+    base_delta_alpha_slope=None,
+) -> str:
+    """Enclose the eta variation of the first-divided residue-log value kernel."""
 
-    from flint import arb
-
-    U_alpha_div = arb(
-        _potential_residue_log_value_divided_from_arb(
-            A,
-            alpha,
-            eta,
-            limit_A,
-            limit_alpha,
-            "contact",
-            precision,
-            base_delta_A,
-            base_delta_alpha,
-        )
-    )
-    K2 = _combined_residue_log_value_second_divided_from_arb(
+    return _potential_residue_log_value_divided_from_arb(
         A,
         alpha,
         eta,
-        left_weight,
         limit_A,
         limit_alpha,
+        x_kind,
         precision,
         base_delta_A,
         base_delta_alpha,
+        base_delta_A_limit=base_delta_A_limit,
+        base_delta_A_slope=base_delta_A_slope,
+        base_delta_alpha_limit=base_delta_alpha_limit,
+        base_delta_alpha_slope=base_delta_alpha_slope,
+        eta_variation_mid=eta_mid,
     )
-    return str(U_alpha_div), K2
 
 
 def _combined_residue_log_value_second_divided_from_arb(
@@ -1904,6 +1836,11 @@ def _combined_residue_log_value_second_divided_from_arb(
     base_delta_A=None,
     base_delta_alpha=None,
     debug_terms=None,
+    base_delta_A_limit=None,
+    base_delta_A_slope=None,
+    base_delta_alpha_limit=None,
+    base_delta_alpha_slope=None,
+    eta_variation_mid=None,
 ) -> str:
     """Term-paired box for ``(left_weight*U(alpha)+U(-1))/eta^2``.
 
@@ -1917,6 +1854,140 @@ def _combined_residue_log_value_second_divided_from_arb(
     ctx.prec = precision
     one = arb(1)
     zero = arb(0)
+    eta_variation_delta = None
+
+    class EtaDiff:
+        """Centered eta divided difference for the already Div2-regularized K2 algebra."""
+
+        def __init__(self, value, mid, divided):
+            self.value = value
+            self.mid = mid
+            self.divided = divided
+
+        @staticmethod
+        def const(value):
+            q_value = value if isinstance(value, arb) else arb(value)
+            return EtaDiff(q_value, q_value, zero)
+
+        @staticmethod
+        def affine(value, mid, divided):
+            return EtaDiff(value, mid, divided)
+
+        @staticmethod
+        def coerce(value):
+            return value if isinstance(value, EtaDiff) else EtaDiff.const(value)
+
+        def variation(self):
+            return eta_variation_delta * self.divided
+
+        def lower(self):
+            return self.value.lower()
+
+        def upper(self):
+            return self.value.upper()
+
+        def is_finite(self):
+            return self.value.is_finite() and self.mid.is_finite() and self.divided.is_finite()
+
+        def is_zero(self):
+            return self.value.is_zero() and self.mid.is_zero() and self.divided.is_zero()
+
+        def intersection(self, other):
+            other = EtaDiff.coerce(other)
+            return EtaDiff(
+                self.value.intersection(other.value),
+                self.mid.intersection(other.mid),
+                self.divided.intersection(other.divided),
+            )
+
+        def __abs__(self):
+            return abs(self.value)
+
+        def __str__(self):
+            return str(self.value)
+
+        def __add__(self, other):
+            other = EtaDiff.coerce(other)
+            return EtaDiff(self.value + other.value, self.mid + other.mid, self.divided + other.divided)
+
+        __radd__ = __add__
+
+        def __neg__(self):
+            return EtaDiff(-self.value, -self.mid, -self.divided)
+
+        def __sub__(self, other):
+            return self + (-EtaDiff.coerce(other))
+
+        def __rsub__(self, other):
+            return EtaDiff.coerce(other) + (-self)
+
+        def __mul__(self, other):
+            other = EtaDiff.coerce(other)
+            return EtaDiff(
+                self.value * other.value,
+                self.mid * other.mid,
+                self.divided * other.mid
+                + self.mid * other.divided
+                + eta_variation_delta * self.divided * other.divided,
+            )
+
+        __rmul__ = __mul__
+
+        def inv(self):
+            return EtaDiff(
+                one / self.value,
+                one / self.mid,
+                -self.divided / (self.value * self.mid),
+            )
+
+        def __truediv__(self, other):
+            return self * EtaDiff.coerce(other).inv()
+
+        def __rtruediv__(self, other):
+            return EtaDiff.coerce(other) * self.inv()
+
+        def sqrt(self):
+            value = self.value.sqrt()
+            mid = self.mid.sqrt()
+            return EtaDiff(value, mid, self.divided / (value + mid))
+
+        def log_abs(self):
+            if float(self.value.lower()) <= 0.0 <= float(self.value.upper()):
+                raise ZeroDivisionError(f"eta divided log crosses zero: {self.value}")
+            if float(self.mid.lower()) <= 0.0 <= float(self.mid.upper()):
+                raise ZeroDivisionError(f"eta divided log midpoint crosses zero: {self.mid}")
+            z = eta_variation_delta * self.divided / self.mid
+            if float(abs(z).upper()) >= 0.25 or float((one + z).lower()) <= 0.0:
+                raise ZeroDivisionError(f"eta divided log series too wide: {z}")
+            return EtaDiff(
+                abs(self.value).log(),
+                abs(self.mid).log(),
+                self.divided / self.mid * log_one_plus_over_z(z),
+            )
+
+    if eta_variation_mid is not None:
+        eta_mid = eta_variation_mid if isinstance(eta_variation_mid, arb) else arb(eta_variation_mid)
+        eta_variation_delta = eta - eta_mid
+        eta = EtaDiff.affine(eta, eta_mid, one)
+        if (
+            base_delta_A_limit is not None
+            and base_delta_A_slope is not None
+            and base_delta_alpha_limit is not None
+            and base_delta_alpha_slope is not None
+        ):
+            base_delta_A = EtaDiff.affine(
+                base_delta_A,
+                base_delta_A_limit + eta_mid * base_delta_A_slope,
+                base_delta_A_slope,
+            )
+            base_delta_alpha = EtaDiff.affine(
+                base_delta_alpha,
+                base_delta_alpha_limit + eta_mid * base_delta_alpha_slope,
+                base_delta_alpha_slope,
+            )
+            A = limit_A + eta * base_delta_A
+            alpha = limit_alpha + eta * base_delta_alpha
+
     epsilon = eta * eta
     ell = arb(repr(X_LEFT)) + epsilon
     ell0 = arb(repr(X_LEFT))
@@ -1933,6 +2004,8 @@ def _combined_residue_log_value_second_divided_from_arb(
     scale_div = -(tau + eta) / 4
 
     def log_abs(value):
+        if isinstance(value, EtaDiff):
+            return value.log_abs()
         return abs(value).log()
 
     def log_one_plus_over_z(z):
@@ -1982,11 +2055,18 @@ def _combined_residue_log_value_second_divided_from_arb(
 
     def append_debug_value(label, value):
         if debug_terms is not None:
-            debug_terms.append((label, str(value / eta)))
+            debug_value = value / eta
+            if isinstance(debug_value, EtaDiff):
+                debug_terms.append((label, str(debug_value.variation())))
+            else:
+                debug_terms.append((label, str(debug_value)))
 
     def append_debug_term(label, value):
         if debug_terms is not None:
-            debug_terms.append((label, str(value)))
+            if isinstance(value, EtaDiff):
+                debug_terms.append((label, str(value.variation())))
+            else:
+                debug_terms.append((label, str(value)))
 
     def paired_product_log_abs_divided(left_data, right_data, debug_label=None):
         (
@@ -2455,6 +2535,10 @@ def _combined_residue_log_value_second_divided_from_arb(
             return Div2(base + eta * divided, base, divided, divided, zero)
 
         @staticmethod
+        def first_divided_affine(base, divided_value, divided_limit, divided_slope):
+            return Div2(base + eta * divided_value, base, divided_value, divided_limit, divided_slope)
+
+        @staticmethod
         def eta_var():
             return Div2(eta, zero, one, one, zero)
 
@@ -2570,6 +2654,11 @@ def _combined_residue_log_value_second_divided_from_arb(
         log_div, log_limit_div, log_second_div = log_abs_divided_parts(data)
         return Div2(log_div, log_limit_div, log_second_div, log_second_div, zero)
 
+    def parameter_as_div2(base, divided_value, divided_limit, divided_slope):
+        if divided_limit is None or divided_slope is None:
+            return Div2.affine(base, divided_value)
+        return Div2.first_divided_affine(base, divided_value, divided_limit, divided_slope)
+
     def paired_product_log_abs_second_divided(left_data, right_data):
         left_coefficient, left_value = left_data
         right_coefficient, right_value = right_data
@@ -2628,8 +2717,8 @@ def _combined_residue_log_value_second_divided_from_arb(
         q_ell = Div2.const(repr(X_LEFT)) + q_epsilon
         q_r = Div2.const(repr(X_RIGHT))
         q_beta = Div2.const(1) - q_epsilon
-        q_alpha = Div2.affine(limit_alpha, tau)
-        q_A = Div2.affine(limit_A, A_div)
+        q_alpha = parameter_as_div2(limit_alpha, tau, base_delta_alpha_limit, base_delta_alpha_slope)
+        q_A = parameter_as_div2(limit_A, A_div, base_delta_A_limit, base_delta_A_slope)
         q_center = (q_alpha + q_beta) / 2
         q_scale = (q_beta - q_alpha) / 4
         q_limits = {item["label"]: arb(0) for item in contexts}
@@ -2736,8 +2825,8 @@ def _combined_residue_log_value_second_divided_from_arb(
         q_ell = Div2.const(repr(X_LEFT)) + q_epsilon
         q_r = Div2.const(repr(X_RIGHT))
         q_beta = Div2.const(1) - q_epsilon
-        q_alpha = Div2.affine(limit_alpha, tau)
-        q_A = Div2.affine(limit_A, A_div)
+        q_alpha = parameter_as_div2(limit_alpha, tau, base_delta_alpha_limit, base_delta_alpha_slope)
+        q_A = parameter_as_div2(limit_A, A_div, base_delta_A_limit, base_delta_A_slope)
         q_center = (q_alpha + q_beta) / 2
         q_scale = (q_beta - q_alpha) / 4
 
@@ -2838,11 +2927,12 @@ def _combined_residue_log_value_second_divided_from_arb(
         ) = limit_layer_joint_second_divided()
         analytic_limit_layer_value = analytic_limit_layer_limit + eta * analytic_limit_layer_second
         use_analytic_limit_layer = analytic_limit_layer_valid
-        # An interval merely overlapping zero is not an identity proof; require
-        # an exact zero enclosure before removing the first-divided layer.
-        if not analytic_limit_layer_limit.is_finite() or not analytic_limit_layer_limit.is_zero():
+        eta_stays_positive = float(eta.lower()) > 0.0
+        if not analytic_limit_layer_limit.is_finite():
             use_analytic_limit_layer = False
         if not analytic_limit_layer_second.is_finite() or not analytic_limit_layer_value.is_finite():
+            use_analytic_limit_layer = False
+        if not analytic_limit_layer_limit.is_zero() and not eta_stays_positive:
             use_analytic_limit_layer = False
         if use_analytic_limit_layer:
             try:
@@ -2855,7 +2945,14 @@ def _combined_residue_log_value_second_divided_from_arb(
             append_debug_term(f"limit_layer_joint_identity_context:{label}", context_limit)
 
         if use_analytic_limit_layer:
-            add_direct_second_term("limit_layer_joint_analytic_second:combined", analytic_limit_layer_second)
+            if analytic_limit_layer_limit.is_zero():
+                add_direct_second_term("limit_layer_joint_analytic_second:combined", analytic_limit_layer_second)
+            else:
+                add_direct_second_term(
+                    "limit_layer_joint_analytic_limit_over_eta:combined",
+                    analytic_limit_layer_limit / eta,
+                )
+                add_direct_second_term("limit_layer_joint_analytic_second:combined", analytic_limit_layer_second)
         else:
             if not analytic_limit_layer_valid:
                 append_debug_term("limit_layer_joint_identity_blocker:analytic_equivalence", arb("[+/- 0]"))
@@ -2899,7 +2996,50 @@ def _combined_residue_log_value_second_divided_from_arb(
                 )
         flush_limit_layer_terms()
 
-    return str(combined_first_divided / eta + combined_second_divided_direct)
+    result = combined_first_divided / eta + combined_second_divided_direct
+    if eta_variation_mid is not None:
+        if debug_terms is not None and isinstance(result, EtaDiff):
+            append_debug_term("eta_variation_kernel:K2_total", result)
+        return str(result.variation())
+    return str(result)
+
+
+def _combined_residue_log_value_second_divided_eta_variation_from_arb(
+    A,
+    alpha,
+    eta,
+    eta_mid,
+    left_weight,
+    limit_A,
+    limit_alpha,
+    precision: int,
+    base_delta_A,
+    base_delta_alpha,
+    debug_terms=None,
+    base_delta_A_limit=None,
+    base_delta_A_slope=None,
+    base_delta_alpha_limit=None,
+    base_delta_alpha_slope=None,
+) -> str:
+    """Enclose ``K2(eta_box)-K2(eta_mid)`` using the grouped second-divided K2 algebra."""
+
+    return _combined_residue_log_value_second_divided_from_arb(
+        A,
+        alpha,
+        eta,
+        left_weight,
+        limit_A,
+        limit_alpha,
+        precision,
+        base_delta_A,
+        base_delta_alpha,
+        debug_terms,
+        base_delta_A_limit=base_delta_A_limit,
+        base_delta_A_slope=base_delta_A_slope,
+        base_delta_alpha_limit=base_delta_alpha_limit,
+        base_delta_alpha_slope=base_delta_alpha_slope,
+        eta_variation_mid=eta_mid,
+    )
 
 
 def contact_derivative_box_acb(

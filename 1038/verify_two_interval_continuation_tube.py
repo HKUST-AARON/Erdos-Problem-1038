@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import json
 import math
 import sys
 from dataclasses import dataclass
@@ -58,6 +57,17 @@ class TubeConfig:
     uv_subdivisions: int
 
 
+@dataclass(frozen=True)
+class BoundaryBox:
+    u_low: float
+    u_high: float
+    tau_low: float
+    tau_high: float
+    source: str
+    increasing_u: bool
+    increasing_tau: bool
+
+
 def parse_tube_config(raw: str) -> TubeConfig:
     # Format: eps_low:eps_high:rB,rTau:eta,uv
     parts = raw.split(":")
@@ -67,6 +77,32 @@ def parse_tube_config(raw: str) -> TubeConfig:
     radii = np.asarray(v.parse_positive_pair(parts[2], "rB,rTau"), dtype=float)
     eta_subdivisions, uv_subdivisions = v.parse_subdivisions(parts[3])
     return TubeConfig(slab=slab, radii=radii, eta_subdivisions=eta_subdivisions, uv_subdivisions=uv_subdivisions)
+
+
+def parse_index_slice(raw: str) -> tuple[int, int]:
+    parts = raw.split(":")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError("expected start:end")
+    try:
+        start = int(parts[0])
+        end = int(parts[1])
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("slice endpoints must be integers") from exc
+    if start < 0 or end <= start:
+        raise argparse.ArgumentTypeError("expected 0 <= start < end")
+    return start, end
+
+
+def validate_index_slice(
+    eta_index_slice: tuple[int, int] | None,
+    eta_subdivisions: int,
+    context: str,
+) -> None:
+    if eta_index_slice is None:
+        return
+    start, end = eta_index_slice
+    if end > eta_subdivisions:
+        v.fail(f"{context} slice {eta_index_slice}: end exceeds eta subdivisions {eta_subdivisions}")
 
 
 def load_payload(path: Path) -> dict[str, Any]:
@@ -162,6 +198,316 @@ def sampled_boundary_degree(
     return worst_abs_degree, min_norm, max_jump
 
 
+def residue_log_affine_value_box(
+    solver: Any,
+    arb: Any,
+    eta_interval_low: float,
+    eta_interval_high: float,
+    u_low: float,
+    u_high: float,
+    tau_low: float,
+    tau_high: float,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    b_slope: float,
+    b_intercept: float,
+    tau_slope: float,
+    tau_intercept: float,
+    debug_terms: int = 0,
+) -> tuple[Any, Any, list[tuple[str, str]]]:
+    """Proof-grade eta value box plus affine u/tau derivative inflation."""
+
+    u_mid = (u_low + u_high) / 2.0
+    tau_mid = (tau_low + tau_high) / 2.0
+    arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+    arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+    arb_A_eta, arb_alpha_eta, base_delta_A_eta, base_delta_alpha_eta = v.arb_affine_parameters(
+        solver,
+        arb,
+        arb_eta,
+        u_mid,
+        u_mid,
+        tau_mid,
+        tau_mid,
+        limit_solution,
+        null_slope,
+        b_slope,
+        b_intercept,
+        tau_slope,
+        tau_intercept,
+    )
+    base_delta_alpha_limit = arb(repr(float(tau_intercept + tau_mid)))
+    base_delta_alpha_slope = arb(repr(float(tau_slope)))
+    base_delta_A_limit = arb(
+        repr(float(null_slope * (tau_intercept + tau_mid) + b_intercept + u_mid))
+    )
+    base_delta_A_slope = arb(repr(float(null_slope * tau_slope + b_slope)))
+    k2_debug_terms: list[tuple[str, str]] = []
+    K1 = arb(
+        solver._potential_residue_log_value_divided_from_arb(
+            arb_A_eta,
+            arb_alpha_eta,
+            arb_eta,
+            arb(repr(float(limit_solution.A))),
+            arb(repr(float(limit_solution.alpha))),
+            "contact",
+            192,
+            base_delta_A_eta,
+            base_delta_alpha_eta,
+        )
+    )
+    K2 = arb(
+        solver._combined_residue_log_value_second_divided_from_arb(
+            arb_A_eta,
+            arb_alpha_eta,
+            arb_eta,
+            arb(repr(float(left_weight))),
+            arb(repr(float(limit_solution.A))),
+            arb(repr(float(limit_solution.alpha))),
+            192,
+            base_delta_A_eta,
+            base_delta_alpha_eta,
+            k2_debug_terms if debug_terms > 0 else None,
+            base_delta_A_limit=base_delta_A_limit,
+            base_delta_A_slope=base_delta_A_slope,
+            base_delta_alpha_limit=base_delta_alpha_limit,
+            base_delta_alpha_slope=base_delta_alpha_slope,
+        )
+    )
+
+    arb_A_full, arb_alpha_full, base_delta_A_full, base_delta_alpha_full = v.arb_affine_parameters(
+        solver,
+        arb,
+        arb_eta,
+        u_low,
+        u_high,
+        tau_low,
+        tau_high,
+        limit_solution,
+        null_slope,
+        b_slope,
+        b_intercept,
+        tau_slope,
+        tau_intercept,
+    )
+    columns = []
+    for direction_A, direction_alpha in ((arb(1), arb(0)), (arb(repr(float(null_slope))), arb(1))):
+        dG1 = arb(
+            solver._contact_directional_derivative_acb_from_arb(
+                arb_A_full, arb_alpha_full, arb_epsilon, direction_A, direction_alpha, 192
+            )
+        )
+        dH_over_eta = arb(
+            solver._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                arb_A_full,
+                arb_alpha_full,
+                arb_eta,
+                direction_A,
+                direction_alpha,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                192,
+                base_delta_A_full,
+                base_delta_alpha_full,
+            )
+        )
+        columns.append([dG1, dH_over_eta])
+    DK = [[columns[0][0], columns[1][0]], [columns[0][1], columns[1][1]]]
+    u_radius = max(abs(u_mid - u_low), abs(u_high - u_mid))
+    tau_radius = max(abs(tau_mid - tau_low), abs(tau_high - tau_mid))
+    values = []
+    for row_idx, value in enumerate((K1, K2)):
+        component_radius = (
+            v.arb_abs_upper("residue-log-affine DK", DK[row_idx][0]) * u_radius
+            + v.arb_abs_upper("residue-log-affine DK", DK[row_idx][1]) * tau_radius
+        )
+        values.append(value + arb(f"[+/- {component_radius!r}]"))
+    return values[0], values[1], k2_debug_terms
+
+
+def residue_log_mv_value_box(
+    solver: Any,
+    arb: Any,
+    eta_interval_low: float,
+    eta_interval_high: float,
+    u_low: float,
+    u_high: float,
+    tau_low: float,
+    tau_high: float,
+    low_row: Any,
+    high_row: Any,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    b_slope: float,
+    b_intercept: float,
+    tau_slope: float,
+    tau_intercept: float,
+    debug_terms: int = 0,
+) -> tuple[Any, Any, list[tuple[str, str]]]:
+    """Midpoint residue-log value plus Arb mean-value inflation."""
+
+    eta_mid = (eta_interval_low + eta_interval_high) / 2.0
+    u_mid = (u_low + u_high) / 2.0
+    tau_mid_offset = (tau_low + tau_high) / 2.0
+    center_B, center_tau = v.center_at(eta_mid, low_row, high_row)
+    B_mid = center_B + u_mid
+    tau_mid = center_tau + tau_mid_offset
+    A_mid = limit_solution.A + eta_mid * (null_slope * tau_mid + B_mid)
+    alpha_mid = limit_solution.alpha + eta_mid * tau_mid
+
+    K1_mid_raw, K2_mid_raw = solver._rescaled_residue_log_values_from_arb(
+        arb(repr(float(A_mid))),
+        arb(repr(float(alpha_mid))),
+        arb(repr(float(eta_mid))),
+        arb(repr(float(left_weight))),
+        192,
+    )
+    K_mid = [arb(K1_mid_raw), arb(K2_mid_raw)]
+
+    arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+    arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+    arb_A_full, arb_alpha_full, base_delta_A_full, base_delta_alpha_full = v.arb_affine_parameters(
+        solver,
+        arb,
+        arb_eta,
+        u_low,
+        u_high,
+        tau_low,
+        tau_high,
+        limit_solution,
+        null_slope,
+        b_slope,
+        b_intercept,
+        tau_slope,
+        tau_intercept,
+    )
+    eta_midpoint_A, eta_midpoint_alpha, eta_midpoint_delta_A, eta_midpoint_delta_alpha = v.arb_affine_parameters(
+        solver,
+        arb,
+        arb_eta,
+        u_mid,
+        u_mid,
+        tau_mid_offset,
+        tau_mid_offset,
+        limit_solution,
+        null_slope,
+        b_slope,
+        b_intercept,
+        tau_slope,
+        tau_intercept,
+    )
+    base_delta_alpha_limit = arb(repr(float(tau_intercept + tau_mid_offset)))
+    base_delta_alpha_slope = arb(repr(float(tau_slope)))
+    base_delta_A_limit = arb(
+        repr(float(null_slope * (tau_intercept + tau_mid_offset) + b_intercept + u_mid))
+    )
+    base_delta_A_slope = arb(repr(float(null_slope * tau_slope + b_slope)))
+    eta_kernel_debug_terms: list[tuple[str, str]] = []
+
+    def eta_value_inflation(row_idx: int) -> float:
+        if row_idx == 0:
+            eta_variation = arb(
+                solver._potential_residue_log_value_divided_eta_variation_from_arb(
+                    eta_midpoint_A,
+                    eta_midpoint_alpha,
+                    arb_eta,
+                    arb(repr(float(eta_mid))),
+                    arb(repr(float(limit_solution.A))),
+                    arb(repr(float(limit_solution.alpha))),
+                    "contact",
+                    192,
+                    eta_midpoint_delta_A,
+                    eta_midpoint_delta_alpha,
+                    base_delta_A_limit=base_delta_A_limit,
+                    base_delta_A_slope=base_delta_A_slope,
+                    base_delta_alpha_limit=base_delta_alpha_limit,
+                    base_delta_alpha_slope=base_delta_alpha_slope,
+                )
+            )
+            return v.arb_abs_upper("residue-log-mv K1 eta variation kernel", eta_variation)
+
+        if row_idx == 1:
+            raw_eta_kernel_debug_terms: list[tuple[str, str]] = []
+            eta_variation = arb(
+                solver._combined_residue_log_value_second_divided_eta_variation_from_arb(
+                    eta_midpoint_A,
+                    eta_midpoint_alpha,
+                    arb_eta,
+                    arb(repr(float(eta_mid))),
+                    arb(repr(float(left_weight))),
+                    arb(repr(float(limit_solution.A))),
+                    arb(repr(float(limit_solution.alpha))),
+                    192,
+                    eta_midpoint_delta_A,
+                    eta_midpoint_delta_alpha,
+                    raw_eta_kernel_debug_terms if debug_terms > 0 else None,
+                    base_delta_A_limit=base_delta_A_limit,
+                    base_delta_A_slope=base_delta_A_slope,
+                    base_delta_alpha_limit=base_delta_alpha_limit,
+                    base_delta_alpha_slope=base_delta_alpha_slope,
+                )
+            )
+            eta_kernel_debug_terms.extend(
+                (label, raw)
+                for label, raw in raw_eta_kernel_debug_terms
+                if label.startswith("eta_variation_kernel:")
+            )
+            return v.arb_abs_upper("residue-log-mv K2 eta variation kernel", eta_variation)
+
+        raise AssertionError(f"unexpected residue-log component row {row_idx}")
+
+    columns = []
+    for direction_A, direction_alpha in ((arb(1), arb(0)), (arb(repr(float(null_slope))), arb(1))):
+        dG1 = arb(
+            solver._contact_directional_derivative_acb_from_arb(
+                arb_A_full, arb_alpha_full, arb_epsilon, direction_A, direction_alpha, 192
+            )
+        )
+        dH_over_eta = arb(
+            solver._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                arb_A_full,
+                arb_alpha_full,
+                arb_eta,
+                direction_A,
+                direction_alpha,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                192,
+                base_delta_A_full,
+                base_delta_alpha_full,
+            )
+        )
+        columns.append([dG1, dH_over_eta])
+    DK = [[columns[0][0], columns[1][0]], [columns[0][1], columns[1][1]]]
+
+    u_radius = max(abs(u_mid - u_low), abs(u_high - u_mid))
+    tau_radius = max(abs(tau_mid_offset - tau_low), abs(tau_high - tau_mid_offset))
+    debug_inflation: list[tuple[str, str]] = []
+    values = []
+    for row_idx, value in enumerate(K_mid):
+        eta_inflation = eta_value_inflation(row_idx)
+        u_inflation = v.arb_abs_upper("residue-log-mv u derivative", DK[row_idx][0]) * u_radius
+        tau_inflation = v.arb_abs_upper("residue-log-mv tau derivative", DK[row_idx][1]) * tau_radius
+        component_radius = eta_inflation + u_inflation + tau_inflation
+        if debug_terms > 0:
+            row_label = f"K{row_idx + 1}"
+            debug_inflation.extend(
+                [
+                    (f"{row_label}_eta_inflation", str(arb(f"[+/- {eta_inflation!r}]"))),
+                    (f"{row_label}_u_inflation", str(arb(f"[+/- {u_inflation!r}]"))),
+                    (f"{row_label}_tau_inflation", str(arb(f"[+/- {tau_inflation!r}]"))),
+                ]
+            )
+            if row_idx == 1:
+                debug_inflation.extend(eta_kernel_debug_terms)
+        values.append(value + arb(f"[+/- {component_radius!r}]"))
+    return values[0], values[1], debug_inflation
+
+
 def interval_boundary_exclusion(
     low_row: Any,
     high_row: Any,
@@ -173,17 +519,18 @@ def interval_boundary_exclusion(
     edge_subdivisions: int,
     value_kernel: str,
     debug_terms: int = 0,
-) -> tuple[float, str]:
+) -> tuple[str, float, str]:
     """Check the interval precondition 0 notin K(boundary tube boxes)."""
 
     if eta_subdivisions <= 0 or edge_subdivisions <= 0:
-        return float("inf"), "disabled"
+        return "disabled", float("inf"), "disabled"
     from flint import arb
 
     solver = v.load_solver()
     eta_low = low_row.epsilon ** 0.5
     eta_high = high_row.epsilon ** 0.5
     b_slope, b_intercept, tau_slope, tau_intercept = v.affine_coefficients(low_row, high_row)
+    proof_status = "diagnostic-only" if value_kernel == "sampled-lipschitz" else "proof"
     worst_separation = float("inf")
     worst_source = "none"
 
@@ -393,6 +740,46 @@ def interval_boundary_exclusion(
             )
             K1 = arb(K1_raw)
             K2 = arb(K2_raw)
+        elif value_kernel == "residue-log-affine":
+            K1, K2, k2_debug_terms = residue_log_affine_value_box(
+                solver,
+                arb,
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+                limit_solution,
+                left_weight,
+                null_slope,
+                b_slope,
+                b_intercept,
+                tau_slope,
+                tau_intercept,
+                debug_terms,
+            )
+        elif value_kernel == "residue-log-mv":
+            K1, K2, k2_debug_terms = residue_log_mv_value_box(
+                solver,
+                arb,
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+                low_row,
+                high_row,
+                limit_solution,
+                left_weight,
+                null_slope,
+                b_slope,
+                b_intercept,
+                tau_slope,
+                tau_intercept,
+                debug_terms,
+            )
         else:
             v.fail(f"interval boundary exclusion {source}: unknown value kernel {value_kernel!r}")
         if not K1.is_finite() or not K2.is_finite():
@@ -447,7 +834,7 @@ def interval_boundary_exclusion(
                 -float(radii[1]),
                 f"eta={eta_index},bottom={edge_index}",
             )
-    return worst_separation, worst_source
+    return proof_status, worst_separation, worst_source
 
 
 def interval_boundary_winding(
@@ -461,9 +848,12 @@ def interval_boundary_winding(
     edge_subdivisions: int,
     value_kernel: str,
     debug_terms: int = 0,
+    adaptive_depth: int = 0,
+    eta_index_slice: tuple[int, int] | None = None,
 ) -> tuple[str, int, float, float, str]:
     """Certify the interval winding of K around 0 on ordered boundary boxes."""
 
+    validate_index_slice(eta_index_slice, eta_subdivisions, "interval boundary winding")
     if eta_subdivisions <= 0 or edge_subdivisions <= 0:
         return "disabled", 0, float("inf"), 0.0, "disabled"
     from flint import arb
@@ -686,32 +1076,76 @@ def interval_boundary_winding(
             K2 = arb(K2_raw)
             if debug_terms > 0 and k2_debug_terms:
                 debug = f"; K2_terms={format_debug_terms(k2_debug_terms)}"
+        elif value_kernel == "residue-log-affine":
+            K1, K2, k2_debug_terms = residue_log_affine_value_box(
+                solver,
+                arb,
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+                limit_solution,
+                left_weight,
+                null_slope,
+                b_slope,
+                b_intercept,
+                tau_slope,
+                tau_intercept,
+                debug_terms,
+            )
+            if debug_terms > 0 and k2_debug_terms:
+                debug = f"; K2_terms={format_debug_terms(k2_debug_terms)}"
+        elif value_kernel == "residue-log-mv":
+            K1, K2, k2_debug_terms = residue_log_mv_value_box(
+                solver,
+                arb,
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+                low_row,
+                high_row,
+                limit_solution,
+                left_weight,
+                null_slope,
+                b_slope,
+                b_intercept,
+                tau_slope,
+                tau_intercept,
+                debug_terms,
+            )
+            if debug_terms > 0 and k2_debug_terms:
+                debug = f"; MV_terms={format_debug_terms(k2_debug_terms)}"
         else:
             v.fail(f"interval boundary winding {source}: unknown value kernel {value_kernel!r}")
         if not K1.is_finite() or not K2.is_finite():
             v.fail(f"interval boundary winding {source}: non-finite K value")
         return K1, K2, debug
 
-    def boundary_boxes() -> list[tuple[float, float, float, float, str]]:
+    def boundary_boxes() -> list[BoundaryBox]:
         boxes = []
         rB = float(radii[0])
         rT = float(radii[1])
         for edge_index in range(edge_subdivisions):
             t0 = -1.0 + 2.0 * edge_index / edge_subdivisions
             t1 = -1.0 + 2.0 * (edge_index + 1) / edge_subdivisions
-            boxes.append((rB, rB, t0 * rT, t1 * rT, f"right={edge_index}"))
+            boxes.append(BoundaryBox(rB, rB, t0 * rT, t1 * rT, f"right={edge_index}", True, True))
         for edge_index in range(edge_subdivisions):
             t0 = 1.0 - 2.0 * edge_index / edge_subdivisions
             t1 = 1.0 - 2.0 * (edge_index + 1) / edge_subdivisions
-            boxes.append((min(t0, t1) * rB, max(t0, t1) * rB, rT, rT, f"top={edge_index}"))
+            boxes.append(BoundaryBox(min(t0, t1) * rB, max(t0, t1) * rB, rT, rT, f"top={edge_index}", False, True))
         for edge_index in range(edge_subdivisions):
             t0 = 1.0 - 2.0 * edge_index / edge_subdivisions
             t1 = 1.0 - 2.0 * (edge_index + 1) / edge_subdivisions
-            boxes.append((-rB, -rB, min(t0, t1) * rT, max(t0, t1) * rT, f"left={edge_index}"))
+            boxes.append(BoundaryBox(-rB, -rB, min(t0, t1) * rT, max(t0, t1) * rT, f"left={edge_index}", True, False))
         for edge_index in range(edge_subdivisions):
             t0 = -1.0 + 2.0 * edge_index / edge_subdivisions
             t1 = -1.0 + 2.0 * (edge_index + 1) / edge_subdivisions
-            boxes.append((t0 * rB, t1 * rB, -rT, -rT, f"bottom={edge_index}"))
+            boxes.append(BoundaryBox(t0 * rB, t1 * rB, -rT, -rT, f"bottom={edge_index}", True, True))
         return boxes
 
     def lift_sector(
@@ -752,59 +1186,177 @@ def interval_boundary_winding(
         _, _, degree, overlap = candidates[0]
         return degree, overlap
 
+    def box_sector(
+        eta_index: int,
+        eta_interval_low: float,
+        eta_interval_high: float,
+        u_low: float,
+        u_high: float,
+        tau_low: float,
+        tau_high: float,
+        source: str,
+    ) -> tuple[tuple[float, float], str]:
+        nonlocal global_min_origin, global_worst_source, global_max_angle_uncertainty
+        K1, K2, debug = value_box(
+            eta_interval_low,
+            eta_interval_high,
+            u_low,
+            u_high,
+            tau_low,
+            tau_high,
+            source,
+        )
+        origin_lower = rectangle_origin_distance(K1, K2)
+        k1_mid = float(K1.mid())
+        k2_mid = float(K2.mid())
+        k1_radius = radius(K1)
+        k2_radius = radius(K2)
+        diagonal_radius = math.hypot(k1_radius, k2_radius)
+        center_norm = math.hypot(k1_mid, k2_mid)
+        sector_margin = center_norm - diagonal_radius
+        if origin_lower < global_min_origin:
+            global_min_origin = origin_lower
+            global_worst_source = source
+        if center_norm <= 0.0 or sector_margin <= 0.0:
+            obstacle = "K-width" if diagonal_radius >= center_norm else "near-origin geometry"
+            v.fail(
+                f"interval boundary winding {proof_status} failed at {source}: angle sector reaches 0; "
+                f"origin_lb={origin_lower:.6e} center_norm={center_norm:.6e} "
+                f"diag_radius={diagonal_radius:.6e} K1_rad={k1_radius:.6e} K2_rad={k2_radius:.6e} "
+                f"obstacle={obstacle}{debug}"
+            )
+        angle_uncertainty = math.asin(min(1.0, diagonal_radius / center_norm))
+        if angle_uncertainty > global_max_angle_uncertainty:
+            global_max_angle_uncertainty = angle_uncertainty
+        theta = math.atan2(k2_mid, k1_mid)
+        return (theta - angle_uncertainty, theta + angle_uncertainty), source
+
+    def refined_box_sectors(
+        eta_index: int,
+        eta_interval_low: float,
+        eta_interval_high: float,
+        box: BoundaryBox,
+        depth: int,
+    ) -> list[tuple[tuple[float, float], str]]:
+        try:
+            return [
+                box_sector(
+                    eta_index,
+                    eta_interval_low,
+                    eta_interval_high,
+                    box.u_low,
+                    box.u_high,
+                    box.tau_low,
+                    box.tau_high,
+                    box.source,
+                )
+            ]
+        except v.VerificationError:
+            if depth <= 0:
+                raise
+            u_width = box.u_high - box.u_low
+            tau_width = box.tau_high - box.tau_low
+            if abs(u_width) >= abs(tau_width) and u_width > 0.0:
+                midpoint = (box.u_low + box.u_high) / 2.0
+                first = BoundaryBox(
+                    box.u_low,
+                    midpoint,
+                    box.tau_low,
+                    box.tau_high,
+                    f"{box.source}/u0",
+                    box.increasing_u,
+                    box.increasing_tau,
+                )
+                second = BoundaryBox(
+                    midpoint,
+                    box.u_high,
+                    box.tau_low,
+                    box.tau_high,
+                    f"{box.source}/u1",
+                    box.increasing_u,
+                    box.increasing_tau,
+                )
+                children = [first, second] if box.increasing_u else [second, first]
+            elif tau_width > 0.0:
+                midpoint = (box.tau_low + box.tau_high) / 2.0
+                first = BoundaryBox(
+                    box.u_low,
+                    box.u_high,
+                    box.tau_low,
+                    midpoint,
+                    f"{box.source}/t0",
+                    box.increasing_u,
+                    box.increasing_tau,
+                )
+                second = BoundaryBox(
+                    box.u_low,
+                    box.u_high,
+                    midpoint,
+                    box.tau_high,
+                    f"{box.source}/t1",
+                    box.increasing_u,
+                    box.increasing_tau,
+                )
+                children = [first, second] if box.increasing_tau else [second, first]
+            else:
+                raise
+            refined: list[tuple[tuple[float, float], str]] = []
+            for child in children:
+                refined.extend(
+                    refined_box_sectors(
+                        eta_index,
+                        eta_interval_low,
+                        eta_interval_high,
+                        child,
+                        depth - 1,
+                    )
+                )
+            return refined
+
     all_boxes = boundary_boxes()
     worst_abs_degree = 10**9
+    checked_eta_intervals = 0
     for eta_index, (eta_interval_low, eta_interval_high) in enumerate(v.eta_intervals(eta_low, eta_high, eta_subdivisions)):
+        if eta_index_slice is not None and not (eta_index_slice[0] <= eta_index < eta_index_slice[1]):
+            continue
+        checked_eta_intervals += 1
         lifted_sectors: list[tuple[float, float]] = []
+        lifted_sources: list[str] = []
         min_overlap = float("inf")
-        for box_index, (u_low, u_high, tau_low, tau_high, edge_source) in enumerate(all_boxes):
-            source = f"eta={eta_index},{edge_source}"
-            K1, K2, debug = value_box(
+        for boundary_box in all_boxes:
+            source = f"eta={eta_index},{boundary_box.source}"
+            box = BoundaryBox(
+                boundary_box.u_low,
+                boundary_box.u_high,
+                boundary_box.tau_low,
+                boundary_box.tau_high,
+                source,
+                boundary_box.increasing_u,
+                boundary_box.increasing_tau,
+            )
+            sectors = refined_box_sectors(
+                eta_index,
                 eta_interval_low,
                 eta_interval_high,
-                u_low,
-                u_high,
-                tau_low,
-                tau_high,
-                source,
+                box,
+                adaptive_depth,
             )
-            origin_lower = rectangle_origin_distance(K1, K2)
-            k1_mid = float(K1.mid())
-            k2_mid = float(K2.mid())
-            k1_radius = radius(K1)
-            k2_radius = radius(K2)
-            diagonal_radius = math.hypot(k1_radius, k2_radius)
-            center_norm = math.hypot(k1_mid, k2_mid)
-            sector_margin = center_norm - diagonal_radius
-            if origin_lower < global_min_origin:
-                global_min_origin = origin_lower
-                global_worst_source = source
-            if center_norm <= 0.0 or sector_margin <= 0.0:
-                obstacle = "K-width" if diagonal_radius >= center_norm else "near-origin geometry"
-                v.fail(
-                    f"interval boundary winding {proof_status} failed at {source}: angle sector reaches 0; "
-                    f"origin_lb={origin_lower:.6e} center_norm={center_norm:.6e} "
-                    f"diag_radius={diagonal_radius:.6e} K1_rad={k1_radius:.6e} K2_rad={k2_radius:.6e} "
-                    f"obstacle={obstacle}{debug}"
-                )
-            angle_uncertainty = math.asin(min(1.0, diagonal_radius / center_norm))
-            if angle_uncertainty > global_max_angle_uncertainty:
-                global_max_angle_uncertainty = angle_uncertainty
-            theta = math.atan2(k2_mid, k1_mid)
-            sector = (theta - angle_uncertainty, theta + angle_uncertainty)
-            if box_index == 0:
-                lifted_sectors.append(sector)
-                continue
-            lifted, overlap = lift_sector(lifted_sectors[-1], sector)
-            if overlap <= 0.0:
-                v.fail(
-                    f"interval boundary winding {proof_status} failed between eta={eta_index},"
-                    f"box={box_index - 1} and {source}: lifted angle sectors do not overlap; "
-                    f"gap={-overlap:.6e} max_angle_uncertainty={global_max_angle_uncertainty:.6e} "
-                    f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
-                )
-            min_overlap = min(min_overlap, overlap)
-            lifted_sectors.append(lifted)
+            for sector, sector_source in sectors:
+                if not lifted_sectors:
+                    lifted_sectors.append(sector)
+                    lifted_sources.append(sector_source)
+                    continue
+                lifted, overlap = lift_sector(lifted_sectors[-1], sector)
+                if overlap <= 0.0:
+                    v.fail(
+                        f"interval boundary winding {proof_status} failed between "
+                        f"{lifted_sources[-1]} and {sector_source}: lifted angle sectors do not overlap; "
+                        f"gap={-overlap:.6e} max_angle_uncertainty={global_max_angle_uncertainty:.6e} "
+                        f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
+                    )
+                min_overlap = min(min_overlap, overlap)
+                lifted_sectors.append(lifted)
+                lifted_sources.append(sector_source)
         degree, overlap = closure_degree(lifted_sectors[0], lifted_sectors[-1])
         if overlap <= 0.0:
             v.fail(
@@ -820,6 +1372,8 @@ def interval_boundary_winding(
                 f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
             )
         worst_abs_degree = min(worst_abs_degree, abs(degree))
+    if checked_eta_intervals == 0:
+        v.fail(f"interval boundary winding slice {eta_index_slice}: no eta intervals checked")
     return proof_status, worst_abs_degree, global_min_origin, global_max_angle_uncertainty, global_worst_source
 
 
@@ -836,7 +1390,9 @@ def verify_tube(
     interval_boundary_value_kernel: str,
     interval_boundary_debug_terms: int,
     interval_boundary_winding_subdivisions: tuple[int, int],
-) -> tuple[float, str, float, float, float, float, int, float, float, float, str, str, int, float, float, str]:
+    interval_boundary_winding_adaptive_depth: int,
+    interval_boundary_winding_eta_slice: tuple[int, int] | None,
+) -> tuple[float, str, float, float, float, float, int, float, float, str, float, str, str, int, float, float, str]:
     from flint import arb
 
     solver = v.load_solver()
@@ -867,8 +1423,10 @@ def verify_tube(
         interval_boundary_winding_subdivisions[1],
         interval_boundary_value_kernel,
         interval_boundary_debug_terms,
+        interval_boundary_winding_adaptive_depth,
+        interval_boundary_winding_eta_slice,
     )
-    interval_boundary_sep, interval_boundary_source = interval_boundary_exclusion(
+    interval_boundary_status, interval_boundary_sep, interval_boundary_source = interval_boundary_exclusion(
         low_row,
         high_row,
         config.radii,
@@ -1009,6 +1567,7 @@ def verify_tube(
         sampled_degree,
         sampled_boundary_min_norm,
         sampled_boundary_max_jump,
+        interval_boundary_status,
         interval_boundary_sep,
         interval_boundary_source,
         winding_status,
@@ -1041,11 +1600,18 @@ def main() -> int:
     )
     parser.add_argument(
         "--interval-boundary-value-kernel",
-        choices=["direct", "sampled-lipschitz", "residue-log", "residue-log-divided"],
+        choices=[
+            "direct",
+            "sampled-lipschitz",
+            "residue-log",
+            "residue-log-divided",
+            "residue-log-affine",
+            "residue-log-mv",
+        ],
         default="direct",
         help=(
             "Value kernel used by --interval-boundary-exclusion and --interval-boundary-winding; "
-            "sampled-lipschitz is diagnostic-only for winding."
+            "sampled-lipschitz is diagnostic-only."
         ),
     )
     parser.add_argument(
@@ -1061,6 +1627,20 @@ def main() -> int:
         default=(0, 0),
         metavar="ETA,EDGE",
         help="Interval boundary winding certificate: ordered boundary boxes at ETA eta slices and EDGE boxes per edge.",
+    )
+    parser.add_argument(
+        "--interval-boundary-winding-adaptive-depth",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Recursively split individual winding boundary boxes up to N times when the angle sector reaches zero.",
+    )
+    parser.add_argument(
+        "--interval-boundary-winding-eta-slice",
+        type=parse_index_slice,
+        default=None,
+        metavar="START:END",
+        help="Only check this 0-based half-open eta-index slice of --interval-boundary-winding.",
     )
     args = parser.parse_args()
 
@@ -1083,6 +1663,7 @@ def main() -> int:
                 sampled_degree,
                 sampled_boundary_min_norm,
                 sampled_boundary_max_jump,
+                interval_boundary_status,
                 interval_boundary_sep,
                 interval_boundary_source,
                 winding_status,
@@ -1103,6 +1684,8 @@ def main() -> int:
                 args.interval_boundary_value_kernel,
                 args.interval_boundary_debug_terms,
                 args.interval_boundary_winding,
+                args.interval_boundary_winding_adaptive_depth,
+                args.interval_boundary_winding_eta_slice,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
@@ -1116,6 +1699,7 @@ def main() -> int:
                 f"sampled_degree_abs={sampled_degree:d} "
                 f"sampled_boundary_min_norm={sampled_boundary_min_norm:.6e} "
                 f"sampled_boundary_max_jump={sampled_boundary_max_jump:.6e} "
+                f"interval_boundary_exclusion_status={interval_boundary_status} "
                 f"interval_boundary_sep={interval_boundary_sep:.6e} "
                 f"interval_boundary_source={interval_boundary_source} "
                 f"interval_boundary_winding_status={winding_status} "
