@@ -8189,6 +8189,17 @@ lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
   exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C
     (hS_count.mono hsub)
 
+/-- It is also enough to cover the actual singular support-hit set by a
+countable carrier. This avoids any unnecessary closure assertion about the
+whole outside-restriction support. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_subset_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {S : Set ℝ}
+    (hS_count : S.Countable)
+    (hsub : strictOutsideSupportHitSet C ⊆ S) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact (hS_count.mono hsub).measure_zero volume
+
 /-- Component replacement does not increase the objective if the outside
 restriction has null support. -/
 theorem componentReplacement_objective_le_of_outsideSupport_null
@@ -8229,6 +8240,31 @@ theorem componentReplacement_objective_le_of_outsideSupport_subset_countable
     C hmass_pos
     (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
       C hS_count hsub)
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is covered by a countable set. -/
+theorem componentReplacement_objective_le_of_supportHit_subset_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    {S : Set ℝ}
+    (hS_count : S.Countable)
+    (hsub : strictOutsideSupportHitSet C ⊆ S) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_subset_countable C hS_count hsub)
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is countable. -/
+theorem componentReplacement_objective_le_of_supportHit_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hcount : (strictOutsideSupportHitSet C).Countable) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_supportHit_subset_countable
+    C hmass_pos hcount (subset_rfl)
 
 /-!
 ## Finite variance drop under barycenter replacement
