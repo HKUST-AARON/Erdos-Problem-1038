@@ -1950,6 +1950,21 @@ def _combined_residue_log_value_second_divided_from_arb(
         tail = radius**terms / ((terms + 1) * (1.0 - radius))
         return total + arb(f"[+/- {tail!r}]")
 
+    def log_one_plus_minus_linear_over_z2(z):
+        radius = float(abs(z).upper())
+        if radius >= 0.25:
+            return (log_one_plus_over_z(z) - one) / z
+        total = arb(0)
+        power = arb(1)
+        terms = 48
+        for index in range(terms):
+            if index:
+                power *= z
+            term = power / arb(index + 2)
+            total += -term if index % 2 == 0 else term
+        tail = radius**terms / ((terms + 2) * (1.0 - radius))
+        return total + arb(f"[+/- {tail!r}]")
+
     def log_abs_ratio_divided(value, value0, value_div):
         z = eta * value_div / value0
         if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
@@ -2127,11 +2142,17 @@ def _combined_residue_log_value_second_divided_from_arb(
     contexts = (contact, minus_one)
 
     combined_first_divided = arb(0)
+    combined_second_divided_direct = arb(0)
 
     def add_combined_term(label, value):
         nonlocal combined_first_divided
         combined_first_divided += value
         append_debug_value(label, value)
+
+    def add_direct_second_term(label, value):
+        nonlocal combined_second_divided_direct
+        combined_second_divided_direct += value
+        append_debug_term(label, value)
 
     for item in contexts:
         add_combined_term(
@@ -2402,8 +2423,225 @@ def _combined_residue_log_value_second_divided_from_arb(
                 arb(f"[+/- {midpoint_slope_residual_radius / max(eta_low, 1.0e-300)!r}]"),
             )
 
+    # Local eta-divided algebra: value, eta=0 value, first divided value,
+    # first-divided limit, and second divided value.
+    class Div2:
+        def __init__(self, value, base, divided, limit_divided, second_divided):
+            self.value = value
+            self.base = base
+            self.divided = divided
+            self.limit_divided = limit_divided
+            self.second_divided = second_divided
+
+        @staticmethod
+        def const(value):
+            q_value = arb(value) if not isinstance(value, arb) else value
+            return Div2(q_value, q_value, zero, zero, zero)
+
+        @staticmethod
+        def affine(base, divided):
+            return Div2(base + eta * divided, base, divided, divided, zero)
+
+        @staticmethod
+        def eta_var():
+            return Div2(eta, zero, one, one, zero)
+
+        @staticmethod
+        def coerce(value):
+            return value if isinstance(value, Div2) else Div2.const(value)
+
+        def __add__(self, other):
+            other = Div2.coerce(other)
+            return Div2(
+                self.value + other.value,
+                self.base + other.base,
+                self.divided + other.divided,
+                self.limit_divided + other.limit_divided,
+                self.second_divided + other.second_divided,
+            )
+
+        __radd__ = __add__
+
+        def __neg__(self):
+            return Div2(
+                -self.value,
+                -self.base,
+                -self.divided,
+                -self.limit_divided,
+                -self.second_divided,
+            )
+
+        def __sub__(self, other):
+            return self + (-Div2.coerce(other))
+
+        def __rsub__(self, other):
+            return Div2.coerce(other) + (-self)
+
+        def __mul__(self, other):
+            other = Div2.coerce(other)
+            return Div2(
+                self.value * other.value,
+                self.base * other.base,
+                self.divided * other.base + self.value * other.divided,
+                self.limit_divided * other.base + self.base * other.limit_divided,
+                self.second_divided * other.base
+                + self.divided * other.divided
+                + self.base * other.second_divided,
+            )
+
+        __rmul__ = __mul__
+
+        def inv(self):
+            return Div2(
+                one / self.value,
+                one / self.base,
+                -self.divided / (self.value * self.base),
+                -self.limit_divided / (self.base * self.base),
+                (-self.second_divided * self.base + self.limit_divided * self.divided)
+                / (self.value * self.base * self.base),
+            )
+
+        def __truediv__(self, other):
+            return self * Div2.coerce(other).inv()
+
+        def __rtruediv__(self, other):
+            return Div2.coerce(other) * self.inv()
+
+        def sqrt(self):
+            value = self.value.sqrt()
+            base = self.base.sqrt()
+            divided = self.divided / (value + base)
+            limit_divided = self.limit_divided / (2 * base)
+            second_divided = (2 * base * self.second_divided - self.limit_divided * divided) / (
+                (value + base) * 2 * base
+            )
+            return Div2(value, base, divided, limit_divided, second_divided)
+
+    def log_abs_divided_parts(data):
+        z = eta * data.divided / data.base
+        if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
+            log_div = data.divided / data.base * log_one_plus_over_z(z)
+            log_limit_div = data.limit_divided / data.base
+            log_second_div = (
+                data.second_divided / data.base * log_one_plus_over_z(z)
+                + data.limit_divided
+                / data.base
+                * data.divided
+                / data.base
+                * log_one_plus_minus_linear_over_z2(z)
+            )
+            return log_div, log_limit_div, log_second_div
+        log_div = log_abs(data.value / data.base) / eta
+        log_limit_div = data.limit_divided / data.base
+        return log_div, log_limit_div, (log_div - log_limit_div) / eta
+
+    def product_log_abs_second_divided(coefficient, value):
+        log_div, log_limit_div, log_second_div = log_abs_divided_parts(value)
+        first_limit = coefficient.limit_divided * log_abs(value.base) + coefficient.base * log_limit_div
+        second = (
+            coefficient.second_divided * log_abs(value.value)
+            + coefficient.limit_divided * log_div
+            + coefficient.base * log_second_div
+        )
+        return first_limit, second
+
+    def paired_product_log_abs_second_divided(left_data, right_data):
+        left_coefficient, left_value = left_data
+        right_coefficient, right_value = right_data
+        coefficient_sum = left_coefficient + right_coefficient
+        left_over_right = left_value / right_value
+        right_over_left = right_value / left_value
+
+        left_ratio_limit, left_ratio_second = product_log_abs_second_divided(
+            left_coefficient,
+            left_over_right,
+        )
+        right_base_limit, right_base_second = product_log_abs_second_divided(
+            coefficient_sum,
+            right_value,
+        )
+        left_pair_limit = left_ratio_limit + right_base_limit
+        left_pair_second = left_ratio_second + right_base_second
+
+        right_ratio_limit, right_ratio_second = product_log_abs_second_divided(
+            right_coefficient,
+            right_over_left,
+        )
+        left_base_limit, left_base_second = product_log_abs_second_divided(
+            coefficient_sum,
+            left_value,
+        )
+        right_pair_limit = right_ratio_limit + left_base_limit
+        right_pair_second = right_ratio_second + left_base_second
+
+        direct_left_limit, direct_left_second = product_log_abs_second_divided(
+            left_coefficient,
+            left_value,
+        )
+        direct_right_limit, direct_right_second = product_log_abs_second_divided(
+            right_coefficient,
+            right_value,
+        )
+        direct_limit = direct_left_limit + direct_right_limit
+        direct_second = direct_left_second + direct_right_second
+
+        paired_second = left_pair_second
+        valid = True
+        try:
+            paired_second = paired_second.intersection(right_pair_second)
+        except ValueError:
+            valid = False
+        try:
+            paired_second = paired_second.intersection(direct_second)
+        except ValueError:
+            valid = False
+        return direct_limit, paired_second, valid
+
+    def paired_base_product_second_divided(item):
+        q_eta = Div2.eta_var()
+        q_epsilon = q_eta * q_eta
+        q_ell = Div2.const(repr(X_LEFT)) + q_epsilon
+        q_r = Div2.const(repr(X_RIGHT))
+        q_beta = Div2.const(1) - q_epsilon
+        q_alpha = Div2.affine(limit_alpha, tau)
+        q_A = Div2.affine(limit_A, A_div)
+        q_center = (q_alpha + q_beta) / 2
+        q_scale = (q_beta - q_alpha) / 4
+
+        def q_preimage_pair(q):
+            y = (q - q_center) / q_scale
+            root = (y * y - 4).sqrt()
+            outer = (y - root) / 2
+            return outer, one / outer
+
+        def q_branch_value(rho):
+            return q_scale * (rho - one / rho)
+
+        def q_residue(q, q_derivative, rho):
+            return (q + q_A) * q_branch_value(rho) / q_derivative
+
+        q_w = Div2.const(-1) if item["label"] == "contact" else q_preimage_pair(Div2.const(-1))[0]
+        q_ell_derivative = (q_ell - q_r) * (q_ell - one)
+        q_r_derivative = (q_r - q_ell) * (q_r - one)
+        q_ell_preimages = q_preimage_pair(q_ell)
+        q_r_preimages = q_preimage_pair(q_r)
+        sheet_data = []
+        for rho_ell, rho_r in zip(q_ell_preimages, q_r_preimages):
+            sum_residue = q_residue(q_ell, q_ell_derivative, rho_ell) + q_residue(
+                q_r,
+                q_r_derivative,
+                rho_r,
+            )
+            sheet_data.append((sum_residue, q_w - rho_r))
+        limit, second, valid = paired_product_log_abs_second_divided(sheet_data[0], sheet_data[1])
+        return item["weight"] * (-limit), item["weight"] * (-second), valid
+
     current_base_product_values = {}
+    analytic_base_product_values = {}
+    analytic_base_product_blockers = []
+    use_analytic_paired_base = True
     for item in contexts:
+        item_label = item["label"]
         left_data, right_data = base_product_data[item["label"]]
         base_value = item["weight"] * (
             -paired_product_log_abs_divided(
@@ -2413,14 +2651,59 @@ def _combined_residue_log_value_second_divided_from_arb(
             )
         )
         current_base_product_values[item["label"]] = base_value
-        add_combined_term(
-            f"smooth:paired_base_product:{item['label']}",
-            base_value,
-        )
+        base_limit, base_second, analytic_valid = paired_base_product_second_divided(item)
+        analytic_base_product_values[item["label"]] = (base_limit, base_second)
+        analytic_value = base_limit + eta * base_second
+        if not analytic_valid:
+            use_analytic_paired_base = False
+            analytic_base_product_blockers.append((item_label, "equivalent_intersection"))
+        if not base_limit.is_finite():
+            use_analytic_paired_base = False
+            analytic_base_product_blockers.append((item_label, "nonfinite_limit"))
+        if not base_second.is_finite():
+            use_analytic_paired_base = False
+            analytic_base_product_blockers.append((item_label, "nonfinite_second"))
+        if not analytic_value.is_finite():
+            use_analytic_paired_base = False
+            analytic_base_product_blockers.append((item_label, "nonfinite_reconstruction"))
+        if analytic_valid and base_limit.is_finite() and base_second.is_finite() and analytic_value.is_finite():
+            try:
+                analytic_value.intersection(base_value)
+            except ValueError:
+                use_analytic_paired_base = False
+                analytic_base_product_blockers.append((item_label, "current_intersection"))
     current_base_product_values["combined"] = (
         current_base_product_values["contact"] + current_base_product_values["minus_one"]
     )
     add_paired_base_second_divided_diagnostics(current_base_product_values)
+    if use_analytic_paired_base:
+        for item in contexts:
+            base_limit, base_second = analytic_base_product_values[item["label"]]
+            add_combined_term(
+                f"smooth:paired_base_product_limit:{item['label']}",
+                base_limit,
+            )
+            add_direct_second_term(
+                f"smooth:paired_base_product_analytic_second:{item['label']}",
+                base_second,
+            )
+    else:
+        if analytic_base_product_blockers:
+            for label, reason in analytic_base_product_blockers:
+                append_debug_term(
+                    f"route-A analytic_second_divided_blocker:{label}:{reason}",
+                    arb("[+/- 0]"),
+                )
+        else:
+            append_debug_term(
+                "route-A analytic_second_divided_blocker",
+                arb("[+/- 0]"),
+            )
+        for item in contexts:
+            add_combined_term(
+                f"smooth:paired_base_product:{item['label']}",
+                current_base_product_values[item["label"]],
+            )
 
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
@@ -2434,7 +2717,7 @@ def _combined_residue_log_value_second_divided_from_arb(
             -item["weight"] * (a_minus / eta) * log_abs(endpoint_ratio),
         )
 
-    return str(combined_first_divided / eta)
+    return str(combined_first_divided / eta + combined_second_divided_direct)
 
 
 def contact_derivative_box_acb(
