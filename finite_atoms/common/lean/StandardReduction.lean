@@ -2726,6 +2726,23 @@ lemma componentBlock_integrable_of_normalized_integrable
   rw [hmeasure]
   exact hf.smul_measure (by simp)
 
+/--
+A finite-measure integrability bridge used repeatedly in the replacement
+argument: if a finite measure is supported a.e. on a compact set and the
+function is continuous on that compact set, then the function is integrable
+against the full measure.
+-/
+lemma integrable_of_ae_mem_compact_of_continuousOn
+    (ν : Measure ℝ) [IsFiniteMeasure ν] (K : Set ℝ) (f : ℝ → ℝ)
+    (hmemK : ∀ᵐ t : ℝ ∂ν, t ∈ K)
+    (hcompact : IsCompact K)
+    (hcont : ContinuousOn f K) :
+    Integrable f ν := by
+  have hintOn : IntegrableOn f K ν :=
+    hcont.integrableOn_compact hcompact
+  rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hmemK] at hintOn
+  exact hintOn
+
 lemma componentBarycenter_eq_normalized_componentBlock_integral
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (hmass_pos : 0 < componentMass C) :
@@ -7618,11 +7635,32 @@ lemma normalized_componentBlock_logKernel_integrable_of_strictOutside
     · exact (logKernel_continuousOn_Iic_left hrx).mono (by
         intro t ht
         exact ht.2)
-  have hintOn :
-      IntegrableOn (fun t : ℝ => Real.log (1 / |x - t|)) K ν :=
-    hcont.integrableOn_compact isCompact_Icc
-  rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hmemK] at hintOn
-  exact hintOn
+  exact integrable_of_ae_mem_compact_of_continuousOn ν K
+    (fun t : ℝ => Real.log (1 / |x - t|))
+    hmemK isCompact_Icc hcont
+
+/--
+Outside-restriction log-kernel integrability from compact off-singularity
+support data.
+
+This is the precise local analytic bridge for the outside part of component
+replacement.  It deliberately does not assert unconditional integrability:
+without a local separation/off-singularity support statement, an arbitrary
+outside restriction may still see the logarithmic singularity.
+-/
+lemma outsideRestriction_logKernel_integrable_of_compact_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (K : Set ℝ)
+    (hmemK :
+      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K)
+    (hcompact : IsCompact K)
+    (hcont : ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  exact integrable_of_ae_mem_compact_of_continuousOn
+    ((realMeasure μ).restrict C.intervalᶜ) K
+    (fun t : ℝ => Real.log (1 / |x - t|))
+    hmemK hcompact hcont
 
 /--
 Objective non-increase for component replacement using the canonical normalized
@@ -7661,6 +7699,32 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
     C hmass_pos hx
     (normalized_componentBlock_first_moment_integrable C hmass_pos)
     hkernel_norm
+
+/--
+Component-replacement objective non-increase from compact outside-support
+certificates.
+
+For each strict outside test point, it suffices to provide a compact set carrying
+the outside restriction a.e. on which the logarithmic kernel is continuous.
+Lean then derives the outside integrability input and invokes the canonical
+normalized-block Jensen bridge.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_compactOutside
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
+      ∃ K : Set ℝ,
+        (∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K) ∧
+        IsCompact K ∧
+        ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
+    C hmass_pos ?_
+  intro x hx
+  rcases hdata x hx with ⟨K, hmemK, hcompact, hcont⟩
+  exact outsideRestriction_logKernel_integrable_of_compact_support
+    C K hmemK hcompact hcont
 
 /-!
 ## Finite variance drop under barycenter replacement

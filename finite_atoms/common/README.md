@@ -112,6 +112,8 @@ componentBlockFiniteMeasure
 normalized_componentBlock_ae_mem_interval
 normalized_componentBlock_first_moment_integrable
 normalized_componentBlock_logKernel_integrable_of_strictOutside
+integrable_of_ae_mem_compact_of_continuousOn
+outsideRestriction_logKernel_integrable_of_compact_support
 componentBlock_integral_eq_mass_mul_normalized
 componentBlock_integrable_of_normalized_integrable
 componentBarycenter_eq_normalized_componentBlock_integral
@@ -122,6 +124,7 @@ componentReplacement_objective_le_of_strictOutside_logKernel_jensen
 componentBlock_logKernel_jensen_scaled_of_probability_block
 componentBlock_logKernel_jensen_scaled_normalized
 componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
+componentReplacement_objective_le_of_strictOutside_compactOutside
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -185,6 +188,11 @@ The normalized component-block log-kernel integrability is now also internal:
 for a strict outside point, the singularity is outside the compact closure
 `[C.left, C.right]`, and Lean combines compact-support continuity with the
 normalized block's a.e. support in the component.
+The outside-restriction input has been sharpened from a raw integrability
+assumption to a compact off-singularity support certificate: if the outside
+restriction is a.e. carried by a compact set on which the log kernel is
+continuous, Lean derives the needed outside integrability and closes the
+component-replacement objective comparison.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -196,15 +204,16 @@ The following review findings remain real Lean gaps, not solved claims:
    μ ↦ volume {x | 0 < unitIntervalLogPotential μ x}
    has not yet been proved lower semicontinuous end-to-end.
 
-3. The component-replacement objective lemma still consumes the outside
-   log-kernel integrability data as an assumption.  The normalized probability
+3. The component-replacement objective lemma no longer needs raw outside
+   log-kernel integrability if a compact off-singularity support certificate is
+   supplied.  The normalized probability
    block, a.e. support transfer, integral scaling, barycenter identification,
    log-kernel specialization, scalar assembly, and canonical normalized-block
    Jensen bridge are formalized, and the normalized first-moment integrability
    plus barycenter-atom/component-block/normalized-block log-kernel
-   integrability are internal.  The remaining local analytic task is to
-   discharge the outside-restriction log-kernel integrability hypothesis for an
-   arbitrary strict outside point.
+   integrability are internal.  The remaining local analytic task is to produce
+   the compact off-singularity support certificate from the actual component
+   topology/minimizer data.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
