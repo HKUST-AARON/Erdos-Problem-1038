@@ -32,6 +32,11 @@ def main() -> int:
     parser.add_argument("--grid", type=int, default=41)
     parser.add_argument("--target-bound", type=float, default=7.0e-3)
     parser.add_argument("--candidate-lipschitz", type=float, default=2.0e-4)
+    parser.add_argument(
+        "--hybrid-certificate",
+        action="store_true",
+        help="also run a point-value plus Arb eta-variation plus candidate tau-Lipschitz enclosure",
+    )
     parser.add_argument("--eta-values", default="1e-16,1e-12,1e-8")
     args = parser.parse_args()
 
@@ -87,6 +92,31 @@ def main() -> int:
             ).mid()
         )
 
+    def K2_eta_variation_abs_upper(B: float, tau: float, eta_low: float, eta_high: float) -> float:
+        eta_mid = 0.5 * (eta_low + eta_high)
+        arb_eta = solver._arb_interval_from_bounds(eta_low, eta_high)
+        arb_eta_mid = arb(repr(float(eta_mid)))
+        base_delta_A = arb(repr(float(null_slope * tau + B)))
+        base_delta_alpha = arb(repr(float(tau)))
+        A = arb(repr(float(limit.A))) + arb_eta * base_delta_A
+        alpha = arb(repr(float(limit.alpha))) + arb_eta * base_delta_alpha
+        variation = arb(
+            solver._combined_residue_log_value_second_divided_eta_variation_from_arb(
+                A,
+                alpha,
+                arb_eta,
+                arb_eta_mid,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit.A))),
+                arb(repr(float(limit.alpha))),
+                192,
+                base_delta_A,
+                base_delta_alpha,
+                regularize_joint_limit_layer=True,
+            )
+        )
+        return float(abs(variation).upper())
+
     def K0_2(B: float, tau: float) -> float:
         return forcing + q20 * B * B + q11 * B * tau + q02 * tau * tau
 
@@ -125,6 +155,37 @@ def main() -> int:
         f"candidate_lipschitz={args.candidate_lipschitz:.6e} implied_edge_bound={implied_bound:.6e} "
         f"target_bound={args.target_bound:.6e} worst_source={worst_source!r}"
     )
+
+    if args.hybrid_certificate:
+        eta_low = min(eta_values)
+        eta_high = max(eta_values)
+        eta_mid = 0.5 * (eta_low + eta_high)
+        tau_step = 0.1 / (args.grid - 1)
+        hybrid_worst = 0.0
+        hybrid_source = ""
+        for B in (0.01, -0.01):
+            for index in range(args.grid):
+                tau = tau0 - 0.05 + 0.1 * index / (args.grid - 1)
+                center_remainder = K2_point(B, tau, eta_mid) - K0_2(B, tau)
+                eta_variation = K2_eta_variation_abs_upper(B, tau, eta_low, eta_high)
+                tau_allowance = args.candidate_lipschitz * (0.5 * tau_step if 0 < index < args.grid - 1 else tau_step)
+                bound = abs(center_remainder) + eta_variation + tau_allowance
+                if bound > hybrid_worst:
+                    hybrid_worst = bound
+                    hybrid_source = (
+                        f"B={B:+.2f},index={index},tau={tau:.12e},"
+                        f"center={center_remainder:.6e},eta_var={eta_variation:.6e},"
+                        f"tau_allowance={tau_allowance:.6e}"
+                    )
+        hybrid_status = "PASS-DIAGNOSTIC" if hybrid_worst < args.target_bound else "FAIL-DIAGNOSTIC"
+        print(
+            "TWO-INTERVAL K2 HYBRID EDGE CERTIFICATE: "
+            f"{hybrid_status} grid={args.grid:d} eta_low={eta_low:.6e} eta_high={eta_high:.6e} "
+            f"candidate_lipschitz={args.candidate_lipschitz:.6e} worst_bound={hybrid_worst:.6e} "
+            f"target_bound={args.target_bound:.6e} worst_source={hybrid_source!r}"
+        )
+        if hybrid_status != "PASS-DIAGNOSTIC":
+            status = "FAIL-DIAGNOSTIC"
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 

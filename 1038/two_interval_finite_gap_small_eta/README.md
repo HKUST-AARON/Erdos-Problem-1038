@@ -186,6 +186,27 @@ identify the next proof-grade lemma: a direct edge Lipschitz/remainder bound
 for the K2 component on \(B=\pm0.01\), avoiding the dependency blow-up in the
 generic boundary-box checker.
 
+Hybrid K2 edge certificate diagnostic:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_edge_lipschitz.py \
+  --grid 401 \
+  --eta-values 1e-16,1e-8 \
+  --hybrid-certificate
+```
+
+Current expected summary:
+
+```text
+TWO-INTERVAL K2 HYBRID EDGE CERTIFICATE:
+PASS-DIAGNOSTIC worst_bound=6.414311e-05
+target_bound=7.000000e-03
+```
+
+This combines point values, the Arb eta-variation kernel, and the candidate
+tau-Lipschitz constant `2e-4`.  The remaining non-diagnostic step is to certify
+that tau-Lipschitz bound by interval/Taylor arithmetic.
+
 ## Caveat
 
 This folder does not claim a complete proof of the 1038 infimum.  It is a

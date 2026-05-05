@@ -381,3 +381,46 @@ d/dtau K2_eta(B,tau)-d/dtau K2_0(B,tau), B = +/-0.01.
 If that derivative enclosure proves the conservative bound `2e-4`, the K2
 edge part of the small-eta singular gap closes with a margin of roughly two
 orders of magnitude.
+
+## Hybrid Edge Certificate Diagnostic
+
+The direct interval box checker fails because it asks Arb to enclose the full
+K2 expression over a two-variable box.  A sharper diagnostic separates the
+roles:
+
+```text
+K2 edge remainder <= point value + Arb eta variation + tau-Lipschitz allowance.
+```
+
+The eta-variation part is already interval-enclosed by the existing
+`eta_variation_mid` kernel.  Running
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_edge_lipschitz.py \
+  --grid 401 \
+  --eta-values 1e-16,1e-8 \
+  --hybrid-certificate
+```
+
+gives:
+
+```text
+TWO-INTERVAL K2 HYBRID EDGE CERTIFICATE: PASS-DIAGNOSTIC
+grid=401
+eta_low=1.000000e-16
+eta_high=1.000000e-08
+candidate_lipschitz=2.000000e-04
+worst_bound=6.414311e-05
+target_bound=7.000000e-03
+worst_source='B=+0.01,index=400,tau=1.103891261372e+00,center=6.408458e-05,eta_var=8.530000e-09,tau_allowance=5.000000e-08'
+```
+
+This is much closer to the proof shape needed for the endpoint:
+
+1. certify the point values on the tau grid;
+2. certify the eta-variation kernel on each point or narrow tau cell;
+3. certify the tau-Lipschitz bound `2e-4`.
+
+Only the third item is still a sampled assumption in this diagnostic.  Once it
+is replaced by an interval/Taylor derivative bound, the K2 right/left edge
+obligation is no longer the blocker.
