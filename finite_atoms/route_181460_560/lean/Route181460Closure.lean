@@ -32,7 +32,11 @@ def M : ℝ := q 1814600 1000000
 
 def B : ℝ := q 1708 1000
 
+def B1700 : ℝ := q 17 10
+
 def Tail : ℝ := M - B
+
+def M1700Tail : ℝ := B1700 + Tail
 
 def K : ℕ := 560
 
@@ -54,6 +58,7 @@ def I2 : Set ℝ := Icc (shift2 - M) (shift2 - B)
 def I3 : Set ℝ := Icc (shift3 - M) (shift3 - B)
 def I4 : Set ℝ := Icc (shift4 - M) (shift4 - B)
 def LongInterval : Set ℝ := Ioo (-B) 0
+def LongInterval1700 : Set ℝ := Ioo (-B1700) 0
 
 def TailParameter : Set ℝ := I0
 
@@ -825,6 +830,129 @@ theorem augmented_positiveSet_long_and_tail_selector_volume_lower_bound
     long_and_tail_selector_volume_lower_bound hAugMeas hLong selector
   exact StandardReduction.unitIntervalAugmentedPositiveSet_lower_bound_transfers μ hAugLower
 
+/-! ## Weaker closure matching the current `forcing_1708` certificate -/
+
+lemma longInterval1700_volume :
+    volume LongInterval1700 = ENNReal.ofReal B1700 := by
+  simp [LongInterval1700, Real.volume_Ioo, B1700, q]
+
+lemma swept0_not_mem_long1700_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept0 a ∉ LongInterval1700 := by
+  intro hlong
+  simp [TailParameter, I0, swept0, LongInterval1700, M, B, B1700, q] at ha hlong
+  linarith
+
+lemma swept1_not_mem_long1700_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept1 a ∉ LongInterval1700 := by
+  intro hlong
+  have hmem := swept1_mem_I1_of_tail ha
+  simp [I1, swept1, LongInterval1700, M, B, B1700, shift1, q] at hmem hlong
+  linarith
+
+lemma swept2_not_mem_long1700_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept2 a ∉ LongInterval1700 := by
+  intro hlong
+  have hmem := swept2_mem_I2_of_tail ha
+  simp [I2, swept2, LongInterval1700, M, B, B1700, shift2, q] at hmem hlong
+  linarith
+
+lemma swept3_not_mem_long1700_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept3 a ∉ LongInterval1700 := by
+  intro hlong
+  have hmem := swept3_mem_I3_of_tail ha
+  simp [I3, swept3, LongInterval1700, M, B, B1700, shift3, q] at hmem hlong
+  linarith
+
+lemma swept4_not_mem_long1700_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept4 a ∉ LongInterval1700 := by
+  intro hlong
+  have hmem := swept4_mem_I4_of_tail ha
+  simp [I4, swept4, LongInterval1700, M, B, B1700, shift4, q] at hmem hlong
+  linarith
+
+theorem tailSelector_diff_long1700 {E : Set ℝ}
+    (selector : TailSelector E) :
+    TailSelector (E \ LongInterval1700) := by
+  intro a ha
+  rcases selector a ha with h0 | h1 | h2 | h3 | h4
+  · exact Or.inl ⟨h0, swept0_not_mem_long1700_of_tail ha⟩
+  · exact Or.inr (Or.inl ⟨h1, swept1_not_mem_long1700_of_tail ha⟩)
+  · exact Or.inr (Or.inr (Or.inl ⟨h2, swept2_not_mem_long1700_of_tail ha⟩))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl ⟨h3, swept3_not_mem_long1700_of_tail ha⟩)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr ⟨h4, swept4_not_mem_long1700_of_tail ha⟩)))
+
+lemma long1700_disjoint_diff (E : Set ℝ) :
+    Disjoint LongInterval1700 (E \ LongInterval1700) := by
+  rw [Set.disjoint_left]
+  intro x hxLong hxDiff
+  exact hxDiff.2 hxLong
+
+lemma long1700_union_diff_subset_of_long_subset {E : Set ℝ}
+    (hLong : LongInterval1700 ⊆ E) :
+    LongInterval1700 ∪ (E \ LongInterval1700) ⊆ E := by
+  intro x hx
+  rcases hx with hxLong | hxDiff
+  · exact hLong hxLong
+  · exact hxDiff.1
+
+theorem long1700_and_tail_selector_volume_lower_bound
+    {E : Set ℝ}
+    (hE : MeasurableSet E)
+    (hLong : LongInterval1700 ⊆ E)
+    (selector : TailSelector E) :
+    ENNReal.ofReal M1700Tail ≤ volume E := by
+  have htail :
+      ENNReal.ofReal (M - B) ≤ volume (E \ LongInterval1700) :=
+    tailSelector_volume_lower_bound (hE.diff measurableSet_Ioo)
+      (tailSelector_diff_long1700 selector)
+  have hsplit :
+      ENNReal.ofReal M1700Tail =
+        ENNReal.ofReal B1700 + ENNReal.ofReal (M - B) := by
+    have hB_nonneg : 0 ≤ B1700 := by
+      norm_num [B1700, q]
+    have hTail_nonneg : 0 ≤ M - B := by
+      norm_num [M, B, q]
+    calc
+      ENNReal.ofReal M1700Tail
+          = ENNReal.ofReal (B1700 + (M - B)) := by
+              rfl
+      _ = ENNReal.ofReal B1700 + ENNReal.ofReal (M - B) :=
+          ENNReal.ofReal_add hB_nonneg hTail_nonneg
+  have hmeasure :
+      volume (LongInterval1700 ∪ (E \ LongInterval1700)) =
+        volume LongInterval1700 + volume (E \ LongInterval1700) := by
+    rw [measure_union (long1700_disjoint_diff E) (hE.diff measurableSet_Ioo)]
+  calc
+    ENNReal.ofReal M1700Tail
+        = ENNReal.ofReal B1700 + ENNReal.ofReal (M - B) := hsplit
+    _ ≤ volume LongInterval1700 + volume (E \ LongInterval1700) := by
+          exact add_le_add (by rw [longInterval1700_volume]) htail
+    _ = volume (LongInterval1700 ∪ (E \ LongInterval1700)) := hmeasure.symm
+    _ ≤ volume E :=
+          measure_mono (μ := volume) (long1700_union_diff_subset_of_long_subset hLong)
+
+theorem augmented_positiveSet_long1700_and_tail_selector_volume_lower_bound
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hLong : LongInterval1700 ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (selector : TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ)) :
+    ENNReal.ofReal M1700Tail ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) := by
+  have hposMeas :
+      MeasurableSet
+        (StandardReduction.PositiveSet
+          (StandardReduction.unitIntervalLogPotential μ)) := by
+    simpa [StandardReduction.PositiveSet] using
+      (StandardReduction.unitIntervalLogPotential_measurableSet_threshold μ 0)
+  have hAugMeas :
+      MeasurableSet (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+    hposMeas.union (StandardReduction.diagonalAtomSet_measurableSet μ)
+  have hAugLower :
+      ENNReal.ofReal M1700Tail ≤
+        volume (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+    long1700_and_tail_selector_volume_lower_bound hAugMeas hLong selector
+  exact StandardReduction.unitIntervalAugmentedPositiveSet_lower_bound_transfers μ hAugLower
+
 theorem augmented_positiveSet_volume_lower_bound_from_duality
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
     (w : ℝ → Fin 5 → ℝ)
@@ -1236,6 +1364,32 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing1836_or_tailMass
       μ hNorm hLong htailFinite
   · have h1836 := hforcing1836 hLong
     exact le_trans (by norm_num [M, q]) h1836
+
+/--
+Route closure matching the currently formalized `forcing_1708` constants.
+
+The current forcing certificate has base interval `(-1.7, 0)` and an `1.82`
+fallback, so together with the same 1.814600 tail selector it closes the weaker
+bound `M1700Tail = 1.8066`.  This theorem prevents that certificate from being
+mistaken for the stronger `hforcing1836` handoff needed above.
+-/
+theorem augmented_positiveSet_volume_lower_bound_from_forcing1700_or_tailMass
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hforcing1820 :
+      ¬ LongInterval1700 ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
+        ENNReal.ofReal (q 182 100) ≤
+          volume (StandardReduction.PositiveSet
+            (StandardReduction.unitIntervalLogPotential μ)))
+    (htailFinite : TailMassFiniteHypothesis μ) :
+    ENNReal.ofReal M1700Tail ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) := by
+  by_cases hLong : LongInterval1700 ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact augmented_positiveSet_long1700_and_tail_selector_volume_lower_bound μ hLong
+      (tailSelector_from_piecewise_tail_tailMass μ hNorm htailFinite)
+  · have h1820 := hforcing1820 hLong
+    exact le_trans (by norm_num [M1700Tail, B1700, Tail, M, B, q]) h1820
 
 theorem augmented_positiveSet_volume_lower_bound_from_piecewise_tail_duality
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
