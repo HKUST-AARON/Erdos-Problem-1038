@@ -3975,6 +3975,140 @@ The remaining hard part is to prove that the logarithmic endpoint identity
 and the finite-gap positivity/interlacing conditions rule out a non-degenerate
 collar chain of such escaping components.
 
+### 16.10 Log-rational efficiency reduction
+
+The collar mechanism becomes sharper when the rational balance and the
+logarithmic endpoint identity are put over the same kernel.
+
+Keep
+
+\[
+\ell=v-u,\qquad
+\theta=\frac{c-u}{v-u}\in(0,1),
+\qquad
+1-\theta=\frac{v-c}{v-u}.
+\]
+
+For \(t<u\), put
+
+\[
+r=\frac{u-t}{\ell}>0.
+\]
+
+Then
+
+\[
+K_L(t)=\frac{c-t}{(u-t)(v-t)}
+=\frac{r+\theta}{\ell r(r+1)},
+\]
+
+and the left logarithmic magnitude is
+
+\[
+L_L(t)=\log\frac{v-t}{u-t}=\log\frac{r+1}{r}.
+\]
+
+For \(t>v\), put
+
+\[
+s=\frac{t-v}{\ell}>0.
+\]
+
+Then
+
+\[
+K_R(t)=\frac{t-c}{(u-t)(v-t)}
+=\frac{s+1-\theta}{\ell s(s+1)},
+\]
+
+and the right logarithmic magnitude is
+
+\[
+L_R(t)=\log\frac{t-u}{t-v}=\log\frac{s+1}{s}.
+\]
+
+Define the two dimensionless efficiencies
+
+\[
+A_L(r;\theta)
+=
+\frac{L_L}{\ell K_L}
+=
+\frac{r(r+1)}{r+\theta}\log\frac{r+1}{r},
+\]
+
+and
+
+\[
+A_R(s;\theta)
+=
+\frac{L_R}{\ell K_R}
+=
+\frac{s(s+1)}{s+1-\theta}\log\frac{s+1}{s}.
+\]
+
+The rational balance says
+
+\[
+B:=
+\int_{t<u}K_L(t)\,d\mu(t)
+=
+\int_{t>v}K_R(t)\,d\mu(t).
+\]
+
+The logarithmic endpoint identity becomes
+
+\[
+\ell B\left(
+\mathbb E_R[A_R]-\mathbb E_L[A_L]
+\right)
+=
+q\log\frac{1-\theta}{\theta},
+\]
+
+where \(\mathbb E_L,\mathbb E_R\) denote expectation with respect to the
+\(K_L\,d\mu/B\) and \(K_R\,d\mu/B\) weighted probability measures.
+
+This is the clean scalar form of the obstruction.  The fixed atom at \(-1\)
+contributes to the left weighted average with
+
+\[
+r_-=\frac{u+1}{\ell},\qquad
+A_-(u,v,\theta)
+=
+\frac{r_-(r_-+1)}{r_-+\theta}\log\frac{r_-+1}{r_-},
+\]
+
+and with \(K_L\)-weight at least
+
+\[
+\frac12
+\frac{r_-+\theta}{\ell r_-(r_-+1)}.
+\]
+
+The same collar mass forced by the rational balance has small
+\(A_R(s;\theta)\) when \(s=(t-v)/\ell\) is small, since
+
+\[
+A_R(s;\theta)\to0\qquad (s\downarrow0).
+\]
+
+Thus close right-collar mass is efficient for rational balance but inefficient
+for the logarithmic endpoint identity.  This is the precise mathematical
+tension that should close the \(g=2\) escape:
+
+\[
+\boxed{
+\text{rational balance forces near-right compensation, while the logarithmic
+identity penalizes near-right compensation.}
+}
+\]
+
+The next scalar lemma should compare the possible ranges of
+\(A_L(r;\theta)\) and \(A_R(s;\theta)\), with the forced \(-1\) contribution
+included.  Proving that no parameter set with \(|E|<M_*\) satisfies this
+weighted efficiency identity would remove the first high-genus escape.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

@@ -998,6 +998,80 @@ balance.  The remaining mathematical step is to show that such forced
 near-endpoint compensation degenerates to the \(g=1\) branch, unless the total
 positive length has already reached \(M_*\).
 
+### E8. Log-rational efficiency form
+
+Put
+
+\[
+\theta=\frac{c-u}{v-u},\qquad \ell=v-u.
+\]
+
+For \(t<u\), set \(r=(u-t)/\ell\), and for \(t>v\), set
+\(s=(t-v)/\ell\).  Then
+
+\[
+K_L(t)=\frac{r+\theta}{\ell r(r+1)},\qquad
+K_R(t)=\frac{s+1-\theta}{\ell s(s+1)}.
+\]
+
+The corresponding logarithmic magnitudes are
+
+\[
+L_L(t)=\log\frac{r+1}{r},\qquad
+L_R(t)=\log\frac{s+1}{s}.
+\]
+
+Define
+
+\[
+A_L(r;\theta)
+=
+\frac{r(r+1)}{r+\theta}\log\frac{r+1}{r},
+\qquad
+A_R(s;\theta)
+=
+\frac{s(s+1)}{s+1-\theta}\log\frac{s+1}{s}.
+\]
+
+With
+
+\[
+B=\int_{t<u}K_L\,d\mu=\int_{t>v}K_R\,d\mu,
+\]
+
+the logarithmic endpoint identity is exactly
+
+\[
+\boxed{
+\ell B(\mathbb E_R[A_R]-\mathbb E_L[A_L])
+=
+q\log\frac{1-\theta}{\theta}.
+}
+\]
+
+This is the scalar obstruction behind the collar mechanism.  Near-right
+compensation has
+
+\[
+A_R(s;\theta)\to0\quad(s\downarrow0),
+\]
+
+so it is very effective for the rational balance but weak for the logarithmic
+endpoint identity.  The fixed \(-1\) atom contributes a definite left-side
+efficiency
+
+\[
+A_-(u,v,\theta)
+=
+\frac{r_-(r_-+1)}{r_-+\theta}\log\frac{r_-+1}{r_-},
+\qquad
+r_-=\frac{u+1}{v-u}.
+\]
+
+The next proof target is now a one-variable kernel comparison: show that,
+under \(|E|<M_*\), the forced right-collar compensation cannot make the boxed
+efficiency identity hold together with finite-gap positivity.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
