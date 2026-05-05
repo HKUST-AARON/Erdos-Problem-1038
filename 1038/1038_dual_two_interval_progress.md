@@ -4207,3 +4207,85 @@ The previous first items, extending proof-grade winding coverage and then
 closing global positivity on \(S\) for the stored branch, are now closed.  The
 new first item is the small-\(\eta\) theorem.  The finite-gap reduction item is
 the hardest mathematical gap.
+
+## 17. Corrected-center tube diagnostic for the regularized branch
+
+The regularized residual exposed in §16 is not zero-equivalent to the raw
+positive-\(\eta\) branch.  The right local target is therefore not a naive
+identity between the raw branch and the regularized branch, but a
+defect-corrected tube statement: the regularized residual has a nearby zero
+inside a small \((B,\tau)\)-tube, and the tube boundary retains degree
+\(\pm1\).
+
+I added:
+
+```text
+1038/verify_two_interval_corrected_center_tube.py
+```
+
+This verifier:
+
+1. solves the raw positive-\(\eta\) branch row;
+2. evaluates the canonical `regularize_joint_limit_layer=True` residual;
+3. applies a finite-difference Newton correction in \((B,\tau)\);
+4. checks the corrected center residual;
+5. samples the rectangle boundary around the corrected center and computes the
+   winding degree by summing adjacent complex argument increments.
+
+This is still diagnostic, not a proof-grade interval theorem.  It uses
+double-precision branch centers, finite-difference Jacobians, and sampled
+boundary values.
+
+Default range:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py
+```
+
+Result:
+
+```text
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=7
+worst_correction=1.562740e-04
+worst_corrected_residual=4.884844e-09
+min_boundary_norm=4.216163e-04
+max_angle_jump=5.230361e-02
+```
+
+Nearer singular probe:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --epsilons 3e-10,1e-9,3e-9,1e-8,3e-8,1e-7 \
+  --max-correction 0.002 \
+  --tube-radius-B 0.002 \
+  --tube-radius-tau 0.002 \
+  --max-corrected-residual 1e-5
+```
+
+Result:
+
+```text
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=6
+worst_correction=9.478040e-04
+worst_corrected_residual=1.804376e-07
+min_boundary_norm=8.424645e-04
+max_angle_jump=5.235266e-02
+```
+
+This confirms the current local geometry: after the Newton correction, the
+regularized branch remains well inside a small tube and the sampled boundary
+has degree \(-1\) across both the existing tiny range and a deeper
+near-singular probe.
+
+The remaining proof-grade obligations are now sharper:
+
+1. replace sampled boundary values by Arb interval boundary boxes over eta
+   slabs;
+2. replace finite-difference Newton correction by an interval
+   Newton-Krawczyk inclusion or a validated boundary-degree certificate;
+3. prove the correction/tube bound uniformly for \(0<\eta<10^{-4}\), or split
+   it into a limiting theorem plus a finite overlap with the existing
+   \(\varepsilon\ge10^{-8}\) certificate;
+4. only after that, reconnect this small-\(\eta\) theorem to the global
+   finite-gap reduction.
