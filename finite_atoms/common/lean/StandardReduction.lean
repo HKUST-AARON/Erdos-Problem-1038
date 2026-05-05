@@ -10,6 +10,7 @@ import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Measure.Prokhorov
+import Mathlib.MeasureTheory.Measure.Support
 import Mathlib.Topology.Semicontinuity.Basic
 
 /-!
@@ -7785,6 +7786,37 @@ lemma outsideRestriction_logKernel_integrable_of_Ioo_null
     (outsideRestriction_ae_dist_ge_of_Ioo_null C hε hnull)
 
 /--
+If a test point lies outside the topological support of the outside restriction,
+then some punctured interval around it has outside-restriction mass zero.
+-/
+lemma outsideRestriction_exists_Ioo_null_of_not_mem_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hx :
+      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
+    ∃ ε : ℝ, 0 < ε ∧
+      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0 := by
+  rcases Measure.notMem_support_iff_exists.mp hx with ⟨U, hU_nhds, hU_zero⟩
+  rcases Metric.mem_nhds_iff.mp hU_nhds with ⟨ε, hε, hball_sub⟩
+  refine ⟨ε, hε, ?_⟩
+  have hIoo_sub : Ioo (x - ε) (x + ε) ⊆ U := by
+    simpa [Real.ball_eq_Ioo] using hball_sub
+  exact measure_mono_null hIoo_sub hU_zero
+
+/--
+Outside-restriction log-kernel integrability from absence of the test point from
+the outside-restriction support.
+-/
+lemma outsideRestriction_logKernel_integrable_of_not_mem_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hx :
+      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  rcases outsideRestriction_exists_Ioo_null_of_not_mem_support C hx with
+    ⟨ε, hε, hnull⟩
+  exact outsideRestriction_logKernel_integrable_of_Ioo_null C hε hnull
+
+/--
 Objective non-increase for component replacement using the canonical normalized
 component block.
 
@@ -7888,6 +7920,22 @@ theorem componentReplacement_objective_le_of_strictOutside_IooNull
   intro x hx
   rcases hnull x hx with ⟨ε, hε, hzero⟩
   exact ⟨ε, hε, outsideRestriction_ae_dist_ge_of_Ioo_null C hε hzero⟩
+
+/--
+Component-replacement objective non-increase when every strict outside test
+point is outside the support of the outside restriction.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hsupp : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_IooNull
+    C hmass_pos ?_
+  intro x hx
+  exact outsideRestriction_exists_Ioo_null_of_not_mem_support C (hsupp x hx)
 
 /-!
 ## Finite variance drop under barycenter replacement

@@ -119,6 +119,8 @@ outsideRestriction_logKernel_integrable_of_compact_support
 outsideRestriction_logKernel_integrable_of_dist_ge
 outsideRestriction_ae_dist_ge_of_Ioo_null
 outsideRestriction_logKernel_integrable_of_Ioo_null
+outsideRestriction_exists_Ioo_null_of_not_mem_support
+outsideRestriction_logKernel_integrable_of_not_mem_support
 componentBlock_integral_eq_mass_mul_normalized
 componentBlock_integrable_of_normalized_integrable
 componentBarycenter_eq_normalized_componentBlock_integral
@@ -132,6 +134,7 @@ componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
 componentReplacement_objective_le_of_strictOutside_compactOutside
 componentReplacement_objective_le_of_strictOutside_distSeparated
 componentReplacement_objective_le_of_strictOutside_IooNull
+componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -208,6 +211,10 @@ The same interface is now available in a punctured-neighbourhood form: if the
 outside restriction gives zero mass to some open interval around each strict
 outside test point, Lean turns that into positive distance separation and closes
 the replacement objective comparison.
+The outside certificate can now also be stated in support language: if each
+strict outside test point is outside the topological support of the outside
+restriction, Lean extracts the zero-mass neighbourhood and closes the same
+objective comparison.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -229,8 +236,8 @@ The following review findings remain real Lean gaps, not solved claims:
    Jensen bridge are formalized, and the normalized first-moment integrability
    plus barycenter-atom/component-block/normalized-block log-kernel
    integrability are internal.  The remaining local analytic task is to produce
-   the punctured-neighbourhood/off-singularity certificate from the actual
-   component topology/minimizer data.
+   the outside-support exclusion certificate from the actual component
+   topology/minimizer data.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
