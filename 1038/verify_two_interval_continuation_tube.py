@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -449,6 +450,379 @@ def interval_boundary_exclusion(
     return worst_separation, worst_source
 
 
+def interval_boundary_winding(
+    low_row: Any,
+    high_row: Any,
+    radii: np.ndarray,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    eta_subdivisions: int,
+    edge_subdivisions: int,
+    value_kernel: str,
+    debug_terms: int = 0,
+) -> tuple[str, int, float, float, str]:
+    """Certify the interval winding of K around 0 on ordered boundary boxes."""
+
+    if eta_subdivisions <= 0 or edge_subdivisions <= 0:
+        return "disabled", 0, float("inf"), 0.0, "disabled"
+    from flint import arb
+
+    solver = v.load_solver()
+    eta_low = low_row.epsilon ** 0.5
+    eta_high = high_row.epsilon ** 0.5
+    b_slope, b_intercept, tau_slope, tau_intercept = v.affine_coefficients(low_row, high_row)
+    proof_status = "diagnostic-only" if value_kernel == "sampled-lipschitz" else "proof"
+    global_min_origin = float("inf")
+    global_worst_source = "none"
+    global_max_angle_uncertainty = 0.0
+
+    def radius(value: Any) -> float:
+        return max(0.0, (float(value.upper()) - float(value.lower())) / 2.0)
+
+    def rectangle_origin_distance(K1: Any, K2: Any) -> float:
+        def axis_distance(value: Any) -> float:
+            lower = float(value.lower())
+            upper = float(value.upper())
+            if lower <= 0.0 <= upper:
+                return 0.0
+            return min(abs(lower), abs(upper))
+
+        return math.hypot(axis_distance(K1), axis_distance(K2))
+
+    def format_debug_terms(raw_terms: list[tuple[str, str]]) -> str:
+        parsed = []
+        for label, raw in raw_terms:
+            value = arb(raw)
+            parsed.append((radius(value), float(value.mid()), label))
+        parsed.sort(reverse=True)
+        return ", ".join(
+            f"{label}:rad={rad:.3g}:mid={mid:.3g}" for rad, mid, label in parsed[:debug_terms]
+        )
+
+    def sampled_lipschitz_component(
+        eta_interval_low: float,
+        eta_interval_high: float,
+        u_low: float,
+        u_high: float,
+        tau_low: float,
+        tau_high: float,
+    ) -> tuple[Any, Any]:
+        eta_mid = (eta_interval_low + eta_interval_high) / 2.0
+        u_mid = (u_low + u_high) / 2.0
+        tau_mid = (tau_low + tau_high) / 2.0
+        center_B, center_tau = v.center_at(eta_mid, low_row, high_row)
+        K_mid = np.asarray(
+            solver.rescaled_system(
+                center_B + u_mid,
+                center_tau + tau_mid,
+                eta_mid,
+                limit_solution,
+                left_weight,
+                null_slope,
+            ),
+            dtype=float,
+        )
+        if not np.all(np.isfinite(K_mid)):
+            v.fail("interval boundary winding sampled-lipschitz kernel: non-finite midpoint K")
+        arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+        arb_A, arb_alpha, base_delta_A, base_delta_alpha = v.arb_affine_parameters(
+            solver,
+            arb,
+            arb_eta,
+            u_low,
+            u_high,
+            tau_low,
+            tau_high,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        columns = []
+        for direction_A, direction_alpha in ((arb(1), arb(0)), (arb(repr(float(null_slope))), arb(1))):
+            dG1 = arb(
+                solver._contact_directional_derivative_acb_from_arb(
+                    arb_A, arb_alpha, arb_epsilon, direction_A, direction_alpha, 192
+                )
+            )
+            dH_over_eta = arb(
+                solver._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_eta,
+                    direction_A,
+                    direction_alpha,
+                    arb(repr(float(left_weight))),
+                    arb(repr(float(limit_solution.A))),
+                    arb(repr(float(limit_solution.alpha))),
+                    192,
+                    base_delta_A,
+                    base_delta_alpha,
+                )
+            )
+            columns.append([dG1, dH_over_eta])
+        DK = [[columns[0][0], columns[1][0]], [columns[0][1], columns[1][1]]]
+        u_radius = max(abs(u_mid - u_low), abs(u_high - u_mid))
+        tau_radius = max(abs(tau_mid - tau_low), abs(tau_high - tau_mid))
+        eta_samples = []
+        if eta_interval_low < eta_interval_high:
+            for eta_sample in (eta_interval_low, eta_interval_high):
+                sample_center_B, sample_center_tau = v.center_at(eta_sample, low_row, high_row)
+                eta_samples.append(
+                    np.asarray(
+                        solver.rescaled_system(
+                            sample_center_B + u_mid,
+                            sample_center_tau + tau_mid,
+                            eta_sample,
+                            limit_solution,
+                            left_weight,
+                            null_slope,
+                        ),
+                        dtype=float,
+                    )
+                )
+        eta_error = np.zeros(2)
+        if eta_samples:
+            eta_error = np.max(np.abs(np.asarray(eta_samples) - K_mid), axis=0)
+        values = []
+        for row_idx in range(2):
+            component_radius = (
+                v.arb_abs_upper("interval boundary winding sampled-lipschitz DK", DK[row_idx][0]) * u_radius
+                + v.arb_abs_upper("interval boundary winding sampled-lipschitz DK", DK[row_idx][1]) * tau_radius
+                + float(eta_error[row_idx])
+            )
+            values.append(arb(repr(float(K_mid[row_idx]))) + arb(f"[+/- {component_radius!r}]"))
+        return values[0], values[1]
+
+    def value_box(
+        eta_interval_low: float,
+        eta_interval_high: float,
+        u_low: float,
+        u_high: float,
+        tau_low: float,
+        tau_high: float,
+        source: str,
+    ) -> tuple[Any, Any, str]:
+        arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+        arb_A, arb_alpha, base_delta_A, base_delta_alpha = v.arb_affine_parameters(
+            solver,
+            arb,
+            arb_eta,
+            u_low,
+            u_high,
+            tau_low,
+            tau_high,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        k2_debug_terms: list[tuple[str, str]] = []
+        debug = ""
+        if value_kernel == "direct":
+            U_alpha = arb(solver._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+            H = arb(
+                solver._combined_contact_minus_one_potential_acb_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_epsilon,
+                    arb(repr(float(left_weight))),
+                    192,
+                )
+            )
+            K1 = U_alpha / arb_eta
+            K2 = H / (arb_eta * arb_eta)
+        elif value_kernel == "sampled-lipschitz":
+            K1, K2 = sampled_lipschitz_component(
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+            )
+        elif value_kernel == "residue-log":
+            K1_raw, K2_raw = solver._rescaled_residue_log_values_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(left_weight))),
+                192,
+            )
+            K1 = arb(K1_raw)
+            K2 = arb(K2_raw)
+        elif value_kernel == "residue-log-divided":
+            K1_raw = solver._potential_residue_log_value_divided_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                "contact",
+                192,
+                base_delta_A,
+                base_delta_alpha,
+            )
+            K2_raw = solver._combined_residue_log_value_second_divided_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                192,
+                base_delta_A,
+                base_delta_alpha,
+                k2_debug_terms if debug_terms > 0 else None,
+            )
+            K1 = arb(K1_raw)
+            K2 = arb(K2_raw)
+            if debug_terms > 0 and k2_debug_terms:
+                debug = f"; K2_terms={format_debug_terms(k2_debug_terms)}"
+        else:
+            v.fail(f"interval boundary winding {source}: unknown value kernel {value_kernel!r}")
+        if not K1.is_finite() or not K2.is_finite():
+            v.fail(f"interval boundary winding {source}: non-finite K value")
+        return K1, K2, debug
+
+    def boundary_boxes() -> list[tuple[float, float, float, float, str]]:
+        boxes = []
+        rB = float(radii[0])
+        rT = float(radii[1])
+        for edge_index in range(edge_subdivisions):
+            t0 = -1.0 + 2.0 * edge_index / edge_subdivisions
+            t1 = -1.0 + 2.0 * (edge_index + 1) / edge_subdivisions
+            boxes.append((rB, rB, t0 * rT, t1 * rT, f"right={edge_index}"))
+        for edge_index in range(edge_subdivisions):
+            t0 = 1.0 - 2.0 * edge_index / edge_subdivisions
+            t1 = 1.0 - 2.0 * (edge_index + 1) / edge_subdivisions
+            boxes.append((min(t0, t1) * rB, max(t0, t1) * rB, rT, rT, f"top={edge_index}"))
+        for edge_index in range(edge_subdivisions):
+            t0 = 1.0 - 2.0 * edge_index / edge_subdivisions
+            t1 = 1.0 - 2.0 * (edge_index + 1) / edge_subdivisions
+            boxes.append((-rB, -rB, min(t0, t1) * rT, max(t0, t1) * rT, f"left={edge_index}"))
+        for edge_index in range(edge_subdivisions):
+            t0 = -1.0 + 2.0 * edge_index / edge_subdivisions
+            t1 = -1.0 + 2.0 * (edge_index + 1) / edge_subdivisions
+            boxes.append((t0 * rB, t1 * rB, -rT, -rT, f"bottom={edge_index}"))
+        return boxes
+
+    def lift_sector(
+        previous: tuple[float, float],
+        sector: tuple[float, float],
+    ) -> tuple[tuple[float, float], float]:
+        prev_low, prev_high = previous
+        low, high = sector
+        prev_mid = (prev_low + prev_high) / 2.0
+        mid = (low + high) / 2.0
+        k0 = int(round((prev_mid - mid) / (2.0 * math.pi)))
+        candidates = []
+        for k in range(k0 - 2, k0 + 3):
+            shifted = (low + 2.0 * math.pi * k, high + 2.0 * math.pi * k)
+            overlap = min(prev_high, shifted[1]) - max(prev_low, shifted[0])
+            gap = max(max(prev_low - shifted[1], shifted[0] - prev_high), 0.0)
+            candidates.append((gap, -overlap, shifted, overlap))
+        candidates.sort(key=lambda item: (item[0], item[1]))
+        _, _, shifted, overlap = candidates[0]
+        return shifted, overlap
+
+    def closure_degree(
+        first: tuple[float, float],
+        last: tuple[float, float],
+    ) -> tuple[int, float]:
+        first_low, first_high = first
+        last_low, last_high = last
+        first_mid = (first_low + first_high) / 2.0
+        last_mid = (last_low + last_high) / 2.0
+        k0 = int(round((last_mid - first_mid) / (2.0 * math.pi)))
+        candidates = []
+        for k in range(k0 - 2, k0 + 3):
+            shifted_first = (first_low + 2.0 * math.pi * k, first_high + 2.0 * math.pi * k)
+            overlap = min(last_high, shifted_first[1]) - max(last_low, shifted_first[0])
+            gap = max(max(last_low - shifted_first[1], shifted_first[0] - last_high), 0.0)
+            candidates.append((gap, -overlap, k, overlap))
+        candidates.sort(key=lambda item: (item[0], item[1]))
+        _, _, degree, overlap = candidates[0]
+        return degree, overlap
+
+    all_boxes = boundary_boxes()
+    worst_abs_degree = 10**9
+    for eta_index, (eta_interval_low, eta_interval_high) in enumerate(v.eta_intervals(eta_low, eta_high, eta_subdivisions)):
+        lifted_sectors: list[tuple[float, float]] = []
+        min_overlap = float("inf")
+        for box_index, (u_low, u_high, tau_low, tau_high, edge_source) in enumerate(all_boxes):
+            source = f"eta={eta_index},{edge_source}"
+            K1, K2, debug = value_box(
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+                source,
+            )
+            origin_lower = rectangle_origin_distance(K1, K2)
+            k1_mid = float(K1.mid())
+            k2_mid = float(K2.mid())
+            k1_radius = radius(K1)
+            k2_radius = radius(K2)
+            diagonal_radius = math.hypot(k1_radius, k2_radius)
+            center_norm = math.hypot(k1_mid, k2_mid)
+            sector_margin = center_norm - diagonal_radius
+            if origin_lower < global_min_origin:
+                global_min_origin = origin_lower
+                global_worst_source = source
+            if center_norm <= 0.0 or sector_margin <= 0.0:
+                obstacle = "K-width" if diagonal_radius >= center_norm else "near-origin geometry"
+                v.fail(
+                    f"interval boundary winding {proof_status} failed at {source}: angle sector reaches 0; "
+                    f"origin_lb={origin_lower:.6e} center_norm={center_norm:.6e} "
+                    f"diag_radius={diagonal_radius:.6e} K1_rad={k1_radius:.6e} K2_rad={k2_radius:.6e} "
+                    f"obstacle={obstacle}{debug}"
+                )
+            angle_uncertainty = math.asin(min(1.0, diagonal_radius / center_norm))
+            if angle_uncertainty > global_max_angle_uncertainty:
+                global_max_angle_uncertainty = angle_uncertainty
+            theta = math.atan2(k2_mid, k1_mid)
+            sector = (theta - angle_uncertainty, theta + angle_uncertainty)
+            if box_index == 0:
+                lifted_sectors.append(sector)
+                continue
+            lifted, overlap = lift_sector(lifted_sectors[-1], sector)
+            if overlap <= 0.0:
+                v.fail(
+                    f"interval boundary winding {proof_status} failed between eta={eta_index},"
+                    f"box={box_index - 1} and {source}: lifted angle sectors do not overlap; "
+                    f"gap={-overlap:.6e} max_angle_uncertainty={global_max_angle_uncertainty:.6e} "
+                    f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
+                )
+            min_overlap = min(min_overlap, overlap)
+            lifted_sectors.append(lifted)
+        degree, overlap = closure_degree(lifted_sectors[0], lifted_sectors[-1])
+        if overlap <= 0.0:
+            v.fail(
+                f"interval boundary winding {proof_status} failed at eta={eta_index}: closing angle sectors do not overlap; "
+                f"gap={-overlap:.6e} max_angle_uncertainty={global_max_angle_uncertainty:.6e} "
+                f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
+            )
+        min_overlap = min(min_overlap, overlap)
+        if degree == 0:
+            v.fail(
+                f"interval boundary winding {proof_status} failed at eta={eta_index}: certified winding degree is 0; "
+                f"min_overlap={min_overlap:.6e} max_angle_uncertainty={global_max_angle_uncertainty:.6e} "
+                f"min_origin_lb={global_min_origin:.6e} worst_origin_source={global_worst_source}"
+            )
+        worst_abs_degree = min(worst_abs_degree, abs(degree))
+    return proof_status, worst_abs_degree, global_min_origin, global_max_angle_uncertainty, global_worst_source
+
+
 def verify_tube(
     config: TubeConfig,
     rows: list[Any],
@@ -461,7 +835,8 @@ def verify_tube(
     interval_boundary_subdivisions: tuple[int, int],
     interval_boundary_value_kernel: str,
     interval_boundary_debug_terms: int,
-) -> tuple[float, str, float, float, float, float, int, float, float, float, str]:
+    interval_boundary_winding_subdivisions: tuple[int, int],
+) -> tuple[float, str, float, float, float, float, int, float, float, float, str, str, int, float, float, str]:
     from flint import arb
 
     solver = v.load_solver()
@@ -480,6 +855,18 @@ def verify_tube(
         null_slope,
         boundary_degree_samples[0],
         boundary_degree_samples[1],
+    )
+    winding_status, winding_degree_abs, winding_min_origin, winding_max_angle, winding_source = interval_boundary_winding(
+        low_row,
+        high_row,
+        config.radii,
+        limit_solution,
+        left_weight,
+        null_slope,
+        interval_boundary_winding_subdivisions[0],
+        interval_boundary_winding_subdivisions[1],
+        interval_boundary_value_kernel,
+        interval_boundary_debug_terms,
     )
     interval_boundary_sep, interval_boundary_source = interval_boundary_exclusion(
         low_row,
@@ -624,6 +1011,11 @@ def verify_tube(
         sampled_boundary_max_jump,
         interval_boundary_sep,
         interval_boundary_source,
+        winding_status,
+        winding_degree_abs,
+        winding_min_origin,
+        winding_max_angle,
+        winding_source,
     )
 
 
@@ -651,7 +1043,10 @@ def main() -> int:
         "--interval-boundary-value-kernel",
         choices=["direct", "sampled-lipschitz", "residue-log", "residue-log-divided"],
         default="direct",
-        help="Value kernel used by --interval-boundary-exclusion.",
+        help=(
+            "Value kernel used by --interval-boundary-exclusion and --interval-boundary-winding; "
+            "sampled-lipschitz is diagnostic-only for winding."
+        ),
     )
     parser.add_argument(
         "--interval-boundary-debug-terms",
@@ -659,6 +1054,13 @@ def main() -> int:
         default=0,
         metavar="N",
         help="On interval-boundary failure, print the N largest K2 term radii for residue-log-divided.",
+    )
+    parser.add_argument(
+        "--interval-boundary-winding",
+        type=v.parse_subdivisions,
+        default=(0, 0),
+        metavar="ETA,EDGE",
+        help="Interval boundary winding certificate: ordered boundary boxes at ETA eta slices and EDGE boxes per edge.",
     )
     args = parser.parse_args()
 
@@ -683,6 +1085,11 @@ def main() -> int:
                 sampled_boundary_max_jump,
                 interval_boundary_sep,
                 interval_boundary_source,
+                winding_status,
+                winding_degree_abs,
+                winding_min_origin,
+                winding_max_angle,
+                winding_source,
             ) = verify_tube(
                 config,
                 rows,
@@ -695,6 +1102,7 @@ def main() -> int:
                 args.interval_boundary_exclusion,
                 args.interval_boundary_value_kernel,
                 args.interval_boundary_debug_terms,
+                args.interval_boundary_winding,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
@@ -710,6 +1118,11 @@ def main() -> int:
                 f"sampled_boundary_max_jump={sampled_boundary_max_jump:.6e} "
                 f"interval_boundary_sep={interval_boundary_sep:.6e} "
                 f"interval_boundary_source={interval_boundary_source} "
+                f"interval_boundary_winding_status={winding_status} "
+                f"interval_boundary_winding_degree_abs={winding_degree_abs:d} "
+                f"interval_boundary_winding_min_origin={winding_min_origin:.6e} "
+                f"interval_boundary_winding_max_angle={winding_max_angle:.6e} "
+                f"interval_boundary_winding_source={winding_source} "
                 f"worst_source={source}"
             )
             if value > worst:
