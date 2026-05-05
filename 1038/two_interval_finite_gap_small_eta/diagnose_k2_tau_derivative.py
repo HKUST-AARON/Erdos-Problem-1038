@@ -34,6 +34,11 @@ def main() -> int:
     parser.add_argument("--eta-values", default="1e-16,1e-12,1e-8")
     parser.add_argument("--candidate-lipschitz", type=float, default=2.0e-4)
     parser.add_argument("--candidate-curvature", type=float, default=2.5e-4)
+    parser.add_argument(
+        "--secant-certificate",
+        action="store_true",
+        help="also enclose eta-uniform cell secant slopes with endpoint Arb eta variation",
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -89,6 +94,31 @@ def main() -> int:
                 )
             ).mid()
         )
+
+    def k2_eta_variation_abs_upper(B: float, tau: float, eta_low: float, eta_high: float) -> float:
+        eta_mid = 0.5 * (eta_low + eta_high)
+        arb_eta = solver._arb_interval_from_bounds(eta_low, eta_high)
+        arb_eta_mid = arb(repr(float(eta_mid)))
+        base_delta_A = arb(repr(float(null_slope * tau + B)))
+        base_delta_alpha = arb(repr(float(tau)))
+        A = arb(repr(float(limit.A))) + arb_eta * base_delta_A
+        alpha = arb(repr(float(limit.alpha))) + arb_eta * base_delta_alpha
+        variation = arb(
+            solver._combined_residue_log_value_second_divided_eta_variation_from_arb(
+                A,
+                alpha,
+                arb_eta,
+                arb_eta_mid,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit.A))),
+                arb(repr(float(limit.alpha))),
+                192,
+                base_delta_A,
+                base_delta_alpha,
+                regularize_joint_limit_layer=True,
+            )
+        )
+        return float(abs(variation).upper())
 
     def k0_2(B: float, tau: float) -> float:
         return forcing + q20 * B * B + q11 * B * tau + q02 * tau * tau
@@ -155,6 +185,38 @@ def main() -> int:
         f"worst_curvature={worst_curvature:.6e} candidate_curvature={args.candidate_curvature:.6e} "
         f"worst_curvature_source={worst_curvature_source!r}"
     )
+
+    if args.secant_certificate:
+        eta_low = min(eta_values)
+        eta_high = max(eta_values)
+        eta_mid = 0.5 * (eta_low + eta_high)
+        step = 0.1 / (args.grid - 1)
+        worst_secant = 0.0
+        worst_secant_source = ""
+        for B in (0.01, -0.01):
+            for index in range(args.grid - 1):
+                tau_left = tau0 - 0.05 + step * index
+                tau_right = tau_left + step
+                left = remainder(B, tau_left, eta_mid)
+                right = remainder(B, tau_right, eta_mid)
+                left_eta = k2_eta_variation_abs_upper(B, tau_left, eta_low, eta_high)
+                right_eta = k2_eta_variation_abs_upper(B, tau_right, eta_low, eta_high)
+                secant_bound = (abs(right - left) + left_eta + right_eta) / step
+                if secant_bound > worst_secant:
+                    worst_secant = secant_bound
+                    worst_secant_source = (
+                        f"B={B:+.2f},index={index},tau_left={tau_left:.12e},"
+                        f"tau_right={tau_right:.12e},left_eta={left_eta:.6e},right_eta={right_eta:.6e}"
+                    )
+        secant_status = "PASS-DIAGNOSTIC" if worst_secant < args.candidate_lipschitz else "FAIL-DIAGNOSTIC"
+        print(
+            "TWO-INTERVAL K2 ETA-UNIFORM SECANTS: "
+            f"{secant_status} grid={args.grid:d} eta_low={eta_low:.6e} eta_high={eta_high:.6e} "
+            f"worst_secant_bound={worst_secant:.6e} candidate_lipschitz={args.candidate_lipschitz:.6e} "
+            f"worst_source={worst_secant_source!r}"
+        )
+        if secant_status != "PASS-DIAGNOSTIC":
+            status = "FAIL-DIAGNOSTIC"
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 

@@ -466,3 +466,41 @@ visible endpoint spike on the tested eta ladder.  The exact next proof artifact
 should be an interval version of this derivative check, ideally using the same
 combined K2 residual-level algebra rather than differentiating the uncancelled
 primitive.
+
+## Eta-Uniform Secant Diagnostic
+
+I also added a stronger grid diagnostic that is closer to an interval proof.
+For each tau cell, it evaluates the two endpoint remainders at
+\(\eta_{\mathrm{mid}}\), thickens each endpoint by the Arb eta-variation
+enclosure over the full eta interval, and divides by the cell width.  This
+gives an eta-uniform secant bound for each cell.
+
+Command:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 401 \
+  --h 1e-5 \
+  --eta-values 1e-16,1e-8 \
+  --secant-certificate
+```
+
+Observed summary:
+
+```text
+TWO-INTERVAL K2 ETA-UNIFORM SECANTS: PASS-DIAGNOSTIC
+grid=401
+eta_low=1.000000e-16
+eta_high=1.000000e-08
+worst_secant_bound=1.790724e-04
+candidate_lipschitz=2.000000e-04
+worst_source='B=+0.01,index=399,tau_left=1.103641261372e+00,tau_right=1.103891261372e+00,left_eta=8.530000e-09,right_eta=8.530000e-09'
+```
+
+This is not yet a theorem because secant control alone does not bound all
+within-cell derivatives.  But it has two useful consequences:
+
+1. eta-uniformity is no longer the numerical difficulty; the Arb eta-variation
+   contribution is only about `8.53e-9` at the worst endpoint;
+2. the remaining proof gap is exactly a within-cell derivative/curvature
+   enclosure, not a global endpoint singularity.
