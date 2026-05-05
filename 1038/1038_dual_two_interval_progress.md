@@ -4384,6 +4384,86 @@ status=proof degree_abs=1 min_origin=8.394290e-04 max_angle=2.072483e-01
 TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=4
 ```
 
+For even smaller \(\eta\), the raw positive-\(\eta\) root solver becomes
+numerically ill-conditioned.  This should not be treated as a mathematical
+failure: the correct center is already governed by the limiting fold.  I added
+a `--center-mode limiting` option, which uses the eta-zero center
+
+\[
+B=0,\qquad \tau=\tau_0=1.053891261372\ldots
+\]
+
+from `verify_two_interval_small_eta_limit.py` and then calls the same
+regularized interval winding kernel.
+
+The limiting-center bridge passes from \(3\cdot10^{-12}\) to
+\(3\cdot10^{-10}\):
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --center-mode limiting \
+  --epsilons 3e-12,1e-11,3e-11,1e-10,3e-10 \
+  --max-correction 0.001 \
+  --tube-radius-B 0.02 \
+  --tube-radius-tau 0.02 \
+  --max-corrected-residual 1e-4 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3
+```
+
+Result:
+
+```text
+interval slab 3.000000e-12:1.000000e-11:
+status=proof degree_abs=1 min_origin=8.352028e-03 max_angle=2.083759e-01
+interval slab 1.000000e-11:3.000000e-11:
+status=proof degree_abs=1 min_origin=8.348376e-03 max_angle=2.084776e-01
+interval slab 3.000000e-11:1.000000e-10:
+status=proof degree_abs=1 min_origin=8.341144e-03 max_angle=2.086807e-01
+interval slab 1.000000e-10:3.000000e-10:
+status=proof degree_abs=1 min_origin=8.329573e-03 max_angle=2.090028e-01
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=5
+```
+
+It also passes a deeper stress test from \(3\cdot10^{-16}\) to
+\(3\cdot10^{-12}\):
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --center-mode limiting \
+  --epsilons 3e-16,1e-15,3e-15,1e-14,3e-14,1e-13,3e-13,1e-12,3e-12 \
+  --max-correction 0.001 \
+  --tube-radius-B 0.02 \
+  --tube-radius-tau 0.02 \
+  --max-corrected-residual 1e-4 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3
+```
+
+Result:
+
+```text
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=9
+worst_corrected_residual=3.080816e-06
+interval_winding_checked=8
+interval_winding_min_origin=8.354314e-03
+interval_winding_max_angle=2.533038e-01
+```
+
+Thus the present bridge evidence is:
+
+```text
+limiting-center interval bridge:  [3e-16, 3e-10] PASS
+corrected-center interval bridge: [3e-10, 1e-8] PASS
+existing finite certificate:      [1e-8, 0.002] PASS
+```
+
+This is still not a theorem for all \(0<\varepsilon<10^{-8}\), but it has
+changed the remaining singular problem substantially.  The remaining gap is
+now the final asymptotic step \(0<\varepsilon<3\cdot10^{-16}\), plus replacing
+the floating limiting-center endpoint data by rational/Arb constants in a
+clean certificate.
+
 The default seven-point interval run passes through
 \([10^{-8},10^{-6}]\) and then fails on the wider higher-\(\eta\) slabs
 \([10^{-6},3\cdot10^{-6}]\) and \([3\cdot10^{-6},10^{-5}]\).  This is not a
@@ -4394,10 +4474,12 @@ slab certificate.
 
 The remaining proof-grade obligations are now sharper:
 
-1. replace finite-difference Newton correction by an interval
+1. turn the limiting-center bridge into an explicit asymptotic theorem for
+   \(0<\varepsilon<3\cdot10^{-16}\);
+2. replace finite-difference Newton correction by an interval
    Newton-Krawczyk inclusion or a validated boundary-degree certificate;
-2. prove the correction/tube bound uniformly for \(0<\eta<10^{-4}\), or split
+3. prove the correction/tube bound uniformly for \(0<\eta<10^{-4}\), or split
    it into a limiting theorem plus a finite overlap with the existing
    \(\varepsilon\ge10^{-8}\) certificate;
-3. only after that, reconnect this small-\(\eta\) theorem to the global
+4. only after that, reconnect this small-\(\eta\) theorem to the global
    finite-gap reduction.

@@ -162,6 +162,12 @@ def main() -> int:
     parser.add_argument("--max-corrected-residual", type=float, default=1.0e-6)
     parser.add_argument("--min-boundary-norm", type=float, default=1.0e-4)
     parser.add_argument(
+        "--center-mode",
+        choices=("raw-corrected", "limiting"),
+        default="raw-corrected",
+        help="Use Newton-corrected raw branch centers, or the eta=0 limiting center B=0,tau=tau0.",
+    )
+    parser.add_argument(
         "--interval-boundary-winding",
         default=None,
         help=(
@@ -178,7 +184,8 @@ def main() -> int:
 
     solver = load_solver()
     limit = solver.solve_limit()
-    left_weight, null_slope, _forcing_ratios, _curvature, amplitude_alpha, amplitude_A = solver.fold_diagnostics()
+    left_weight, null_slope, _forcing_ratios, _curvature, tau0, amplitude_A = solver.fold_diagnostics()
+    amplitude_alpha = tau0
     guess = (limit.A + amplitude_A * math.sqrt(min(epsilons)), limit.alpha + amplitude_alpha * math.sqrt(min(epsilons)))
     radii = np.asarray([args.tube_radius_B, args.tube_radius_tau], dtype=float)
 
@@ -191,9 +198,13 @@ def main() -> int:
 
     for epsilon in epsilons:
         eta = math.sqrt(epsilon)
-        solution, guess = solver.solve_one(epsilon, guess)
-        B = (solution.A - limit.A) / eta - float(null_slope) * ((solution.alpha - limit.alpha) / eta)
-        tau = (solution.alpha - limit.alpha) / eta
+        if args.center_mode == "limiting":
+            B = 0.0
+            tau = float(tau0)
+        else:
+            solution, guess = solver.solve_one(epsilon, guess)
+            B = (solution.A - limit.A) / eta - float(null_slope) * ((solution.alpha - limit.alpha) / eta)
+            tau = (solution.alpha - limit.alpha) / eta
 
         def map_in_fold(point: np.ndarray) -> np.ndarray:
             Bp, taup = float(point[0]), float(point[1])
@@ -212,8 +223,11 @@ def main() -> int:
 
         raw_center = np.asarray([B, tau], dtype=float)
         raw_defect = map_in_fold(raw_center)
-        jacobian = finite_difference_jacobian(map_in_fold, raw_center, args.fd_step)
-        correction = -np.linalg.solve(jacobian, raw_defect)
+        if args.center_mode == "limiting":
+            correction = np.zeros(2)
+        else:
+            jacobian = finite_difference_jacobian(map_in_fold, raw_center, args.fd_step)
+            correction = -np.linalg.solve(jacobian, raw_defect)
         corrected_center = raw_center + correction
         corrected_residual = map_in_fold(corrected_center)
         boundary = boundary_points(corrected_center, radii, args.edge_samples)
