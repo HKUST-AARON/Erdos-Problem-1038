@@ -31,6 +31,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--grid", type=int, default=41)
     parser.add_argument("--target-bound", type=float, default=7.0e-3)
+    parser.add_argument("--candidate-lipschitz", type=float, default=2.0e-4)
     parser.add_argument("--eta-values", default="1e-16,1e-12,1e-8")
     args = parser.parse_args()
 
@@ -113,15 +114,15 @@ def main() -> int:
                 f"max_abs={local_worst:.6e} max_slope={local_slope:.6e}"
             )
 
-    # If a formal slope bound L <= 2e-4 is later certified, even one box per
-    # edge would give value + L*0.05 < 8e-5, far below the 7e-3 target.
-    candidate_lipschitz = 2.0e-4
-    implied_bound = worst_value + candidate_lipschitz * 0.05
+    # If a formal slope bound at the candidate level is later certified, even
+    # one box per edge would sit far below the 7e-3 winding-margin target.
+    tau_radius = 0.05
+    implied_bound = worst_value + args.candidate_lipschitz * tau_radius
     status = "PASS-DIAGNOSTIC" if implied_bound < args.target_bound else "FAIL-DIAGNOSTIC"
     print(
         "TWO-INTERVAL K2 EDGE LIPSCHITZ: "
         f"{status} worst_value={worst_value:.6e} sampled_worst_slope={worst_slope:.6e} "
-        f"candidate_lipschitz={candidate_lipschitz:.6e} implied_edge_bound={implied_bound:.6e} "
+        f"candidate_lipschitz={args.candidate_lipschitz:.6e} implied_edge_bound={implied_bound:.6e} "
         f"target_bound={args.target_bound:.6e} worst_source={worst_source!r}"
     )
     return 0 if status == "PASS-DIAGNOSTIC" else 1

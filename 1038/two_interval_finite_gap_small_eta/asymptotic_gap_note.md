@@ -345,3 +345,39 @@ but a certified K2 edge lemma:
 on the endpoint eta range and the tau interval.  Together with one certified
 edge value bound, this would give a K2 edge bound below `8e-5`, far inside the
 `7e-3` winding margin target.
+
+## Dense K2 Edge Stress Test
+
+To check that the candidate edge lemma is not an artifact of a coarse grid, I
+also ran a dense eta/tau stress test:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_edge_lipschitz.py \
+  --grid 2001 \
+  --eta-values 1e-16,3e-16,1e-15,3e-15,1e-14,3e-14,1e-13,3e-13,1e-12,3e-12,1e-11,3e-11,1e-10,3e-10,1e-9,3e-9,1e-8
+```
+
+Observed summary:
+
+```text
+TWO-INTERVAL K2 EDGE LIPSCHITZ: PASS-DIAGNOSTIC
+worst_value=6.409310e-05
+sampled_worst_slope=1.108567e-04
+candidate_lipschitz=2.000000e-04
+implied_edge_bound=7.409310e-05
+target_bound=7.000000e-03
+worst_source='B=+0.01,eta=1.0e-16'
+```
+
+The maximum sampled slope is stable across the whole tested eta ladder and
+occurs at the lower eta edge.  This makes the remaining proof obligation
+sharper:
+
+```text
+Replace this sampled stress test by an Arb/Taylor edge enclosure for
+d/dtau K2_eta(B,tau)-d/dtau K2_0(B,tau), B = +/-0.01.
+```
+
+If that derivative enclosure proves the conservative bound `2e-4`, the K2
+edge part of the small-eta singular gap closes with a margin of roughly two
+orders of magnitude.
