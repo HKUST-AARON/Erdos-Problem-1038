@@ -38,6 +38,7 @@ verify_asymptotic_obligation.py
 diagnose_interval_remainder_components.py
 diagnose_k1_eta_floor.py
 verify_interval_remainder_boxes.py
+diagnose_k2_edge_lipschitz.py
 ```
 
 The folder keeps the route-specific solver/verifiers together so the forum
@@ -135,7 +136,7 @@ Expected summary:
 
 ```text
 TWO-INTERVAL INTERVAL REMAINDER COMPONENTS:
-FAIL-DIAGNOSTIC ... blocker=K1
+PASS-DIAGNOSTIC ... blocker=K2
 ```
 
 K1 eta-floor diagnostic:
@@ -163,6 +164,27 @@ Current expected summary:
 TWO-INTERVAL INTERVAL REMAINDER BOXES:
 FAIL ... worst_bound=6.540541e-01 worst_source=right ... D2=[+/- 0.654]
 ```
+
+K2 edge-Lipschitz diagnostic:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_edge_lipschitz.py
+```
+
+Current expected summary:
+
+```text
+TWO-INTERVAL K2 EDGE LIPSCHITZ:
+PASS-DIAGNOSTIC worst_value=6.409310e-05
+sampled_worst_slope=1.107338e-04
+implied_edge_bound=7.409310e-05
+target_bound=7.000000e-03
+```
+
+This is still a diagnostic, not the final continuum proof.  Its role is to
+identify the next proof-grade lemma: a direct edge Lipschitz/remainder bound
+for the K2 component on \(B=\pm0.01\), avoiding the dependency blow-up in the
+generic boundary-box checker.
 
 ## Caveat
 

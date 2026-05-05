@@ -302,3 +302,46 @@ Thus the endpoint-safe K1 fix succeeded, but the next blocker is K2 dependency
 on the right/left boundary boxes.  The next kernel should reduce K2 directly on
 fixed \(B=\pm0.01\) edges, rather than relying on generic interval dependency
 over \(\tau\).  The blocker is tau/right-edge dependency, not eta-width.
+
+## K2 Edge-Lipschitz Diagnostic
+
+I added a focused diagnostic for the right/left boundary issue:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_edge_lipschitz.py
+```
+
+It evaluates the true K2 remainder on the two fixed boundary edges
+\(B=\pm0.01\), over the endpoint eta range represented by
+\(\eta=10^{-16},10^{-12},10^{-8}\), and estimates the tau slope on the
+\(\tau_0\pm0.05\) edge interval.
+
+Observed output:
+
+```text
+B=+0.01 eta=1.0e-16 range=[5.350883e-05,6.409310e-05] max_abs=6.409310e-05 max_slope=1.107338e-04
+B=+0.01 eta=1.0e-12 range=[5.350885e-05,6.409310e-05] max_abs=6.409310e-05 max_slope=1.107337e-04
+B=+0.01 eta=1.0e-08 range=[5.349449e-05,6.407606e-05] max_abs=6.407606e-05 max_slope=1.107053e-04
+B=-0.01 eta=1.0e-16 range=[5.330673e-05,6.387085e-05] max_abs=6.387085e-05 max_slope=1.105324e-04
+B=-0.01 eta=1.0e-12 range=[5.330673e-05,6.387084e-05] max_abs=6.387084e-05 max_slope=1.105324e-04
+B=-0.01 eta=1.0e-08 range=[5.329255e-05,6.385399e-05] max_abs=6.385399e-05 max_slope=1.105040e-04
+TWO-INTERVAL K2 EDGE LIPSCHITZ: PASS-DIAGNOSTIC
+worst_value=6.409310e-05
+sampled_worst_slope=1.107338e-04
+candidate_lipschitz=2.000000e-04
+implied_edge_bound=7.409310e-05
+target_bound=7.000000e-03
+```
+
+This explains why the generic interval-box checker fails: it loses almost four
+orders of magnitude through dependency, while the actual edge remainder is
+smooth and small.  The next proof-grade step is therefore not more eta slicing,
+but a certified K2 edge lemma:
+
+```text
+|d/dtau (K2_eta(+/-0.01,tau)-K2_0(+/-0.01,tau))| <= 2e-4
+```
+
+on the endpoint eta range and the tau interval.  Together with one certified
+edge value bound, this would give a K2 edge bound below `8e-5`, far inside the
+`7e-3` winding margin target.
