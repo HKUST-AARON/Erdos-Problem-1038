@@ -4199,6 +4199,209 @@ The next proof target is therefore sharpened:
 }
 \]
 
+### 16.12 The monotone side of the efficiency kernel
+
+The first kernel fact needed for the split is elementary and does not require
+any numeric certification.
+
+For
+
+\[
+A_\alpha(x)=
+\frac{x(x+1)}{x+\alpha}\log\frac{x+1}{x},
+\qquad x>0,
+\]
+
+one has
+
+\[
+\boxed{
+\alpha\ge\frac12
+\quad\Longrightarrow\quad
+0<A_\alpha(x)<1
+\text{ and } A_\alpha \text{ is strictly increasing.}
+}
+\]
+
+Indeed,
+
+\[
+A_\alpha'(x)
+=
+\frac{N_\alpha(x)}{(x+\alpha)^2},
+\]
+
+where
+
+\[
+N_\alpha(x)
+=
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha).
+\]
+
+The derivative of \(N_\alpha\) with respect to \(\alpha\) is
+
+\[
+\partial_\alpha N_\alpha(x)
+=(2x+1)\log\frac{x+1}{x}-1>0.
+\]
+
+The last inequality follows from
+
+\[
+\log y>\frac{2(y-1)}{y+1}\qquad (y>1)
+\]
+
+with \(y=(x+1)/x\).  Hence for \(\alpha\ge1/2\),
+
+\[
+N_\alpha(x)\ge N_{1/2}(x).
+\]
+
+Again using the same logarithmic inequality,
+
+\[
+N_{1/2}(x)
+>
+\left(x^2+x+\frac12\right)\frac{2}{2x+1}
+-\left(x+\frac12\right)
+=
+\frac{1}{2(2x+1)}
+>0.
+\]
+
+Therefore \(A_\alpha'(x)>0\) for \(\alpha\ge1/2\).  Since
+
+\[
+\lim_{x\downarrow0}A_\alpha(x)=0,
+\qquad
+\lim_{x\to\infty}A_\alpha(x)=1,
+\]
+
+strict monotonicity gives \(0<A_\alpha(x)<1\).
+
+For the \(g=2\) escape this gives an immediate consequence:
+
+\[
+\theta\le\frac12
+\quad\Longrightarrow\quad
+A_R(s;\theta)=A_{1-\theta}(s)<1
+\quad\text{for every }s>0.
+\]
+
+Moreover \(A_R(s;\theta)\to0\) as \(s\downarrow0\).  Thus a right-collar
+compensation packet cannot carry high logarithmic efficiency in the
+\(\theta\le1/2\) branch.  Any attempt to satisfy
+
+\[
+\mathbb E_R[A_R]\ge\mathbb E_L[A_L]
+\]
+
+must either move a definite portion of right \(K_R\)-mass away from the
+collar, or make the left weighted efficiency small.  The first option
+contradicts the collar forcing unless the component pinches to a neighbour;
+the second option requires left-side mass very close to \(u\), which is the
+left-endpoint version of the same pinching phenomenon.
+
+Thus the monotone-kernel lemma converts the \(\theta\le1/2\) branch into a
+two-sided collar dichotomy:
+
+\[
+\boxed{
+\theta\le1/2,\ |E|<M_*
+\quad\Rightarrow\quad
+\text{either right-endpoint pinching or left-endpoint pinching.}
+}
+\]
+
+The remaining task in this branch is no longer analytic kernel shape; it is
+to show that either endpoint pinching reduces the finite-gap solution to the
+\(g=1\) branch or increases total positive length to at least \(M_*\).
+
+### 16.13 Blow-up variables for the dangerous branch \(\theta>1/2\)
+
+The branch
+
+\[
+\theta>1/2
+\]
+
+is dangerous because the endpoint identity no longer asks the right weighted
+efficiency to dominate the left one.  It is better viewed as a right-endpoint
+blow-up.
+
+Put
+
+\[
+a=c-u,\qquad b=v-c,\qquad \kappa=\frac{a}{b}>1,
+\qquad \ell=a+b=b(\kappa+1).
+\]
+
+For right-side mass near \(v\), write
+
+\[
+t=v+b\tau,\qquad \tau>0.
+\]
+
+Then the rational kernel and logarithmic magnitude become
+
+\[
+K_R(t)
+=
+\frac{t-c}{(u-t)(v-t)}
+=
+\frac{\tau+1}{b\,\tau(\tau+\kappa+1)},
+\]
+
+and
+
+\[
+L_R(t)
+=
+\log\frac{t-u}{t-v}
+=
+\log\frac{\tau+\kappa+1}{\tau}.
+\]
+
+Thus a right-collar packet at distance \(O(b)\) has rational strength
+\(O(m/b)\) if its mass is \(m\), but logarithmic strength only
+\(O(m)\).  To compensate the fixed \(-1\) contribution, such a packet needs
+only mass \(m=O(b)\).  Consequently, in the dangerous branch the compensating
+right mass is naturally a vanishing endpoint cluster.
+
+The singular atom itself is also at distance \(b\) from the endpoint \(v\).
+Therefore the local picture is a three-object cluster:
+
+\[
+c=v-b,\qquad
+t=v+b\tau,\qquad
+v.
+\]
+
+This is exactly the geometry of a pinching degeneration of the finite-gap
+transform.  In Stieltjes terms, a positive finite-gap solution cannot keep
+such a cluster as an independent \(g=2\) feature unless the associated zero
+of \(P\), the endpoint \(v\), and the nearby compensating pole/cut collapse
+in the same local scale.
+
+The dangerous branch should therefore be attacked by the following blow-up
+claim.
+
+\[
+\boxed{
+\theta>1/2,\ |E|<M_*
+\quad\Longrightarrow\quad
+\text{the right endpoint }v\text{ is a removable pinching limit, not a new
+non-degenerate }g=2\text{ extremal.}
+}
+\]
+
+After pinching, the limiting transform loses one gap and returns to the
+already isolated \(g=1\) two-interval branch.  Thus the exact lower bound
+reduces to proving that the blow-up limit above preserves positivity of
+residues and density only in the pinched \(g=1\) configuration.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

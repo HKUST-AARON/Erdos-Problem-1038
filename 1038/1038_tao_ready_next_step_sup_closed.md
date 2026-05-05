@@ -1129,6 +1129,102 @@ and
 where the atom is already biased toward the right endpoint and the same
 collar forcing should become a pinching/degeneration argument.
 
+### E10. Monotone kernel lemma
+
+The useful exact kernel fact is:
+
+\[
+\boxed{
+\alpha\ge\frac12
+\quad\Rightarrow\quad
+0<A_\alpha(x)<1
+\text{ and }A_\alpha\text{ is strictly increasing.}
+}
+\]
+
+Write
+
+\[
+A_\alpha'(x)
+=
+\frac{
+\left(x^2+2\alpha x+\alpha\right)\log\frac{x+1}{x}
+-(x+\alpha)}
+{(x+\alpha)^2}.
+\]
+
+The numerator is increasing in \(\alpha\), because
+
+\[
+(2x+1)\log\frac{x+1}{x}-1>0.
+\]
+
+At \(\alpha=1/2\), the inequality
+
+\[
+\log y>\frac{2(y-1)}{y+1},\qquad y>1,
+\]
+
+with \(y=(x+1)/x\), gives
+
+\[
+\left(x^2+x+\frac12\right)\log\frac{x+1}{x}
+-\left(x+\frac12\right)>0.
+\]
+
+Hence \(A_\alpha\) is increasing for \(\alpha\ge1/2\), and the endpoint limits
+force \(0<A_\alpha<1\).
+
+In the \(g=2\) problem this applies to
+
+\[
+\theta\le\frac12
+\quad\Rightarrow\quad
+A_R(s;\theta)=A_{1-\theta}(s)<1.
+\]
+
+Together with \(A_R(s;\theta)\to0\) in the right collar, this turns the
+\(\theta\le1/2\) branch into a two-sided pinching dichotomy: either right
+compensation moves away from the collar, contradicting rational-balance
+forcing, or the left weighted efficiency is made small by mass close to \(u\),
+which is left-endpoint pinching.
+
+### E11. Dangerous branch blow-up
+
+For
+
+\[
+\theta>1/2,
+\]
+
+put
+
+\[
+a=c-u,\qquad b=v-c,\qquad \kappa=a/b>1.
+\]
+
+Near the right endpoint write \(t=v+b\tau\).  Then
+
+\[
+K_R(t)
+=
+\frac{\tau+1}{b\,\tau(\tau+\kappa+1)},
+\qquad
+L_R(t)
+=
+\log\frac{\tau+\kappa+1}{\tau}.
+\]
+
+Thus right-collar mass at the same scale as \(b=v-c\) has rational strength
+\(O(m/b)\) but logarithmic strength \(O(m)\).  It can compensate the fixed
+left rational contribution with only \(m=O(b)\) mass, so the dangerous branch
+is naturally a vanishing endpoint cluster.
+
+The intended closure is now explicit: prove that this cluster is a removable
+pinching limit of the finite-gap transform.  If positivity of residues and
+density survives the blow-up, the limit loses one gap and returns to the
+\(g=1\) two-interval branch; otherwise the \(g=2\) candidate is impossible.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
