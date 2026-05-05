@@ -159,3 +159,32 @@ Close it by an eta=0 analytic remainder theorem.
 
 The finite bridge is already close enough to zero that the remaining endpoint
 must be handled by the limiting normal form plus a uniform remainder bound.
+
+## Precision Stress Check
+
+Raising the point-value precision does not remove the lower-eta failure:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/verify_corrected_center_tube.py \
+  --center-mode limiting \
+  --epsilons 1e-30,3e-28,1e-26 \
+  --precision 1024 \
+  --max-correction 0.001 \
+  --tube-radius-B 0.02 \
+  --tube-radius-tau 0.02 \
+  --max-corrected-residual 1e-4
+```
+
+Observed:
+
+```text
+epsilon=1.000000e-30 ... corrected_inf=6.825498e-02 degree=0
+epsilon=3.000000e-28 ... corrected_inf=1.128316e-03 degree=-1
+epsilon=1.000000e-26 ... corrected_inf=1.741874e-04 degree=-1
+TWO-INTERVAL CORRECTED-CENTER TUBE: FAIL-DIAGNOSTIC
+```
+
+The same behavior at 512-bit and 1024-bit precision indicates that this is not
+a simple precision knob issue.  The finite positive-eta residue-log expression
+has the wrong conditioning for the endpoint.  The proof must use the eta-zero
+normal form and certify the remainder analytically.
