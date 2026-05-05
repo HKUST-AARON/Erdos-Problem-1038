@@ -5555,6 +5555,276 @@ Once those identities are written down, the determinant sign is already fixed
 by 16.27; the proof no longer needs a numerical search at this compact
 obstruction.
 
+### 16.29 Local field-increment identities
+
+The adjoint-to-split-kernel identification can be separated from the global
+finite-gap parametrisation.  Let \(\eta\) be any signed first-order variation
+of the exterior dual density/residue data supported on the real cuts
+
+\[
+J=I_1\cup I_2,\qquad J\cap[u,v]=\varnothing.
+\]
+
+Define its logarithmic field on the escaping component by
+
+\[
+\Phi_\eta(y)
+:=
+\int_J \log\frac1{|y-x|}\,d\eta(x).
+\]
+
+Then
+
+\[
+\Phi_\eta'(y)
+=
+\int_J\frac{d\eta(x)}{x-y}.
+\]
+
+Hence the four local probes of the field at \(u<c<v\) are exactly
+
+\[
+\eta(J)=\int_J 1\,d\eta,
+\]
+
+\[
+\Phi_\eta'(c)
+=
+\int_J\frac{d\eta(x)}{x-c},
+\]
+
+\[
+\Phi_\eta(c)-\Phi_\eta(u)
+=
+\int_J
+\left(\int_u^c\frac{ds}{x-s}\right)d\eta(x)
+=
+\int_J L_-(x)\,d\eta(x),
+\]
+
+and
+
+\[
+\Phi_\eta(v)-\Phi_\eta(c)
+=
+\int_J
+\left(\int_c^v\frac{ds}{x-s}\right)d\eta(x)
+=
+\int_J L_+(x)\,d\eta(x).
+\]
+
+Thus the split kernels have a direct intrinsic meaning:
+
+\[
+\boxed{
+1,\ (x-c)^{-1},\ L_-,\ L_+
+\text{ are the total mass, the }c\text{-jet, and the two one-sided
+field increments across the escaping component.}
+}
+\]
+
+This is the missing bridge between the variational equations and the
+determinant calculation in 16.27.  Endpoint equations are equations for the
+field values at \(u\) and \(v\); the dual zero \(F(c)=0\) is the vanishing of
+the \(c\)-jet; and the stationarity equation couples the two one-sided
+increments through the positive lengths
+
+\[
+a=c-u,\qquad b=v-c.
+\]
+
+### 16.30 Density row-space reduction
+
+The compact adjoint does not need arbitrary values of
+\(\Phi_\eta(u),\Phi_\eta(c),\Phi_\eta(v)\).  The atom variables
+
+\[
+q,\qquad a=c-u,\qquad b=v-c,\qquad c
+\]
+
+absorb the common additive field level and the singular logarithmic terms.
+After this local elimination, the exterior density part of the linearised
+endpoint/atom block depends only on the four quantities in 16.29:
+
+\[
+\eta(J),\qquad
+\Phi_\eta'(c),\qquad
+\Phi_\eta(c)-\Phi_\eta(u),\qquad
+\Phi_\eta(v)-\Phi_\eta(c).
+\]
+
+Equivalently, if the adjoint polynomial is factored as
+
+\[
+H(x)=(x-c)G(x),
+\]
+
+then the density row-space of the compact KKT obstruction is spanned by the
+moments
+
+\[
+\int_J G(x)\omega(x)\,dx,\qquad
+\int_J \frac{G(x)\omega(x)}{x-c}\,dx,
+\]
+
+\[
+\int_J L_-(x)G(x)\omega(x)\,dx,\qquad
+\int_J L_+(x)G(x)\omega(x)\,dx,
+\]
+
+where
+
+\[
+\omega(x)=\frac1{|Q(x)|^2\sqrt{|D(x)|}}>0.
+\]
+
+The local non-degeneracy needed for this row-space reduction is precisely the
+compact chamber condition
+
+\[
+q>0,\qquad a>0,\qquad b>0,\qquad W'(u)<0<W'(v),\qquad W''>0
+\text{ on }[u,v].
+\]
+
+Under these assumptions the variables \((q,a,b,c)\) give full rank in the
+singular local block: changing \(q\) changes the logarithmic scale, changing
+\((a,b)\) changes the two one-sided endpoint gaps, and changing \(c\) changes
+the \(c\)-jet.  No additional exterior density functional is created by the
+endpoint zero equations or the stationarity equation.
+
+The compact proof target is therefore sharpened to:
+
+\[
+\boxed{
+\text{prove the above local elimination rigorously, then apply the oriented
+Chebyshev determinant of 16.27 to the four displayed moments.}
+}
+\]
+
+At this point the determinant side is closed at the mathematical-identity
+level.  The remaining proof work is not numerical; it is the finite-dimensional
+implicit-function elimination of the local variables \((q,a,b,c)\) from the
+endpoint/atom block.
+
+### 16.31 Endpoint pivots and the remaining Schur scalar
+
+The local elimination can be made more explicit.  Put
+
+\[
+a=c-u,\qquad b=v-c,\qquad u=c-a,\qquad v=c+b,
+\]
+
+and write
+
+\[
+A=W'(u),\qquad B=W'(v),\qquad A_2=W''(u),\qquad B_2=W''(v).
+\]
+
+The two endpoint equations are
+
+\[
+E_-:=q\log\frac1a+W(u)=0,\qquad
+E_+:=q\log\frac1b+W(v)=0.
+\]
+
+In the variables \((q,a,b,c)\),
+
+\[
+dE_-
+=
+\log\frac1a\,dq
++(-q/a-A)\,da
++A\,dc
++d\Phi(u),
+\]
+
+and
+
+\[
+dE_+
+=
+\log\frac1b\,dq
++(-q/b+B)\,db
++B\,dc
++d\Phi(v).
+\]
+
+But
+
+\[
+U'(u)=q/a+A>0,\qquad
+U'(v)=-q/b+B<0.
+\]
+
+Therefore the endpoint block has the two non-zero pivots
+
+\[
+\frac{\partial E_-}{\partial a}=-U'(u)<0,\qquad
+\frac{\partial E_+}{\partial b}=U'(v)<0.
+\]
+
+So \(a\) and \(b\) can always be solved locally from the two endpoint
+equations in the compact chamber.
+
+The dual zero equation
+
+\[
+F(c)=0
+\]
+
+has the non-zero \(c\)-pivot
+
+\[
+F'(c)=-\int\frac{d\lambda(t)}{(c-t)^2}<0.
+\]
+
+Thus \(c\) is also locally eliminable.  After eliminating \(a,b,c\), only the
+stationarity equation
+
+\[
+S:=aW'(u)+bW'(v)=0
+\]
+
+can create a residual local rank failure.
+
+For the pure \(q\)-direction, with the exterior field and \(c\) fixed, the
+endpoint equations give
+
+\[
+da=\frac{\log(1/a)}{U'(u)}\,dq,\qquad
+db=-\frac{\log(1/b)}{U'(v)}\,dq.
+\]
+
+Therefore the Schur derivative of stationarity in that direction is
+
+\[
+\boxed{
+\mathfrak S_q
+=
+(A-aA_2)\frac{\log(1/a)}{U'(u)}
+-
+(B+bB_2)\frac{\log(1/b)}{U'(v)}.
+}
+\]
+
+Since \(U'(v)<0\), the second displayed term is positive in the usual
+\((0,1)\)-component regime, while the first is negative.  A cancellation is
+not ruled out by convexity alone.  Thus the precise remaining local
+non-degeneracy problem is:
+
+\[
+\boxed{
+\mathfrak S_q\ne0
+\text{, or else identify the cancelling case and show it is exactly a
+pinching/lower-genus degeneration.}
+}
+\]
+
+This is a substantial narrowing.  The compact proof no longer asks for an
+abstract rank statement.  It asks for a one-scalar Schur complement exclusion,
+after three explicit non-zero pivots have already removed the endpoint lengths
+and the zero \(c\).
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

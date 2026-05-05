@@ -1743,6 +1743,115 @@ Once this rewriting is established, E25 supplies the Chebyshev sign variation
 and excludes the compact non-pinched chamber.  The remaining gap is no longer
 the determinant sign; it is the exact adjoint-to-split-kernel identification.
 
+### E27. Local field-increment identification
+
+For any signed exterior variation \(\eta\) on the two real cuts, put
+
+\[
+\Phi_\eta(y)=\int_J\log\frac1{|y-x|}\,d\eta(x).
+\]
+
+Then
+
+\[
+\Phi_\eta'(c)=\int_J\frac{d\eta(x)}{x-c},
+\]
+
+\[
+\Phi_\eta(c)-\Phi_\eta(u)
+=
+\int_J L_-(x)\,d\eta(x),
+\qquad
+\Phi_\eta(v)-\Phi_\eta(c)
+=
+\int_J L_+(x)\,d\eta(x).
+\]
+
+Thus \(1,(x-c)^{-1},L_-,L_+\) are not artificial kernels: they are exactly
+the total mass, the \(c\)-jet, and the two one-sided field increments across
+the escaping component.
+
+### E28. Remaining local elimination
+
+After writing \(H=(x-c)G\), the exterior density part of the compact KKT
+adjoint should be spanned by
+
+\[
+\int_J G\omega,\qquad
+\int_J\frac{G\omega}{x-c},\qquad
+\int_J L_-G\omega,\qquad
+\int_J L_+G\omega,
+\]
+
+with
+
+\[
+\omega(x)=\frac1{|Q(x)|^2\sqrt{|D(x)|}}>0.
+\]
+
+The local variables \(q,a=c-u,b=v-c,c\) absorb the common field level and the
+singular logarithmic endpoint terms.  In the compact chamber
+
+\[
+q>0,\quad a>0,\quad b>0,\quad W'(u)<0<W'(v),\quad W''>0,
+\]
+
+this local block should have full rank, so no further density functional is
+created by the endpoint zero equations or stationarity.  Proving this
+finite-dimensional elimination is now the remaining mathematical hard point.
+Once it is established, E25 gives the oriented Chebyshev sign variation and
+closes the compact non-pinched branch.
+
+### E29. Endpoint pivots and the scalar left over
+
+This local elimination is not wholly opaque.  With
+
+\[
+a=c-u,\quad b=v-c,\quad A=W'(u),\quad B=W'(v),
+\]
+
+the endpoint equations are
+
+\[
+E_-=q\log(1/a)+W(u)=0,\qquad
+E_+=q\log(1/b)+W(v)=0.
+\]
+
+Their endpoint pivots are
+
+\[
+\partial_aE_-=-U'(u)<0,\qquad
+\partial_bE_+=U'(v)<0.
+\]
+
+The dual zero equation \(F(c)=0\) has pivot
+
+\[
+F'(c)=-\int\frac{d\lambda(t)}{(c-t)^2}<0.
+\]
+
+Thus \(a,b,c\) are locally eliminable in the compact chamber.  The only
+remaining local rank issue is the Schur complement of stationarity.  In the
+pure \(q\)-direction one obtains
+
+\[
+\mathfrak S_q
+=
+(A-aW''(u))\frac{\log(1/a)}{U'(u)}
+-
+(B+bW''(v))\frac{\log(1/b)}{U'(v)}.
+\]
+
+The next exact mathematical task is therefore to prove
+
+\[
+\mathfrak S_q\ne0
+\]
+
+inside the compact chamber, or to prove that \(\mathfrak S_q=0\) forces a
+pinching/lower-genus degeneration.  This is the remaining scalar obstruction
+after the determinant sign and three local pivots have been isolated.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
