@@ -1316,6 +1316,92 @@ remaining alternatives are the neutral split \(\kappa\downarrow1\), a
 secondary blow-up \(\kappa\to\infty\), or actual finite-gap endpoint
 pinching.  In none of these does a new non-degenerate \(g=2\) extremal remain.
 
+### E14. Secondary blow-up \(\kappa\to\infty\)
+
+When
+
+\[
+\kappa=a/b\to\infty,
+\]
+
+the right endpoint scale \(t=v+b\tau\) gives
+
+\[
+K_R(t)
+=
+\frac{\tau+1}{b\,\tau(\tau+\kappa+1)}
+\sim
+\frac{\tau+1}{a\tau},
+\]
+
+but
+
+\[
+L_R(t)
+=
+\log\frac{\tau+\kappa+1}{\tau}
+=
+\log\kappa+O(1).
+\]
+
+Thus \(b\)-scale right mass has ordinary rational strength but logarithmic
+strength \(O(\log\kappa)\).  The endpoint identity then gives two
+possibilities:
+
+1. a non-vanishing right packet in a fixed \(b\)-scale window
+   \(0<\tau_0\le\tau\le\tau_1<\infty\) makes \(\mathbb E_R[A_R]\) grow like
+   \(+\log\kappa\), while \(A_L=A_\theta<1\) for \(\theta>1/2\); this
+   contradicts the negative right side \(-q\log\kappa\);
+2. therefore any \(b\)-scale packet must move to \(\tau\downarrow0\), which
+   is actual right-endpoint pinching, or the endpoint identity forces
+
+\[
+q=O(1/\log\kappa),
+\]
+
+so the escaping atom disappears in the weak limit.
+
+Therefore the \(\kappa\to\infty\) alternative also produces no new
+non-degenerate \(g=2\) extremal.
+
+### E15. Pinching factor cancellation
+
+Let
+
+\[
+F_n(z)=
+\frac{P_n(z)}{Q_n(z)}
+\sqrt{(z-\alpha_{1,n})(z-\beta_{1,n})
+(z-\alpha_{2,n})(z-\beta_{2,n})}
+\]
+
+be a positive \(g=2\) finite-gap Stieltjes transform.  If adjacent branch
+points pinch,
+
+\[
+\beta_{1,n},\alpha_{2,n}\to\gamma,
+\]
+
+then
+
+\[
+\sqrt{(z-\beta_{1,n})(z-\alpha_{2,n})}\to z-\gamma.
+\]
+
+After cancelling any coalescing pole or zero at \(\gamma\), the limit has the
+lower-genus form
+
+\[
+F_\infty(z)=
+\frac{P_\infty(z)}{Q_\infty(z)}
+\sqrt{(z-\alpha_1)(z-\beta_2)},
+\]
+
+possibly with a non-negative endpoint atom at \(\gamma\).  Positivity of
+residues and density is inherited in the weak limit.  Hence endpoint pinching
+does not create a new \(g=2\) extremal; it returns to the \(g=1\) two-interval
+branch with possible endpoint atoms.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

@@ -4576,6 +4576,202 @@ carry vanishing mass.  The candidate \(g=2\) extremal cannot survive as a
 new non-degenerate object; it must converge to the \(g=1\) two-interval
 branch unless the length bound has already been met.
 
+### 16.16 Secondary blow-up when \(\kappa\to\infty\)
+
+It remains to understand the second escape in the dangerous branch:
+
+\[
+\kappa=\frac{a}{b}\to\infty.
+\]
+
+Here \(c\) approaches the right endpoint \(v\) much faster than it approaches
+the left endpoint \(u\).  The correct scale is still
+
+\[
+t=v+b\tau,
+\]
+
+but now
+
+\[
+\ell=b(\kappa+1)\sim a.
+\]
+
+The right rational kernel is
+
+\[
+K_R(t)
+=
+\frac{\tau+1}{b\,\tau(\tau+\kappa+1)}
+\sim
+\frac{\tau+1}{a\tau}
+\qquad(\tau=O(1)).
+\]
+
+Thus the \(b\)-scale right collar no longer has \(1/b\) rational amplification;
+it has only \(O(1)\) rational strength.  But its logarithmic contribution is
+
+\[
+L_R(t)
+=
+\log\frac{\tau+\kappa+1}{\tau}
+=
+\log\kappa+O(1).
+\]
+
+So the \(\kappa\to\infty\) branch has a different obstruction:
+
+\[
+\boxed{
+\text{\(b\)-scale right mass has ordinary rational strength but logarithmic
+strength of order }\log\kappa.
+}
+\]
+
+The endpoint identity
+
+\[
+\ell B(\mathbb E_R[A_R]-\mathbb E_L[A_L])
+=
+-q\log\kappa
+\]
+
+therefore gives a clean dichotomy.
+
+**Case 1: a non-vanishing amount of the \(K_R\)-weighted right balance lives
+in a fixed \(b\)-scale window \(0<\tau_0\le\tau\le\tau_1<\infty\).**  Then
+\(\mathbb E_R[A_R]\) has a positive \(O(\log\kappa)\) contribution.  But in
+this branch \(\theta>1/2\), so the monotone-kernel lemma gives
+
+\[
+A_L(r;\theta)=A_\theta(r)<1.
+\]
+
+Hence \(\mathbb E_L[A_L]\le1\), while the right side of the endpoint identity
+is negative:
+
+\[
+-q\log\kappa<0.
+\]
+
+So Case 1 is impossible.  The only way a \(b\)-scale right packet can avoid
+this contradiction is to move to \(\tau\downarrow0\), where \(A_R\) becomes
+small.  That is not a non-degenerate \(b\)-scale packet; it is actual
+right-endpoint pinching.
+
+**Case 2: the \(b\)-scale right collar carries vanishing \(K_R\)-weighted
+balance.**  Then the rational balance is supplied at macroscopic right
+distance, where \(A_R=O(1)\).  The left side of the endpoint identity is
+therefore \(O(1)\), while the right side is \(-q\log\kappa\).  Hence
+
+\[
+\boxed{
+q=O\!\left(\frac1{\log\kappa}\right).
+}
+\]
+
+The escaping atom loses mass.  Since it is also at distance \(b\) from the
+right endpoint, it does not survive as a non-degenerate interior atom in the
+weak limit.
+
+Thus the secondary blow-up produces no new stable \(g=2\) object.  It gives
+only:
+
+1. actual right-endpoint pinching \(\tau\downarrow0\); or
+2. disappearance of the escaping atom and return to the lower-genus limit.
+
+This closes the \(\kappa\to\infty\) alternative at the level of mathematical
+reduction.  The remaining proof obligation is the finite-gap pinching lemma:
+pinching of the branch data must reduce the Cauchy transform to the
+\(g=1\) two-interval branch, preserving positivity in the limit.
+
+### 16.17 Finite-gap pinching factor-cancellation lemma
+
+The required pinching lemma is algebraic.  Consider a sequence of positive
+finite-gap Stieltjes transforms
+
+\[
+F_n(z)=
+\frac{P_n(z)}{Q_n(z)}
+\sqrt{
+(z-\alpha_{1,n})(z-\beta_{1,n})
+(z-\alpha_{2,n})(z-\beta_{2,n})
+}
+\]
+
+with the usual branch at infinity, positive density on cuts, and non-negative
+residues at real poles.  Suppose a pair of adjacent branch points pinches:
+
+\[
+\beta_{1,n}\to\gamma,\qquad \alpha_{2,n}\to\gamma.
+\]
+
+Then locally
+
+\[
+\sqrt{(z-\beta_{1,n})(z-\alpha_{2,n})}
+\longrightarrow
+z-\gamma
+\]
+
+on compact subsets away from \(\gamma\), with the sign fixed by the branch.
+Hence
+
+\[
+F_n(z)
+\longrightarrow
+\frac{\widetilde P(z)}{\widetilde Q(z)}
+(z-\gamma)
+\sqrt{(z-\alpha_1)(z-\beta_2)}
+\]
+
+before cancelling coalescing pole/zero factors.
+
+There are only three possible local outcomes.
+
+1. **No pole of \(Q_n\) pinches at \(\gamma\).**  Then the factor \(z-\gamma\)
+is analytic and can be absorbed into the numerator.  The square-root genus
+has dropped by one.
+
+2. **A pole \(p_n\) of \(Q_n\) pinches at \(\gamma\).**  Positivity of residues
+and local boundedness of the Stieltjes transforms force the quotient
+
+\[
+\frac{z-\gamma}{z-p_n}
+\]
+
+to have a finite non-negative limiting residue contribution.  After cancelling
+the common removable factor, the remaining transform again has one fewer
+square-root cut.  If a positive atom remains at \(\gamma\), it is a pole of
+the lower-genus transform, not a new branch.
+
+3. **A zero of \(P_n\) pinches at \(\gamma\).**  Then the zero is absorbed into
+the analytic numerator.  It can only reduce mass or create a removable zero;
+it cannot create a new positive cut.
+
+Therefore every finite-gap endpoint pinching limit has the form
+
+\[
+\boxed{
+F_\infty(z)
+=
+\frac{P_\infty(z)}{Q_\infty(z)}
+\sqrt{(z-\alpha_1)(z-\beta_2)}
+}
+\]
+
+plus possible non-negative endpoint atoms recorded in \(Q_\infty\).  Positivity
+of residues and density is closed under weak limits.  Thus a pinched
+non-negative \(g=2\) candidate is not a new extremal family; it is a
+\(g=1\) candidate with possibly extra endpoint atoms.
+
+This is exactly what is needed for the normalized lower-bound route: all
+escape mechanisms found in Sections 16.12--16.16 either force pinching or
+delete the escaping component, and pinching returns to the already isolated
+\(g=1\) two-interval branch.  The remaining compact case is a genuinely
+non-pinched \(g=2\) positive finite-gap solution; it is now the only case
+still requiring a direct inequality.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
