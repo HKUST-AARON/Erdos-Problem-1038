@@ -87,6 +87,7 @@ class SlabResult:
     min_sign_margin: float
     eta_interval_dk_check: bool
     center_correction_mode: str
+    correction_source: tuple[str, str]
     worst_defect_detail: tuple[str, ...]
 
     @property
@@ -423,6 +424,7 @@ def interval_center_correction_over_slab(
     left_weight: float,
     null_slope: float,
     eta_subdivisions: int,
+    center_correction_mode: str,
 ) -> np.ndarray:
     from flint import arb
 
@@ -462,12 +464,24 @@ def interval_center_correction_over_slab(
             tau_intercept,
         )
         U_alpha = arb(solver_module._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
-        U_minus_one = arb(solver_module._potential_minus_one_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
-        if not U_alpha.is_finite() or not U_minus_one.is_finite():
+        if center_correction_mode == "combined-residual":
+            combined_value = arb(
+                solver_module._combined_contact_minus_one_potential_acb_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_epsilon,
+                    arb(repr(float(left_weight))),
+                    192,
+                )
+            )
+        else:
+            U_minus_one = arb(solver_module._potential_minus_one_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+            combined_value = arb(repr(float(left_weight))) * U_alpha + U_minus_one
+        if not U_alpha.is_finite() or not combined_value.is_finite():
             fail(f"eta-correction-slice {eta_index}: non-finite Arb center residual")
         K = [
             U_alpha / arb_eta,
-            (arb(repr(float(left_weight))) * U_alpha + U_minus_one) / (arb_eta * arb_eta),
+            combined_value / (arb_eta * arb_eta),
         ]
         for row_idx in range(2):
             value = arb(0)
@@ -478,6 +492,134 @@ def interval_center_correction_over_slab(
                 arb_abs_upper(f"interval center correction[{row_idx}]", value),
             )
     return correction
+
+
+def center_derivative_action_correction_over_slab(
+    eta_low: float,
+    eta_high: float,
+    low_row: EndpointRow,
+    high_row: EndpointRow,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    eta_subdivisions: int,
+    eta_interval_dk_kernel: str,
+) -> tuple[np.ndarray, tuple[str, str]]:
+    """Bound the center correction using the u/v part of the center-path derivative.
+
+    This is a diagnostic stepping stone for the residual-level kernel.  It
+    avoids direct evaluation of large potential balls, but it intentionally
+    tracks only DK * (B_c', tau_c').  The explicit eta partial must be added
+    before this can be considered proof-grade.
+    """
+
+    from flint import arb
+
+    solver_module = load_solver()
+    b_slope, b_intercept, tau_slope, tau_intercept = affine_coefficients(low_row, high_row)
+    center_speed = np.array([abs(b_slope), abs(tau_slope)])
+    endpoint_distance = max(eta_high - eta_low, 0.0) / 2.0
+    correction = np.zeros(2)
+    source = ["none", "none"]
+    for eta_index, (eta_interval_low, eta_interval_high) in enumerate(eta_intervals(eta_low, eta_high, eta_subdivisions)):
+        eta_sample = (eta_interval_low + eta_interval_high) / 2.0
+        B_sample, tau_sample = center_at(eta_sample, low_row, high_row)
+        J_sample = finite_array(
+            "center derivative correction DK",
+            solver_module.analytic_rescaled_jacobian(B_sample, tau_sample, eta_sample, limit_solution, left_weight, null_slope),
+        )
+        try:
+            C_sample = np.linalg.inv(J_sample)
+        except np.linalg.LinAlgError as exc:
+            fail(f"eta-correction-slice {eta_index}: center Jacobian is singular: {exc}")
+        C_arb = [[arb(repr(float(C_sample[i, j]))) for j in range(2)] for i in range(2)]
+        arb_eta = solver_module._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver_module._arb_interval_from_bounds(
+            eta_interval_low * eta_interval_low,
+            eta_interval_high * eta_interval_high,
+        )
+        arb_A, arb_alpha, base_delta_A, base_delta_alpha = arb_affine_parameters(
+            solver_module,
+            arb,
+            arb_eta,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        derivative_cases = [
+            ("u", arb(1), arb(0)),
+            ("v", arb(repr(float(null_slope))), arb(1)),
+        ]
+        derivative_columns = []
+        for _label, direction_A, direction_alpha in derivative_cases:
+            dG1 = arb(
+                solver_module._contact_directional_derivative_acb_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_epsilon,
+                    direction_A,
+                    direction_alpha,
+                    192,
+                )
+            )
+            if eta_interval_dk_kernel == "residue-log":
+                combined_dG_over_eta = arb(
+                    solver_module._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                        arb_A,
+                        arb_alpha,
+                        arb_eta,
+                        direction_A,
+                        direction_alpha,
+                        arb(repr(float(left_weight))),
+                        arb(repr(float(limit_solution.A))),
+                        arb(repr(float(limit_solution.alpha))),
+                        192,
+                        base_delta_A,
+                        base_delta_alpha,
+                    )
+                )
+            else:
+                combined_dG = arb(
+                    solver_module._combined_contact_minus_one_directional_derivative_acb_from_arb(
+                        arb_A,
+                        arb_alpha,
+                        arb_epsilon,
+                        direction_A,
+                        direction_alpha,
+                        arb(repr(float(left_weight))),
+                        192,
+                    )
+                )
+                combined_dG_over_eta = combined_dG / arb_eta
+            derivative_columns.append([dG1, combined_dG_over_eta])
+
+        DK = [
+            [derivative_columns[0][0], derivative_columns[1][0]],
+            [derivative_columns[0][1], derivative_columns[1][1]],
+        ]
+        for row_idx in range(2):
+            derivative_action = arb(0)
+            for col_idx in range(2):
+                path_derivative = arb(repr(float(center_speed[col_idx])))
+                product_entry = arb(0)
+                for inner_idx in range(2):
+                    product_entry += C_arb[row_idx][inner_idx] * DK[inner_idx][col_idx]
+                derivative_action += abs(product_entry) * path_derivative
+            candidate = arb_abs_upper(f"center derivative correction[{row_idx}]", derivative_action) * endpoint_distance
+            if candidate > correction[row_idx]:
+                correction[row_idx] = candidate
+                source[row_idx] = (
+                    f"eta_sample={eta_index},eta=[{eta_interval_low:.17g},{eta_interval_high:.17g}],"
+                    "missing=explicit_eta_partial"
+                )
+    return correction, (source[0], source[1])
 
 
 def verify_slab(
@@ -505,7 +647,8 @@ def verify_slab(
     eta_low = math.sqrt(spec.eps_low)
     eta_high = math.sqrt(spec.eps_high)
     b_slope, b_intercept, tau_slope, tau_intercept = affine_coefficients(low_row, high_row)
-    if center_correction_mode == "interval":
+    correction_source = ("sampled-center-grid", "sampled-center-grid")
+    if center_correction_mode in {"interval", "combined-residual"}:
         correction = interval_center_correction_over_slab(
             eta_low,
             eta_high,
@@ -515,6 +658,23 @@ def verify_slab(
             left_weight,
             null_slope,
             eta_subdivisions,
+            center_correction_mode,
+        )
+        correction_source = (
+            "direct-interval-residual" if center_correction_mode == "interval" else "combined-residual-H-only",
+            "direct-interval-residual" if center_correction_mode == "interval" else "combined-residual-H-only",
+        )
+    elif center_correction_mode == "center-derivative":
+        correction, correction_source = center_derivative_action_correction_over_slab(
+            eta_low,
+            eta_high,
+            low_row,
+            high_row,
+            limit_solution,
+            left_weight,
+            null_slope,
+            eta_subdivisions,
+            eta_interval_dk_kernel,
         )
     else:
         correction = center_correction_over_slab(
@@ -782,6 +942,7 @@ def verify_slab(
         min_sign_margin=min_sign_margin,
         eta_interval_dk_check=eta_interval_dk_check,
         center_correction_mode=center_correction_mode,
+        correction_source=correction_source,
         worst_defect_detail=tuple(defect_detail[int(np.argmin(margin))]),
     )
     if min_sign_margin <= 0.0:
@@ -1041,11 +1202,13 @@ def main() -> int:
     )
     parser.add_argument(
         "--center-correction",
-        choices=["sampled", "interval"],
+        choices=["sampled", "interval", "combined-residual", "center-derivative"],
         default="sampled",
         help=(
             "How to bound C K(center). The interval mode encloses the center "
-            "residual on eta subintervals with Arb/Acb."
+            "residual on eta subintervals with Arb/Acb. The center-derivative "
+            "combined-residual keeps w*U(alpha)+U(-1) in one Arb expression; "
+            "center-derivative is diagnostic and omits the explicit eta partial."
         ),
     )
     parser.add_argument(
@@ -1125,6 +1288,7 @@ def main() -> int:
                 f"max_DK_entry_radius={result.max_dk_entry_radius:.6e} "
                 f"eta_DK_mode={'interval' if result.eta_interval_dk_check else 'sampled'} "
                 f"center_correction={result.center_correction_mode} "
+                f"correction_source={result.correction_source[int(np.argmin(result.margin))]} "
                 f"worst_defect_source={result.defect_source[int(np.argmin(result.margin))]}"
             )
 
@@ -1140,6 +1304,7 @@ def main() -> int:
         f"eta_samples_uv_subdivisions={worst.eta_subdivisions},{worst.uv_subdivisions}, "
         f"eta_DK_mode={'interval' if worst.eta_interval_dk_check else 'sampled'}, "
         f"center_correction={worst.center_correction_mode}, "
+        f"correction_source={worst.correction_source[int(np.argmin(worst.margin))]}, "
         f"worst_defect_source={worst.defect_source[int(np.argmin(worst.margin))]}, "
         "status=diagnostic-not-continuum-proof)"
     )

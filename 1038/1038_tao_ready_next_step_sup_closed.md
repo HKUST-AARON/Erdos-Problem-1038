@@ -1310,3 +1310,58 @@ U(alpha) / eta
 ```
 
 with the removable eta factors cancelled before Arb evaluation.
+
+## O. Combined Residual Value Kernel Still Needs Eta Division
+
+A second diagnostic kernel was added after section N.  It keeps
+
+```text
+H = left_weight * U(alpha) + U(-1)
+```
+
+as one Arb/Acb expression before dividing by `eta^2`; this is available via
+
+```text
+--center-correction combined-residual
+```
+
+On the same split top slab, this improves the direct interval correction but
+does not close the proof:
+
+```text
+direct interval:
+  correction=5.791379e-02
+
+combined H value:
+  correction=3.124656e-02
+```
+
+The local ball sizes on the worst slice show why:
+
+```text
+U(alpha)/eta = [+/- 1.90e-3]
+H/eta^2      = [+/- 1.42e-2]
+```
+
+The target correction radius in this slab is \(2\times10^{-4}\).  Thus
+combining \(H\) is not enough; both residual coordinates need true divided
+value kernels:
+
+```text
+U(alpha) / eta
+H / eta^2
+```
+
+where the removable eta factors are cancelled inside the contact and
+combined-contact-minus-one primitives before Arb evaluation.  A separate
+`center-derivative` diagnostic also confirmed that only tracking
+`DK * (B_c', tau_c')` is insufficient:
+
+```text
+center-derivative correction=5.922230e-03
+```
+
+This identifies the exact remaining technical gap for turning the sampled
+center correction into a continuum-grade interval proof: implement
+eta-divided residual value primitives, not just combined undivided values and
+not just derivative-action bounds.
