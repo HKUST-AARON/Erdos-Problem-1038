@@ -1494,3 +1494,20 @@ evaluation of \(U(\alpha)/\eta\) and \(H/\eta^2\).  The same removable-factor
 cancellation that broke the center correction also breaks direct interval
 boundary exclusion.  Therefore the next implementation has to be the
 eta-divided residual value kernel, not more subdivision.
+
+After adding an explicit boundary value-kernel selector, the remote direct
+kernel baseline was swept again on the bottleneck slab:
+
+```text
+slab=0.0002:0.0005, edge=32, direct value kernel
+eta=512   K1=[+/- 4.33e-3], K2=[+/- 7.06e-2]
+eta=1024  K1=[+/- 2.30e-3], K2=[+/- 3.56e-2]
+eta=2048  K1=[+/- 1.29e-3], K2=[+/- 1.83e-2]
+eta=4096  K1=[+/- 7.78e-4], K2=[+/- 9.56e-3]
+eta=8192  K1=[+/- 5.23e-4], K2=[+/- 5.26e-3]
+```
+
+The sampled boundary clearance on this slab is only about \(1.8\cdot10^{-5}\).
+So brute subdivision is still two orders of magnitude away and would not be a
+clean proof artifact.  The next kernel must reduce \(H/\eta^2\) at expression
+level.
