@@ -3596,6 +3596,27 @@ floor rather than a proof artifact.  The proof-grade version still needs Arb
 interval equations for the equivalence identity and an analytic derivative
 formula giving a uniform lower bound for the regularized Jacobian determinant.
 
+`1038/verify_two_interval_regularized_difference.py` records one implementation
+hazard that matters for the proof package: raw K2 and regularized K2 should not
+be mixed casually inside the same process.  Calling the raw grouped K2 path
+before the regularized path can perturb the subsequent regularized evaluation
+through shared Arb/context state.  The diagnostic therefore evaluates the
+canonical regularized path first and treats the regularized kernel as the proof
+object.  In that order, the branch and finite/tiny grid checks report no
+raw-minus-regularized discrepancy on the certified finite slabs; the separate
+small-\(\eta\) remainder comparison still shows that the canonical regularized
+kernel is the one matching the limiting \(K_0\) normal form.
+
+This means the next artifact should not try to prove equivalence by comparing
+two implementation paths.  It should define the regularized residual directly,
+then prove:
+
+1. \(K_1=U(\alpha)/\eta\) is unchanged;
+2. the regularized K2 equation is the correctly cancelled expression for
+   \((wU(\alpha)+U(-1))/\eta^2\);
+3. the regularized Jacobian has a uniform nonzero determinant as
+   \(\eta\to0\).
+
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
 
