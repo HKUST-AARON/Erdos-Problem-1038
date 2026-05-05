@@ -2045,6 +2045,57 @@ For the full 1038 exact proof, two larger tasks still remain after compact
 \(g=2\): rule out higher-gap \(g\ge3\) escapes by degeneration/induction, and
 write the matching upper construction at \(M_*\) in the same normalization.
 
+### E36. Period row correction
+
+The period row should be treated as a genuine seventh kernel.  On the
+genus-one two-cut curve, it is the holomorphic-period / relative-oval mode.
+After clearing the positive weight \(\omega\), its density kernel is
+piecewise constant:
+
+\[
+\pi_0(x)=
+\begin{cases}
+1,&x\in I_1,\\
+-\theta_{\rm per},&x\in I_2,
+\end{cases}
+\]
+
+Here \(\theta_{\rm per}\ne0\) is fixed by the period normalisation; with
+opposite oval orientation one may take \(\theta_{\rm per}>0\).
+
+This is not generically in the span of the six local jet kernels.  Those
+kernels are analytic on the real components away from \(u,c,v\); a linear
+combination that is constant on both ovals would be globally constant after
+differentiation, so it cannot represent an independent relative oval constant.
+
+The corrected compact row family is therefore
+
+\[
+\boxed{
+\pi_0,\quad
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+.
+}
+\]
+
+### E37. New immediate target
+
+The next task is a two-oval block sign-variation lemma, not another ordinary
+Chebyshev determinant:
+
+\[
+\boxed{
+\text{six local jet rows give oriented Chebyshev control, while }
+\pi_0\text{ controls the relative constant mode between the two ovals.}
+}
+\]
+
+If \(G\) is orthogonal to all seven rows, the six local jet rows force
+internal oriented sign variation unless \(G\) has one sign on each oval.  In
+that exceptional case, the two rows \(1,\pi_0\) form an invertible system for
+the two weighted oval masses, forcing both masses to vanish separately,
+impossible for non-zero one-signed \(G\).  This is now the compact \(g=2\)
+lemma that must be written cleanly.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
