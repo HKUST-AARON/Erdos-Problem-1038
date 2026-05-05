@@ -117,6 +117,8 @@ outsideRestriction_ae_mem_unitInterval
 logKernel_continuousOn_of_dist_ge
 outsideRestriction_logKernel_integrable_of_compact_support
 outsideRestriction_logKernel_integrable_of_dist_ge
+outsideRestriction_ae_dist_ge_of_Ioo_null
+outsideRestriction_logKernel_integrable_of_Ioo_null
 componentBlock_integral_eq_mass_mul_normalized
 componentBlock_integrable_of_normalized_integrable
 componentBarycenter_eq_normalized_componentBlock_integral
@@ -129,6 +131,7 @@ componentBlock_logKernel_jensen_scaled_normalized
 componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
 componentReplacement_objective_le_of_strictOutside_compactOutside
 componentReplacement_objective_le_of_strictOutside_distSeparated
+componentReplacement_objective_le_of_strictOutside_IooNull
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -201,6 +204,10 @@ There is also a distance-separated interface: if the outside restriction is
 a.e. at positive distance from the strict outside test point, Lean constructs
 the compact certificate internally from `[-1,1]` support and closes the same
 objective comparison.
+The same interface is now available in a punctured-neighbourhood form: if the
+outside restriction gives zero mass to some open interval around each strict
+outside test point, Lean turns that into positive distance separation and closes
+the replacement objective comparison.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -214,15 +221,16 @@ The following review findings remain real Lean gaps, not solved claims:
 
 3. The component-replacement objective lemma no longer needs raw outside
    log-kernel integrability if either a compact off-singularity support
-   certificate or the stronger positive-distance separation certificate is
-   supplied.  The normalized probability
+   certificate, a positive-distance separation certificate, or the equivalent
+   punctured-neighbourhood zero-mass certificate is supplied.  The normalized
+   probability
    block, a.e. support transfer, integral scaling, barycenter identification,
    log-kernel specialization, scalar assembly, and canonical normalized-block
    Jensen bridge are formalized, and the normalized first-moment integrability
    plus barycenter-atom/component-block/normalized-block log-kernel
    integrability are internal.  The remaining local analytic task is to produce
-   the positive-distance/off-singularity certificate from the actual component
-   topology/minimizer data.
+   the punctured-neighbourhood/off-singularity certificate from the actual
+   component topology/minimizer data.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,

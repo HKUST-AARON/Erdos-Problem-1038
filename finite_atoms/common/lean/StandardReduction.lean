@@ -7729,6 +7729,62 @@ lemma outsideRestriction_logKernel_integrable_of_dist_ge
     C K hmemK hcompact hcont
 
 /--
+If the outside restriction gives zero mass to an open neighbourhood of the test
+point, then it is a.e. positively separated from that point.
+-/
+lemma outsideRestriction_ae_dist_ge_of_Ioo_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hnull :
+      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
+    ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
+      ε ≤ |x - t| := by
+  have hcompl :
+      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
+        t ∈ (Ioo (x - ε) (x + ε) : Set ℝ)ᶜ := by
+    rw [ae_iff]
+    have hset :
+        {a : ℝ | a ∉ (Ioo (x - ε) (x + ε) : Set ℝ)ᶜ} =
+          Ioo (x - ε) (x + ε) := by
+      ext t
+      simp
+    rw [hset]
+    exact hnull
+  filter_upwards [hcompl] with t ht
+  rw [Set.mem_compl_iff, Set.mem_Ioo] at ht
+  by_cases hle : t ≤ x - ε
+  · have hsub : ε ≤ x - t := by
+      linarith
+    have hnonneg : 0 ≤ x - t := le_trans (le_of_lt hε) hsub
+    rw [abs_of_nonneg hnonneg]
+    exact hsub
+  · have hlt : x - ε < t := lt_of_not_ge hle
+    have hright : x + ε ≤ t := by
+      have hnot : ¬ t < x + ε := by
+        intro ht_right
+        exact ht ⟨hlt, ht_right⟩
+      exact le_of_not_gt hnot
+    have hsub : ε ≤ t - x := by
+      linarith
+    have hnonpos : x - t ≤ 0 := by linarith
+    rw [abs_of_nonpos hnonpos]
+    simpa [sub_eq_add_neg, add_comm, add_left_comm, add_assoc] using hsub
+
+/--
+Outside-restriction log-kernel integrability from a punctured-neighbourhood
+zero-mass certificate.
+-/
+lemma outsideRestriction_logKernel_integrable_of_Ioo_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hnull :
+      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  exact outsideRestriction_logKernel_integrable_of_dist_ge C hε
+    (outsideRestriction_ae_dist_ge_of_Ioo_null C hε hnull)
+
+/--
 Objective non-increase for component replacement using the canonical normalized
 component block.
 
@@ -7814,6 +7870,24 @@ theorem componentReplacement_objective_le_of_strictOutside_distSeparated
   intro x hx
   rcases hsep x hx with ⟨ε, hε, hdist⟩
   exact outsideRestriction_logKernel_integrable_of_dist_ge C hε hdist
+
+/--
+Component-replacement objective non-increase from punctured-neighbourhood
+zero-mass certificates around every strict outside test point.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_IooNull
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hnull : ∀ x : ℝ, StrictOutsideComponent C x →
+      ∃ ε : ℝ, 0 < ε ∧
+        ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_distSeparated
+    C hmass_pos ?_
+  intro x hx
+  rcases hnull x hx with ⟨ε, hε, hzero⟩
+  exact ⟨ε, hε, outsideRestriction_ae_dist_ge_of_Ioo_null C hε hzero⟩
 
 /-!
 ## Finite variance drop under barycenter replacement
