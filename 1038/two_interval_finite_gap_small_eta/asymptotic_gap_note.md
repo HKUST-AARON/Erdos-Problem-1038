@@ -222,27 +222,40 @@ K1 needs the analogous endpoint-safe first-divided treatment.
 
 ## K1 Eta-Floor Diagnostic
 
-The K1 interval blow-up is localized at the endpoint eta floor.  Holding
-`eta_high=1e-8` fixed and raising `eta_low` quickly restores a useful K1
-interval:
+The original K1 interval blow-up was localized at the endpoint eta floor.
+Holding `eta_high=1e-8` fixed and raising `eta_low` restored a useful K1
+interval, pointing to the endpoint atom/log-ratio term in `U(alpha)/eta`.
+
+The contact endpoint term has now been replaced by the analytic identity
+
+```text
+log((w-rho_minus)/(w-rho_plus))/eta
+= 2 * log(1 + eta / sqrt(1-alpha)) / eta
+= 2 * log1p(z) / (z * sqrt(1-alpha)).
+```
+
+This removes the removable eta-zero singularity for the contact K1 branch.
 
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k1_eta_floor.py
 ```
 
-Observed:
+Current output:
 
 ```text
-eta=[1e-16,1e-08] K1_radius=5.250000e+00
-eta=[1e-12,1e-08] K1_radius=4.240000e-04
-eta=[1e-10,1e-08] K1_radius=6.510000e-06
-eta=[1e-09,1e-08] K1_radius=2.510000e-06
-eta=[5e-09,1e-08] K1_radius=1.230000e-06
-TWO-INTERVAL K1 ETA FLOOR: FAIL-DIAGNOSTIC ... radius_ratio=4.268293e+06
+eta=[1e-16,1e-08] K1_radius=2.390000e-06
+eta=[1e-12,1e-08] K1_radius=2.390000e-06
+eta=[1e-10,1e-08] K1_radius=2.370000e-06
+eta=[1e-09,1e-08] K1_radius=2.150000e-06
+eta=[5e-09,1e-08] K1_radius=1.210000e-06
+TWO-INTERVAL K1 ETA FLOOR: PASS-DIAGNOSTIC
 ```
 
-This confirms that the K1 obstruction is not broad instability on the whole
-small-eta interval.  It is the removable singular endpoint at eta zero.  The
-next kernel should therefore target the endpoint atom/log-ratio term in
-`U(alpha)/eta`, replacing the explicit positive-eta quotient by its eta-zero
-first-divided analytic form.
+The K1 endpoint floor is therefore no longer the dominant blocker.
+
+The remaining interval-proof issue is different: the old boundary-winding
+mean-value derivative inflation can still produce `nan` at extremely small eta,
+and direct whole-edge interval boxes are too wide because of dependency in
+\((B,\tau)\).  The next proof-grade step should subdivide boundary boxes and
+bound \(K_\eta-K_0\) directly, using the endpoint-safe K1 and the already
+regularized K2 kernel.

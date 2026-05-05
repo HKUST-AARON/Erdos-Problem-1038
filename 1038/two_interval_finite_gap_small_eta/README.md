@@ -147,7 +147,7 @@ Expected summary:
 
 ```text
 TWO-INTERVAL K1 ETA FLOOR:
-FAIL-DIAGNOSTIC ... conclusion='K1 needs eta-zero endpoint-safe first-divided kernel'
+PASS-DIAGNOSTIC ... conclusion='K1 endpoint-safe first-divided kernel controls eta floor'
 ```
 
 ## Caveat

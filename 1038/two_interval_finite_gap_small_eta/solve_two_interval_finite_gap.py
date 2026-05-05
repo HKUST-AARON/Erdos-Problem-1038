@@ -1782,7 +1782,11 @@ def _potential_residue_log_value_divided_from_arb(
     rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
     rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
     a_minus = (one + A) * branch_value(rho_minus, scale) / one_derivative
-    total -= (a_minus / eta) * log_abs((w_x - rho_minus) / (w_x - rho_plus))
+    if x_kind == "contact":
+        z = eta / sqrt_one_minus_alpha
+        total -= a_minus * 2 * log_one_plus_over_z(z) / sqrt_one_minus_alpha
+    else:
+        total -= (a_minus / eta) * log_abs((w_x - rho_minus) / (w_x - rho_plus))
 
     if eta_variation_mid is not None and isinstance(total, EtaDiff):
         return str(total.variation())

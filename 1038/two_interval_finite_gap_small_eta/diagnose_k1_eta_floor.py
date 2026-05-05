@@ -60,10 +60,15 @@ def main() -> int:
 
     ratio = worst_radius / best_radius if best_radius > 0.0 else float("inf")
     status = "FAIL-DIAGNOSTIC" if ratio > 1.0e5 else "PASS-DIAGNOSTIC"
+    conclusion = (
+        "K1 eta floor remains unresolved"
+        if status == "FAIL-DIAGNOSTIC"
+        else "K1 endpoint-safe first-divided kernel controls eta floor"
+    )
     print(
         "TWO-INTERVAL K1 ETA FLOOR: "
         f"{status} worst_radius={worst_radius:.6e} best_radius={best_radius:.6e} "
-        f"radius_ratio={ratio:.6e} conclusion='K1 needs eta-zero endpoint-safe first-divided kernel'"
+        f"radius_ratio={ratio:.6e} conclusion={conclusion!r}"
     )
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
