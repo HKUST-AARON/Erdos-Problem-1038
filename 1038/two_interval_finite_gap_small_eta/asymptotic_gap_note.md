@@ -553,3 +553,43 @@ arithmetic that |R''(tau)| <= 2.5e-4 for the eta-uniform K2 remainder R.
 
 If that curvature enclosure is certified, then the tau-Lipschitz bound `2e-4`
 used by the hybrid edge certificate follows with explicit slack.
+
+## Four-Cell Curvature Scan
+
+The final interval/Taylor target has now been localized to four boxes:
+
+```text
+B = +0.01, tau in [tau0-0.05, tau0]
+B = +0.01, tau in [tau0, tau0+0.05]
+B = -0.01, tau in [tau0-0.05, tau0]
+B = -0.01, tau in [tau0, tau0+0.05]
+```
+
+I added a direct scan for these four boxes:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 3 \
+  --h 1e-4 \
+  --eta-values 1e-16,1e-8 \
+  --secant-certificate \
+  --taylor-lipschitz-diagnostic \
+  --cell-curvature-scan \
+  --cell-grid 101
+```
+
+Observed cell output:
+
+```text
+K2_CELL_CURVATURE B=+0.01 cell=0 max_abs_curvature=1.003451e-04
+K2_CELL_CURVATURE B=+0.01 cell=1 max_abs_curvature=1.003439e-04
+K2_CELL_CURVATURE B=-0.01 cell=0 max_abs_curvature=1.003435e-04
+K2_CELL_CURVATURE B=-0.01 cell=1 max_abs_curvature=1.003421e-04
+TWO-INTERVAL K2 CELL CURVATURE SCAN: PASS-DIAGNOSTIC
+worst_curvature=1.003451e-04
+candidate_curvature=2.500000e-04
+```
+
+This is still sampled, but it is now aligned with the exact future proof
+artifact: prove the curvature bound on these four boxes using interval/Taylor
+arithmetic in the combined K2 residual-level kernel.

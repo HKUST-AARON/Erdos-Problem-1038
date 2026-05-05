@@ -216,7 +216,9 @@ K2 tau-derivative stress diagnostic:
   --h 1e-4 \
   --eta-values 1e-16,1e-8 \
   --secant-certificate \
-  --taylor-lipschitz-diagnostic
+  --taylor-lipschitz-diagnostic \
+  --cell-curvature-scan \
+  --cell-grid 101
 ```
 
 Current expected summary:
@@ -233,6 +235,9 @@ candidate_lipschitz=2.000000e-04
 TWO-INTERVAL K2 TAYLOR LIPSCHITZ:
 PASS-DIAGNOSTIC taylor_lipschitz_bound=1.149144e-04
 candidate_lipschitz=2.000000e-04
+TWO-INTERVAL K2 CELL CURVATURE SCAN:
+PASS-DIAGNOSTIC worst_curvature=1.003451e-04
+candidate_curvature=2.500000e-04
 ```
 
 ## Caveat

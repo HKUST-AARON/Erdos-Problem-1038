@@ -44,6 +44,12 @@ def main() -> int:
         action="store_true",
         help="combine eta-uniform cell secants with the candidate curvature allowance",
     )
+    parser.add_argument(
+        "--cell-curvature-scan",
+        action="store_true",
+        help="scan the two tau cells on each B edge for finite-difference curvature stress",
+    )
+    parser.add_argument("--cell-grid", type=int, default=101)
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -237,6 +243,46 @@ def main() -> int:
             )
             if taylor_status != "PASS-DIAGNOSTIC":
                 status = "FAIL-DIAGNOSTIC"
+    if args.cell_curvature_scan:
+        if args.cell_grid < 3:
+            raise SystemExit("cell-grid must be at least 3")
+        cell_step = 0.05
+        scan_worst = 0.0
+        scan_source = ""
+        for B in (0.01, -0.01):
+            for cell in range(2):
+                tau_low = tau0 - 0.05 + cell_step * cell
+                tau_high = tau_low + cell_step
+                cell_worst = 0.0
+                cell_source = ""
+                for eta in eta_values:
+                    for tau in np.linspace(tau_low + args.h, tau_high - args.h, args.cell_grid):
+                        curvature = (
+                            remainder(B, float(tau + args.h), eta)
+                            - 2 * remainder(B, float(tau), eta)
+                            + remainder(B, float(tau - args.h), eta)
+                        ) / (args.h * args.h)
+                        abs_curvature = abs(curvature)
+                        if abs_curvature > cell_worst:
+                            cell_worst = abs_curvature
+                            cell_source = f"eta={eta:.1e},tau={float(tau):.12e},curvature={curvature:.6e}"
+                        if abs_curvature > scan_worst:
+                            scan_worst = abs_curvature
+                            scan_source = f"B={B:+.2f},cell={cell},{cell_source}"
+                print(
+                    f"K2_CELL_CURVATURE B={B:+.2f} cell={cell:d} "
+                    f"tau_low={tau_low:.12e} tau_high={tau_high:.12e} "
+                    f"max_abs_curvature={cell_worst:.6e} source={cell_source!r}"
+                )
+        scan_status = "PASS-DIAGNOSTIC" if scan_worst < args.candidate_curvature else "FAIL-DIAGNOSTIC"
+        print(
+            "TWO-INTERVAL K2 CELL CURVATURE SCAN: "
+            f"{scan_status} cell_grid={args.cell_grid:d} h={args.h:.6e} "
+            f"worst_curvature={scan_worst:.6e} candidate_curvature={args.candidate_curvature:.6e} "
+            f"worst_source={scan_source!r}"
+        )
+        if scan_status != "PASS-DIAGNOSTIC":
+            status = "FAIL-DIAGNOSTIC"
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 
