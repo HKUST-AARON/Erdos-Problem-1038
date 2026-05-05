@@ -2991,12 +2991,65 @@ What is now closed:
 4. orientation-correct adaptive boundary splitting and strict eta-slice
    coverage checks.
 
+### 15.3.2 Global positivity from the sign chart on the stored finite range
+
+The next bridge is now implemented as
+`1038/verify_two_interval_global_positivity.py`.  It verifies the sign-chart
+theorem that turns the local branch equation into the global dual sign
+condition on
+\[
+S=\{-1\}\cup[0,1].
+\]
+
+For the corrected two-interval ansatz, outside the cut \([\alpha,\beta]\),
+\[
+U'(x)=-F(x),\qquad
+F(x)=\frac{(x+A)R(x)}{(x-\ell)(x-r)(x-1)}.
+\]
+The verifier checks, over every certified tube slice in the stored finite
+range, that
+\[
+1<A<-\ell,\qquad \ell<-1<r<\alpha<\beta<1
+\]
+and the accompanying residue/density sign margins hold.  These inequalities
+force
+\[
+F<0\quad\text{on }[-1,r),\qquad
+F>0\quad\text{on }(r,\alpha),\qquad
+F<0\quad\text{on }(\beta,1).
+\]
+Since the winding certificate supplies a zero of the branch map in each tube,
+that zero has \(U(\alpha)=0\) and \(U(-1)=0\); the ansatz identity gives the
+flat-zero interval on \([\alpha,\beta]\).  Therefore \(U\ge0\) on
+\(\{-1\}\cup[0,1]\) for each certified branch point in the stored finite range.
+
+The command is:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_global_positivity.py \
+  --self-test-tamper
+```
+
+Local and remote runs both return:
+
+```text
+TWO-INTERVAL GLOBAL POSITIVITY: PASS
+configs=8
+worst_margin=5.000000e-05
+worst_slab=5e-05:0.0001
+worst_margin_name=beta<1
+```
+
+The tamper self-test deliberately moves one tube outside the safe sign chart
+and is rejected before the normal certificate is checked.
+
 What is not yet closed:
 
 1. the singular range \(0<\varepsilon<0.00005\), which needs a small-\(\eta\)
    theorem rather than another finite row sampling run;
-2. positivity/support verification for the full extracted dual measure on all
-   required \(x\)-regions, beyond the sign-regime checks recorded here;
+2. a direct interval lower-bound audit of \(U(x)\) on all real segments; this
+   is no longer the main positivity proof for the stored branch, but remains a
+   useful independent proof artifact;
 3. the global reduction from arbitrary candidate sets \(E\) to this
    two-interval obstruction family;
 4. the matching upper construction needed for the exact infimum.
@@ -3666,8 +3719,9 @@ one important local lower-side branch certificate.
 | Conditional finite-atom lower bound \(1.806304\) | strongest closed local lower-bound package | `FiveAtom1806304Mathlib.lean`, `FiveAtom1806304Formal.lean`, five-atom Decimal/Lean checks | A separate finite-atom lower-bound route; useful but not close to \(1.83\). |
 | Two-interval sign regime | proof-grade for exported boxes as an external verifier | `.venv/bin/python 1038/verify_two_interval_sign_box.py --quiet --self-test-tamper` | Checks \(1<A<-\ell\), \(\ell<-1<r<\alpha<\beta<1\), atom residue signs, and density sign on exported branch/Krawczyk boxes. |
 | Two-interval branch on \([0.00005,0.002]\) | proof-grade interval winding certificate for all stored slabs | `verify_two_interval_continuation_tube.py` with `residue-log-mv`; remote split runs `1024/1024 PASS` on \([0.0002,0.0005]\) and `2688/2688 PASS` on the remaining slabs | For each certified eta slice, \(K(B,\tau,\eta)\) has a zero in the tube by winding degree \(1\). |
+| Global positivity on \(S\) for the stored two-interval branch | closed by sign-chart verifier, conditional on the winding zero in each tube | `.venv/bin/python 1038/verify_two_interval_global_positivity.py --self-test-tamper`; local and remote PASS | Uses \(U'=-F\), the checked sign chart, \(U(-1)=U(\alpha)=0\), and flatness on \([\alpha,\beta]\) to prove \(U_\lambda\ge0\) on \(\{-1\}\cup[0,1]\). |
 | Singular range \(0<\varepsilon<0.00005\) | open | none | Needs an asymptotic/small-\(\eta\) theorem, not finite row sampling. |
-| Full \(U_\lambda\ge0\) on \(S\) | open beyond sign-chart reduction | no standalone global positivity verifier yet | Needs endpoint/stationary-point interval lower bounds for the potential on all required real segments. |
+| Direct interval lower-bound audit of \(U_\lambda\) | optional independent artifact | none yet | Would evaluate endpoint/stationary-point lower bounds directly; the stored branch currently uses the sign-chart proof instead. |
 | Global reduction from arbitrary \(E\) | open | only recorded as a required Tao/natso/global lemma | Must show any relevant candidate set reduces to one/two-interval obstruction or receives another dual certificate. |
 | Upper construction at \(M_*\) | open in this repo | Tao one-cut candidate endpoints recorded, but no full construction proof | Needs an admissible approximating polynomial/measure sequence with \(|E|\to M_*\). |
 
@@ -3810,16 +3864,16 @@ lower-bound statements such as \(L_-\ge1.83\), not the exact equality
 
 The next work should be done in this order:
 
-1. **Write the global potential-positivity verifier** for the two-interval
-   measure, using residue-log primitives and real critical-point isolation.
-2. **Prove the small-\(\eta\) branch theorem** for
+1. **Prove the small-\(\eta\) branch theorem** for
    \(0<\varepsilon<0.00005\).
-3. **Formulate the global finite-gap reduction lemma** precisely enough that it
+2. **Formulate the global finite-gap reduction lemma** precisely enough that it
    can be attacked or refuted.
-4. **Separate the upper construction** into its own proof note, so the lower
+3. **Separate the upper construction** into its own proof note, so the lower
    and upper sides do not get conflated.
+4. **Optionally add a direct interval lower-bound audit** of \(U_\lambda\) as an
+   independent check of the sign-chart proof.
 
-The previous first item, extending proof-grade winding coverage across the
-stored finite slabs, is now closed.  The new first item is the best immediate
-engineering task.  The finite-gap reduction item is the hardest mathematical
-gap.
+The previous first items, extending proof-grade winding coverage and then
+closing global positivity on \(S\) for the stored branch, are now closed.  The
+new first item is the small-\(\eta\) theorem.  The finite-gap reduction item is
+the hardest mathematical gap.
