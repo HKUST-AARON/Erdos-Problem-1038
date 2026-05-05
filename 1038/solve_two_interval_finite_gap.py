@@ -1965,6 +1965,104 @@ def _combined_residue_log_value_second_divided_from_arb(
         except ValueError:
             return left
 
+    def append_debug_value(label, value):
+        if debug_terms is not None:
+            debug_terms.append((label, str(value / eta)))
+
+    def paired_product_log_abs_divided(left_data, right_data, debug_label=None):
+        (
+            left_coefficient,
+            left_coefficient0,
+            left_coefficient_div,
+            left_value,
+            left_value0,
+            left_value_div,
+        ) = left_data
+        (
+            right_coefficient,
+            right_coefficient0,
+            right_coefficient_div,
+            right_value,
+            right_value0,
+            right_value_div,
+        ) = right_data
+        coefficient_sum = left_coefficient + right_coefficient
+        coefficient0_sum = left_coefficient0 + right_coefficient0
+        coefficient_div_sum = left_coefficient_div + right_coefficient_div
+        left_over_right = left_value / right_value
+        left_over_right0 = left_value0 / right_value0
+        left_over_right_div = quotient_divided(
+            left_value,
+            left_value0,
+            left_value_div,
+            right_value,
+            right_value0,
+            right_value_div,
+        )
+        right_over_left = right_value / left_value
+        right_over_left0 = right_value0 / left_value0
+        right_over_left_div = quotient_divided(
+            right_value,
+            right_value0,
+            right_value_div,
+            left_value,
+            left_value0,
+            left_value_div,
+        )
+        left_ratio_term = product_log_abs_divided(
+            left_coefficient,
+            left_coefficient0,
+            left_coefficient_div,
+            left_over_right,
+            left_over_right0,
+            left_over_right_div,
+        )
+        right_base_sum_term = product_log_abs_divided(
+            coefficient_sum,
+            coefficient0_sum,
+            coefficient_div_sum,
+            right_value,
+            right_value0,
+            right_value_div,
+        )
+        left_ratio_pair = left_ratio_term + right_base_sum_term
+        right_ratio_term = product_log_abs_divided(
+            right_coefficient,
+            right_coefficient0,
+            right_coefficient_div,
+            right_over_left,
+            right_over_left0,
+            right_over_left_div,
+        )
+        left_base_sum_term = product_log_abs_divided(
+            coefficient_sum,
+            coefficient0_sum,
+            coefficient_div_sum,
+            left_value,
+            left_value0,
+            left_value_div,
+        )
+        right_ratio_pair = right_ratio_term + left_base_sum_term
+        paired = left_ratio_pair
+        try:
+            paired = paired.intersection(right_ratio_pair)
+        except ValueError:
+            pass
+        direct = product_log_abs_divided(*left_data) + product_log_abs_divided(*right_data)
+        if debug_label is not None:
+            append_debug_value(f"{debug_label}:left_ratio_term", left_ratio_term)
+            append_debug_value(f"{debug_label}:right_base_sum_term", right_base_sum_term)
+            append_debug_value(f"{debug_label}:left_ratio_pair", left_ratio_pair)
+            append_debug_value(f"{debug_label}:right_ratio_term", right_ratio_term)
+            append_debug_value(f"{debug_label}:left_base_sum_term", left_base_sum_term)
+            append_debug_value(f"{debug_label}:right_ratio_pair", right_ratio_pair)
+            append_debug_value(f"{debug_label}:paired_intersection", paired)
+            append_debug_value(f"{debug_label}:direct_sum", direct)
+        try:
+            return paired.intersection(direct)
+        except ValueError:
+            return paired
+
     def preimage_pair_divided(q, q0, q_div):
         y = (q - center) / scale
         y0 = (q0 - center0) / scale0
@@ -2029,8 +2127,7 @@ def _combined_residue_log_value_second_divided_from_arb(
     def add_combined_term(label, value):
         nonlocal combined_first_divided
         combined_first_divided += value
-        if debug_terms is not None:
-            debug_terms.append((label, str(value / eta)))
+        append_debug_value(label, value)
 
     for item in contexts:
         add_combined_term(
@@ -2053,6 +2150,7 @@ def _combined_residue_log_value_second_divided_from_arb(
 
     ell_preimages = preimage_pair_divided(ell, ell0, ell_q_div)
     r_preimages = preimage_pair_divided(r, r, r_q_div)
+    base_product_data = {item["label"]: [] for item in contexts}
     for sheet_index, ((rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div)) in enumerate(
         zip(ell_preimages, r_preimages)
     ):
@@ -2099,13 +2197,15 @@ def _combined_residue_log_value_second_divided_from_arb(
             base = item["w"] - rho_r
             base0 = item["w0"] - rho_r0
             base_div = item["w_div"] - rho_r_div
-            base_product = product_log_abs_divided(
-                sum_residue,
-                sum_residue0,
-                sum_residue_div,
-                base,
-                base0,
-                base_div,
+            base_product_data[item["label"]].append(
+                (
+                    sum_residue,
+                    sum_residue0,
+                    sum_residue_div,
+                    base,
+                    base0,
+                    base_div,
+                )
             )
             add_combined_term(
                 f"smooth:s{sheet_index}:ratio_coeff:{item['label']}",
@@ -2115,10 +2215,20 @@ def _combined_residue_log_value_second_divided_from_arb(
                 f"smooth:s{sheet_index}:ratio_log:{item['label']}",
                 item["weight"] * (-a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)),
             )
-            add_combined_term(
-                f"smooth:s{sheet_index}:base_product:{item['label']}",
-                item["weight"] * (-base_product),
-            )
+
+    for item in contexts:
+        left_data, right_data = base_product_data[item["label"]]
+        add_combined_term(
+            f"smooth:paired_base_product:{item['label']}",
+            item["weight"]
+            * (
+                -paired_product_log_abs_divided(
+                    left_data,
+                    right_data,
+                    f"smooth:paired_base_product_diag:{item['label']}",
+                )
+            ),
+        )
 
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
