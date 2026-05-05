@@ -895,6 +895,60 @@ This is the next usable mathematical reduction: the \(g=2\) obstruction is no
 longer just a topology issue; it is a convex external-field system coupled to
 the finite-gap interlacing condition \(F(c)=0\).
 
+### E6. Rational balance seen by the fixed mass at \(-1\)
+
+Put
+
+\[
+a=c-u,\qquad b=v-c.
+\]
+
+From
+
+\[
+aW'(u)+bW'(v)=0
+\]
+
+and
+
+\[
+W'(x)=-\int_{\mathbb R\setminus I}\frac{d\mu(t)}{x-t},
+\]
+
+one obtains
+
+\[
+\boxed{
+\int_{\mathbb R\setminus I}
+\frac{c-t}{(u-t)(v-t)}\,d\mu(t)=0.
+}
+\]
+
+Because \((u-t)(v-t)>0\) for \(t\notin(u,v)\), this is exactly a left-right
+balance identity:
+
+\[
+\boxed{
+\int_{t<u}
+\frac{c-t}{(u-t)(v-t)}\,d\mu(t)
+=
+\int_{t>v}
+\frac{t-c}{(u-t)(v-t)}\,d\mu(t).
+}
+\]
+
+The atom at \(-1\) supplies at least
+
+\[
+\frac12\frac{c+1}{(u+1)(v+1)}
+\]
+
+to the left side.  Hence any escaping component must be compensated by enough
+right-side mass.  The next mathematical lemma is to prove that when
+\(|E|<M_*\), this required right-side compensation contradicts the companion
+logarithmic endpoint identity or the positivity/interlacing conditions of the
+finite-gap dual transform.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

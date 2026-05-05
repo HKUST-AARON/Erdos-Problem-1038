@@ -3783,6 +3783,102 @@ equation.  The next proof move is to combine this convexity with the
 finite-gap sign/interlacing constraints on \(F\), eliminating the polynomial
 factor \(P\) through \(F(c)=0\).
 
+### 16.8 Rational moment form of the escaping-component balance
+
+The cancellation lemma has an equivalent integral form that is more useful
+for the normalized lower bound because it sees the fixed mass at \(-1\).
+
+Let
+
+\[
+a=c-u,\qquad b=v-c,\qquad a,b>0.
+\]
+
+Since
+
+\[
+W'(x)=-\int_{\mathbb R\setminus I}\frac{d\mu(t)}{x-t},
+\]
+
+the balanced-slope identity
+
+\[
+aW'(u)+bW'(v)=0
+\]
+
+becomes
+
+\[
+\int_{\mathbb R\setminus I}
+\left(\frac{a}{u-t}+\frac{b}{v-t}\right)d\mu(t)=0.
+\]
+
+But
+
+\[
+\frac{a}{u-t}+\frac{b}{v-t}
+=
+\frac{a(v-t)+b(u-t)}{(u-t)(v-t)}
+=
+\frac{(v-u)(c-t)}{(u-t)(v-t)}.
+\]
+
+Therefore every escaping component must satisfy
+
+\[
+\boxed{
+\int_{\mathbb R\setminus I}
+\frac{c-t}{(u-t)(v-t)}\,d\mu(t)=0.
+}
+\]
+
+Since \(t\notin(u,v)\), the denominator is positive.  Hence the identity says
+exactly that the left-side mass and the right-side mass balance:
+
+\[
+\boxed{
+\int_{t<u}
+\frac{c-t}{(u-t)(v-t)}\,d\mu(t)
+=
+\int_{t>v}
+\frac{t-c}{(u-t)(v-t)}\,d\mu(t).
+}
+\]
+
+The endpoint zero equations give the companion logarithmic identity
+
+\[
+\boxed{
+\int_{\mathbb R\setminus I}
+\log\frac{|u-t|}{|v-t|}\,d\mu(t)
+=
+q\log\frac{v-c}{c-u}.
+}
+\]
+
+The normalized mass condition contributes the explicit left-side term
+
+\[
+\mu(\{-1\})\frac{c+1}{(u+1)(v+1)}
+\ge
+\frac12\frac{c+1}{(u+1)(v+1)}
+\]
+
+to the rational balance.  Thus an extra component can persist only if enough
+mass to the right of \(v\) compensates this forced contribution.  This is the
+first point where the standard reduction data directly enters the \(g=2\)
+finite-gap exclusion.
+
+The next lower-bound lemma should be formulated as follows:
+
+\[
+\boxed{
+\text{under } |E|<M_*,\text{ the right-side compensation required by the
+rational balance contradicts either the logarithmic identity or positivity of
+the finite-gap dual density.}
+}
+\]
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
