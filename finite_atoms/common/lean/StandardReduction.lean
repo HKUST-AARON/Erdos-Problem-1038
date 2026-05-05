@@ -2722,6 +2722,52 @@ theorem componentReplacement_objective_le_of_strictOutside_potential_le
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   exact replacement_objective_le_of_strictOutside_potential_le C houtside
 
+/--
+Scalar assembly step for the barycenter-replacement argument.
+
+At a point outside the component, the original potential and the replacement
+potential share the same outside contribution.  The only comparison needed is
+the Jensen comparison between the original component block and the barycenter
+atom.  This lemma turns those three scalar facts into the outside-potential
+inequality consumed by `componentReplacement_objective_le_of_*`.
+-/
+lemma componentReplacement_potential_le_of_decomposition_and_block_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    {outside block replacementAtom : ℝ}
+    (horiginal :
+      unitIntervalLogPotential μ x = outside + block)
+    (hreplacement :
+      componentReplacementPotential C x = outside + replacementAtom)
+    (hjensen : replacementAtom ≤ block) :
+    componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  linarith
+
+/--
+Objective non-increase for component replacement, packaged from pointwise
+decomposition/Jensen data on the strict outside of the component.
+
+This is the Lean interface matching the mathematical proof step: decompose both
+potentials into the common outside contribution plus the component contribution,
+use Jensen on the component contribution, and then use the zero-measure endpoint
+bridge to compare positive-set lengths.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
+      ∃ outside block replacementAtom : ℝ,
+        unitIntervalLogPotential μ x = outside + block ∧
+        componentReplacementPotential C x = outside + replacementAtom ∧
+        replacementAtom ≤ block) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_potential_le C ?_
+  intro x hx
+  rcases hdata x hx with
+    ⟨outside, block, replacementAtom, horiginal, hreplacement, hjensen⟩
+  exact componentReplacement_potential_le_of_decomposition_and_block_jensen
+    (C := C) (x := x) (outside := outside) (block := block)
+    (replacementAtom := replacementAtom) horiginal hreplacement hjensen
+
 lemma eventual_pointwise_error_of_three_errors
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
     (T : ℕ → ℝ → ℝ) (Ts : ℕ → ι → ℝ → ℝ)

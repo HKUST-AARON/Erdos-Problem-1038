@@ -102,6 +102,8 @@ The Lean file has internalized several downstream pieces of this chain:
 
 ```text
 measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
+componentReplacement_potential_le_of_decomposition_and_block_jensen
+componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -122,6 +124,12 @@ The first is the named support-decomposition-to-endpoint-lower-bound bridge.
 The second matches the mathematical proof's split between `x_+ > 0` and the
 degenerate two-point `x_+ = 0` case.
 
+The component-replacement layer now also has an explicit assembly bridge:
+once the original potential and the replacement potential are decomposed into
+the same outside contribution plus their component contributions, and Jensen
+gives the component-block comparison, Lean derives the pointwise replacement
+potential inequality and the corresponding objective non-increase theorem.
+
 The following review findings remain real Lean gaps, not solved claims:
 
 ```text
@@ -133,8 +141,9 @@ The following review findings remain real Lean gaps, not solved claims:
    has not yet been proved lower semicontinuous end-to-end.
 
 3. The component-replacement objective lemma still consumes the outside
-   potential inequality as an assumption; the Jensen theorem exists, but the
-   full assembly from an actual component replacement is not yet automatic.
+   decomposition/Jensen data as an assumption.  The scalar assembly from those
+   data to objective non-increase is formalized, but deriving the decompositions
+   automatically from an arbitrary component replacement is not yet closed.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
