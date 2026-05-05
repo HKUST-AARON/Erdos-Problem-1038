@@ -1,4 +1,5 @@
 import Mathlib
+import finite_atoms.common.lean.StandardReduction
 
 /-!
 # Route closure for the `M = 1.814600` five-atom piecewise tail candidate
@@ -56,9 +57,143 @@ def swept2 (a : ℝ) : ℝ := a + shift2
 def swept3 (a : ℝ) : ℝ := a + shift3
 def swept4 (a : ℝ) : ℝ := a + shift4
 
+def sweptAtom (a : ℝ) : Fin 5 → ℝ
+  | ⟨0, _⟩ => swept0 a
+  | ⟨1, _⟩ => swept1 a
+  | ⟨2, _⟩ => swept2 a
+  | ⟨3, _⟩ => swept3 a
+  | ⟨4, _⟩ => swept4 a
+
 def TailSelector (E : Set ℝ) : Prop :=
   ∀ a : ℝ, a ∈ TailParameter →
     swept0 a ∈ E ∨ swept1 a ∈ E ∨ swept2 a ∈ E ∨ swept3 a ∈ E ∨ swept4 a ∈ E
+
+def TailFiniteSelection (E : Set ℝ) : Prop :=
+  ∀ a : ℝ, a ∈ TailParameter → ∃ i : Fin 5, sweptAtom a i ∈ E
+
+theorem TailFiniteSelection.toTailSelector
+    {E : Set ℝ} (h : TailFiniteSelection E) :
+    TailSelector E := by
+  intro a ha
+  rcases h a ha with ⟨i, hi⟩
+  fin_cases i <;> simp [sweptAtom] at hi
+  · exact Or.inl hi
+  · exact Or.inr (Or.inl hi)
+  · exact Or.inr (Or.inr (Or.inl hi))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl hi)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr hi)))
+
+theorem tailFiniteSelection_from_augmented_duality
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w : ℝ → Fin 5 → ℝ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (w a) (sweptAtom a))
+    (hw_nonneg : ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5, 0 ≤ w a i)
+    (hintegral_pos : ∀ a : ℝ, a ∈ TailParameter →
+      0 < ∫ x : StandardReduction.UnitInterval1038,
+        StandardReduction.finiteWeightedPotential
+          Finset.univ (w a) (sweptAtom a) (x : ℝ)
+          ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    TailFiniteSelection (StandardReduction.unitIntervalAugmentedPositiveSet μ) := by
+  intro a ha
+  rcases (hduality a ha).selects_augmented_atom
+      (by
+        intro i _hi
+        exact hw_nonneg a ha i)
+      (hintegral_pos a ha) with
+    ⟨i, _hi, hmem⟩
+  exact ⟨i, hmem⟩
+
+theorem tailSelector_from_augmented_duality
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w : ℝ → Fin 5 → ℝ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (w a) (sweptAtom a))
+    (hw_nonneg : ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5, 0 ≤ w a i)
+    (hintegral_pos : ∀ a : ℝ, a ∈ TailParameter →
+      0 < ∫ x : StandardReduction.UnitInterval1038,
+        StandardReduction.finiteWeightedPotential
+          Finset.univ (w a) (sweptAtom a) (x : ℝ)
+          ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+  (tailFiniteSelection_from_augmented_duality μ w hduality hw_nonneg
+    hintegral_pos).toTailSelector
+
+theorem integral_pos_of_integrable_ae_pos_probability
+    {α : Type*} [MeasurableSpace α]
+    (μ : MeasureTheory.ProbabilityMeasure α) {f : α → ℝ}
+    (hf_int : Integrable f (μ : Measure α))
+    (hf_pos : ∀ᵐ x ∂(μ : Measure α), 0 < f x) :
+    0 < ∫ x, f x ∂(μ : Measure α) := by
+  have hf_nonneg : 0 ≤ᵐ[(μ : Measure α)] f :=
+    hf_pos.mono (fun _ hx => le_of_lt hx)
+  rw [MeasureTheory.integral_pos_iff_support_of_nonneg_ae hf_nonneg hf_int]
+  have hsupport_ae :
+      Function.support f =ᵐ[(μ : Measure α)] Set.univ := by
+    filter_upwards [hf_pos] with x hx
+    exact propext ⟨fun _h => trivial, fun _h => ne_of_gt hx⟩
+  have hsupport_measure :
+      (μ : Measure α) (Function.support f) =
+        (μ : Measure α) Set.univ :=
+    measure_congr hsupport_ae
+  rw [hsupport_measure]
+  simp
+
+def UnitIntervalNormalizedSupportAE
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038) : Prop :=
+  ∀ᵐ (x : StandardReduction.UnitInterval1038)
+    ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038),
+    (x : ℝ) = -1 ∨ (x : ℝ) ∈ Icc (0 : ℝ) 1
+
+theorem finiteWeightedPotential_integral_pos_of_normalized_pointwise
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (w : Fin 5 → ℝ) (atom : Fin 5 → ℝ)
+    (hint : Integrable
+      (fun x : StandardReduction.UnitInterval1038 =>
+        StandardReduction.finiteWeightedPotential
+          Finset.univ w atom (x : ℝ))
+      (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038))
+    (hpoint :
+      ∀ x : StandardReduction.UnitInterval1038,
+        ((x : ℝ) = -1 ∨ (x : ℝ) ∈ Icc (0 : ℝ) 1) →
+        0 <
+          StandardReduction.finiteWeightedPotential
+            Finset.univ w atom (x : ℝ)) :
+    0 < ∫ x : StandardReduction.UnitInterval1038,
+      StandardReduction.finiteWeightedPotential
+        Finset.univ w atom (x : ℝ)
+        ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) :=
+  integral_pos_of_integrable_ae_pos_probability μ hint
+    (hNorm.mono (fun x hx => hpoint x hx))
+
+theorem tailSelector_from_augmented_duality_of_normalized_pointwise
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w : ℝ → Fin 5 → ℝ)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (w a) (sweptAtom a))
+    (hw_nonneg : ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5, 0 ≤ w a i)
+    (hint : ∀ a : ℝ, a ∈ TailParameter →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (w a) (sweptAtom a) (x : ℝ))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038))
+    (hpoint : ∀ a : ℝ, a ∈ TailParameter →
+      ∀ x : StandardReduction.UnitInterval1038,
+        ((x : ℝ) = -1 ∨ (x : ℝ) ∈ Icc (0 : ℝ) 1) →
+        0 <
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (w a) (sweptAtom a) (x : ℝ)) :
+    TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+  tailSelector_from_augmented_duality μ w hduality hw_nonneg
+    (fun a ha =>
+      finiteWeightedPotential_integral_pos_of_normalized_pointwise
+        μ hNorm (w a) (sweptAtom a) (hint a ha) (hpoint a ha))
 
 def TailPiece0 (E : Set ℝ) : Set ℝ := E ∩ I0
 def TailPiece1 (E : Set ℝ) : Set ℝ := E ∩ I1
@@ -242,6 +377,473 @@ theorem tailSelector_length_sum_lower_bound
   have hMB : -B + M = M - B := by ring
   simpa [TailParameter, I0, Real.volume_Icc, hMB] using h
 
+/-! ## Concrete volume closure for the `1.814600` route -/
+
+theorem I0_disjoint_Long : Disjoint I0 LongInterval := by
+  rw [Set.disjoint_left]
+  intro x hx0 hxLong
+  simp [I0, LongInterval] at hx0 hxLong
+  linarith
+
+theorem I1_disjoint_Long : Disjoint I1 LongInterval := by
+  rw [Set.disjoint_left]
+  intro x hx1 hxLong
+  simp [I1, LongInterval] at hx1 hxLong
+  have hpos : 0 < shift1 - M := by
+    norm_num [shift1, M, q]
+  linarith
+
+theorem I2_disjoint_Long : Disjoint I2 LongInterval := by
+  rw [Set.disjoint_left]
+  intro x hx2 hxLong
+  simp [I2, LongInterval] at hx2 hxLong
+  have hpos : 0 < shift2 - M := by
+    norm_num [shift2, M, q]
+  linarith
+
+theorem I3_disjoint_Long : Disjoint I3 LongInterval := by
+  rw [Set.disjoint_left]
+  intro x hx3 hxLong
+  simp [I3, LongInterval] at hx3 hxLong
+  have hpos : 0 < shift3 - M := by
+    norm_num [shift3, M, q]
+  linarith
+
+theorem I4_disjoint_Long : Disjoint I4 LongInterval := by
+  rw [Set.disjoint_left]
+  intro x hx4 hxLong
+  simp [I4, LongInterval] at hx4 hxLong
+  have hpos : 0 < shift4 - M := by
+    norm_num [shift4, M, q]
+  linarith
+
+theorem I0_I1_disjoint : Disjoint I0 I1 := by
+  rw [Set.disjoint_left]
+  intro x hx0 hx1
+  simp [I0, I1] at hx0 hx1
+  have h : -B < shift1 - M := by
+    norm_num [B, shift1, M, q]
+  linarith
+
+theorem I0_I2_disjoint : Disjoint I0 I2 := by
+  rw [Set.disjoint_left]
+  intro x hx0 hx2
+  simp [I0, I2] at hx0 hx2
+  have h : -B < shift2 - M := by
+    norm_num [B, shift2, M, q]
+  linarith
+
+theorem I0_I3_disjoint : Disjoint I0 I3 := by
+  rw [Set.disjoint_left]
+  intro x hx0 hx3
+  simp [I0, I3] at hx0 hx3
+  have h : -B < shift3 - M := by
+    norm_num [B, shift3, M, q]
+  linarith
+
+theorem I0_I4_disjoint : Disjoint I0 I4 := by
+  rw [Set.disjoint_left]
+  intro x hx0 hx4
+  simp [I0, I4] at hx0 hx4
+  have h : -B < shift4 - M := by
+    norm_num [B, shift4, M, q]
+  linarith
+
+theorem I1_I2_disjoint : Disjoint I1 I2 := by
+  rw [Set.disjoint_left]
+  intro x hx1 hx2
+  simp [I1, I2] at hx1 hx2
+  have h : shift1 - B < shift2 - M := by
+    norm_num [B, shift1, shift2, M, q]
+  linarith
+
+theorem I1_I3_disjoint : Disjoint I1 I3 := by
+  rw [Set.disjoint_left]
+  intro x hx1 hx3
+  simp [I1, I3] at hx1 hx3
+  have h : shift1 - B < shift3 - M := by
+    norm_num [B, shift1, shift3, M, q]
+  linarith
+
+theorem I1_I4_disjoint : Disjoint I1 I4 := by
+  rw [Set.disjoint_left]
+  intro x hx1 hx4
+  simp [I1, I4] at hx1 hx4
+  have h : shift1 - B < shift4 - M := by
+    norm_num [B, shift1, shift4, M, q]
+  linarith
+
+theorem I2_I3_disjoint : Disjoint I2 I3 := by
+  rw [Set.disjoint_left]
+  intro x hx2 hx3
+  simp [I2, I3] at hx2 hx3
+  have h : shift2 - B < shift3 - M := by
+    norm_num [B, shift2, shift3, M, q]
+  linarith
+
+theorem I2_I4_disjoint : Disjoint I2 I4 := by
+  rw [Set.disjoint_left]
+  intro x hx2 hx4
+  simp [I2, I4] at hx2 hx4
+  have h : shift2 - B < shift4 - M := by
+    norm_num [B, shift2, shift4, M, q]
+  linarith
+
+theorem I3_I4_disjoint : Disjoint I3 I4 := by
+  rw [Set.disjoint_left]
+  intro x hx3 hx4
+  simp [I3, I4] at hx3 hx4
+  have h : shift3 - B < shift4 - M := by
+    norm_num [B, shift3, shift4, M, q]
+  linarith
+
+lemma longInterval_volume :
+    volume LongInterval = ENNReal.ofReal B := by
+  have hB : 0 - (-B) = B := by ring
+  simp [LongInterval, Real.volume_Ioo, hB]
+
+lemma measurable_tailPiece0 {E : Set ℝ} (hE : MeasurableSet E) :
+    MeasurableSet (TailPiece0 E) :=
+  hE.inter measurableSet_Icc
+
+lemma measurable_tailPiece1 {E : Set ℝ} (hE : MeasurableSet E) :
+    MeasurableSet (TailPiece1 E) :=
+  hE.inter measurableSet_Icc
+
+lemma measurable_tailPiece2 {E : Set ℝ} (hE : MeasurableSet E) :
+    MeasurableSet (TailPiece2 E) :=
+  hE.inter measurableSet_Icc
+
+lemma measurable_tailPiece3 {E : Set ℝ} (hE : MeasurableSet E) :
+    MeasurableSet (TailPiece3 E) :=
+  hE.inter measurableSet_Icc
+
+lemma measurable_tailPiece4 {E : Set ℝ} (hE : MeasurableSet E) :
+    MeasurableSet (TailPiece4 E) :=
+  hE.inter measurableSet_Icc
+
+lemma tailPiece_disjoint_of_interval_disjoint
+    {E A C : Set ℝ} (hAC : Disjoint A C) :
+    Disjoint (E ∩ A) (E ∩ C) := by
+  rw [Set.disjoint_left] at hAC ⊢
+  intro x hxA hxC
+  exact hAC hxA.2 hxC.2
+
+lemma tailPiece0_tailPiece1_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece0 E) (TailPiece1 E) :=
+  tailPiece_disjoint_of_interval_disjoint I0_I1_disjoint
+
+lemma tailPiece0_tailPiece2_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece0 E) (TailPiece2 E) :=
+  tailPiece_disjoint_of_interval_disjoint I0_I2_disjoint
+
+lemma tailPiece0_tailPiece3_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece0 E) (TailPiece3 E) :=
+  tailPiece_disjoint_of_interval_disjoint I0_I3_disjoint
+
+lemma tailPiece0_tailPiece4_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece0 E) (TailPiece4 E) :=
+  tailPiece_disjoint_of_interval_disjoint I0_I4_disjoint
+
+lemma tailPiece1_tailPiece2_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece1 E) (TailPiece2 E) :=
+  tailPiece_disjoint_of_interval_disjoint I1_I2_disjoint
+
+lemma tailPiece1_tailPiece3_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece1 E) (TailPiece3 E) :=
+  tailPiece_disjoint_of_interval_disjoint I1_I3_disjoint
+
+lemma tailPiece1_tailPiece4_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece1 E) (TailPiece4 E) :=
+  tailPiece_disjoint_of_interval_disjoint I1_I4_disjoint
+
+lemma tailPiece2_tailPiece3_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece2 E) (TailPiece3 E) :=
+  tailPiece_disjoint_of_interval_disjoint I2_I3_disjoint
+
+lemma tailPiece2_tailPiece4_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece2 E) (TailPiece4 E) :=
+  tailPiece_disjoint_of_interval_disjoint I2_I4_disjoint
+
+lemma tailPiece3_tailPiece4_disjoint {E : Set ℝ} :
+    Disjoint (TailPiece3 E) (TailPiece4 E) :=
+  tailPiece_disjoint_of_interval_disjoint I3_I4_disjoint
+
+lemma tailUnion01_disjoint_2 {E : Set ℝ} :
+    Disjoint (TailPiece0 E ∪ TailPiece1 E) (TailPiece2 E) := by
+  rw [Set.disjoint_union_left]
+  exact ⟨tailPiece0_tailPiece2_disjoint, tailPiece1_tailPiece2_disjoint⟩
+
+lemma tailUnion012_disjoint_3 {E : Set ℝ} :
+    Disjoint (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E)
+      (TailPiece3 E) := by
+  rw [Set.disjoint_union_left]
+  exact ⟨by
+    rw [Set.disjoint_union_left]
+    exact ⟨tailPiece0_tailPiece3_disjoint, tailPiece1_tailPiece3_disjoint⟩,
+    tailPiece2_tailPiece3_disjoint⟩
+
+lemma tailUnion0123_disjoint_4 {E : Set ℝ} :
+    Disjoint (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+      TailPiece3 E) (TailPiece4 E) := by
+  rw [Set.disjoint_union_left]
+  exact ⟨by
+    rw [Set.disjoint_union_left]
+    exact ⟨by
+      rw [Set.disjoint_union_left]
+      exact ⟨tailPiece0_tailPiece4_disjoint, tailPiece1_tailPiece4_disjoint⟩,
+      tailPiece2_tailPiece4_disjoint⟩,
+    tailPiece3_tailPiece4_disjoint⟩
+
+theorem tailPieces_union_volume_eq_sum {E : Set ℝ}
+    (hE : MeasurableSet E) :
+    volume (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+      TailPiece3 E ∪ TailPiece4 E) =
+      volume (TailPiece0 E) + volume (TailPiece1 E) +
+        volume (TailPiece2 E) + volume (TailPiece3 E) +
+        volume (TailPiece4 E) := by
+  have hP1 := measurable_tailPiece1 hE
+  have hP2 := measurable_tailPiece2 hE
+  have hP3 := measurable_tailPiece3 hE
+  have hP4 := measurable_tailPiece4 hE
+  calc
+    volume (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+        TailPiece3 E ∪ TailPiece4 E)
+        = volume (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+            TailPiece3 E) + volume (TailPiece4 E) := by
+          rw [measure_union tailUnion0123_disjoint_4 hP4]
+    _ = (volume (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E) +
+            volume (TailPiece3 E)) + volume (TailPiece4 E) := by
+          rw [measure_union tailUnion012_disjoint_3 hP3]
+    _ = ((volume (TailPiece0 E ∪ TailPiece1 E) +
+            volume (TailPiece2 E)) + volume (TailPiece3 E)) +
+            volume (TailPiece4 E) := by
+          rw [measure_union tailUnion01_disjoint_2 hP2]
+    _ = (((volume (TailPiece0 E) + volume (TailPiece1 E)) +
+            volume (TailPiece2 E)) + volume (TailPiece3 E)) +
+            volume (TailPiece4 E) := by
+          rw [measure_union tailPiece0_tailPiece1_disjoint hP1]
+    _ = volume (TailPiece0 E) + volume (TailPiece1 E) +
+        volume (TailPiece2 E) + volume (TailPiece3 E) +
+        volume (TailPiece4 E) := by
+          ac_rfl
+
+lemma tailPieces_union_subset (E : Set ℝ) :
+    TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪ TailPiece3 E ∪
+      TailPiece4 E ⊆ E := by
+  intro x hx
+  rcases hx with hx0123 | hx4
+  · rcases hx0123 with hx012 | hx3
+    · rcases hx012 with hx01 | hx2
+      · rcases hx01 with hx0 | hx1
+        · exact hx0.1
+        · exact hx1.1
+      · exact hx2.1
+    · exact hx3.1
+  · exact hx4.1
+
+theorem tailSelector_volume_lower_bound
+    {E : Set ℝ}
+    (hE : MeasurableSet E)
+    (selector : TailSelector E) :
+    ENNReal.ofReal (M - B) ≤ volume E := by
+  have hsum := tailSelector_length_sum_lower_bound hE selector
+  have hsum_eq := tailPieces_union_volume_eq_sum hE
+  have hsub : TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+      TailPiece3 E ∪ TailPiece4 E ⊆ E :=
+    tailPieces_union_subset E
+  calc
+    ENNReal.ofReal (M - B)
+        ≤ volume (TailPiece0 E) + volume (TailPiece1 E) +
+          volume (TailPiece2 E) + volume (TailPiece3 E) +
+          volume (TailPiece4 E) := hsum
+    _ = volume (TailPiece0 E ∪ TailPiece1 E ∪ TailPiece2 E ∪
+          TailPiece3 E ∪ TailPiece4 E) := hsum_eq.symm
+    _ ≤ volume E := measure_mono (μ := volume) hsub
+
+lemma swept0_not_mem_long_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept0 a ∉ LongInterval := by
+  have hdisj := I0_disjoint_Long
+  rw [Set.disjoint_left] at hdisj
+  exact fun hlong => hdisj (a := swept0 a)
+    (by simpa [TailParameter, swept0] using ha) hlong
+
+lemma swept_mem_shifted_tail_interval {a s : ℝ}
+    (ha : a ∈ TailParameter) :
+    a + s ∈ Icc (s - M) (s - B) :=
+  (mem_shifted_tail_interval_iff (s := s)).2
+    (by simpa [TailParameter] using ha)
+
+lemma swept1_mem_I1_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept1 a ∈ I1 := by
+  simpa [swept1, I1] using swept_mem_shifted_tail_interval (s := shift1) ha
+
+lemma swept2_mem_I2_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept2 a ∈ I2 := by
+  simpa [swept2, I2] using swept_mem_shifted_tail_interval (s := shift2) ha
+
+lemma swept3_mem_I3_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept3 a ∈ I3 := by
+  simpa [swept3, I3] using swept_mem_shifted_tail_interval (s := shift3) ha
+
+lemma swept4_mem_I4_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept4 a ∈ I4 := by
+  simpa [swept4, I4] using swept_mem_shifted_tail_interval (s := shift4) ha
+
+lemma swept1_not_mem_long_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept1 a ∉ LongInterval := by
+  have hdisj := I1_disjoint_Long
+  rw [Set.disjoint_left] at hdisj
+  exact fun hlong => hdisj (a := swept1 a) (swept1_mem_I1_of_tail ha) hlong
+
+lemma swept2_not_mem_long_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept2 a ∉ LongInterval := by
+  have hdisj := I2_disjoint_Long
+  rw [Set.disjoint_left] at hdisj
+  exact fun hlong => hdisj (a := swept2 a) (swept2_mem_I2_of_tail ha) hlong
+
+lemma swept3_not_mem_long_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept3 a ∉ LongInterval := by
+  have hdisj := I3_disjoint_Long
+  rw [Set.disjoint_left] at hdisj
+  exact fun hlong => hdisj (a := swept3 a) (swept3_mem_I3_of_tail ha) hlong
+
+lemma swept4_not_mem_long_of_tail {a : ℝ} (ha : a ∈ TailParameter) :
+    swept4 a ∉ LongInterval := by
+  have hdisj := I4_disjoint_Long
+  rw [Set.disjoint_left] at hdisj
+  exact fun hlong => hdisj (a := swept4 a) (swept4_mem_I4_of_tail ha) hlong
+
+theorem tailSelector_diff_long {E : Set ℝ}
+    (selector : TailSelector E) :
+    TailSelector (E \ LongInterval) := by
+  intro a ha
+  rcases selector a ha with h0 | h1 | h2 | h3 | h4
+  · exact Or.inl ⟨h0, swept0_not_mem_long_of_tail ha⟩
+  · exact Or.inr (Or.inl ⟨h1, swept1_not_mem_long_of_tail ha⟩)
+  · exact Or.inr (Or.inr (Or.inl ⟨h2, swept2_not_mem_long_of_tail ha⟩))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl ⟨h3, swept3_not_mem_long_of_tail ha⟩)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr ⟨h4, swept4_not_mem_long_of_tail ha⟩)))
+
+lemma long_disjoint_diff (E : Set ℝ) :
+    Disjoint LongInterval (E \ LongInterval) := by
+  rw [Set.disjoint_left]
+  intro x hxLong hxDiff
+  exact hxDiff.2 hxLong
+
+lemma long_union_diff_subset_of_long_subset {E : Set ℝ}
+    (hLong : LongInterval ⊆ E) :
+    LongInterval ∪ (E \ LongInterval) ⊆ E := by
+  intro x hx
+  rcases hx with hxLong | hxDiff
+  · exact hLong hxLong
+  · exact hxDiff.1
+
+theorem long_and_tail_selector_volume_lower_bound
+    {E : Set ℝ}
+    (hE : MeasurableSet E)
+    (hLong : LongInterval ⊆ E)
+    (selector : TailSelector E) :
+    ENNReal.ofReal M ≤ volume E := by
+  have htail :
+      ENNReal.ofReal (M - B) ≤ volume (E \ LongInterval) :=
+    tailSelector_volume_lower_bound (hE.diff measurableSet_Ioo)
+      (tailSelector_diff_long selector)
+  have hsplit :
+      ENNReal.ofReal M =
+        ENNReal.ofReal B + ENNReal.ofReal (M - B) := by
+    have hB_nonneg : 0 ≤ B := by
+      norm_num [B, q]
+    have hTail_nonneg : 0 ≤ M - B := by
+      norm_num [M, B, q]
+    have hreal : M = B + (M - B) := by ring
+    calc
+      ENNReal.ofReal M
+          = ENNReal.ofReal (B + (M - B)) := congrArg ENNReal.ofReal hreal
+      _ = ENNReal.ofReal B + ENNReal.ofReal (M - B) :=
+          ENNReal.ofReal_add hB_nonneg hTail_nonneg
+  have hmeasure :
+      volume (LongInterval ∪ (E \ LongInterval)) =
+        volume LongInterval + volume (E \ LongInterval) := by
+    rw [measure_union (long_disjoint_diff E) (hE.diff measurableSet_Ioo)]
+  calc
+    ENNReal.ofReal M
+        = ENNReal.ofReal B + ENNReal.ofReal (M - B) := hsplit
+    _ ≤ volume LongInterval + volume (E \ LongInterval) := by
+          exact add_le_add (by rw [longInterval_volume]) htail
+    _ = volume (LongInterval ∪ (E \ LongInterval)) := hmeasure.symm
+    _ ≤ volume E :=
+          measure_mono (μ := volume) (long_union_diff_subset_of_long_subset hLong)
+
+theorem augmented_positiveSet_long_and_tail_selector_volume_lower_bound
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (selector : TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ)) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) := by
+  have hposMeas :
+      MeasurableSet
+        (StandardReduction.PositiveSet
+          (StandardReduction.unitIntervalLogPotential μ)) := by
+    simpa [StandardReduction.PositiveSet] using
+      (StandardReduction.unitIntervalLogPotential_measurableSet_threshold μ 0)
+  have hAugMeas :
+      MeasurableSet (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+    hposMeas.union (StandardReduction.diagonalAtomSet_measurableSet μ)
+  have hAugLower :
+      ENNReal.ofReal M ≤
+        volume (StandardReduction.unitIntervalAugmentedPositiveSet μ) :=
+    long_and_tail_selector_volume_lower_bound hAugMeas hLong selector
+  exact StandardReduction.unitIntervalAugmentedPositiveSet_lower_bound_transfers μ hAugLower
+
+theorem augmented_positiveSet_volume_lower_bound_from_duality
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w : ℝ → Fin 5 → ℝ)
+    (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (w a) (sweptAtom a))
+    (hw_nonneg : ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5, 0 ≤ w a i)
+    (hintegral_pos : ∀ a : ℝ, a ∈ TailParameter →
+      0 < ∫ x : StandardReduction.UnitInterval1038,
+        StandardReduction.finiteWeightedPotential
+          Finset.univ (w a) (sweptAtom a) (x : ℝ)
+          ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  augmented_positiveSet_long_and_tail_selector_volume_lower_bound μ hLong
+    (tailSelector_from_augmented_duality μ w hduality hw_nonneg hintegral_pos)
+
+theorem augmented_positiveSet_volume_lower_bound_from_normalized_pointwise
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w : ℝ → Fin 5 → ℝ)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (w a) (sweptAtom a))
+    (hw_nonneg : ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5, 0 ≤ w a i)
+    (hint : ∀ a : ℝ, a ∈ TailParameter →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (w a) (sweptAtom a) (x : ℝ))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038))
+    (hpoint : ∀ a : ℝ, a ∈ TailParameter →
+      ∀ x : StandardReduction.UnitInterval1038,
+        ((x : ℝ) = -1 ∨ (x : ℝ) ∈ Icc (0 : ℝ) 1) →
+        0 <
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (w a) (sweptAtom a) (x : ℝ)) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  augmented_positiveSet_long_and_tail_selector_volume_lower_bound μ hLong
+    (tailSelector_from_augmented_duality_of_normalized_pointwise
+      μ w hNorm hduality hw_nonneg hint hpoint)
+
 /-- Arithmetic facts used by route bookkeeping. -/
 theorem shift1_gt_M : M < shift1 := by
   norm_num [M, shift1, q]
@@ -262,26 +864,6 @@ theorem route_181460_arithmetic_certificate :
   refine ⟨tail_value, ?_, ?_⟩
   · norm_num [Tail, M, B, q]
   · norm_num [M, q]
-
-/-- Route abstraction: if one has a predicate giving the long part length `B` and
-    the tail part length `Tail`, then the target length `M` is obtained by additivity. -/
-def HasLengthAtLeast (_E : Set ℝ) (_L : ℝ) : Prop := True
-
-def LongContribution (LengthAtLeast : ℝ → Prop) : Prop := LengthAtLeast B
-
-def TailContribution (LengthAtLeast : ℝ → Prop) : Prop := LengthAtLeast Tail
-
-def AddContributionRule (LengthAtLeast : ℝ → Prop) : Prop :=
-  LengthAtLeast B → LengthAtLeast Tail → LengthAtLeast M
-
-/-- Conditional route closure theorem for this candidate format. -/
-theorem route_181460_closure
-    {LengthAtLeast : ℝ → Prop}
-  (hLong : LongContribution LengthAtLeast)
-  (hTail : TailContribution LengthAtLeast)
-  (hAdd : AddContributionRule LengthAtLeast) :
-    LengthAtLeast M := by
-  exact hAdd hLong hTail
 
 end
 

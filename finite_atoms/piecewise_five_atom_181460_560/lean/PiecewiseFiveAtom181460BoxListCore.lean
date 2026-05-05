@@ -203,6 +203,24 @@ lemma V_pos_of_valid_ratbox
     (b.real_abs_bound_d4_L hL4) (b.real_abs_bound_d4_R hR4)
     hy hy0ne hy1ne hy2ne hy3ne hy4ne
 
+lemma V_pos_of_valid_ratbox_list_cover
+    {boxes : List RatBox} {lo hi w1 w2 w3 w4 : Rat}
+    (hvalid : ∀ b ∈ boxes, b.Valid)
+    (hsame : ∀ b ∈ boxes, b.SameWeights w1 w2 w3 w4)
+    (hcovers : RatBox.CoversFrom boxes lo hi)
+    {y : ℝ} (hy : y ∈ Icc (lo : ℝ) (hi : ℝ))
+    (hy0ne : y ≠ 0)
+    (hy1ne : y ≠ d1)
+    (hy2ne : y ≠ d2)
+    (hy3ne : y ≠ d3)
+    (hy4ne : y ≠ d4) :
+    0 < V (w1 : ℝ) (w2 : ℝ) (w3 : ℝ) (w4 : ℝ) y := by
+  rcases RatBox.mem_of_coversFrom hcovers hy with ⟨b, hbmem, hby⟩
+  have hpos := V_pos_of_valid_ratbox (hvalid b hbmem) hby
+    hy0ne hy1ne hy2ne hy3ne hy4ne
+  rcases hsame b hbmem with ⟨hw1, hw2, hw3, hw4⟩
+  simpa [hw1, hw2, hw3, hw4] using hpos
+
 end
 
 end PiecewiseFiveAtom181460Mathlib

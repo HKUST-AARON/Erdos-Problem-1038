@@ -327,8 +327,8 @@ theorem NormalizedEndpointPotential.baseline_length_le_positiveSet
 Abstract statement of the remaining external variational theorem: a minimizer
 can be normalized so that its potential satisfies `NormalizedEndpointPotential`.
 
-This structure records the remaining external variational input.  Downstream Lean files
-can state exactly where the Tao/natso variational reduction is used.
+This structure records the remaining external variational input. Downstream Lean files
+can state exactly where the Tao variational reduction is used.
 -/
 structure StandardMinimizerReduction
     (Config : Type) (IsMinimizer : Config → Prop) (Potential : Config → ℝ → ℝ) where
@@ -535,6 +535,317 @@ theorem TaoReducedPotentialData.baseline_length_le_positiveSet
     {U : ℝ → ℝ} (D : TaoReducedPotentialData U) :
     ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet U) :=
   D.toNormalizedEndpointPotential.baseline_length_le_positiveSet
+
+/--
+The component package already proves the normalized support conclusion for the
+non-endpoint remainder measure.  Remaining inputs are deliberately explicit:
+the supplied remainder measure must be a.e. supported on the selected component
+support after reflection/translation, and it must exclude the endpoint atom
+`-1`.  Under those two assumptions its support is a.e. contained in `[0,1]`.
+-/
+theorem TaoComponentReductionData.remainder_support_normalized_of_ae_support
+    (D : TaoComponentReductionData) {ν : Measure ℝ}
+    (hν_support : ∀ᵐ t ∂ν, t ∈ D.Support)
+    (hν_no_endpoint : ∀ᵐ t ∂ν, t ≠ -1) :
+    ∀ᵐ t ∂ν, 0 ≤ t ∧ t ≤ 1 := by
+  filter_upwards [hν_support, hν_no_endpoint] with t htSupport htNoEndpoint
+  have htNorm : t ∈ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 :=
+    D.support_subset_normalized htSupport
+  rcases htNorm with htEndpoint | htUnit
+  · have htEq : t = -1 := by
+      simpa using htEndpoint
+    exact False.elim (htNoEndpoint htEq)
+  · exact htUnit
+
+/--
+Package component-normalization data plus an endpoint lower-bound proof as
+`TaoReducedPotentialData`.
+
+Remaining inputs: the caller must still supply the endpoint lower-bound theorem
+for the reflected/translated potential.  The component data itself supplies the
+endpoint half-mass inequality, so downstream users no longer assemble the
+`TaoReducedPotentialData` fields manually.
+-/
+def TaoComponentReductionData.toTaoReducedPotentialData_of_endpoint_lower_bound
+    {U : ℝ → ℝ} (D : TaoComponentReductionData)
+    (hEndpointLowerBound : HasNormalizedEndpointLowerBound U D.endpointMass) :
+    TaoReducedPotentialData U where
+  toTaoComponentReductionData := D
+  endpointLowerBound := hEndpointLowerBound
+
+/--
+Package component-normalization data plus an endpoint lower-bound proof directly
+as `NormalizedEndpointPotential`.
+
+Remaining inputs: the caller must still supply the endpoint lower-bound theorem
+for the reflected/translated potential.  The component package supplies the
+endpoint mass `p` and the proof `1/2 ≤ p`.
+-/
+def TaoComponentReductionData.toNormalizedEndpointPotential_of_endpoint_lower_bound
+    {U : ℝ → ℝ} (D : TaoComponentReductionData)
+    (hEndpointLowerBound : HasNormalizedEndpointLowerBound U D.endpointMass) :
+    NormalizedEndpointPotential U :=
+  (D.toTaoReducedPotentialData_of_endpoint_lower_bound
+    hEndpointLowerBound).toNormalizedEndpointPotential
+
+/--
+Build the full endpoint-normalization package from component data and an already
+normalized remainder decomposition.
+
+Remaining inputs: the caller must still provide the reflected/translated
+remainder measure, its `[0,1]` a.e. support, its mass `1 - endpointMass`,
+nonnegativity of that mass, kernel integrability on `BaselinePunctured`, and the
+endpoint-plus-remainder lower bound for the potential.  The component fields are
+copied automatically.
+-/
+def TaoComponentReductionData.toTaoEndpointNormalizationData_of_normalized_remainder
+    {U : ℝ → ℝ} (D : TaoComponentReductionData)
+    (remainder : Measure ℝ)
+    (hrem_support : ∀ᵐ t ∂remainder, 0 ≤ t ∧ t ≤ 1)
+    (hrem_mass : remainder Set.univ = ENNReal.ofReal (1 - D.endpointMass))
+    (hrem_mass_nonneg : 0 ≤ 1 - D.endpointMass)
+    (hkernel_int : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder)
+    (hU_decomp : ∀ x : ℝ, x ∈ BaselinePunctured →
+      D.endpointMass * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x) :
+    TaoEndpointNormalizationData U where
+  toTaoComponentReductionData := D
+  remainder := remainder
+  remainder_support := hrem_support
+  remainder_mass := hrem_mass
+  remainder_mass_nonneg := hrem_mass_nonneg
+  kernel_integrable := hkernel_int
+  potential_decomposition_lower := hU_decomp
+
+/--
+Build the full endpoint-normalization package from component data and a
+remainder decomposition whose support is stated relative to the selected
+component support.
+
+Remaining inputs: after reflection/translation, the caller must still provide
+the remainder measure, a.e. support in `D.Support`, a.e. exclusion of the
+endpoint atom `-1`, mass `1 - endpointMass`, nonnegativity of that mass, kernel
+integrability on `BaselinePunctured`, and the endpoint-plus-remainder lower
+bound.  This theorem eliminates the separate manual proof that the remainder is
+a.e. supported on `[0,1]`.
+-/
+def TaoComponentReductionData.toTaoEndpointNormalizationData_of_remainder_ae_support
+    {U : ℝ → ℝ} (D : TaoComponentReductionData)
+    (remainder : Measure ℝ)
+    (hrem_support_in_component : ∀ᵐ t ∂remainder, t ∈ D.Support)
+    (hrem_no_endpoint : ∀ᵐ t ∂remainder, t ≠ -1)
+    (hrem_mass : remainder Set.univ = ENNReal.ofReal (1 - D.endpointMass))
+    (hrem_mass_nonneg : 0 ≤ 1 - D.endpointMass)
+    (hkernel_int : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder)
+    (hU_decomp : ∀ x : ℝ, x ∈ BaselinePunctured →
+      D.endpointMass * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x) :
+    TaoEndpointNormalizationData U :=
+  D.toTaoEndpointNormalizationData_of_normalized_remainder remainder
+    (D.remainder_support_normalized_of_ae_support
+      hrem_support_in_component hrem_no_endpoint)
+    hrem_mass hrem_mass_nonneg hkernel_int hU_decomp
+
+/--
+Direct reduced-potential package from component data and a remainder
+decomposition stated relative to the selected component support.
+
+Remaining inputs: after reflection/translation, the caller must still supply
+the remainder measure, a.e. component-support evidence, a.e. endpoint exclusion,
+mass/nonnegativity, kernel integrability, and the endpoint-plus-remainder lower
+bound.  The support normalization and endpoint-lower-bound packaging are now
+performed by this bridge.
+-/
+def TaoComponentReductionData.toTaoReducedPotentialData_of_remainder_ae_support
+    {U : ℝ → ℝ} (D : TaoComponentReductionData)
+    (remainder : Measure ℝ)
+    (hrem_support_in_component : ∀ᵐ t ∂remainder, t ∈ D.Support)
+    (hrem_no_endpoint : ∀ᵐ t ∂remainder, t ≠ -1)
+    (hrem_mass : remainder Set.univ = ENNReal.ofReal (1 - D.endpointMass))
+    (hrem_mass_nonneg : 0 ≤ 1 - D.endpointMass)
+    (hkernel_int : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder)
+    (hU_decomp : ∀ x : ℝ, x ∈ BaselinePunctured →
+      D.endpointMass * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x) :
+    TaoReducedPotentialData U :=
+  (D.toTaoEndpointNormalizationData_of_remainder_ae_support remainder
+    hrem_support_in_component hrem_no_endpoint hrem_mass hrem_mass_nonneg
+    hkernel_int hU_decomp).toTaoReducedPotentialData
+
+/-! ## Concrete variation package feeding endpoint normalization -/
+
+/--
+Bookkeeping for the sign/reflection choice in Tao's variation argument.
+
+`nonnegativeMean` means the chosen normalization uses the nonnegative-mean side
+directly.  `reflectedNonpositiveMean` means the nonpositive-mean side has been
+reflected before the component package below is stated.  This type carries no
+mathematical assertion by itself; it records which branch supplied the
+component data.
+-/
+inductive TaoVariationMeanChoice where
+  | nonnegativeMean
+  | reflectedNonpositiveMean
+
+/--
+Concrete component-and-remainder package extracted from Tao's variation
+argument after the sign/reflection/translation choice has already been made.
+
+Remaining variation inputs deliberately kept explicit:
+* the mean-side/reflection/translation choice recorded by `mean_choice`,
+  `reflected`, and `translation`;
+* existence of a positive component `component` containing the baseline
+  interval `(-1,0)`;
+* identification of that component with the endpoint interval
+  `Ioo xMinus xPlus`;
+* the component atom/Dirac conclusion that every support point in the component
+  is the endpoint atom `-1`;
+* global support boundedness/order inside `[-1,1]`;
+* the boundary-average estimate producing endpoint mass at least `1/2`;
+* construction of the remainder measure, its support in the selected support,
+  exclusion of the endpoint atom, mass, integrability, and the
+  endpoint-plus-remainder lower bound for the normalized potential.
+
+This structure does not assert that an arbitrary minimizer can be translated,
+reflected, or decomposed this way; those are exactly the upstream variation
+inputs recorded as fields.
+-/
+structure TaoVariationComponentPackage (U : ℝ → ℝ) where
+  mean_choice : TaoVariationMeanChoice
+  reflected : Bool
+  translation : ℝ
+  component : Set ℝ
+  Support : Set ℝ
+  endpointMass : ℝ
+  xMinus : ℝ
+  xPlus : ℝ
+  component_positive : component ⊆ PositiveSet U
+  component_interval : component = Ioo xMinus xPlus
+  baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component
+  support_bounded : Support ⊆ Icc (-1 : ℝ) 1
+  unique_support_in_component :
+    ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1
+  right_endpoint_positive : 0 < xPlus
+  boundary_average :
+    1 ≤ (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)
+  remainder : Measure ℝ
+  remainder_support_in_support : ∀ᵐ t ∂remainder, t ∈ Support
+  remainder_no_endpoint : ∀ᵐ t ∂remainder, t ≠ -1
+  remainder_mass : remainder Set.univ = ENNReal.ofReal (1 - endpointMass)
+  remainder_mass_nonneg : 0 ≤ 1 - endpointMass
+  kernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder
+  potential_decomposition_lower : ∀ x : ℝ, x ∈ BaselinePunctured →
+    endpointMass * Real.log (1 / |x + 1|) +
+      (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x
+
+/--
+Extract the already-formal `TaoComponentReductionData` from the concrete
+variation package.
+
+Remaining inputs are exactly the fields of `TaoVariationComponentPackage`:
+component existence, reflection/translation choice, boundary average,
+support/order, component atom conclusion, and remainder construction are not
+proved here.  This theorem only normalizes their shape so downstream endpoint
+packagers no longer manually assemble `TaoComponentReductionData`.
+-/
+def TaoVariationComponentPackage.toTaoComponentReductionData
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    TaoComponentReductionData where
+  Support := D.Support
+  endpointMass := D.endpointMass
+  xMinus := D.xMinus
+  xPlus := D.xPlus
+  support_bounded := D.support_bounded
+  baseline_inside_component := by
+    intro x hx
+    have hxComp : x ∈ D.component := D.baseline_inside_component hx
+    simpa [D.component_interval] using hxComp
+  unique_support_in_component := by
+    intro t htSupport htInterval
+    exact D.unique_support_in_component t htSupport
+      (by simpa [D.component_interval] using htInterval)
+  right_endpoint_positive := D.right_endpoint_positive
+  boundary_average := D.boundary_average
+
+/--
+Build the endpoint-normalization package directly from concrete variation data.
+
+This eliminates downstream manual assembly of the component fields and the
+separate proof that the non-endpoint remainder is supported in `[0,1]`.
+Remaining variation inputs are still explicit in
+`TaoVariationComponentPackage`: component existence, reflection/translation
+choice, component atom conclusion, support/order, boundary average, endpoint
+exclusion for the remainder, mass/integrability, and the decomposition lower
+bound.
+-/
+def TaoVariationComponentPackage.toTaoEndpointNormalizationData
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    TaoEndpointNormalizationData U :=
+  D.toTaoComponentReductionData.toTaoEndpointNormalizationData_of_remainder_ae_support
+    D.remainder D.remainder_support_in_support D.remainder_no_endpoint
+    D.remainder_mass D.remainder_mass_nonneg D.kernel_integrable
+    D.potential_decomposition_lower
+
+/--
+Build the reduced-potential package directly from concrete variation data.
+
+The downstream endpoint lower bound is now produced through the component and
+remainder packagers.  What remains upstream is not hidden: the concrete package
+must still provide the sign/reflection/translation choice, a positive component
+containing the baseline interval, the component atom/Dirac conclusion,
+support/order data, boundary-average evidence, and the normalized remainder
+construction.
+-/
+def TaoVariationComponentPackage.toTaoReducedPotentialData
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    TaoReducedPotentialData U :=
+  D.toTaoEndpointNormalizationData.toTaoReducedPotentialData
+
+/--
+Concrete variation package as the normalized endpoint potential consumed by
+the finite-atom route.
+
+This is the intended replacement for a generic `hEndpointFromVariation`
+provider when the variation argument has supplied the concrete component and
+remainder fields.  It still does not claim extraction from every minimizer.
+-/
+def TaoVariationComponentPackage.toNormalizedEndpointPotential
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    NormalizedEndpointPotential U :=
+  D.toTaoReducedPotentialData.toNormalizedEndpointPotential
+
+theorem TaoVariationComponentPackage.baseline_subset_positive
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    BaselinePunctured ⊆ PositiveSet U :=
+  D.toNormalizedEndpointPotential.baseline_subset_positive
+
+theorem TaoVariationComponentPackage.baseline_length_le_positiveSet
+    {U : ℝ → ℝ} (D : TaoVariationComponentPackage U) :
+    ENNReal.ofReal (Real.sqrt 2) ≤ volume (PositiveSet U) :=
+  D.toNormalizedEndpointPotential.baseline_length_le_positiveSet
+
+/--
+If the strict Lemma 3.2 positivity conclusion has already placed the whole
+baseline interval inside a selected positive component, then the concrete
+variation package supplies the baseline component field required by
+`TaoComponentReductionData`.
+
+Remaining inputs: this theorem does not prove the strict Lemma 3.2 analytic
+positivity itself, nor component maximality.  It packages the resulting
+baseline-in-component evidence once the variation argument has supplied the
+positive component and the baseline inclusion.
+-/
+theorem baseline_positive_from_strict_variation_component
+    {U : ℝ → ℝ} {component : Set ℝ}
+    (hcomponent_positive : component ⊆ PositiveSet U)
+    (hstrict_baseline : Ioo (-1 : ℝ) 0 ⊆ component) :
+    Ioo (-1 : ℝ) 0 ⊆ PositiveSet U := by
+  intro x hx
+  exact hcomponent_positive (hstrict_baseline hx)
 
 /-! ## Algebraic kernel behind Tao's Lemma 3.2 -/
 
@@ -1111,7 +1422,7 @@ lemma measure_mean_translate (μ : Measure ℝ) [IsProbabilityMeasure μ]
 Tao's existence step uses the direct method: compactness of the admissible
 class and lower semicontinuity of the objective imply existence of a minimizer.
 The theorem below is the exact general topological statement, with no
-problem-specific placeholder.
+problem-specific extra assumption.
 -/
 
 theorem compact_nonempty_lsc_exists_minimizer
@@ -1615,6 +1926,56 @@ lemma diagonalAtomSet_volume_zero (μ : ProbabilityMeasure UnitInterval1038) :
     volume (diagonalAtomSet μ) = 0 := by
   exact Set.Countable.measure_zero (diagonalAtomSet_countable μ) volume
 
+/--
+Positive set enlarged by the diagonal atom set.
+
+The real-valued potential `unitIntervalLogPotential` uses `Real.log`, so a
+diagonal logarithmic singularity is not represented as `+∞`.  The finite-atom
+selector therefore carries diagonal candidate atoms through this null exceptional
+set instead of pretending they lie in the real-valued positive set.
+-/
+def unitIntervalAugmentedPositiveSet
+    (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
+  PositiveSet (unitIntervalLogPotential μ) ∪ diagonalAtomSet μ
+
+theorem unitInterval_positiveSet_subset_augmented
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    PositiveSet (unitIntervalLogPotential μ) ⊆
+      unitIntervalAugmentedPositiveSet μ := by
+  intro x hx
+  exact Or.inl hx
+
+theorem unitInterval_diagonalAtomSet_subset_augmented
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    diagonalAtomSet μ ⊆ unitIntervalAugmentedPositiveSet μ := by
+  intro x hx
+  exact Or.inr hx
+
+/--
+Adding diagonal atom locations does not change Lebesgue length, since the
+diagonal atom set is countable.
+-/
+theorem unitIntervalAugmentedPositiveSet_volume_eq_positiveSet
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    volume (unitIntervalAugmentedPositiveSet μ) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  apply le_antisymm
+  · calc
+      volume (unitIntervalAugmentedPositiveSet μ)
+          ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+              volume (diagonalAtomSet μ) := by
+            unfold unitIntervalAugmentedPositiveSet
+            exact measure_union_le _ _
+      _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
+            simp [diagonalAtomSet_volume_zero μ]
+  · exact measure_mono (unitInterval_positiveSet_subset_augmented μ)
+
+theorem unitIntervalAugmentedPositiveSet_lower_bound_transfers
+    (μ : ProbabilityMeasure UnitInterval1038) {L : ℝ≥0∞}
+    (hL : L ≤ volume (unitIntervalAugmentedPositiveSet μ)) :
+    L ≤ volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  simpa [unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ] using hL
+
 lemma ae_ne_of_notMem_diagonalAtomSet
     {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
     (hx : x ∉ diagonalAtomSet μ) :
@@ -1646,6 +2007,265 @@ lemma unitIntervalLogPotential_eq_realMeasure
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
   simpa [realMeasure] using unitIntervalLogPotential_eq_map_subtypeVal μ x
+
+/-!
+## Finite atomic dual-potential selector
+
+The finite-atom lower-bound route often proves positivity of a finite weighted
+dual expression before it has an explicit atom selected inside the actual
+positive set of `unitIntervalLogPotential μ`.  The next definitions and
+theorems package that last finite selector step.
+
+No Fubini/Tonelli logarithmic duality is asserted here.  The named predicate
+`FiniteAtomicUnitIntervalDualityIdentity` records the remaining identity between
+the integral of the finite atomic potential and the finite sum of actual
+unit-interval log potentials.  Once that identity, or directly the finite dual
+sum positivity, is supplied, nonnegative weights force at least one candidate
+atom to lie in `PositiveSet (unitIntervalLogPotential μ)`.
+-/
+
+/--
+Finite weighted dual potential obtained by testing the actual unit-interval
+log potential against finitely many candidate atom locations.
+-/
+def finiteAtomicUnitIntervalDualPotential
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ) : ℝ :=
+  ∑ i ∈ s, w i * unitIntervalLogPotential μ (atom i)
+
+/--
+Named remaining finite duality identity.
+
+This is the finite-atom version of the logarithmic duality still needed by the
+route: the integral of the finite weighted atomic potential over the actual
+probability measure equals the finite weighted sum of actual potentials at the
+candidate atom locations.  This predicate deliberately does not prove that
+identity; proving it from integrability/Fubini or a checked finite atomic
+package is left outside this selector theorem.
+-/
+def FiniteAtomicUnitIntervalDualityIdentity
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ) : Prop :=
+  (∫ x : UnitInterval1038,
+      finiteWeightedPotential s w atom (x : ℝ) ∂(μ : Measure UnitInterval1038)) =
+    finiteAtomicUnitIntervalDualPotential μ s w atom
+
+/--
+Finite atomic duality identity from finite integral linearity.
+
+This closes the purely finite part of the log-potential duality: under explicit
+per-atom integrability of the logarithmic kernels on the unit interval, the
+integral of the finite weighted atomic potential is exactly the finite weighted
+sum of the actual `unitIntervalLogPotential` values.  No global Fubini/Tonelli
+identity is assumed here; the remaining analytic hypothesis is the stated
+integrability of each atom kernel.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hlog_int : ∀ i ∈ s, Integrable
+      (fun x : UnitInterval1038 =>
+        Real.log (1 / |(x : ℝ) - atom i|))
+      (μ : Measure UnitInterval1038)) :
+    FiniteAtomicUnitIntervalDualityIdentity μ s w atom := by
+  unfold FiniteAtomicUnitIntervalDualityIdentity
+  unfold finiteAtomicUnitIntervalDualPotential
+  unfold finiteWeightedPotential
+  unfold unitIntervalLogPotential
+  calc
+    (∫ x : UnitInterval1038,
+        (∑ i ∈ s, w i * Real.log (1 / |(x : ℝ) - atom i|))
+          ∂(μ : Measure UnitInterval1038))
+        = ∑ i ∈ s,
+            ∫ x : UnitInterval1038,
+              w i * Real.log (1 / |(x : ℝ) - atom i|)
+                ∂(μ : Measure UnitInterval1038) := by
+          exact integral_finset_sum s (fun i _hi => by
+            exact (hlog_int i ‹i ∈ s›).const_mul (w i))
+    _ = ∑ i ∈ s,
+          w i *
+            ∫ x : UnitInterval1038,
+              Real.log (1 / |(x : ℝ) - atom i|)
+                ∂(μ : Measure UnitInterval1038) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          rw [integral_const_mul]
+    _ = ∑ i ∈ s,
+          w i *
+            ∫ x : UnitInterval1038,
+              Real.log (1 / |atom i - (x : ℝ)|)
+                ∂(μ : Measure UnitInterval1038) := by
+          apply Finset.sum_congr rfl
+          intro i _hi
+          congr 1
+          rw [show
+            (fun x : UnitInterval1038 =>
+              Real.log (1 / |(x : ℝ) - atom i|)) =
+            (fun x : UnitInterval1038 =>
+              Real.log (1 / |atom i - (x : ℝ)|)) by
+              funext x
+              rw [abs_sub_comm]]
+
+/--
+Contradiction form of the finite atomic selector.
+
+Remaining assumptions are finite and explicit: the candidate family is a
+`Finset`, all weights are nonnegative, and the finite weighted sum of actual
+unit-interval potentials is positive.  If every candidate atom is outside the
+actual positive set, then every summand is nonpositive, contradicting the
+positive finite dual sum.
+-/
+theorem finiteAtomicUnitIntervalDualPotential_positive_contradicts_no_positive_atom
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hdual_pos : 0 < finiteAtomicUnitIntervalDualPotential μ s w atom)
+    (hno_positive : ∀ i ∈ s,
+      atom i ∉ PositiveSet (unitIntervalLogPotential μ)) :
+    False := by
+  have hsum_nonpos :
+      finiteAtomicUnitIntervalDualPotential μ s w atom ≤ 0 := by
+    unfold finiteAtomicUnitIntervalDualPotential
+    calc
+      ∑ i ∈ s, w i * unitIntervalLogPotential μ (atom i)
+          ≤ ∑ i ∈ s, 0 := by
+            exact Finset.sum_le_sum (fun i hi => by
+              have hpotential_nonpos :
+                  unitIntervalLogPotential μ (atom i) ≤ 0 := by
+                have hnot_pos :
+                    ¬ 0 < unitIntervalLogPotential μ (atom i) := by
+                  simpa [PositiveSet] using hno_positive i hi
+                exact le_of_not_gt hnot_pos
+              exact mul_nonpos_of_nonneg_of_nonpos
+                (hw_nonneg i hi) hpotential_nonpos)
+      _ = 0 := by simp
+  exact not_lt_of_ge hsum_nonpos hdual_pos
+
+/--
+Selector form of the finite atomic dual theorem.
+
+From nonnegative finite weights and positivity of the finite weighted sum of
+actual `unitIntervalLogPotential μ` values, one candidate atom is selected in
+the actual positive set.  This eliminates the separate manual selector
+hypothesis `∃ i ∈ s, atom i ∈ PositiveSet ...` from downstream finite-atom
+arguments.
+-/
+theorem finiteAtomicUnitIntervalDualPotential_positive_selects_atom
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hdual_pos : 0 < finiteAtomicUnitIntervalDualPotential μ s w atom) :
+    ∃ i : ι, i ∈ s ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  by_contra hnone
+  exact finiteAtomicUnitIntervalDualPotential_positive_contradicts_no_positive_atom
+    μ s w atom hw_nonneg hdual_pos
+    (fun i hi hpos => hnone ⟨i, hi, hpos⟩)
+
+/--
+Domain-aware selector form for normalized-support finite atom packages.
+
+If every candidate atom lies in a required domain, for example the normalized
+support or sweep domain used by a finite certificate, then the selected atom is
+returned together with that domain membership.  The theorem still assumes only
+nonnegative finite weights and positivity of the finite actual dual sum; it
+does not assume a preselected positive atom.
+-/
+theorem finiteAtomicUnitIntervalDualPotential_positive_selects_atom_in_domain
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ) (Domain : Set ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hatom_domain : ∀ i ∈ s, atom i ∈ Domain)
+    (hdual_pos : 0 < finiteAtomicUnitIntervalDualPotential μ s w atom) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ Domain ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  rcases finiteAtomicUnitIntervalDualPotential_positive_selects_atom
+      μ s w atom hw_nonneg hdual_pos with
+    ⟨i, hi, hpos⟩
+  exact ⟨i, hi, hatom_domain i hi, hpos⟩
+
+/--
+Selector from the named finite duality identity.
+
+This is the intended bridge from finite atomic positivity blocks to the actual
+positive-set selector.  The remaining assumptions are exactly stated:
+nonnegative weights, the finite duality identity above, and positivity of the
+integral of the finite weighted atomic potential over the actual measure.  The
+theorem does not claim that the logarithmic duality identity or the integral
+positivity has been proved here.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.selects_atom
+    {ι : Type*} [DecidableEq ι]
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {w atom : ι → ℝ}
+    (hduality : FiniteAtomicUnitIntervalDualityIdentity μ s w atom)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  refine finiteAtomicUnitIntervalDualPotential_positive_selects_atom
+    μ s w atom hw_nonneg ?_
+  rwa [← hduality]
+
+/--
+Direct selected-atom theorem from finite integral linearity.
+
+This is the assumption-reduced bridge for finite certificates: per-atom
+integrability proves the finite atomic duality identity, and positivity of the
+integral of the finite weighted atomic potential then selects an atom where the
+actual `unitIntervalLogPotential μ` is positive.
+-/
+theorem finiteAtomicUnitIntervalDuality_integrable_selects_atom
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hlog_int : ∀ i ∈ s, Integrable
+      (fun x : UnitInterval1038 =>
+        Real.log (1 / |(x : ℝ) - atom i|))
+      (μ : Measure UnitInterval1038))
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  exact (FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels
+    μ s w atom hlog_int).selects_atom hw_nonneg hintegral_pos
+
+/--
+Domain-aware selector from the named finite duality identity.
+
+Use this when the finite certificate already proves that all candidate atom
+locations lie in the normalized support or sweep domain.  It packages the
+duality identity plus finite positivity into a selected candidate atom in the
+actual positive set, while carrying the domain membership forward.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.selects_atom_in_domain
+    {ι : Type*} [DecidableEq ι]
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {w atom : ι → ℝ} {Domain : Set ℝ}
+    (hduality : FiniteAtomicUnitIntervalDualityIdentity μ s w atom)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hatom_domain : ∀ i ∈ s, atom i ∈ Domain)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ Domain ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  refine finiteAtomicUnitIntervalDualPotential_positive_selects_atom_in_domain
+    μ s w atom Domain hw_nonneg hatom_domain ?_
+  rwa [← hduality]
 
 /-- If `x` is outside `[-2,2]` and `t ∈ [-1,1]`, then `|x-t| ≥ 1`. -/
 lemma one_le_abs_sub_of_two_le_abs_of_mem_unitInterval
@@ -4142,6 +4762,183 @@ theorem unitIntervalTruncatedPotential_eventually_close_on_compact
   filter_upwards [hevent] with ν hν y _hyK hyU
   exact hν y hyU
 
+/-- Canonical positive truncation scale for the truncated-sup objective. -/
+def unitIntervalPositiveTruncationScale (n : ℕ) : ℝ :=
+  1 / ((n : ℝ) + 1)
+
+theorem unitIntervalPositiveTruncationScale_pos (n : ℕ) :
+    0 < unitIntervalPositiveTruncationScale n := by
+  unfold unitIntervalPositiveTruncationScale
+  positivity
+
+/--
+Positive set generated by the countable family of positively truncated
+potentials.  This is a truncated-sup surrogate only; no equivalence with the
+original logarithmic positive set is asserted here.
+-/
+def unitIntervalTruncatedPositiveSet
+    (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
+  {x : ℝ | ∃ n : ℕ,
+    0 < unitIntervalTruncatedPotential
+      (unitIntervalPositiveTruncationScale n) μ x}
+
+/-- Truncated-sup positive-set length objective. -/
+def unitIntervalTruncatedPositiveSetObjective
+    (μ : ProbabilityMeasure UnitInterval1038) : ℝ≥0∞ :=
+  volume (unitIntervalTruncatedPositiveSet μ)
+
+theorem unitIntervalTruncatedPositiveSet_measurableSet_of_measurable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (htrunc : ∀ n : ℕ,
+      Measurable
+        (unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ)) :
+    MeasurableSet (unitIntervalTruncatedPositiveSet μ) := by
+  rw [show unitIntervalTruncatedPositiveSet μ =
+      ⋃ n : ℕ,
+        {x : ℝ | 0 < unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x} by
+    ext x
+    simp [unitIntervalTruncatedPositiveSet]]
+  exact MeasurableSet.iUnion fun n =>
+    measurableSet_lt measurable_const (htrunc n)
+
+/--
+Lower-semicontinuity assembly for the truncated-sup objective.  The theorem
+reduces LSC to compact threshold cores for the countable truncated-potential
+family, and uses the existing weak continuity of truncated potentials on compact
+sets to push each core into nearby truncated positive sets.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K) :
+    LowerSemicontinuous unitIntervalTruncatedPositiveSetObjective := by
+  rw [lowerSemicontinuous_iff]
+  intro μ
+  rw [lowerSemicontinuousAt_iff_le_liminf]
+  let B : ℝ≥0∞ :=
+    (nhds μ).liminf
+      (fun ν : ProbabilityMeasure UnitInterval1038 =>
+        unitIntervalTruncatedPositiveSetObjective ν)
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _hB
+  rcases hcore μ η hη with
+    ⟨truncN, thresholdN, K, hKmeasure, hKsub, hKcompact⟩
+  have hclose :
+      ∀ᶠ ν in nhds μ, ∀ y ∈ K,
+        |unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) ν y -
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ y| <
+          unitIntervalPositiveTruncationScale thresholdN :=
+    unitIntervalTruncatedPotential_eventually_close_on_compact μ
+      (unitIntervalPositiveTruncationScale_pos truncN)
+      (unitIntervalPositiveTruncationScale_pos thresholdN) hKcompact
+  have hsub :
+      ∀ᶠ ν in nhds μ, K ⊆ unitIntervalTruncatedPositiveSet ν := by
+    filter_upwards [hclose] with ν hν y hyK
+    have hyThreshold := hKsub hyK
+    have hyThreshold' :
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ y :=
+      hyThreshold
+    have hyClose := hν y hyK
+    have hyLower :
+        -unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) ν y -
+            unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) μ y :=
+      (abs_lt.mp hyClose).1
+    have hypos :
+        0 <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) ν y := by
+      linarith
+    exact ⟨truncN, hypos⟩
+  have hKle :
+      volume K ≤
+        (nhds μ).liminf
+          (fun ν : ProbabilityMeasure UnitInterval1038 =>
+            unitIntervalTruncatedPositiveSetObjective ν) := by
+    simpa [unitIntervalTruncatedPositiveSetObjective] using
+      threshold_measure_le_liminf_of_eventually_subset K
+        (fun ν : ProbabilityMeasure UnitInterval1038 =>
+          unitIntervalTruncatedPositiveSet ν) hsub
+  have hsum :
+      volume K + (η : ℝ≥0∞) ≤ B + (η : ℝ≥0∞) := by
+    simpa [B, add_comm, add_left_comm, add_assoc] using
+      add_le_add_right hKle (η : ℝ≥0∞)
+  exact le_trans hKmeasure hsum
+
+/--
+Compact-threshold-core minimizer existence for the truncated-sup surrogate.
+This uses only the lower-semicontinuity assembled above from compact
+threshold-core hypotheses.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer_of_compact_threshold_core
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν := by
+  exact admissible_probability_lsc_exists_minimizer_ennreal
+    unitIntervalTruncatedPositiveSetObjective
+    (unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
+      hcore)
+
+/--
+Secondary minimizer selector for the truncated-sup surrogate.  Since this file
+does not define a concrete second-moment objective on `ProbabilityMeasure
+UnitInterval1038`, the secondary objective is an explicit lower-semicontinuous
+parameter.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K)
+    (hsecondary_lsc : LowerSemicontinuous secondary) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+          secondary μ ≤ secondary ν := by
+  exact admissible_probability_lsc_exists_secondary_minimizer_ennreal_primary
+    unitIntervalTruncatedPositiveSetObjective secondary
+    (unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
+      hcore)
+    hsecondary_lsc
+
 lemma truncatedLogKernel_le_logKernel {ε x t : ℝ}
     (hε : 0 < ε) (hne : x ≠ t) :
     truncatedLogKernel ε x t ≤ Real.log (1 / |x - t|) := by
@@ -4452,6 +5249,300 @@ lemma unitInterval_logKernel_integrable_of_tailMass_lt_top
   exact logKernel_integrable_of_truncated_integrable_of_tailMass_lt_top
     hε hae_ne (truncatedLogKernel_integrable μ hε) htailFinite
 
+/-- If an atom location is uniformly separated from `[-1,1]`, its log kernel is integrable. -/
+lemma unitInterval_logKernel_integrable_of_uniform_separation
+    {ε x : ℝ} {μ : ProbabilityMeasure UnitInterval1038}
+    (hε : 0 < ε)
+    (hsep : ∀ t : UnitInterval1038, ε ≤ |x - (t : ℝ)|) :
+    Integrable
+      (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+      (μ : Measure UnitInterval1038) := by
+  have hae_ne : ∀ᵐ t : UnitInterval1038 ∂(μ : Measure UnitInterval1038),
+      x ≠ (t : ℝ) := by
+    exact Filter.Eventually.of_forall (fun t hxt => by
+      have hzero : |x - (t : ℝ)| = 0 := by simp [hxt]
+      have hε_nonpos : ε ≤ 0 := by simpa [hzero] using hsep t
+      linarith)
+  have htail_zero : singularTailMass ε μ x = 0 := by
+    unfold singularTailMass
+    have hkernel_zero :
+        (fun t : UnitInterval1038 => singularTailKernel ε x t) =
+          fun _ : UnitInterval1038 => 0 := by
+      funext t
+      unfold singularTailKernel
+      simp [not_lt.mpr (hsep t)]
+    simp [hkernel_zero]
+  have htailFinite : singularTailMass ε μ x < ∞ := by
+    rw [htail_zero]
+    simp
+  exact unitInterval_logKernel_integrable_of_tailMass_lt_top hε hae_ne htailFinite
+
+/-- A point strictly to the left of `[-1,1]` is uniformly separated from the unit interval. -/
+lemma unitInterval_left_separation {x : ℝ} (hx : x < -1)
+    (t : UnitInterval1038) :
+    -(x + 1) ≤ |x - (t : ℝ)| := by
+  have ht_left : (-1 : ℝ) ≤ (t : ℝ) := t.2.1
+  have hnonpos : x - (t : ℝ) ≤ 0 := by linarith
+  rw [abs_of_nonpos hnonpos]
+  linarith
+
+/-- Log-kernel integrability for atom locations strictly to the left of `[-1,1]`. -/
+lemma unitInterval_logKernel_integrable_of_left_outside
+    {x : ℝ} {μ : ProbabilityMeasure UnitInterval1038}
+    (hx : x < -1) :
+    Integrable
+      (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+      (μ : Measure UnitInterval1038) := by
+  refine unitInterval_logKernel_integrable_of_uniform_separation
+    (μ := μ) (ε := -(x + 1)) (x := x) ?_ ?_
+  · linarith
+  · exact unitInterval_left_separation hx
+
+/-- A point strictly to the right of `[-1,1]` is uniformly separated from the unit interval. -/
+lemma unitInterval_right_separation {x : ℝ} (hx : 1 < x)
+    (t : UnitInterval1038) :
+    x - 1 ≤ |x - (t : ℝ)| := by
+  have ht_right : (t : ℝ) ≤ 1 := t.2.2
+  have hnonneg : 0 ≤ x - (t : ℝ) := by linarith
+  rw [abs_of_nonneg hnonneg]
+  linarith
+
+/-- Log-kernel integrability for atom locations strictly to the right of `[-1,1]`. -/
+lemma unitInterval_logKernel_integrable_of_right_outside
+    {x : ℝ} {μ : ProbabilityMeasure UnitInterval1038}
+    (hx : 1 < x) :
+    Integrable
+      (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+      (μ : Measure UnitInterval1038) := by
+  refine unitInterval_logKernel_integrable_of_uniform_separation
+    (μ := μ) (ε := x - 1) (x := x) ?_ ?_
+  · linarith
+  · exact unitInterval_right_separation hx
+
+/--
+Finite atomic duality when every atom location lies strictly outside `[-1,1]`.
+The separation from the unit interval supplies the per-atom integrability
+needed by `FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels`.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.of_atoms_outside_unitInterval
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (houtside : ∀ i ∈ s, atom i < -1 ∨ 1 < atom i) :
+    FiniteAtomicUnitIntervalDualityIdentity μ s w atom := by
+  refine FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels
+    μ s w atom ?_
+  intro i hi
+  rcases houtside i hi with hleft | hright
+  · have hbase :
+        Integrable
+          (fun x : UnitInterval1038 =>
+            Real.log (1 / |atom i - (x : ℝ)|))
+          (μ : Measure UnitInterval1038) :=
+      unitInterval_logKernel_integrable_of_left_outside
+        (μ := μ) (x := atom i) hleft
+    exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+      simp [abs_sub_comm]))
+  · have hbase :
+        Integrable
+          (fun x : UnitInterval1038 =>
+            Real.log (1 / |atom i - (x : ℝ)|))
+          (μ : Measure UnitInterval1038) :=
+      unitInterval_logKernel_integrable_of_right_outside
+        (μ := μ) (x := atom i) hright
+    exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+      simp [abs_sub_comm]))
+
+/--
+Off-diagonal tail-mass integrability bridge for candidate atom locations.
+
+The hypothesis `x ∉ diagonalAtomSet μ` is exactly the condition needed to turn
+the diagonal singularity into an almost-everywhere off-diagonal statement via
+`ae_ne_of_notMem_diagonalAtomSet`; the finite tail-mass bound then supplies
+integrability of the real-valued logarithmic kernel.
+-/
+theorem unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    {ε x : ℝ} {μ : ProbabilityMeasure UnitInterval1038}
+    (hε : 0 < ε)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htailFinite : singularTailMass ε μ x < ∞) :
+    Integrable
+      (fun t : UnitInterval1038 => Real.log (1 / |(t : ℝ) - x|))
+      (μ : Measure UnitInterval1038) := by
+  have hbase :
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038) :=
+    unitInterval_logKernel_integrable_of_tailMass_lt_top
+      hε (ae_ne_of_notMem_diagonalAtomSet hxdiag) htailFinite
+  exact hbase.congr (Filter.Eventually.of_forall (fun t => by
+    simp [abs_sub_comm]))
+
+/--
+Candidate-location dichotomy for the real-valued finite-atom selector.
+
+If the candidate location is a true atom of `μ`, this theorem returns the
+diagonal exceptional branch.  It deliberately does not assert membership in
+`PositiveSet (unitIntervalLogPotential μ)`: with the current real-valued
+definition, the pointwise diagonal kernel uses `Real.log 0`, not an extended
+`+∞` singularity.  If the candidate is not a diagonal atom, finite tail mass
+gives the per-candidate log-kernel integrability needed by the finite duality
+identity.
+-/
+theorem unitInterval_candidateAtom_diagonal_or_logKernel_integrable_of_tailMass
+    {ε x : ℝ} {μ : ProbabilityMeasure UnitInterval1038}
+    (hε : 0 < ε)
+    (htailFinite : singularTailMass ε μ x < ∞) :
+    x ∈ diagonalAtomSet μ ∨
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |(t : ℝ) - x|))
+        (μ : Measure UnitInterval1038) := by
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inl hxdiag
+  · exact Or.inr
+      (unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+        hε hxdiag htailFinite)
+
+/--
+Finite atomic duality identity for off-diagonal candidate atom locations with
+finite singular tail mass.
+
+This is the inside-interval replacement for the outside-interval separation
+wrapper above: no separation from `[-1,1]` is needed, but every finite candidate
+must either be handled by the diagonal exceptional branch or be explicitly
+off-diagonal with finite tail mass.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.of_atoms_offDiagonal_tailMass
+    {ι : Type*} [DecidableEq ι]
+    {ε : ℝ} (hε : 0 < ε)
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hoffdiag : ∀ i ∈ s, atom i ∉ diagonalAtomSet μ)
+    (htailFinite : ∀ i ∈ s, singularTailMass ε μ (atom i) < ∞) :
+    FiniteAtomicUnitIntervalDualityIdentity μ s w atom := by
+  refine FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels
+    μ s w atom ?_
+  intro i hi
+  exact unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    hε (hoffdiag i hi) (htailFinite i hi)
+
+/--
+Finite selector wrapper for candidate atoms inside `[-1,1]`, after diagonal
+candidate atoms have been removed into the exceptional/selector branch.
+
+The theorem carries the inside-interval membership to the selected atom and
+uses only off-diagonal plus finite tail-mass assumptions to prove the finite
+duality identity internally.
+-/
+theorem finiteAtomicUnitIntervalDuality_offDiagonal_tailMass_selects_atom_in_unitInterval
+    {ι : Type*} [DecidableEq ι]
+    {ε : ℝ} (hε : 0 < ε)
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hatom_unit : ∀ i ∈ s, atom i ∈ Icc (-1 : ℝ) 1)
+    (hoffdiag : ∀ i ∈ s, atom i ∉ diagonalAtomSet μ)
+    (htailFinite : ∀ i ∈ s, singularTailMass ε μ (atom i) < ∞)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ Icc (-1 : ℝ) 1 ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  exact
+    (FiniteAtomicUnitIntervalDualityIdentity.of_atoms_offDiagonal_tailMass
+      hε μ s w atom hoffdiag htailFinite).selects_atom_in_domain
+      hw_nonneg hatom_unit hintegral_pos
+
+/--
+Unified finite atomic duality identity for mixed finite certificates.
+
+For each candidate atom, the branch assumption is explicit: either the atom is
+strictly outside `[-1,1]`, where separation from the unit interval supplies
+integrability, or it lies inside `[-1,1]` and is off the diagonal atom set of
+`μ`, with some positive truncation scale at which its singular tail mass is
+finite.  Diagonal atoms inside `[-1,1]` are not hidden by this theorem; they
+must be handled by a separate exceptional branch.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.of_atoms_outside_or_offDiagonal_tailMass
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hatom :
+      ∀ i ∈ s,
+        (atom i < -1 ∨ 1 < atom i) ∨
+          (atom i ∈ Icc (-1 : ℝ) 1 ∧
+            atom i ∉ diagonalAtomSet μ ∧
+            ∃ ε : ℝ, 0 < ε ∧ singularTailMass ε μ (atom i) < ∞)) :
+    FiniteAtomicUnitIntervalDualityIdentity μ s w atom := by
+  refine FiniteAtomicUnitIntervalDualityIdentity.of_integrable_atom_kernels
+    μ s w atom ?_
+  intro i hi
+  rcases hatom i hi with houtside | hinside
+  · rcases houtside with hleft | hright
+    · have hbase :
+          Integrable
+            (fun x : UnitInterval1038 =>
+              Real.log (1 / |atom i - (x : ℝ)|))
+            (μ : Measure UnitInterval1038) :=
+        unitInterval_logKernel_integrable_of_left_outside
+          (μ := μ) (x := atom i) hleft
+      exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+        simp [abs_sub_comm]))
+    · have hbase :
+          Integrable
+            (fun x : UnitInterval1038 =>
+              Real.log (1 / |atom i - (x : ℝ)|))
+            (μ : Measure UnitInterval1038) :=
+        unitInterval_logKernel_integrable_of_right_outside
+          (μ := μ) (x := atom i) hright
+      exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+        simp [abs_sub_comm]))
+  · rcases hinside with ⟨_hunit, hoffdiag, ε, hε, htailFinite⟩
+    exact unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      hε hoffdiag htailFinite
+
+/--
+Direct selector wrapper for mixed outside/off-diagonal finite certificates.
+
+Assume every finite candidate atom is either strictly outside `[-1,1]`, or is
+inside `[-1,1]`, off `diagonalAtomSet μ`, and has finite singular tail mass at
+some positive truncation scale.  Together with nonnegative weights and
+positivity of the finite weighted-potential integral, this selects an atom in
+the actual positive set while preserving the same branch information.  Inside
+diagonal atoms remain excluded and must be handled separately.
+-/
+theorem finiteAtomicUnitIntervalDuality_outside_or_offDiagonal_tailMass_selects_atom
+    {ι : Type*} [DecidableEq ι]
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hatom :
+      ∀ i ∈ s,
+        (atom i < -1 ∨ 1 < atom i) ∨
+          (atom i ∈ Icc (-1 : ℝ) 1 ∧
+            atom i ∉ diagonalAtomSet μ ∧
+            ∃ ε : ℝ, 0 < ε ∧ singularTailMass ε μ (atom i) < ∞))
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧
+      ((atom i < -1 ∨ 1 < atom i) ∨
+        (atom i ∈ Icc (-1 : ℝ) 1 ∧
+          atom i ∉ diagonalAtomSet μ ∧
+          ∃ ε : ℝ, 0 < ε ∧ singularTailMass ε μ (atom i) < ∞)) ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  exact
+    (FiniteAtomicUnitIntervalDualityIdentity.of_atoms_outside_or_offDiagonal_tailMass
+      μ s w atom hatom).selects_atom_in_domain
+      (Domain := {x : ℝ |
+        (x < -1 ∨ 1 < x) ∨
+          (x ∈ Icc (-1 : ℝ) 1 ∧
+            x ∉ diagonalAtomSet μ ∧
+            ∃ ε : ℝ, 0 < ε ∧ singularTailMass ε μ x < ∞)})
+      hw_nonneg (fun i hi => hatom i hi) hintegral_pos
+
 theorem unitInterval_tailCore_error_bound_of_ae_ne
     {ε : ℝ} {μ : ProbabilityMeasure UnitInterval1038} {n : ℕ} {δ : ℝ}
     (hε : 0 < ε)
@@ -4720,7 +5811,7 @@ theorem unitIntervalPositiveSetObjective_exists_minimizer_of_compact_tailCore
 
 /--
 Compact-tail-core lower semicontinuity with the truncated-potential compact
-continuity term generated internally.  After this theorem, the compact core
+continuity term provided by the preceding theorem.  After this theorem, the compact core
 input only has to supply the two log-vs-truncated tail estimates; the
 `truncated ν` versus `truncated μ` term follows from weak continuity plus
 compactness.
@@ -4959,6 +6050,171 @@ theorem unitIntervalPositiveSetObjective_exists_minimizer_of_compact_tailCore_ta
     unitIntervalPositiveSetObjective
     (unitIntervalPositiveSetObjective_lowerSemicontinuous_of_compact_tailCore_tailMass_diagonal
       hcore)
+
+/--
+Tail-mass bad-set bridge for objective lower semicontinuity.  The compact
+off-diagonal core is constructed here from the existing finite-window,
+measurability, null-diagonal, and inner-regularity lemmas; it is not an external
+witness.  The remaining analytic input is eventual tail-mass stability on every
+compact subset of the fixed off-diagonal tail core.
+-/
+theorem unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control
+    (hregular : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ n : ℕ, ∀ ε : NNReal, 0 < ε →
+        ∃ truncε : ℝ, ∃ ηBad ηCore : ℝ≥0∞,
+          0 < truncε ∧
+          ηCore ≠ 0 ∧
+          volume {x : ℝ |
+              ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3) ≤
+                singularTailMass truncε μ x} ≤ ηBad ∧
+          ηBad + ηCore ≤ (ε : ℝ≥0∞) ∧
+          (∀ K : Set ℝ,
+            K ⊆ unitIntervalThresholdTailCoreOffDiagonal μ n truncε
+              ((1 / ((n : ℝ) + 1)) / 3) (diagonalAtomSet μ) →
+            IsCompact K →
+            ∀ᶠ ν in nhds μ, ∀ x ∈ K,
+              singularTailMass truncε ν x <
+                ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3))) :
+    LowerSemicontinuous unitIntervalPositiveSetObjective := by
+  refine unitIntervalPositiveSetObjective_lowerSemicontinuous_of_compact_tailCore_tailMass_diagonal ?_
+  intro μ n ε hε
+  let δ : ℝ := (1 / ((n : ℝ) + 1)) / 3
+  have hδ_pos : 0 < δ := by
+    dsimp [δ]
+    positivity
+  have hδ_le : δ ≤ (1 / ((n : ℝ) + 1)) / 3 := by
+    simp [δ]
+  rcases hregular μ n ε hε with
+    ⟨truncε, ηBad, ηCore, htruncε_pos, hηCore, hbad, hbudget, htail⟩
+  have hbadδ :
+      volume {x : ℝ | ENNReal.ofReal δ ≤ singularTailMass truncε μ x} ≤
+        ηBad := by
+    simpa [δ] using hbad
+  rcases unitIntervalThresholdTailCoreOffDiagonal_exists_compact_core
+      μ n truncε δ hηCore hbadδ hbudget with
+    ⟨K, hKsub, hKcompact, hmeasure⟩
+  have htailK :
+      ∀ᶠ ν in nhds μ, ∀ x ∈ K,
+        singularTailMass truncε ν x < ENNReal.ofReal δ := by
+    simpa [δ] using
+      htail K (by simpa [δ] using hKsub) hKcompact
+  exact ⟨truncε, δ, K, htruncε_pos, hδ_pos, hδ_le, hKsub,
+    hKcompact, hmeasure, htailK⟩
+
+/--
+Minimizer-existence consequence of the tail-mass bad-set bridge.  This entry
+point no longer asks callers to provide compact cores; it only consumes the
+bad-set budget and compact-subcore tail-mass stability used by the preceding
+lower-semicontinuity theorem.
+-/
+theorem unitIntervalPositiveSetObjective_exists_minimizer_of_tailMass_badSet_control
+    (hregular : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ n : ℕ, ∀ ε : NNReal, 0 < ε →
+        ∃ truncε : ℝ, ∃ ηBad ηCore : ℝ≥0∞,
+          0 < truncε ∧
+          ηCore ≠ 0 ∧
+          volume {x : ℝ |
+              ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3) ≤
+                singularTailMass truncε μ x} ≤ ηBad ∧
+          ηBad + ηCore ≤ (ε : ℝ≥0∞) ∧
+          (∀ K : Set ℝ,
+            K ⊆ unitIntervalThresholdTailCoreOffDiagonal μ n truncε
+              ((1 / ((n : ℝ) + 1)) / 3) (diagonalAtomSet μ) →
+            IsCompact K →
+            ∀ᶠ ν in nhds μ, ∀ x ∈ K,
+              singularTailMass truncε ν x <
+                ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalPositiveSetObjective μ ≤
+          unitIntervalPositiveSetObjective ν := by
+  exact admissible_probability_lsc_exists_minimizer_ennreal
+    unitIntervalPositiveSetObjective
+    (unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control
+      hregular)
+
+/--
+Tail-mass-stability bridge for objective lower semicontinuity.
+
+Compared with `unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control`,
+this theorem proves the bad-tail-set budget internally from the already
+formalized singular-tail estimate
+`singularTail_closed_badSet_volume_le_of_two_mul_real_threshold` and the scale
+choice lemma `exists_tailScale_for_target`.  Thus callers no longer supply the
+bad-set estimate, the budget split, or a compact core.
+
+The only remaining analytic input is the public-facing stability estimate:
+for every base measure, level `n`, positive truncation scale, and compact
+subset of the fixed off-diagonal tail core, nearby measures have uniformly
+small singular tail mass on that compact set.
+-/
+theorem unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_stability
+    (hstability : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ n : ℕ, ∀ ε : NNReal, 0 < ε →
+        ∀ truncε : ℝ, 0 < truncε →
+          (∀ K : Set ℝ,
+            K ⊆ unitIntervalThresholdTailCoreOffDiagonal μ n truncε
+              ((1 / ((n : ℝ) + 1)) / 3) (diagonalAtomSet μ) →
+            IsCompact K →
+            ∀ᶠ ν in nhds μ, ∀ x ∈ K,
+              singularTailMass truncε ν x <
+                ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3))) :
+    LowerSemicontinuous unitIntervalPositiveSetObjective := by
+  refine unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control ?_
+  intro μ n ε hε
+  let δ : ℝ := (1 / ((n : ℝ) + 1)) / 3
+  let ηHalf : NNReal := ε / 2
+  have hδ_pos : 0 < δ := by
+    dsimp [δ]
+    positivity
+  have hηHalf_pos : 0 < ηHalf := by
+    dsimp [ηHalf]
+    positivity
+  rcases exists_tailScale_for_target (δ := δ) (η := ηHalf)
+      hδ_pos hηHalf_pos with
+    ⟨truncε, htruncε_pos, hscale⟩
+  refine ⟨truncε, (ηHalf : ℝ≥0∞), (ηHalf : ℝ≥0∞),
+    htruncε_pos, ?_, ?_, ?_, ?_⟩
+  · exact ne_of_gt (ENNReal.coe_pos.mpr hηHalf_pos)
+  · simpa [δ] using
+      singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
+        truncε μ hδ_pos hscale
+  · have hbudget_eq :
+        (ηHalf : ℝ≥0∞) + (ηHalf : ℝ≥0∞) = (ε : ℝ≥0∞) := by
+      rw [← ENNReal.coe_add]
+      congr 1
+      exact add_halves ε
+    exact le_of_eq hbudget_eq
+  · intro K hKsub hKcompact
+    exact hstability μ n ε hε truncε htruncε_pos K hKsub hKcompact
+
+/--
+Minimizer-existence consequence of the tail-mass-stability bridge.
+
+The singular-tail two-mul estimate now supplies the bad-tail-set budget and
+budget split in Lean.  The remaining analytic estimate is exactly compact
+off-diagonal tail-mass stability for nearby measures at any positive
+truncation scale selected by the theorem.
+-/
+theorem unitIntervalPositiveSetObjective_exists_minimizer_of_tailMass_stability
+    (hstability : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ n : ℕ, ∀ ε : NNReal, 0 < ε →
+        ∀ truncε : ℝ, 0 < truncε →
+          (∀ K : Set ℝ,
+            K ⊆ unitIntervalThresholdTailCoreOffDiagonal μ n truncε
+              ((1 / ((n : ℝ) + 1)) / 3) (diagonalAtomSet μ) →
+            IsCompact K →
+            ∀ᶠ ν in nhds μ, ∀ x ∈ K,
+              singularTailMass truncε ν x <
+                ENNReal.ofReal ((1 / ((n : ℝ) + 1)) / 3))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalPositiveSetObjective μ ≤
+          unitIntervalPositiveSetObjective ν := by
+  exact admissible_probability_lsc_exists_minimizer_ennreal
+    unitIntervalPositiveSetObjective
+    (unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_stability
+      hstability)
 
 /--
 One-sided compact-tail-core lower semicontinuity.  This is the sharper form of
@@ -6738,12 +7994,105 @@ theorem SecondaryMinimizerNormalizationENNReal.baseline_length
 
 end
 
+/--
+Any selected atom in the real-valued positive set is also selected in the
+augmented positive set.
+-/
+theorem finiteAtomic_selects_augmented_of_selects_positive
+    {ι : Type*} {μ : MeasureTheory.ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {atom : ι → ℝ}
+    (hselect : ∃ i : ι, i ∈ s ∧
+      atom i ∈ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  rcases hselect with ⟨i, hi, hpos⟩
+  exact ⟨i, hi, Or.inl hpos⟩
+
+/--
+If a finite candidate atom lies on the diagonal atom set, it is selected by the
+augmented positive set branch.  This is the safe real-valued replacement for the
+informal `+∞` singular-potential argument.
+-/
+theorem finiteAtomic_selects_augmented_of_selects_diagonal
+    {ι : Type*} {μ : MeasureTheory.ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {atom : ι → ℝ}
+    (hselect : ∃ i : ι, i ∈ s ∧ atom i ∈ diagonalAtomSet μ) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  rcases hselect with ⟨i, hi, hdiag⟩
+  exact ⟨i, hi, Or.inr hdiag⟩
+
+/--
+Finite positive-sum selector lifted to the augmented target.  This theorem uses
+the ordinary positive-set selector and then includes that selected atom into the
+augmented set.
+-/
+theorem finiteAtomicUnitIntervalDualPotential_positive_selects_augmented_atom
+    {ι : Type*} [DecidableEq ι]
+    (μ : MeasureTheory.ProbabilityMeasure UnitInterval1038)
+    (s : Finset ι) (w atom : ι → ℝ)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hdual_pos : 0 < finiteAtomicUnitIntervalDualPotential μ s w atom) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  exact finiteAtomic_selects_augmented_of_selects_positive
+    (finiteAtomicUnitIntervalDualPotential_positive_selects_atom
+      μ s w atom hw_nonneg hdual_pos)
+
+/--
+Selector from an explicit positive-or-diagonal selected candidate.  This is the
+branch that genuinely consumes the diagonal exceptional case.
+-/
+theorem finiteAtomic_selects_augmented_of_selects_positive_or_diagonal
+    {ι : Type*} {μ : MeasureTheory.ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {atom : ι → ℝ}
+    (hselect : ∃ i : ι, i ∈ s ∧
+      (atom i ∈ PositiveSet (unitIntervalLogPotential μ) ∨
+        atom i ∈ diagonalAtomSet μ)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  rcases hselect with ⟨i, hi, hpos_or_diag⟩
+  exact ⟨i, hi, hpos_or_diag⟩
+
+/-- Named finite duality identity selector with augmented target. -/
+theorem FiniteAtomicUnitIntervalDualityIdentity.selects_augmented_atom
+    {ι : Type*} [DecidableEq ι]
+    {μ : MeasureTheory.ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {w atom : ι → ℝ}
+    (hduality : FiniteAtomicUnitIntervalDualityIdentity μ s w atom)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : MeasureTheory.Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  exact finiteAtomic_selects_augmented_of_selects_positive
+    (hduality.selects_atom hw_nonneg hintegral_pos)
+
+/--
+Domain-aware augmented selector.  It carries forward the certificate sweep
+domain while allowing the null diagonal branch in the target set.
+-/
+theorem FiniteAtomicUnitIntervalDualityIdentity.selects_augmented_atom_in_domain
+    {ι : Type*} [DecidableEq ι]
+    {μ : MeasureTheory.ProbabilityMeasure UnitInterval1038}
+    {s : Finset ι} {w atom : ι → ℝ} {Domain : Set ℝ}
+    (hduality : FiniteAtomicUnitIntervalDualityIdentity μ s w atom)
+    (hw_nonneg : ∀ i ∈ s, 0 ≤ w i)
+    (hatom_domain : ∀ i ∈ s, atom i ∈ Domain)
+    (hintegral_pos :
+      0 < ∫ x : UnitInterval1038,
+        finiteWeightedPotential s w atom (x : ℝ)
+          ∂(μ : MeasureTheory.Measure UnitInterval1038)) :
+    ∃ i : ι, i ∈ s ∧ atom i ∈ Domain ∧
+      atom i ∈ unitIntervalAugmentedPositiveSet μ := by
+  rcases hduality.selects_atom_in_domain
+      hw_nonneg hatom_domain hintegral_pos with
+    ⟨i, hi, hdomain, hpos⟩
+  exact ⟨i, hi, hdomain, Or.inl hpos⟩
+
 end StandardReduction
 
 namespace StandardReduction
 
 /-!
-## Tao-style workflow lemmas (named for the paper)
+## Tao-style auxiliary lemmas (named for the paper)
 
 Theorems in this block give short, explicit entry points for the five key steps
 in the reduction chain as discussed in Tao's notes:
@@ -6921,11 +8270,12 @@ theorem lemma_3_1_secondary_selector_ennreal_primary
     primary secondary hprimary_lsc hsecondary_lsc
 
 /--
-Finite weighted Jensen / mean-replacement formulas specialize to the measure kernel
-statements in this file.  This theorem just packages that transfer as a single
-named bridge for use in writeups.
+Measure-level kernel bridge for Tao's Lemma 3.2 consequences: the existing
+nonpositive-mean measure-potential lemma gives nonnegativity of
+`measureLogPotential` under the stated support, separation, and integrability
+hypotheses.
 -/
-theorem lemma_3_2_finite_to_continuous_transfer
+theorem lemma_3_2_measure_kernel_nonneg_of_nonpositive_mean
     (μ : MeasureTheory.Measure ℝ) (hμ : MeasureTheory.IsProbabilityMeasure μ) {x ε : ℝ}
     (hx0 : -1 ≤ x) (hx1 : x ≤ 0)
     (hε : 0 < ε)
@@ -6941,10 +8291,159 @@ theorem lemma_3_2_finite_to_continuous_transfer
     hdist_int hlinear_int hlog_int hmean_nonpos
 
 /--
+Unit-interval probability-measure form of Tao's Lemma 3.2 kernel implication
+on the right half-interval. This is no longer a finite weighted statement: the
+measure is an arbitrary `ProbabilityMeasure UnitInterval1038`, pushed forward to
+`ℝ` by `realMeasure`.
+
+The theorem is deliberately nonnegative, not strict. Strict positivity at this
+level requires excluding the equality case `unitIntervalLogPotential μ x = 0`.
+-/
+theorem lemma_3_2_unitIntervalLogPotential_nonneg_of_nonnegative_mean
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hx : x ∈ Set.Ioo (0 : ℝ) 1)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlinear_int : Integrable (fun t : ℝ => x * t) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hmean_nonneg : 0 ≤ ∫ t : ℝ, t ∂realMeasure μ) :
+    0 ≤ unitIntervalLogPotential μ x := by
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  exact measureLogPotential_nonneg_of_nonnegative_mean
+    (realMeasure μ) (le_of_lt hx.1) (le_of_lt hx.2) hε
+    (realMeasure_ae_mem_unitInterval μ) hdist_lower hdist_int hlinear_int
+    hlog_int hmean_nonneg
+
+/--
+Reflected unit-interval probability-measure form of Tao's Lemma 3.2 kernel
+implication on the left half-interval. This is the nonpositive-mean analogue
+of `lemma_3_2_unitIntervalLogPotential_nonneg_of_nonnegative_mean`.
+-/
+theorem lemma_3_2_unitIntervalLogPotential_nonneg_of_nonpositive_mean
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hx : x ∈ Set.Ioo (-1 : ℝ) 0)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlinear_int : Integrable (fun t : ℝ => x * t) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hmean_nonpos : (∫ t : ℝ, t ∂realMeasure μ) ≤ 0) :
+    0 ≤ unitIntervalLogPotential μ x := by
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  exact measureLogPotential_nonneg_of_nonpositive_mean
+    (realMeasure μ) (le_of_lt hx.1) (le_of_lt hx.2) hε
+    (realMeasure_ae_mem_unitInterval μ) hdist_lower hdist_int hlinear_int
+    hlog_int hmean_nonpos
+
+/--
+Strict Jensen/log consequence for the measure-level kernel.  The
+anti-degeneracy condition is not phrased in terms of the potential: it says
+that the distance average in Jensen's logarithmic step is already strictly
+below the equality value `1`.
+-/
+theorem measureLogPotential_pos_of_abs_integral_lt_one
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (havg_lt_one : (∫ t, |x - t| ∂μ) < 1) :
+    0 < measureLogPotential μ x := by
+  have hj :
+      (∫ t, Real.log |x - t| ∂μ) ≤
+        Real.log (∫ t, |x - t| ∂μ) :=
+    measure_log_abs_integral_le_log_abs_integral μ
+      hε hdist_lower hdist_int hlog_int
+  have hε_le_avg : ε ≤ ∫ t, |x - t| ∂μ := by
+    have hle :
+        (∫ _ : ℝ, ε ∂μ) ≤ ∫ t, |x - t| ∂μ :=
+      integral_mono_ae (integrable_const ε) hdist_int hdist_lower
+    simpa using hle
+  have havg_pos : 0 < ∫ t, |x - t| ∂μ :=
+    lt_of_lt_of_le hε hε_le_avg
+  have hlog_neg : Real.log (∫ t, |x - t| ∂μ) < 0 :=
+    Real.log_neg havg_pos havg_lt_one
+  have hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t| :=
+    hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
+  rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos]
+  linarith
+
+/--
+Strict Lemma 3.2 consequence on `(0,1)`: under nonnegative mean, strict
+positivity follows once the Jensen equality case is broken by the structural
+condition `∫ |x-t| d(realMeasure μ) < 1`.
+-/
+theorem lemma_3_2_unitIntervalLogPotential_pos_of_nonnegative_mean_and_abs_integral_lt_one
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hx : x ∈ Set.Ioo (0 : ℝ) 1)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlinear_int : Integrable (fun t : ℝ => x * t) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hmean_nonneg : 0 ≤ ∫ t : ℝ, t ∂realMeasure μ)
+    (havg_lt_one : (∫ t, |x - t| ∂realMeasure μ) < 1) :
+    0 < unitIntervalLogPotential μ x := by
+  have _hnonneg : 0 ≤ unitIntervalLogPotential μ x :=
+    lemma_3_2_unitIntervalLogPotential_nonneg_of_nonnegative_mean μ hx hε
+      hdist_lower hdist_int hlinear_int hlog_int hmean_nonneg
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  exact measureLogPotential_pos_of_abs_integral_lt_one
+    (realMeasure μ) hε hdist_lower hdist_int hlog_int havg_lt_one
+
+/--
+Reflected strict Lemma 3.2 consequence on `(-1,0)`: under nonpositive mean,
+strict positivity follows from the same structural breaking of the Jensen
+equality case, `∫ |x-t| d(realMeasure μ) < 1`.
+-/
+theorem lemma_3_2_unitIntervalLogPotential_pos_of_nonpositive_mean_and_abs_integral_lt_one
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hx : x ∈ Set.Ioo (-1 : ℝ) 0)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlinear_int : Integrable (fun t : ℝ => x * t) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hmean_nonpos : (∫ t : ℝ, t ∂realMeasure μ) ≤ 0)
+    (havg_lt_one : (∫ t, |x - t| ∂realMeasure μ) < 1) :
+    0 < unitIntervalLogPotential μ x := by
+  have _hnonneg : 0 ≤ unitIntervalLogPotential μ x :=
+    lemma_3_2_unitIntervalLogPotential_nonneg_of_nonpositive_mean μ hx hε
+      hdist_lower hdist_int hlinear_int hlog_int hmean_nonpos
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  exact measureLogPotential_pos_of_abs_integral_lt_one
+    (realMeasure μ) hε hdist_lower hdist_int hlog_int havg_lt_one
+
+/--
+Strict upgrade for the right half-interval statement. The only additional
+hypothesis at this abstraction level is the equality-case exclusion
+`unitIntervalLogPotential μ x ≠ 0`; this theorem assumes that exclusion and
+does not derive it from replacement or variance-rigidity hypotheses.
+-/
+theorem lemma_3_2_unitIntervalLogPotential_pos_of_nonnegative_mean_and_ne_zero
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hx : x ∈ Set.Ioo (0 : ℝ) 1)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlinear_int : Integrable (fun t : ℝ => x * t) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hmean_nonneg : 0 ≤ ∫ t : ℝ, t ∂realMeasure μ)
+    (hpotential_ne_zero : unitIntervalLogPotential μ x ≠ 0) :
+    0 < unitIntervalLogPotential μ x := by
+  have hnonneg :
+      0 ≤ unitIntervalLogPotential μ x :=
+    lemma_3_2_unitIntervalLogPotential_nonneg_of_nonnegative_mean μ hx hε
+      hdist_lower hdist_int hlinear_int hlog_int hmean_nonneg
+  exact lt_of_le_of_ne hnonneg hpotential_ne_zero.symm
+
+/--
 Variance rigidity step used in Tao's contradiction argument:
 if replacing a positive-mass component keeps the primary objective nonincreasing and
-does not reduce the selected second moment, then the replaced component is already
-Dirac at its mean.
+has no larger secondary objective than the selected minimizer, secondary
+minimality forces equality, and the replaced component is already Dirac at its
+mean.
 -/
 theorem lemma_3_2_variance_rigidity
     {α : Type*} [TopologicalSpace α]
@@ -6988,6 +8487,45 @@ theorem lemma_3_2_variance_rigidity_ennreal
       hb_primary hb_secondary_le μ hfirst hsecond hsecondary_eq_to_second_moment_eq
 
 /--
+Replacement-rigidity bridge for the truncated-sup selector.  The primary
+objective is specialized to `unitIntervalTruncatedPositiveSetObjective`, while
+the secondary objective is kept explicit as an arbitrary lower-semicontinuous
+selector.  The conclusion is only the rigidity of the supplied replacement
+block.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_secondary_selector_replacement_forces_block_dirac_ennreal
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    {P : SecondarySelectorProblemENNReal (ProbabilityMeasure UnitInterval1038)}
+    {a b : ProbabilityMeasure UnitInterval1038}
+    (hprimary :
+      P.Primary.objective = unitIntervalTruncatedPositiveSetObjective)
+    (hsecondary : P.secondaryObjective = secondary)
+    (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+    (hb_adm : P.Primary.Admissible b)
+    (hb_primary :
+      unitIntervalTruncatedPositiveSetObjective b ≤
+        unitIntervalTruncatedPositiveSetObjective a)
+    (hb_secondary_le : secondary b ≤ secondary a)
+    (block : Measure ℝ) (hblock : IsProbabilityMeasure block)
+    (hfirst : Integrable (fun t : ℝ => t) block)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) block)
+    (hsecondary_eq_to_second_moment_eq :
+      secondary b = secondary a →
+        (∫ t : ℝ, t ^ 2 ∂block) = (∫ t : ℝ, t ∂block) ^ 2) :
+    block = Measure.dirac (∫ t : ℝ, t ∂block) := by
+  letI : IsProbabilityMeasure block := hblock
+  have hb_primary_P : P.Primary.objective b ≤ P.Primary.objective a := by
+    simpa [hprimary] using hb_primary
+  have hb_secondary_le_P : P.secondaryObjective b ≤ P.secondaryObjective a := by
+    simpa [hsecondary] using hb_secondary_le
+  exact
+    secondary_minimizer_replacement_forces_block_dirac_ennreal ha hb_adm
+      hb_primary_P hb_secondary_le_P block hfirst hsecond
+      (fun hsecondary_eq_P =>
+        hsecondary_eq_to_second_moment_eq (by
+          simpa [hsecondary] using hsecondary_eq_P))
+
+/--
 Component-replacement version of the ENNReal variance-rigidity step.  This is
 the exact abstract form used after Jensen gives the outside-potential inequality.
 -/
@@ -7018,6 +8556,59 @@ theorem lemma_3_2_component_replacement_variance_rigidity_ennreal
     secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_strictOutside
       ha hb_adm C hobj_a hobj_b houtside hb_secondary_le block hfirst hsecond
       hsecondary_eq_to_second_moment_eq
+
+/--
+Specialized atomization bridge for the actual unit-interval positive-set
+objective.  If `a` is the selected secondary/variance-minimizing primary
+minimizer, `C` is a supplied positive component of `a`, and the admissible
+replacement `b` realizes the barycenter-replacement potential, then strict
+outside-potential nonincrease plus secondary nonincrease force the supplied
+probability block to be a Dirac mass at its barycenter.
+
+Remaining assumptions are explicit: this theorem does not construct the
+positive component, does not prove that `b` is an admissible probability
+replacement, does not prove the strict-outside Jensen inequality, and does not
+identify the secondary-objective equality with second-moment equality.
+-/
+theorem unitIntervalPositiveSetObjective_component_replacement_forces_block_dirac_ennreal
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    {P : SecondarySelectorProblemENNReal (ProbabilityMeasure UnitInterval1038)}
+    {a b : ProbabilityMeasure UnitInterval1038}
+    (hprimary : P.Primary.objective = unitIntervalPositiveSetObjective)
+    (hsecondary : P.secondaryObjective = secondary)
+    (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+    (hb_adm : P.Primary.Admissible b)
+    (C : PositiveComponent a)
+    (hreplacement_potential :
+      unitIntervalLogPotential b = componentReplacementPotential C)
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ unitIntervalLogPotential a x)
+    (hb_secondary_le : secondary b ≤ secondary a)
+    (block : Measure ℝ) (hblock : IsProbabilityMeasure block)
+    (hfirst : Integrable (fun t : ℝ => t) block)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) block)
+    (hsecondary_eq_to_second_moment_eq :
+      secondary b = secondary a →
+        (∫ t : ℝ, t ^ 2 ∂block) = (∫ t : ℝ, t ∂block) ^ 2) :
+    block = Measure.dirac (∫ t : ℝ, t ∂block) := by
+  letI : IsProbabilityMeasure block := hblock
+  have hobj_a :
+      P.Primary.objective a =
+        volume (PositiveSet (unitIntervalLogPotential a)) := by
+    simp [hprimary, unitIntervalPositiveSetObjective, PositiveSet]
+  have hobj_b :
+      P.Primary.objective b =
+        volume (PositiveSet (componentReplacementPotential C)) := by
+    simp [hprimary, unitIntervalPositiveSetObjective, PositiveSet,
+      hreplacement_potential]
+  have hb_secondary_le_P : P.secondaryObjective b ≤ P.secondaryObjective a := by
+    simpa [hsecondary] using hb_secondary_le
+  exact
+    secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_strictOutside
+      ha hb_adm C hobj_a hobj_b houtside hb_secondary_le_P block hfirst hsecond
+      (fun hsecondary_eq_P =>
+        hsecondary_eq_to_second_moment_eq (by
+          simpa [hsecondary] using hsecondary_eq_P))
 
 /--
 Normalization output: a one-step conversion from the component-reduction data to the
@@ -7060,6 +8651,102 @@ theorem lemma_3_2_endpoint_normalization_baseline_length_ennreal
   exact hEndpoint.exists_baseline_length
 
 /--
+Theorem-level bridge from the concrete Tao endpoint package to the
+standard-reduction interface.  The hypothesis is deliberately named
+`hEndpointFromVariation`: this theorem only consumes endpoint data after
+normalization; it does not prove that data from Tao's variation argument.
+-/
+theorem tao_endpoint_data_provider_ennreal_standard_reduction_and_baseline_length
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hEndpointFromVariation :
+      ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+        TaoEndpointNormalizationData (Potential (normalize a))) :
+    ∃ _hReduction : StandardMinimizerReduction α
+        (fun a => IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+        (fun a => Potential (normalize a)),
+      ∃ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a ∧
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize a))) := by
+  let hEndpoint : TaoEndpointReductionInputENNReal P normalize Potential :=
+    ⟨hEndpointFromVariation⟩
+  exact ⟨hEndpoint.toStandardMinimizerReduction, hEndpoint.exists_baseline_length⟩
+
+/--
+Specialization to the truncated-sup selector.  Once a secondary minimizer for
+the truncated-sup objective is available and the replacement-rigidity hypotheses
+are in place, the only additional mathematical input consumed here is
+`hEndpointFromVariation`, a provider of concrete `TaoEndpointNormalizationData`
+for every secondary minimizer of `unitIntervalTruncatedPositiveSetObjective`.
+
+This theorem does not assert that the provider follows from the variation
+argument; it only records the endpoint-potential and baseline-length consequence
+if that provider is supplied.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_baseline_from_variation
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    {Normalized : Type}
+    {normalize : ProbabilityMeasure UnitInterval1038 → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K)
+    (hsecondary_lsc : LowerSemicontinuous secondary)
+    (hEndpointFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          secondary μ ≤ secondary ν) →
+        TaoEndpointNormalizationData (Potential (normalize μ))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        secondary μ ≤ secondary ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (Potential (normalize μ)),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize μ))) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
+      secondary hcore hsecondary_lsc with
+    ⟨μ, hPrimary, hSecondary⟩
+  let D : TaoEndpointNormalizationData (Potential (normalize μ)) :=
+    hEndpointFromVariation μ hPrimary hSecondary
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
+/-!
+### Remaining mathematical input for `hEndpointFromVariation`
+
+The standard-reduction layer above is intentionally conditional.  The remaining
+mathematical work is to prove `hEndpointFromVariation` from the positive-component
+variation argument plus the translation/reflection normalization.  Concretely,
+that proof must produce the fields of `TaoEndpointNormalizationData` for each
+secondary minimizer of the truncated-sup objective: the normalized support/order
+data, uniqueness of support inside the selected positive component, the boundary
+average giving endpoint mass at least `1/2`, the endpoint-plus-remainder measure
+decomposition, kernel integrability on `BaselinePunctured`, and the resulting
+potential lower bound.  None of these fields is inferred in this file.
+-/
+
+/--
 Same endpoint baseline-length conclusion when the component/variation theorem is
 already packaged as `SecondaryMinimizerNormalizationENNReal`.
 -/
@@ -7073,6 +8760,265 @@ theorem lemma_3_2_secondary_normalization_baseline_length_ennreal
       ENNReal.ofReal (Real.sqrt 2) ≤
         volume (PositiveSet (Potential (normalize a))) := by
   exact hNorm.exists_baseline_length
+
+/-! ## Polynomial-to-potential bridge for the original formulation -/
+
+/--
+The original Erdos 1038 polynomial sublevel set attached to a real polynomial:
+the set where the absolute value of the polynomial is strictly below `1`.
+-/
+def PolynomialSublevelSet (f : Polynomial ℝ) : Set ℝ :=
+  {x : ℝ | |Polynomial.eval x f| < 1}
+
+/--
+Equal-weight empirical logarithmic potential of a finite root list.  The list is
+intended to carry multiplicity; the normalizing denominator is the list length.
+The accompanying interface below requires this length to be positive.
+-/
+noncomputable def rootListEmpiricalPotential (roots : List ℝ) (x : ℝ) : ℝ :=
+  (1 / (roots.length : ℝ)) *
+    (roots.map (fun r : ℝ => Real.log (1 / |x - r|))).sum
+
+/--
+Polynomial-side logarithmic potential for a degree/normalization parameter `n`.
+Away from roots, the identity
+`rootListEmpiricalPotential roots x = polynomialLogPotential f roots.length x`
+is exactly the product-factorization bridge from the empirical root measure to
+the original monic-polynomial expression.
+-/
+noncomputable def polynomialLogPotential (f : Polynomial ℝ) (n : ℕ) (x : ℝ) : ℝ :=
+  (1 / (n : ℝ)) * Real.log (1 / |Polynomial.eval x f|)
+
+/--
+Interface packaging the still-external polynomial root data needed to compare
+the original monic-polynomial formulation with the measure/potential
+formulation.
+
+`roots` is a finite list with multiplicity and equal weights
+`1 / roots.length`; `product_identity` records the monic product formula using
+that exact list; `exceptionalSet` is a supplied null set containing the root
+singularities.  This structure deliberately does not prove polynomial
+factorization, multiplicity correctness, or nonvanishing away from the root
+set; those facts are recorded as fields so this file does not overclaim the
+remaining root machinery.
+-/
+structure PolynomialEmpiricalPotentialData (f : Polynomial ℝ) (U : ℝ → ℝ) where
+  roots : List ℝ
+  roots_nonempty : 0 < roots.length
+  roots_in_unit : ∀ r : ℝ, r ∈ roots → r ∈ Set.Icc (-1 : ℝ) 1
+  monic : Polynomial.Monic f
+  product_identity :
+    f = (roots.map (fun r : ℝ => Polynomial.X - Polynomial.C r)).prod
+  exceptionalSet : Set ℝ
+  exceptional_null : volume exceptionalSet = 0
+  roots_subset_exception : ∀ r : ℝ, r ∈ roots → r ∈ exceptionalSet
+  eval_ne_zero_away : ∀ x : ℝ, x ∉ exceptionalSet → Polynomial.eval x f ≠ 0
+  potential_eq_empirical_away :
+    ∀ x : ℝ, x ∉ exceptionalSet → U x = rootListEmpiricalPotential roots x
+  empirical_eq_polynomial_away :
+    ∀ x : ℝ, x ∉ exceptionalSet →
+      rootListEmpiricalPotential roots x =
+        polynomialLogPotential f roots.length x
+
+/-- The finite exceptional set generated by a root list, forgetting multiplicity. -/
+def rootListExceptionalSet (roots : List ℝ) : Set ℝ :=
+  {x : ℝ | x ∈ roots.toFinset}
+
+/-- A finite root-list exceptional set has zero Lebesgue measure. -/
+theorem rootListExceptionalSet_volume_zero (roots : List ℝ) :
+    volume (rootListExceptionalSet roots) = 0 := by
+  classical
+  simpa [rootListExceptionalSet] using
+    roots.toFinset.finite_toSet.countable.measure_zero volume
+
+/-- Every listed root lies in its finite exceptional set. -/
+theorem rootListExceptionalSet_mem_of_mem {roots : List ℝ} {r : ℝ}
+    (hr : r ∈ roots) :
+    r ∈ rootListExceptionalSet roots := by
+  classical
+  simpa [rootListExceptionalSet] using hr
+
+/--
+The product identity gives nonvanishing away from the finite root-list
+exceptional set.  This proves the root-side nonzero field of
+`PolynomialEmpiricalPotentialData` without proving any factorization theorem.
+-/
+theorem polynomial_eval_ne_zero_of_product_identity_away_rootList
+    {f : Polynomial ℝ} {roots : List ℝ}
+    (hprod :
+      f = (roots.map (fun r : ℝ => Polynomial.X - Polynomial.C r)).prod)
+    {x : ℝ} (hx : x ∉ rootListExceptionalSet roots) :
+    Polynomial.eval x f ≠ 0 := by
+  classical
+  induction roots generalizing f with
+  | nil =>
+      rw [hprod]
+      simp
+  | cons r roots ih =>
+      have hxr : x - r ≠ 0 := by
+        intro hzero
+        have hx_eq : x = r := by linarith
+        exact hx (by simp [rootListExceptionalSet, hx_eq])
+      have hx_tail : x ∉ rootListExceptionalSet roots := by
+        intro hx_tail
+        exact hx (by
+          simp [rootListExceptionalSet] at hx_tail ⊢
+          exact Or.inr hx_tail)
+      have htail :
+          Polynomial.eval x
+            ((roots.map (fun r : ℝ => Polynomial.X - Polynomial.C r)).prod) ≠ 0 :=
+        ih (f := (roots.map (fun r : ℝ => Polynomial.X - Polynomial.C r)).prod)
+          rfl hx_tail
+      rw [hprod]
+      simp [hxr, htail]
+
+/--
+Constructor using the canonical finite root-list exceptional set.
+
+This materially narrows `PolynomialEmpiricalPotentialData`: callers no longer
+provide the null exceptional set, root containment in it, or nonvanishing away
+from it.  The remaining external inputs are exactly the true polynomial/root
+facts: roots in the normalized interval, monicity, the explicit product
+identity, the chosen potential equality, and the log/product identity away from
+the finite root set.
+-/
+def PolynomialEmpiricalPotentialData.of_rootList
+    {f : Polynomial ℝ} {U : ℝ → ℝ}
+    (roots : List ℝ)
+    (roots_nonempty : 0 < roots.length)
+    (roots_in_unit : ∀ r : ℝ, r ∈ roots → r ∈ Set.Icc (-1 : ℝ) 1)
+    (monic : Polynomial.Monic f)
+    (product_identity :
+      f = (roots.map (fun r : ℝ => Polynomial.X - Polynomial.C r)).prod)
+    (potential_eq_empirical_away :
+      ∀ x : ℝ, x ∉ rootListExceptionalSet roots →
+        U x = rootListEmpiricalPotential roots x)
+    (empirical_eq_polynomial_away :
+      ∀ x : ℝ, x ∉ rootListExceptionalSet roots →
+        rootListEmpiricalPotential roots x =
+          polynomialLogPotential f roots.length x) :
+    PolynomialEmpiricalPotentialData f U where
+  roots := roots
+  roots_nonempty := roots_nonempty
+  roots_in_unit := roots_in_unit
+  monic := monic
+  product_identity := product_identity
+  exceptionalSet := rootListExceptionalSet roots
+  exceptional_null := rootListExceptionalSet_volume_zero roots
+  roots_subset_exception := fun _r hr => rootListExceptionalSet_mem_of_mem hr
+  eval_ne_zero_away := fun _x hx =>
+    polynomial_eval_ne_zero_of_product_identity_away_rootList
+      product_identity hx
+  potential_eq_empirical_away := potential_eq_empirical_away
+  empirical_eq_polynomial_away := empirical_eq_polynomial_away
+
+/--
+Away from the supplied null exceptional set, the packaged empirical potential is
+the polynomial logarithmic potential.  This is the public bridge identity used
+by the transfer theorem below.
+-/
+theorem PolynomialEmpiricalPotentialData.potential_eq_polynomialLogPotential_away
+    {f : Polynomial ℝ} {U : ℝ → ℝ}
+    (D : PolynomialEmpiricalPotentialData f U) {x : ℝ}
+    (hx : x ∉ D.exceptionalSet) :
+    U x = polynomialLogPotential f D.roots.length x := by
+  rw [D.potential_eq_empirical_away x hx]
+  exact D.empirical_eq_polynomial_away x hx
+
+/--
+For nonzero polynomial values and positive normalization `n`, positivity of the
+polynomial logarithmic potential is equivalent to the original sublevel
+condition `|f x| < 1`.
+-/
+lemma polynomialLogPotential_pos_iff_sublevel
+    {f : Polynomial ℝ} {n : ℕ} (hn : 0 < n) {x : ℝ}
+    (hne : Polynomial.eval x f ≠ 0) :
+    0 < polynomialLogPotential f n x ↔ x ∈ PolynomialSublevelSet f := by
+  unfold polynomialLogPotential PolynomialSublevelSet
+  have hnreal : 0 < (n : ℝ) := by exact_mod_cast hn
+  have hscale_pos : 0 < (1 / (n : ℝ)) := one_div_pos.mpr hnreal
+  have habspos : 0 < |Polynomial.eval x f| := abs_pos.mpr hne
+  constructor
+  · intro h
+    have hlogpos : 0 < Real.log (1 / |Polynomial.eval x f|) :=
+      (mul_pos_iff_of_pos_left hscale_pos).mp h
+    have harg_nonneg : 0 ≤ 1 / |Polynomial.eval x f| :=
+      le_of_lt (one_div_pos.mpr habspos)
+    have hone_lt : 1 < 1 / |Polynomial.eval x f| :=
+      (Real.log_pos_iff harg_nonneg).mp hlogpos
+    rw [lt_div_iff₀ habspos] at hone_lt
+    simpa using hone_lt
+  · intro hsub
+    have hone_lt : 1 < 1 / |Polynomial.eval x f| := by
+      rw [lt_div_iff₀ habspos]
+      simpa using hsub
+    exact mul_pos hscale_pos (Real.log_pos hone_lt)
+
+/--
+The empirical-potential positive set and the original polynomial sublevel set
+agree after deleting the supplied null exceptional set.  Roots and any other
+singular points must already be contained in `D.exceptionalSet`.
+-/
+theorem PolynomialEmpiricalPotentialData.positiveSet_diff_exception_eq_sublevel_diff_exception
+    {f : Polynomial ℝ} {U : ℝ → ℝ}
+    (D : PolynomialEmpiricalPotentialData f U) :
+    PositiveSet U \ D.exceptionalSet =
+      PolynomialSublevelSet f \ D.exceptionalSet := by
+  ext x
+  constructor
+  · intro hx
+    rcases hx with ⟨hpos, hnot⟩
+    have hpot := D.potential_eq_polynomialLogPotential_away (x := x) hnot
+    have hpos_poly : 0 < polynomialLogPotential f D.roots.length x := by
+      simpa [PositiveSet, hpot] using hpos
+    have hsub : x ∈ PolynomialSublevelSet f :=
+      (polynomialLogPotential_pos_iff_sublevel D.roots_nonempty
+        (D.eval_ne_zero_away x hnot)).mp hpos_poly
+    exact ⟨hsub, hnot⟩
+  · intro hx
+    rcases hx with ⟨hsub, hnot⟩
+    have hpos_poly : 0 < polynomialLogPotential f D.roots.length x :=
+      (polynomialLogPotential_pos_iff_sublevel D.roots_nonempty
+        (D.eval_ne_zero_away x hnot)).mpr hsub
+    have hpot := D.potential_eq_polynomialLogPotential_away (x := x) hnot
+    have hpos : x ∈ PositiveSet U := by
+      simpa [PositiveSet, hpot] using hpos_poly
+    exact ⟨hpos, hnot⟩
+
+/--
+Measure-level lower bounds for the potential positive set transfer to the
+original polynomial sublevel set once the empirical-polynomial bridge data and
+null exceptional set are supplied.
+-/
+theorem PolynomialEmpiricalPotentialData.measure_lower_bound_transfers_to_polynomial_sublevel
+    {f : Polynomial ℝ} {U : ℝ → ℝ} {L : ℝ≥0∞}
+    (D : PolynomialEmpiricalPotentialData f U)
+    (hU : L ≤ volume (PositiveSet U)) :
+    L ≤ volume (PolynomialSublevelSet f) := by
+  have hvol_eq : volume (PositiveSet U) = volume (PolynomialSublevelSet f) := by
+    calc
+      volume (PositiveSet U) =
+          volume (PositiveSet U \ D.exceptionalSet) := by
+        rw [measure_diff_null D.exceptional_null]
+      _ = volume (PolynomialSublevelSet f \ D.exceptionalSet) := by
+        rw [D.positiveSet_diff_exception_eq_sublevel_diff_exception]
+      _ = volume (PolynomialSublevelSet f) := by
+        rw [measure_diff_null D.exceptional_null]
+  exact le_of_le_of_eq hU hvol_eq
+
+/--
+Specialized bridge from the normalized endpoint lower-bound theorem in this
+file to the original monic-polynomial sublevel statement.  The polynomial root
+factorization/multiplicity data remain exactly the fields of
+`PolynomialEmpiricalPotentialData`.
+-/
+theorem PolynomialEmpiricalPotentialData.baseline_length_le_polynomial_sublevel
+    {f : Polynomial ℝ} {U : ℝ → ℝ}
+    (D : PolynomialEmpiricalPotentialData f U)
+    (hEndpoint : NormalizedEndpointPotential U) :
+    ENNReal.ofReal (Real.sqrt 2) ≤ volume (PolynomialSublevelSet f) :=
+  D.measure_lower_bound_transfers_to_polynomial_sublevel
+    hEndpoint.baseline_length_le_positiveSet
 
 end StandardReduction
 end Erdos1038
