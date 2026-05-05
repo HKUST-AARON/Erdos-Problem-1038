@@ -2660,6 +2660,50 @@ def componentReplacementPotential
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : ℝ → ℝ :=
   measureLogPotential (componentReplacementMeasure C)
 
+/--
+Log-kernel decomposition of the original potential into outside and component
+pieces.
+
+This specializes `integral_realMeasure_eq_outside_add_componentBlock` to the
+actual logarithmic kernel at the external point `x`.
+-/
+lemma unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ)
+    (houtside :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentBlock C)) :
+    unitIntervalLogPotential μ x =
+      (∫ t : ℝ, Real.log (1 / |x - t|)
+          ∂((realMeasure μ).restrict C.intervalᶜ)) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) := by
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  exact integral_realMeasure_eq_outside_add_componentBlock C
+    (fun t : ℝ => Real.log (1 / |x - t|)) houtside hblock
+
+/--
+Log-kernel decomposition of the component-replacement potential into the same
+outside piece plus the barycenter atom contribution.
+-/
+lemma componentReplacementPotential_eq_outside_add_barycenter_logKernel
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ)
+    (houtside :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hatom :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentMass C • Measure.dirac (componentBarycenter C))) :
+    componentReplacementPotential C x =
+      (∫ t : ℝ, Real.log (1 / |x - t|)
+          ∂((realMeasure μ).restrict C.intervalᶜ)) +
+        (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) := by
+  unfold componentReplacementPotential measureLogPotential
+  exact integral_componentReplacementMeasure_eq C
+    (fun t : ℝ => Real.log (1 / |x - t|)) houtside hatom
+
 lemma replacement_positiveSet_subset_original_of_outside_le
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {U' : ℝ → ℝ}
@@ -2825,6 +2869,43 @@ theorem componentReplacement_objective_le_of_strictOutside_decomposition_jensen
   exact componentReplacement_potential_le_of_decomposition_and_block_jensen
     (C := C) (x := x) (outside := outside) (block := block)
     (replacementAtom := replacementAtom) horiginal hreplacement hjensen
+
+/--
+Objective non-increase for component replacement from log-kernel integrability
+and the Jensen block comparison at every strict outside point.
+
+This is the log-kernel specialization of the decomposition/Jensen bridge.  It
+does not yet extract the hypotheses from an arbitrary minimizer component; it
+formalizes the exact analytic data that remain to be supplied.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_logKernel_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ) ∧
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentBlock C) ∧
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentMass C • Measure.dirac (componentBarycenter C)) ∧
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_decomposition_jensen C ?_
+  intro x hx
+  rcases hdata x hx with ⟨houtside, hblock, hatom, hjensen⟩
+  refine ⟨
+    (∫ t : ℝ, Real.log (1 / |x - t|)
+      ∂((realMeasure μ).restrict C.intervalᶜ)),
+    (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C),
+    (componentMass C).toReal *
+      Real.log (1 / |x - componentBarycenter C|),
+    ?_, ?_, hjensen⟩
+  · exact unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
+      C x houtside hblock
+  · exact componentReplacementPotential_eq_outside_add_barycenter_logKernel
+      C x houtside hatom
 
 lemma eventual_pointwise_error_of_three_errors
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)

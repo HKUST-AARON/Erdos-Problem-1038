@@ -104,8 +104,11 @@ The Lean file has internalized several downstream pieces of this chain:
 measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
 integral_realMeasure_eq_outside_add_componentBlock
 integral_componentReplacementMeasure_eq
+unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
+componentReplacementPotential_eq_outside_add_barycenter_logKernel
 componentReplacement_potential_le_of_decomposition_and_block_jensen
 componentReplacement_objective_le_of_strictOutside_decomposition_jensen
+componentReplacement_objective_le_of_strictOutside_logKernel_jensen
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -133,6 +136,11 @@ into outside plus barycenter-atom terms, and then assembles these scalar
 decompositions with the Jensen comparison into pointwise replacement-potential
 inequality and objective non-increase theorems.
 
+The newest bridge specializes this assembly to the actual logarithmic kernel
+`t ↦ log (1 / |x - t|)`: given the needed log-kernel integrability assumptions
+and the Jensen comparison for every strict outside point, Lean now derives the
+component-replacement objective non-increase directly.
+
 The following review findings remain real Lean gaps, not solved claims:
 
 ```text
@@ -144,10 +152,10 @@ The following review findings remain real Lean gaps, not solved claims:
    has not yet been proved lower semicontinuous end-to-end.
 
 3. The component-replacement objective lemma still consumes the outside
-   log-kernel decomposition/Jensen data as an assumption.  The measure-level
-   integral decompositions and scalar assembly are formalized, but applying
-   them automatically to the singular logarithmic kernel for an arbitrary
-   component replacement is not yet closed.
+   log-kernel integrability and Jensen-comparison data as assumptions.  The
+   measure-level integral decompositions, log-kernel specialization, and scalar
+   assembly are formalized, but deriving those analytic hypotheses
+   automatically from an arbitrary minimizer component is not yet closed.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
