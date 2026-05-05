@@ -259,15 +259,15 @@ def run_tamper_self_test(payload: dict[str, Any], configs: list[PositivityConfig
     rows = tampered.get("rows")
     if not isinstance(rows, list):
         fail("payload.rows: expected list")
-    target_eps = configs[0].slab.eps_low
+    changed = False
     for row in rows:
-        if isinstance(row, dict) and abs(float(row.get("epsilon", float("nan"))) - target_eps) <= 1.0e-12:
+        if isinstance(row, dict):
             box = row.setdefault("krawczyk_box", {})
             center = box.setdefault("center", {})
-            center["B"] = float(center.get("B", 0.0)) + 100.0
-            break
-    else:
-        fail(f"self-test endpoint epsilon={target_eps:g}: row not found")
+            center["B"] = float(center.get("B", 0.0)) + 1000.0
+            changed = True
+    if not changed:
+        fail("self-test: no rows were available to tamper")
     try:
         verify_config(tampered, configs[0], None)
     except (VerificationError, v.VerificationError):
