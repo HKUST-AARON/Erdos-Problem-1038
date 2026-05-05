@@ -424,3 +424,45 @@ This is much closer to the proof shape needed for the endpoint:
 Only the third item is still a sampled assumption in this diagnostic.  Once it
 is replaced by an interval/Taylor derivative bound, the K2 right/left edge
 obligation is no longer the blocker.
+
+## Tau-Derivative Stress Diagnostic
+
+The remaining sampled assumption in the hybrid certificate is the conservative
+tau-Lipschitz target
+
+```text
+|d/dtau (K2_eta(B,tau)-K2_0(B,tau))| <= 2e-4,
+B = +/-0.01.
+```
+
+I added a finite-difference derivative stress script:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 401 \
+  --h 1e-5 \
+  --eta-values 1e-16,1e-12,1e-8
+```
+
+Observed output:
+
+```text
+B=+0.01 eta=1.0e-16 max_abs_derivative=1.108587e-04 max_abs_curvature=1.015854e-04
+B=+0.01 eta=1.0e-12 max_abs_derivative=1.108587e-04 max_abs_curvature=1.016028e-04
+B=+0.01 eta=1.0e-08 max_abs_derivative=1.108302e-04 max_abs_curvature=1.015681e-04
+B=-0.01 eta=1.0e-16 max_abs_derivative=1.106573e-04 max_abs_curvature=1.018803e-04
+B=-0.01 eta=1.0e-12 max_abs_derivative=1.106573e-04 max_abs_curvature=1.018803e-04
+B=-0.01 eta=1.0e-08 max_abs_derivative=1.106289e-04 max_abs_curvature=1.018283e-04
+TWO-INTERVAL K2 TAU DERIVATIVE: PASS-DIAGNOSTIC
+worst_derivative=1.108587e-04
+candidate_lipschitz=2.000000e-04
+worst_curvature=1.018803e-04
+candidate_curvature=2.500000e-04
+```
+
+This does not yet replace the required interval/Taylor derivative proof, but
+it shows that the target `2e-4` has nearly a factor-two numerical margin and no
+visible endpoint spike on the tested eta ladder.  The exact next proof artifact
+should be an interval version of this derivative check, ideally using the same
+combined K2 residual-level algebra rather than differentiating the uncancelled
+primitive.

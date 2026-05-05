@@ -39,6 +39,7 @@ diagnose_interval_remainder_components.py
 diagnose_k1_eta_floor.py
 verify_interval_remainder_boxes.py
 diagnose_k2_edge_lipschitz.py
+diagnose_k2_tau_derivative.py
 ```
 
 The folder keeps the route-specific solver/verifiers together so the forum
@@ -206,6 +207,25 @@ target_bound=7.000000e-03
 This combines point values, the Arb eta-variation kernel, and the candidate
 tau-Lipschitz constant `2e-4`.  The remaining non-diagnostic step is to certify
 that tau-Lipschitz bound by interval/Taylor arithmetic.
+
+K2 tau-derivative stress diagnostic:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 401 \
+  --h 1e-5 \
+  --eta-values 1e-16,1e-12,1e-8
+```
+
+Current expected summary:
+
+```text
+TWO-INTERVAL K2 TAU DERIVATIVE:
+PASS-DIAGNOSTIC worst_derivative=1.108587e-04
+candidate_lipschitz=2.000000e-04
+worst_curvature=1.018803e-04
+candidate_curvature=2.500000e-04
+```
 
 ## Caveat
 
