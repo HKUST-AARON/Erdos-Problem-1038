@@ -2557,6 +2557,19 @@ def _combined_residue_log_value_second_divided_from_arb(
         )
         return first_limit, second
 
+    def divided_value_as_div2(data):
+        return Div2(
+            data.divided,
+            data.limit_divided,
+            data.second_divided,
+            data.second_divided,
+            zero,
+        )
+
+    def log_abs_divided_as_div2(data):
+        log_div, log_limit_div, log_second_div = log_abs_divided_parts(data)
+        return Div2(log_div, log_limit_div, log_second_div, log_second_div, zero)
+
     def paired_product_log_abs_second_divided(left_data, right_data):
         left_coefficient, left_value = left_data
         right_coefficient, right_value = right_data
@@ -2608,6 +2621,114 @@ def _combined_residue_log_value_second_divided_from_arb(
         except ValueError:
             valid = False
         return direct_limit, paired_second, valid
+
+    def limit_layer_joint_second_divided():
+        q_eta = Div2.eta_var()
+        q_epsilon = q_eta * q_eta
+        q_ell = Div2.const(repr(X_LEFT)) + q_epsilon
+        q_r = Div2.const(repr(X_RIGHT))
+        q_beta = Div2.const(1) - q_epsilon
+        q_alpha = Div2.affine(limit_alpha, tau)
+        q_A = Div2.affine(limit_A, A_div)
+        q_center = (q_alpha + q_beta) / 2
+        q_scale = (q_beta - q_alpha) / 4
+        q_limits = {item["label"]: arb(0) for item in contexts}
+        q_seconds = {item["label"]: arb(0) for item in contexts}
+        q_block_limits = []
+        q_valid = True
+
+        def q_preimage_pair(q):
+            y = (q - q_center) / q_scale
+            root = (y * y - 4).sqrt()
+            outer = (y - root) / 2
+            return outer, one / outer
+
+        def q_branch_value(rho):
+            return q_scale * (rho - one / rho)
+
+        def q_residue(q, q_derivative, rho):
+            return (q + q_A) * q_branch_value(rho) / q_derivative
+
+        q_contact = {
+            "label": "contact",
+            "weight": left_weight,
+            "w": Div2.const(-1),
+        }
+        q_minus_one = {
+            "label": "minus_one",
+            "weight": one,
+            "w": q_preimage_pair(Div2.const(-1))[0],
+        }
+        q_contexts = (q_contact, q_minus_one)
+
+        def q_add_block(item, label, q_limit, q_second):
+            q_limits[item["label"]] += q_limit
+            q_seconds[item["label"]] += q_second
+            q_block_limits.append((f"{item['label']}:{label}", q_limit))
+
+        _scale_log_div, scale_log_limit, scale_log_second = log_abs_divided_parts(q_scale)
+        for item in q_contexts:
+            _w_log_div, w_log_limit, w_log_second = log_abs_divided_parts(item["w"])
+            q_add_block(
+                item,
+                "coord",
+                -item["weight"] * (scale_log_limit + w_log_limit),
+                -item["weight"] * (scale_log_second + w_log_second),
+            )
+
+        q_ell_derivative = (q_ell - q_r) * (q_ell - one)
+        q_r_derivative = (q_r - q_ell) * (q_r - one)
+        q_ell_preimages = q_preimage_pair(q_ell)
+        q_r_preimages = q_preimage_pair(q_r)
+        q_base_product_data = {item["label"]: [] for item in q_contexts}
+        for sheet_index, (q_rho_ell, q_rho_r) in enumerate(zip(q_ell_preimages, q_r_preimages)):
+            q_a_ell = q_residue(q_ell, q_ell_derivative, q_rho_ell)
+            q_a_r = q_residue(q_r, q_r_derivative, q_rho_r)
+            q_sum_residue = q_a_ell + q_a_r
+            for item in q_contexts:
+                q_ratio = (item["w"] - q_rho_ell) / (item["w"] - q_rho_r)
+                ratio_limit, ratio_second = product_log_abs_second_divided(q_a_ell, q_ratio)
+                q_add_block(
+                    item,
+                    f"ratio_sheet_{sheet_index}",
+                    -item["weight"] * ratio_limit,
+                    -item["weight"] * ratio_second,
+                )
+                q_base_product_data[item["label"]].append((q_sum_residue, item["w"] - q_rho_r))
+
+        for item in q_contexts:
+            base_limit, base_second, base_valid = paired_product_log_abs_second_divided(
+                q_base_product_data[item["label"]][0],
+                q_base_product_data[item["label"]][1],
+            )
+            q_valid = q_valid and base_valid
+            q_add_block(
+                item,
+                "base_product",
+                -item["weight"] * base_limit,
+                -item["weight"] * base_second,
+            )
+
+        q_one_derivative = (one - q_ell) * (one - q_r)
+        q_sqrt_one_minus_alpha = (one - q_alpha).sqrt()
+        q_rho_minus = (q_sqrt_one_minus_alpha - q_eta) / (q_sqrt_one_minus_alpha + q_eta)
+        q_rho_plus = (q_sqrt_one_minus_alpha + q_eta) / (q_sqrt_one_minus_alpha - q_eta)
+        q_a_minus = (one + q_A) * q_branch_value(q_rho_minus) / q_one_derivative
+        q_a_minus_divided = divided_value_as_div2(q_a_minus)
+        for item in q_contexts:
+            q_endpoint_ratio = (item["w"] - q_rho_minus) / (item["w"] - q_rho_plus)
+            q_endpoint_log_divided = log_abs_divided_as_div2(q_endpoint_ratio)
+            q_endpoint_product = q_a_minus_divided * q_endpoint_log_divided
+            q_add_block(
+                item,
+                "endpoint",
+                zero,
+                -item["weight"] * q_endpoint_product.value,
+            )
+
+        q_combined_limit = q_limits["contact"] + q_limits["minus_one"]
+        q_combined_second = q_seconds["contact"] + q_seconds["minus_one"]
+        return q_combined_limit, q_combined_second, q_limits, q_block_limits, q_valid
 
     def paired_base_product_second_divided(item):
         q_eta = Div2.eta_var()
@@ -2688,34 +2809,6 @@ def _combined_residue_log_value_second_divided_from_arb(
         current_base_product_values["contact"] + current_base_product_values["minus_one"]
     )
     add_paired_base_second_divided_diagnostics(current_base_product_values)
-    if use_analytic_paired_base:
-        for item in contexts:
-            base_limit, base_second = analytic_base_product_values[item["label"]]
-            add_limit_layer_term(
-                item["label"],
-                base_limit,
-            )
-            add_direct_second_term(
-                f"smooth:paired_base_product_analytic_second:{item['label']}",
-                base_second,
-            )
-    else:
-        if analytic_base_product_blockers:
-            for label, reason in analytic_base_product_blockers:
-                append_debug_term(
-                    f"route-A analytic_second_divided_blocker:{label}:{reason}",
-                    arb("[+/- 0]"),
-                )
-        else:
-            append_debug_term(
-                "route-A analytic_second_divided_blocker",
-                arb("[+/- 0]"),
-            )
-        for item in contexts:
-            add_limit_layer_term(
-                item["label"],
-                current_base_product_values[item["label"]],
-            )
 
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
@@ -2729,7 +2822,82 @@ def _combined_residue_log_value_second_divided_from_arb(
             -item["weight"] * (a_minus / eta) * log_abs(endpoint_ratio),
         )
 
-    flush_limit_layer_terms()
+    use_analytic_limit_layer = False
+    if debug_terms is not None:
+        current_limit_layer_terms = dict(limit_layer_terms)
+        for item in contexts:
+            current_limit_layer_terms[item["label"]] += current_base_product_values[item["label"]]
+        current_limit_layer_total = current_limit_layer_terms["contact"] + current_limit_layer_terms["minus_one"]
+
+        (
+            analytic_limit_layer_limit,
+            analytic_limit_layer_second,
+            analytic_limit_layer_context_limits,
+            analytic_limit_layer_block_limits,
+            analytic_limit_layer_valid,
+        ) = limit_layer_joint_second_divided()
+        analytic_limit_layer_value = analytic_limit_layer_limit + eta * analytic_limit_layer_second
+        use_analytic_limit_layer = analytic_limit_layer_valid
+        # An interval merely overlapping zero is not an identity proof; require
+        # an exact zero enclosure before removing the first-divided layer.
+        if not analytic_limit_layer_limit.is_finite() or not analytic_limit_layer_limit.is_zero():
+            use_analytic_limit_layer = False
+        if not analytic_limit_layer_second.is_finite() or not analytic_limit_layer_value.is_finite():
+            use_analytic_limit_layer = False
+        if use_analytic_limit_layer:
+            try:
+                analytic_limit_layer_value.intersection(current_limit_layer_total)
+            except ValueError:
+                use_analytic_limit_layer = False
+
+        append_debug_term("limit_layer_joint_identity:combined_limit", analytic_limit_layer_limit)
+        for label, context_limit in analytic_limit_layer_context_limits.items():
+            append_debug_term(f"limit_layer_joint_identity_context:{label}", context_limit)
+
+        if use_analytic_limit_layer:
+            add_direct_second_term("limit_layer_joint_analytic_second:combined", analytic_limit_layer_second)
+        else:
+            if not analytic_limit_layer_valid:
+                append_debug_term("limit_layer_joint_identity_blocker:analytic_equivalence", arb("[+/- 0]"))
+            if not analytic_limit_layer_limit.is_zero():
+                for label, block_limit in analytic_limit_layer_block_limits:
+                    if not block_limit.is_zero():
+                        append_debug_value(f"limit_layer_joint_identity_blocker:{label}", block_limit)
+            elif not analytic_limit_layer_second.is_finite() or not analytic_limit_layer_value.is_finite():
+                append_debug_term("limit_layer_joint_identity_blocker:nonfinite_second", arb("[+/- 0]"))
+            else:
+                append_debug_term("limit_layer_joint_identity_blocker:current_intersection", arb("[+/- 0]"))
+
+    if not use_analytic_limit_layer:
+        if use_analytic_paired_base:
+            for item in contexts:
+                base_limit, base_second = analytic_base_product_values[item["label"]]
+                add_limit_layer_term(
+                    item["label"],
+                    base_limit,
+                )
+                add_direct_second_term(
+                    f"smooth:paired_base_product_analytic_second:{item['label']}",
+                    base_second,
+                )
+        else:
+            if analytic_base_product_blockers:
+                for label, reason in analytic_base_product_blockers:
+                    append_debug_term(
+                        f"route-A analytic_second_divided_blocker:{label}:{reason}",
+                        arb("[+/- 0]"),
+                    )
+            else:
+                append_debug_term(
+                    "route-A analytic_second_divided_blocker",
+                    arb("[+/- 0]"),
+                )
+            for item in contexts:
+                add_limit_layer_term(
+                    item["label"],
+                    current_base_product_values[item["label"]],
+                )
+        flush_limit_layer_terms()
 
     return str(combined_first_divided / eta + combined_second_divided_direct)
 
