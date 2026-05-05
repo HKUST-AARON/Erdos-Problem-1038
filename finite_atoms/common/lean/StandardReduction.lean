@@ -7816,6 +7816,30 @@ lemma outsideRestriction_logKernel_integrable_of_not_mem_support
     ⟨ε, hε, hnull⟩
   exact outsideRestriction_logKernel_integrable_of_Ioo_null C hε hnull
 
+/-- The support of the outside restriction is contained in the closed complement
+of the component interval. -/
+lemma outsideRestriction_support_subset_interval_compl
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ((realMeasure μ).restrict C.intervalᶜ).support ⊆ C.intervalᶜ := by
+  intro x hx
+  have hsubset :
+      ((realMeasure μ).restrict C.intervalᶜ).support ⊆
+        closure C.intervalᶜ ∩ (realMeasure μ).support :=
+    Measure.support_restrict_subset
+  have hxclosure : x ∈ closure C.intervalᶜ := (hsubset hx).1
+  have hclosed : IsClosed C.intervalᶜ := by
+    rw [PositiveComponent.interval_eq]
+    exact isOpen_Ioo.isClosed_compl
+  simpa [hclosed.closure_eq] using hxclosure
+
+/-- A strict inside point cannot lie in the support of the outside restriction. -/
+lemma outsideRestriction_not_mem_support_of_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hx : x ∈ C.interval) :
+    x ∉ ((realMeasure μ).restrict C.intervalᶜ).support := by
+  intro hsupp
+  exact (outsideRestriction_support_subset_interval_compl C hsupp) hx
+
 /--
 Objective non-increase for component replacement using the canonical normalized
 component block.

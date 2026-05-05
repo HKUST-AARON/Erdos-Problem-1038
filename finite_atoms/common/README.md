@@ -121,6 +121,8 @@ outsideRestriction_ae_dist_ge_of_Ioo_null
 outsideRestriction_logKernel_integrable_of_Ioo_null
 outsideRestriction_exists_Ioo_null_of_not_mem_support
 outsideRestriction_logKernel_integrable_of_not_mem_support
+outsideRestriction_support_subset_interval_compl
+outsideRestriction_not_mem_support_of_mem_interval
 componentBlock_integral_eq_mass_mul_normalized
 componentBlock_integrable_of_normalized_integrable
 componentBarycenter_eq_normalized_componentBlock_integral
@@ -215,6 +217,10 @@ The outside certificate can now also be stated in support language: if each
 strict outside test point is outside the topological support of the outside
 restriction, Lean extracts the zero-mass neighbourhood and closes the same
 objective comparison.
+Lean also records the basic support geometry of the outside restriction: its
+support is contained in the closed complement of the component interval, so any
+point strictly inside the component is automatically excluded from that outside
+support.
 
 The following review findings remain real Lean gaps, not solved claims:
 
