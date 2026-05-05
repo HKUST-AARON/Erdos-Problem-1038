@@ -3520,11 +3520,12 @@ ratio=2.393769e-02
 This is still not a proof.  It says the promising next proof kernel is not more
 epsilon slicing; it is a joint residual-level expression in which the
 limit-layer \(O(\eta)\) term is cancelled before the final eta division.  A
-direct finite-value check also shows that raw direct, paired, and renormalized
-K2 values differ off branch, while they agree to zero on the solved branch.
-Thus the immediate blocker is to define the exact residual map used for the
-continuum winding and prove its equivalence to the original equations, rather
-than only tuning the existing diagnostic.
+direct finite-value check now shows a sharper fact: this cancellation gives the
+right limiting normal form, but it is not literally the same K2 equation on the
+positive-\(\eta\) branch.  Thus the immediate blocker is not a naive
+zero-set-equivalence lemma; it is to add the correct center/defect correction
+or prove a homotopy theorem between the original K2 equation and the
+regularized residual.
 
 The solver now exposes this as an explicit experimental kernel:
 `regularize_joint_limit_layer=True`, and
@@ -3552,11 +3553,12 @@ regularized tiny-slab continuation, remote:
 So the regularized kernel now fixes the sampled \(K_\eta-K_0\) comparison and
 also behaves stably on the already-certified positive finite tiny slabs.  It is
 still not closure of \(0<\varepsilon<10^{-8}\): the missing theorem is the
-equivalence/regularity lemma saying that the regularized residual map has the
-same zero set as the original equations and admits uniform Arb remainder bounds
-as \(\eta\to0\).
+regularity/defect lemma saying that the regularized residual admits uniform Arb
+remainder bounds as \(\eta\to0\), and that the \(O(\eta)\) defect from the
+original K2 equation is either corrected in the center curve or removed by a
+controlled homotopy.
 
-The finite-eta consistency part of that lemma is now checked by
+The finite-eta behavior of that regularized map is checked by
 `1038/verify_two_interval_regularized_equivalence.py`.  It solves the branch
 at selected epsilons and compares:
 
@@ -3564,16 +3566,16 @@ at selected epsilons and compares:
 2. the regularized residual;
 3. the finite-difference Jacobian determinants and orientation signs.
 
-Default run:
+After the canonical regularized kernel was fixed to always use the analytic
+limit-layer expression, the default run intentionally fails the old
+zero-equivalence criterion:
 
 ```text
-TWO-INTERVAL REGULARIZED EQUIVALENCE: PASS-DIAGNOSTIC
+TWO-INTERVAL REGULARIZED EQUIVALENCE: FAIL-DIAGNOSTIC
 rows=7
 worst_original=3.505319e-08
-worst_regularized=3.340711e-07
-min_abs_det_original=2.998338e+04
-min_abs_det_regularized=2.998339e+04
-max_condition_regularized=8.231365e+00
+worst_regularized=6.590994e-05
+min_abs_det_regularized=2.998325e+04
 orientation_mismatches=0
 ```
 
@@ -3583,39 +3585,59 @@ analytic derivative theorem, but it removes floating-point ambiguity from the
 determinant nonzero check:
 
 ```text
-TWO-INTERVAL REGULARIZED EQUIVALENCE: PASS-DIAGNOSTIC
+TWO-INTERVAL REGULARIZED EQUIVALENCE: FAIL-DIAGNOSTIC
 rows=7
-min_arb_fd_det_abs_lower=2.998339e+04
+min_arb_fd_det_abs_lower=2.998325e+04
 arb_fd_det_contains_zero=0
 ```
 
-An extra near-singular diagnostic down to \(\varepsilon=3\cdot10^{-10}\) also
-keeps the Jacobian non-singular and orientation-consistent, but residuals rise
-to about \(5.7\cdot10^{-5}\), which is the current double/quadrature accuracy
-floor rather than a proof artifact.  The proof-grade version still needs Arb
-interval equations for the equivalence identity and an analytic derivative
-formula giving a uniform lower bound for the regularized Jacobian determinant.
+This is not a regression of the small-\(\eta\) route.  It identifies the missing
+center correction: the regularized residual has a small branch defect, while
+its Jacobian remains non-singular and orientation-consistent.  The proof-grade
+version still needs Arb interval equations for that defect and an analytic
+derivative formula giving a uniform lower bound for the regularized Jacobian
+determinant.
 
 `1038/verify_two_interval_regularized_difference.py` records one implementation
 hazard that matters for the proof package: raw K2 and regularized K2 should not
 be mixed casually inside the same process.  Calling the raw grouped K2 path
 before the regularized path can perturb the subsequent regularized evaluation
 through shared Arb/context state.  The diagnostic therefore evaluates the
-canonical regularized path first and treats the regularized kernel as the proof
-object.  In that order, the branch and finite/tiny grid checks report no
-raw-minus-regularized discrepancy on the certified finite slabs; the separate
-small-\(\eta\) remainder comparison still shows that the canonical regularized
-kernel is the one matching the limiting \(K_0\) normal form.
+canonical regularized path first and treats the regularized kernel as the
+limiting proof object.  After fixing the solver so regularized mode no longer
+falls back to the raw current expression, the diagnostic correctly reports a
+large off-branch raw-minus-regularized difference near \(\eta=10^{-8}\), exactly
+where the old remainder comparison failed.  This is the defect that must be
+tracked; it should not be hidden by comparing two implementation paths.
 
-This means the next artifact should not try to prove equivalence by comparing
-two implementation paths.  It should define the regularized residual directly,
+This means the next artifact should define the regularized residual directly,
 then prove:
 
 1. \(K_1=U(\alpha)/\eta\) is unchanged;
 2. the regularized K2 equation is the correctly cancelled expression for
-   \((wU(\alpha)+U(-1))/\eta^2\);
+   \((wU(\alpha)+U(-1))/\eta^2\) after subtracting the explicit defect term;
 3. the regularized Jacobian has a uniform nonzero determinant as
    \(\eta\to0\).
+
+The current Jacobian-limit diagnostic is
+`1038/verify_two_interval_regularized_jacobian_limit.py`.  It compares the
+finite-difference Jacobian of the canonical regularized residual in
+\((B,\tau)\) coordinates with the limiting quadratic normal form.  After
+removing the fallback-to-raw intersection gate in regularized mode, repeated
+regularized K2 calls are stable, and the checker gives:
+
+```text
+TWO-INTERVAL REGULARIZED JACOBIAN LIMIT: PASS-DIAGNOSTIC
+etas=7
+grid=5
+worst_error=4.583512e-04
+min_abs_det=2.837286e-01
+```
+
+This is the strongest current evidence for the determinant part of the
+small-\(\eta\) theorem.  It is still finite-difference and sampled; the
+proof-grade replacement must be an analytic/Arb derivative enclosure for the
+canonical regularized residual.
 
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with

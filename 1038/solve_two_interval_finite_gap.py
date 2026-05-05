@@ -2935,7 +2935,7 @@ def _combined_residue_log_value_second_divided_from_arb(
             use_analytic_limit_layer = False
         if not analytic_limit_layer_limit.is_zero() and not eta_stays_positive:
             use_analytic_limit_layer = False
-        if use_analytic_limit_layer:
+        if use_analytic_limit_layer and not regularize_joint_limit_layer:
             try:
                 analytic_limit_layer_value.intersection(current_limit_layer_total)
             except ValueError:
