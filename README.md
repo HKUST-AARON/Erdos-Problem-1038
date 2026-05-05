@@ -101,7 +101,7 @@ The conservative two-parameter forcing branch. It supports the weaker
 `(-1.7,0)` handoff and is kept as a separately checked baseline.
 
 ```text
-finite_atoms/forcing_1836/
+finite_atoms/forcing_1708_strong/
 ```
 
 The stronger two-parameter forcing branch. It records the fixed interval
