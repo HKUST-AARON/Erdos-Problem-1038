@@ -7841,6 +7841,58 @@ lemma outsideRestriction_not_mem_support_of_mem_interval
   exact (outsideRestriction_support_subset_interval_compl C hsupp) hx
 
 /--
+Pointwise component-replacement comparison at a regular strict outside point.
+
+Here "regular" means the test point is not in the support of the outside
+restriction, so the common outside log-kernel contribution is integrable.  The
+component contribution is then compared by the normalized-block Jensen bridge.
+-/
+lemma componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hmass_pos : 0 < componentMass C)
+    (hstrict : StrictOutsideComponent C x)
+    (hnot :
+      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
+    componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  have houtside :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    outsideRestriction_logKernel_integrable_of_not_mem_support C hnot
+  have hkernel_norm :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) :=
+    normalized_componentBlock_logKernel_integrable_of_strictOutside
+      C hmass_pos hstrict
+  have hblock :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentBlock C) :=
+    componentBlock_integrable_of_normalized_integrable C
+      (fun t : ℝ => Real.log (1 / |x - t|)) hkernel_norm
+  have hatom :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentMass C • Measure.dirac (componentBarycenter C)) :=
+    componentBarycenterAtom_logKernel_integrable C x
+  refine componentReplacement_potential_le_of_decomposition_and_block_jensen
+    (C := C) (x := x)
+    (outside :=
+      ∫ t : ℝ, Real.log (1 / |x - t|)
+        ∂((realMeasure μ).restrict C.intervalᶜ))
+    (block :=
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C)
+    (replacementAtom :=
+      (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|))
+    ?_ ?_ ?_
+  · exact unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
+      C x houtside hblock
+  · exact componentReplacementPotential_eq_outside_add_barycenter_logKernel
+      C x houtside hatom
+  · exact componentBlock_logKernel_jensen_scaled_normalized
+      C hmass_pos hstrict
+      (normalized_componentBlock_first_moment_integrable C hmass_pos)
+      hkernel_norm
+
+/--
 Objective non-increase for component replacement using the canonical normalized
 component block.
 
@@ -7960,6 +8012,31 @@ theorem componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
     C hmass_pos ?_
   intro x hx
   exact outsideRestriction_exists_Ioo_null_of_not_mem_support C (hsupp x hx)
+
+/--
+Component-replacement objective non-increase with the singular outside-support
+case isolated.
+
+At regular strict outside points, Lean proves the pointwise comparison from the
+support-exclusion bridge.  The only remaining input is the singular branch:
+points that are strict outside the component and lie in the support of the
+outside restriction.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_supportCase
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hsingular : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∈ ((realMeasure μ).restrict C.intervalᶜ).support →
+        componentReplacementPotential C x ≤ unitIntervalLogPotential μ x) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_potential_le
+    C ?_
+  intro x hxstrict
+  by_cases hsupp : x ∈ ((realMeasure μ).restrict C.intervalᶜ).support
+  · exact hsingular x hxstrict hsupp
+  · exact componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
+      C hmass_pos hxstrict hsupp
 
 /-!
 ## Finite variance drop under barycenter replacement
