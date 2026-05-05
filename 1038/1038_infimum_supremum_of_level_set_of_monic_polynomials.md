@@ -102,8 +102,12 @@ What changed:
   with endpoint atom at \(1\).  The diagnostic solver
   `1038/solve_two_interval_finite_gap.py` finds a valid small-\(\varepsilon\)
   branch for \(\varepsilon=0.02\) down to \(0.0005\), plus the limiting system
-  at \(\varepsilon=0\).  The next hard proof task is the
-  singular/interval parameter-branch theorem in \(\eta=\sqrt{\varepsilon}\).
+  at \(\varepsilon=0\).  The bottleneck slab
+  \(\varepsilon\in[0.0002,0.0005]\) now has a proof-grade interval winding
+  certificate in `1038/verify_two_interval_continuation_tube.py`: the final
+  remote split run checked 1024 eta slices, all with winding degree \(1\), and
+  reported `pass=1024 fail=0`.  This closes the local two-interval branch
+  existence certificate for that slab, not the global exact-infimum theorem.
 - `1038/FormalSkeleton.lean` now formalizes the proof pipeline as a conditional
   theorem from explicit assumptions/certificates, without pretending to
   formalize real measure or logarithmic potential theory.

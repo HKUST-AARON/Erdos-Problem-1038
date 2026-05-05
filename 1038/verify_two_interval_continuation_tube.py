@@ -1,22 +1,24 @@
 #!/usr/bin/env python3
-"""Continuation-tube diagnostic for the two-interval finite-gap branch.
+"""Continuation-tube verifier for the two-interval finite-gap branch.
 
-This verifier checks the part of the continuation argument that does not
-depend on evaluating the center residual.  For each epsilon slab it verifies
-that the rescaled Jacobian stays uniformly invertible inside the tube
+For each epsilon slab it works with the rescaled system
 
-    (B, tau) = (B_c(eta), tau_c(eta)) + [-r_B,r_B] x [-r_tau,r_tau].
+    K(B,tau,eta) = (U(alpha)/eta, (w*U(alpha)+U(-1))/eta^2),
 
-The checked quantity is the weighted defect norm
+where
 
-    max_i sum_j |(I - C(eta_mid) DK(tube, eta))_ij| r_j / r_i,
+    (A, alpha) = (A0, alpha0) + eta*(B + nu*tau, tau).
 
-where C is the inverse of the center Jacobian at the eta slice midpoint.  If
-this is < 1, the Krawczyk/degree map is uniformly nondegenerate on the tube.
+The proof-grade boundary mode certifies that the interval image of K on each
+ordered boundary box avoids 0 and has winding degree 1 around 0.  This gives
+the local branch-existence certificate for the tube by the standard planar
+degree argument.  The weighted DK-defect check is retained as a separate
+conditioning diagnostic; it is not the current proof gate unless the caller
+chooses a contraction threshold below 1.
 
-This is not by itself the full existence proof: it is the matrix/invertibility
-certificate needed by the continuation lemma that replaces sampled center
-residuals.
+This is still only the local two-interval branch certificate.  It does not by
+itself prove global reduction to the two-interval obstruction family or the
+conjectural exact infimum.
 """
 
 from __future__ import annotations

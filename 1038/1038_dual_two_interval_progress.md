@@ -2845,10 +2845,125 @@ comfortably below \(10^{-1}\).  These are generous enough that the line is not
 blocked by local conditioning; the real work is still certified evaluation of
 the logarithmic/endpoint-singular integrals.
 
-This is still sampled stress evidence, not an interval Krawczyk proof.  The
-next proof-grade replacement is to export outward-rounded interval enclosures
-for the same \(K\), \(D_{(B,\tau)}K\), sign chart, residues, and density signs
-instead of relying on floating samples.
+This sampled stress evidence has now been superseded, for the bottleneck
+\(\varepsilon\)-slab recorded below, by a proof-grade interval winding
+certificate.  The sampled grid remains useful as an independent conditioning
+diagnostic, but it is no longer the branch-existence evidence for that slab.
+
+### 15.3.1 Current branch closure: proof-grade winding certificate on \([0.0002,0.0005]\)
+
+This subsection records exactly what has now been connected back to the current
+two-interval branch.  Let
+\[
+\eta=\sqrt{\varepsilon},\qquad
+(A,\alpha)=(A_0,\alpha_0)+\eta(B+\nu\tau,\tau),
+\]
+where \((A_0,\alpha_0)\), \(\nu\), and the left weight \(w\) are the constants
+exported in `1038/two_interval_branch_certificate_top_split.json`.  Define the
+rescaled branch map
+\[
+K(B,\tau,\eta)
+=
+\left(
+\frac{U_{\lambda^{(\varepsilon)}}(\alpha)}{\eta},
+\frac{w\,U_{\lambda^{(\varepsilon)}}(\alpha)+U_{\lambda^{(\varepsilon)}}(-1)}
+{\eta^2}
+\right).
+\]
+
+For the slab
+\[
+\varepsilon\in[0.0002,0.0005],
+\]
+the current certificate covers the tube
+\[
+(B,\tau)=(B_c(\eta),\tau_c(\eta))
+       +[-0.00029,0.00029]^2,
+\]
+where \((B_c,\tau_c)\) is the affine interpolation between the two exported
+endpoint rows.  The interval verifier subdivides the \(\eta\)-range into
+1024 slices and each tube boundary into 8 boxes per side, with adaptive
+subdivision depth 2 where the angle enclosure is too wide.
+
+The proof-grade command is:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_continuation_tube.py \
+  1038/two_interval_branch_certificate_top_split.json \
+  --config 0.0002:0.0005:0.00029,0.00029:16,1 \
+  --eta-interval-dk-kernel residue-log \
+  --interval-boundary-value-kernel residue-log-mv \
+  --interval-boundary-winding 1024,8 \
+  --interval-boundary-winding-adaptive-depth 2 \
+  --max-weighted-defect 10
+```
+
+For wall-clock reasons the full run was executed on `hkgai-studio`
+(`100.72.237.101`) as 1024 half-open eta slices
+`--interval-boundary-winding-eta-slice i:i+1`, with 20 workers.  The final
+checked artifact for commit `914ec72` gives:
+
+```text
+remote_final logs=1024 pass=1024 fail=0
+min_origin=1.178783e-05
+max_angle=1.535505
+```
+
+Representative slice outputs are:
+
+```text
+eta=0:   interval_boundary_winding_status=proof
+         interval_boundary_winding_degree_abs=1
+         interval_boundary_winding_min_origin=1.198808e-04
+
+eta=512: interval_boundary_winding_status=proof
+         interval_boundary_winding_degree_abs=1
+         interval_boundary_winding_min_origin=1.179814e-05
+
+eta=1023: interval_boundary_winding_status=proof
+          interval_boundary_winding_degree_abs=1
+          interval_boundary_winding_min_origin=1.231885e-04
+```
+
+The logical use is the standard planar degree argument.  For each fixed
+\(\eta\)-slice, the interval boundary image avoids the origin and its ordered
+angle sectors close with winding number \(1\).  Therefore \(K(\cdot,\cdot,\eta)\)
+has a zero inside the certified \((B,\tau)\)-tube.  The strict sign margins
+reported by the same run ensure the corresponding \((A,\alpha)\)-box stays in
+the two-interval sign regime
+\[
+1<A<-\ell,\qquad \ell<-1<r<\alpha<\beta<1.
+\]
+
+The `residue-log-mv` kernel is the certification kernel here.  It evaluates
+the residue-log primitive at the midpoint and encloses the full box by Arb
+mean-value inflation, including removable-factor eta-variation kernels for
+both
+\[
+U(\alpha)/\eta
+\quad\text{and}\quad
+\bigl(wU(\alpha)+U(-1)\bigr)/\eta^2.
+\]
+The older `sampled-lipschitz` mode is explicitly diagnostic-only and is not
+used for this proof certificate.
+
+What is now closed:
+
+1. the local branch-existence certificate on
+   \(\varepsilon\in[0.0002,0.0005]\);
+2. the proof-grade replacement of the sampled center correction for this slab;
+3. a reproducible command package and remote parallel verification record;
+4. orientation-correct adaptive boundary splitting and strict eta-slice
+   coverage checks.
+
+What is not yet closed:
+
+1. extension of the same certificate to the remaining \(\varepsilon\)-ranges;
+2. positivity/support verification for the full extracted dual measure on all
+   required \(x\)-regions, beyond the sign-regime checks recorded here;
+3. the global reduction from arbitrary candidate sets \(E\) to this
+   two-interval obstruction family;
+4. the matching upper construction needed for the exact infimum.
 
 ### 15.4 Correct next proof theorem
 
