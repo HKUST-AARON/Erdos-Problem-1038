@@ -219,3 +219,30 @@ K1 = U(alpha) / eta.
 
 The K2 branch already benefits from the combined residual-level cancellation;
 K1 needs the analogous endpoint-safe first-divided treatment.
+
+## K1 Eta-Floor Diagnostic
+
+The K1 interval blow-up is localized at the endpoint eta floor.  Holding
+`eta_high=1e-8` fixed and raising `eta_low` quickly restores a useful K1
+interval:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k1_eta_floor.py
+```
+
+Observed:
+
+```text
+eta=[1e-16,1e-08] K1_radius=5.250000e+00
+eta=[1e-12,1e-08] K1_radius=4.240000e-04
+eta=[1e-10,1e-08] K1_radius=6.510000e-06
+eta=[1e-09,1e-08] K1_radius=2.510000e-06
+eta=[5e-09,1e-08] K1_radius=1.230000e-06
+TWO-INTERVAL K1 ETA FLOOR: FAIL-DIAGNOSTIC ... radius_ratio=4.268293e+06
+```
+
+This confirms that the K1 obstruction is not broad instability on the whole
+small-eta interval.  It is the removable singular endpoint at eta zero.  The
+next kernel should therefore target the endpoint atom/log-ratio term in
+`U(alpha)/eta`, replacing the explicit positive-eta quotient by its eta-zero
+first-divided analytic form.
