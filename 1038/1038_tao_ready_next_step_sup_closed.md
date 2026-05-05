@@ -705,6 +705,100 @@ L_-\ge M_* \text{ remains open at the global topology step.}
 }
 \]
 
+### E3. Direct normalized lower-bound attack
+
+After treating the standard reduction as supplied by the separate
+normalization notes, the exact lower-bound target is the normalized statement
+
+\[
+\operatorname{supp}\mu\subset\{-1\}\cup[0,1],\qquad
+\mu(\{-1\})\ge\frac12
+\quad\Rightarrow\quad
+|E_\mu|\ge M_*.
+\]
+
+The current direct attack on this normalized theorem starts from a regular
+counterexample with \(|E_\mu|<M_*\).  If there is an extra positive component
+
+\[
+I=(u,v)\subset(0,1)
+\]
+
+containing the unique atom \(q\delta_c\), then locally
+
+\[
+U_\mu(x)=q\log\frac1{|x-c|}+W(x).
+\]
+
+Moving \(c\mapsto c+s\) gives
+
+\[
+\dot U(x)=\frac{q}{x-c}.
+\]
+
+Since \(U_\mu(u)=U_\mu(v)=0\), with
+
+\[
+U_\mu'(u)>0,\qquad U_\mu'(v)<0,
+\]
+
+the endpoint variations are
+
+\[
+\dot u=-\frac{q}{(u-c)U_\mu'(u)},\qquad
+\dot v=-\frac{q}{(v-c)U_\mu'(v)}.
+\]
+
+Length minimality of the counterexample forces
+
+\[
+\boxed{
+(c-u)U_\mu'(u)=(v-c)|U_\mu'(v)|.
+}
+\]
+
+Thus an extra component is not ruled out by topology alone; it must satisfy a
+rigid balance equation.
+
+On the dual side, complementarity gives \(U_\lambda(c)=0\).  For
+
+\[
+F(z)=\int\frac{d\lambda(t)}{z-t},
+\]
+
+one obtains
+
+\[
+F(c)=0,\qquad
+F'(c)=-\int\frac{d\lambda(t)}{(c-t)^2}<0.
+\]
+
+So every extra positive component contributes a unique simple real zero of the
+dual Cauchy transform.  If the active zero set has \(g\) intervals, this
+places the problem in a positive finite-gap class
+
+\[
+F(z)=
+\frac{P(z)}{Q(z)}
+\sqrt{\prod_{k=1}^g(z-\alpha_k)(z-\beta_k)}.
+\]
+
+The remaining normalized lower-bound theorem is now the quantitative
+finite-gap inequality:
+
+\[
+\boxed{
+g\ge2\text{ positive finite-gap solutions satisfying the balance,
+complementarity, residue positivity and density positivity conditions have }
+|E|\ge M_*.
+}
+\]
+
+This is sharper than the earlier "global topology" phrasing.  The exact
+remaining mathematical work is to prove this quantitative inequality, or to
+show that every equality/near-equality case degenerates to the one-cut
+construction or the corrected two-interval branch.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

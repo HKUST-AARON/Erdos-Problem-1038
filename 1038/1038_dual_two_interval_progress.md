@@ -3529,6 +3529,133 @@ L_-=1.8344304757626617\ldots
 
 be claimed as a complete proof.
 
+### 16.5 Direct normalized lower-bound attack: extra-component stationarity
+
+After accepting the standard reduction as already supplied by the separate
+normalization notes, the exact lower-bound target is the normalized theorem
+
+\[
+\operatorname{supp}\mu\subset\{-1\}\cup[0,1],\qquad
+\mu(\{-1\})\ge\frac12
+\quad\Longrightarrow\quad
+|E_\mu|\ge M_*.
+\]
+
+The first direct attack is to assume a normalized counterexample with
+\(|E_\mu|<M_*\), choose a regular length-minimising one, and inspect any extra
+positive component
+
+\[
+I=(u,v)\subset(0,1)
+\]
+
+away from the main component containing \(-1\).  By the collapse lemma the
+restriction of \(\mu\) to \(I\) is a single atom,
+
+\[
+\mu|_I=q\delta_c,\qquad c\in(u,v),\quad q>0.
+\]
+
+Write locally
+
+\[
+U_\mu(x)=q\log\frac1{|x-c|}+W(x),
+\]
+
+where \(W\) is smooth near \([u,v]\).  Since
+
+\[
+U_\mu(u)=U_\mu(v)=0,\qquad
+U_\mu'(u)>0,\qquad U_\mu'(v)<0,
+\]
+
+moving the atom by \(c\mapsto c+s\) gives the first variation
+
+\[
+\dot U(x)=\frac{q}{x-c}.
+\]
+
+The endpoint variations are therefore
+
+\[
+\dot u=-\frac{q}{(u-c)U_\mu'(u)},\qquad
+\dot v=-\frac{q}{(v-c)U_\mu'(v)}.
+\]
+
+Thus
+
+\[
+\frac{d}{ds}(v-u)
+=
+-\frac{q}{(v-c)U_\mu'(v)}
++\frac{q}{(u-c)U_\mu'(u)}.
+\]
+
+For a length-minimising normalized counterexample, this derivative must vanish.
+Hence every extra positive component must satisfy the stationarity condition
+
+\[
+\boxed{
+(c-u)U_\mu'(u)=(v-c)|U_\mu'(v)|.
+}
+\]
+
+This calculation is useful because it shows why a purely qualitative
+interlacing argument is insufficient: an extra component is not immediately
+contradictory; it is allowed only at a rigid balanced position.
+
+On the dual side, first-variation complementarity gives
+
+\[
+U_\lambda(c)=0.
+\]
+
+For
+
+\[
+F(z)=\int\frac{d\lambda(t)}{z-t},
+\]
+
+this implies
+
+\[
+F(c)=0,\qquad
+F'(c)=-\int\frac{d\lambda(t)}{(c-t)^2}<0.
+\]
+
+Thus every extra positive component forces one simple real zero of the dual
+Cauchy transform inside the component.  If the active zero set has \(g\)
+intervals, the finite-gap form is
+
+\[
+F(z)=
+\frac{P(z)}{Q(z)}
+\sqrt{\prod_{k=1}^g(z-\alpha_k)(z-\beta_k)}.
+\]
+
+The extra components give real zeros of \(P\), while the boundary atoms give
+the poles of \(Q\).  Positivity of residues and cut densities imposes the
+pole/cut/zero interlacing.  The normalized lower bound is therefore reduced to
+the following quantitative statement.
+
+**Quantitative finite-gap inequality.**  Any positive Stieltjes finite-gap
+solution with \(g\ge2\), satisfying the above atom-balance equations,
+complementarity zeros, residue positivity, density positivity, and real
+interlacing, has
+
+\[
+|E|\ge M_*.
+\]
+
+Equivalently, the only way for a finite-gap extremal to approach length
+\(M_*\) from the normalized lower-bound side is to degenerate to the one-cut
+upper construction or to the corrected two-interval boundary branch.
+
+This is now the smallest mathematical hard mouth for the normalized exact
+lower bound.  The remaining proof should no longer be phrased as a vague
+"global topology" issue; it should be attacked as a quantitative inequality
+for positive finite-gap Stieltjes transforms.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
