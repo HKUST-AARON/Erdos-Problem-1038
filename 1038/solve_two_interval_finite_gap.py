@@ -1969,6 +1969,10 @@ def _combined_residue_log_value_second_divided_from_arb(
         if debug_terms is not None:
             debug_terms.append((label, str(value / eta)))
 
+    def append_debug_term(label, value):
+        if debug_terms is not None:
+            debug_terms.append((label, str(value)))
+
     def paired_product_log_abs_divided(left_data, right_data, debug_label=None):
         (
             left_coefficient,
@@ -2216,19 +2220,207 @@ def _combined_residue_log_value_second_divided_from_arb(
                 item["weight"] * (-a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)),
             )
 
+    def paired_base_first_divided_samples(q_eta):
+        q_tau = base_delta_alpha if base_delta_alpha is not None else tau
+        q_A_div = base_delta_A if base_delta_A is not None else A_div
+        q_A = limit_A + q_eta * q_A_div
+        q_alpha = limit_alpha + q_eta * q_tau
+        q_epsilon = q_eta * q_eta
+        q_ell = arb(repr(X_LEFT)) + q_epsilon
+        q_beta = one - q_epsilon
+        q_center = (q_alpha + q_beta) / 2
+        q_scale = (q_beta - q_alpha) / 4
+        q_center_div = (q_tau - q_eta) / 2
+        q_scale_div = -(q_tau + q_eta) / 4
+
+        def q_log_abs_ratio_divided(value, value0, value_div):
+            z = q_eta * value_div / value0
+            if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
+                return value_div / value0 * log_one_plus_over_z(z)
+            return log_abs(value / value0) / q_eta
+
+        def q_product_log_abs_divided(coefficient, coefficient0, coefficient_div, value, value0, value_div):
+            return coefficient_div * log_abs(value) + coefficient0 * q_log_abs_ratio_divided(value, value0, value_div)
+
+        def q_preimage_pair_divided(q, q0, q_div):
+            y = (q - q_center) / q_scale
+            y0 = (q0 - center0) / scale0
+            root = (y * y - 4).sqrt()
+            outer = (y - root) / 2
+            root0 = (y0 * y0 - 4).sqrt()
+            outer0 = (y0 - root0) / 2
+            inner = 1 / outer
+            inner0 = 1 / outer0
+            outer_div = (q_div - q_center_div - q_scale_div * (outer0 + 1 / outer0)) / (
+                q_scale * (1 - 1 / (outer * outer0))
+            )
+            inner_div = (q_div - q_center_div - q_scale_div * (inner0 + 1 / inner0)) / (
+                q_scale * (1 - 1 / (inner * inner0))
+            )
+            return ((outer, outer0, outer_div), (inner, inner0, inner_div))
+
+        def q_branch_value(rho, q_value_scale):
+            return q_value_scale * (rho - 1 / rho)
+
+        def q_branch_value_divided(rho, rho0, rho_div):
+            inverse_div = -rho_div / (rho * rho0)
+            return q_scale_div * (rho0 - 1 / rho0) + q_scale * (rho_div - inverse_div)
+
+        def q_residue(q, q_derivative, rho, q_value_A, q_value_scale):
+            return (q + q_value_A) * q_branch_value(rho, q_value_scale) / q_derivative
+
+        def q_residue_divided(q, q0, q_div, q_derivative, q0_derivative, q_derivative_div, rho, rho0, rho_div):
+            numerator = (q + q_A) * q_branch_value(rho, q_scale)
+            numerator0 = (q0 + limit_A) * q_branch_value(rho0, scale0)
+            numerator_div = (q_div + q_A_div) * q_branch_value(rho0, scale0) + (q + q_A) * q_branch_value_divided(
+                rho, rho0, rho_div
+            )
+            return quotient_divided(numerator, numerator0, numerator_div, q_derivative, q0_derivative, q_derivative_div)
+
+        q_contact = {
+            "label": "contact",
+            "weight": left_weight,
+            "w": -one,
+            "w0": -one,
+            "w_div": zero,
+        }
+        q_w_minus, q_w_minus0, q_w_minus_div = q_preimage_pair_divided(-one, -one, zero)[0]
+        q_minus_one = {
+            "label": "minus_one",
+            "weight": one,
+            "w": q_w_minus,
+            "w0": q_w_minus0,
+            "w_div": q_w_minus_div,
+        }
+        q_ell_derivative = (q_ell - r) * (q_ell - one)
+        q_r_derivative = (r - q_ell) * (r - one)
+        q_ell_q_div = q_eta
+        q_r_q_div = zero
+        q_ell_derivative_div = q_eta * (ell0 - one) + q_eta * (q_ell - r)
+        q_r_derivative_div = -q_eta * (r - one)
+        q_ell_preimages = q_preimage_pair_divided(q_ell, ell0, q_ell_q_div)
+        q_r_preimages = q_preimage_pair_divided(r, r, q_r_q_div)
+        values = {item["label"]: arb(0) for item in (q_contact, q_minus_one)}
+        for (rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div) in zip(
+            q_ell_preimages,
+            q_r_preimages,
+        ):
+            a_ell = q_residue(q_ell, q_ell_derivative, rho_ell, q_A, q_scale)
+            a_ell0 = q_residue(ell0, ell0_derivative, rho_ell0, limit_A, scale0)
+            a_r = q_residue(r, q_r_derivative, rho_r, q_A, q_scale)
+            a_r0 = q_residue(r, r0_derivative, rho_r0, limit_A, scale0)
+            a_ell_div = q_residue_divided(
+                q_ell,
+                ell0,
+                q_ell_q_div,
+                q_ell_derivative,
+                ell0_derivative,
+                q_ell_derivative_div,
+                rho_ell,
+                rho_ell0,
+                rho_ell_div,
+            )
+            a_r_div = q_residue_divided(
+                r,
+                r,
+                q_r_q_div,
+                q_r_derivative,
+                r0_derivative,
+                q_r_derivative_div,
+                rho_r,
+                rho_r0,
+                rho_r_div,
+            )
+            sum_residue = a_ell + a_r
+            sum_residue0 = a_ell0 + a_r0
+            sum_residue_div = a_ell_div + a_r_div
+            for item in (q_contact, q_minus_one):
+                base = item["w"] - rho_r
+                base0 = item["w0"] - rho_r0
+                base_div = item["w_div"] - rho_r_div
+                values[item["label"]] += item["weight"] * (
+                    -q_product_log_abs_divided(sum_residue, sum_residue0, sum_residue_div, base, base0, base_div)
+                )
+        values["combined"] = values["contact"] + values["minus_one"]
+        return values
+
+    def add_paired_base_second_divided_diagnostics(current_values):
+        if debug_terms is None:
+            return
+        eta_low = float(eta.lower())
+        eta_high = float(eta.upper())
+        if not (0.0 <= eta_low < eta_high):
+            return
+        eta_mid = (eta_low + eta_high) / 2.0
+        q_eta_low = arb(repr(float(eta_low)))
+        q_eta_mid = arb(repr(float(eta_mid)))
+        q_eta_high = arb(repr(float(eta_high)))
+        limit_values = paired_base_first_divided_samples(zero)
+        low_values = paired_base_first_divided_samples(q_eta_low)
+        mid_values = paired_base_first_divided_samples(q_eta_mid)
+        high_values = paired_base_first_divided_samples(q_eta_high)
+        for label in ("contact", "minus_one", "combined"):
+            current = current_values.get(label)
+            if current is not None:
+                append_debug_term(
+                    f"smooth:paired_base_second_diag:{label}:current_minus_limit_over_eta",
+                    (current - limit_values[label]) / eta,
+                )
+            low = low_values[label]
+            mid = mid_values[label]
+            high = high_values[label]
+            endpoint_slope = (high - low) / arb(repr(float(eta_high - eta_low)))
+            midpoint_slope = (mid - limit_values[label]) / q_eta_mid
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:limit_first_divided", limit_values[label])
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:low_first_divided", low)
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:mid_first_divided", mid)
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:high_first_divided", high)
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:endpoint_secant_slope", endpoint_slope)
+            append_debug_term(f"smooth:paired_base_second_diag:{label}:midpoint_limit_slope", midpoint_slope)
+            residual_radius = 0.0
+            midpoint_slope_residual_radius = 0.0
+            for sample_eta, sample_values in (
+                (eta_low, low_values),
+                (eta_mid, mid_values),
+                (eta_high, high_values),
+            ):
+                residual = sample_values[label] - mid - endpoint_slope * arb(repr(float(sample_eta - eta_mid)))
+                residual_radius = max(residual_radius, float(abs(residual).upper()))
+                midpoint_slope_residual = (
+                    sample_values[label] - limit_values[label] - midpoint_slope * arb(repr(float(sample_eta)))
+                )
+                midpoint_slope_residual_radius = max(
+                    midpoint_slope_residual_radius,
+                    float(abs(midpoint_slope_residual).upper()),
+                )
+            append_debug_term(
+                f"smooth:paired_base_second_diag:{label}:linear_residual_over_eta_low",
+                arb(f"[+/- {residual_radius / max(eta_low, 1.0e-300)!r}]"),
+            )
+            append_debug_term(
+                f"smooth:paired_base_second_diag:{label}:midpoint_slope_residual_over_eta_low",
+                arb(f"[+/- {midpoint_slope_residual_radius / max(eta_low, 1.0e-300)!r}]"),
+            )
+
+    current_base_product_values = {}
     for item in contexts:
         left_data, right_data = base_product_data[item["label"]]
+        base_value = item["weight"] * (
+            -paired_product_log_abs_divided(
+                left_data,
+                right_data,
+                f"smooth:paired_base_product_diag:{item['label']}",
+            )
+        )
+        current_base_product_values[item["label"]] = base_value
         add_combined_term(
             f"smooth:paired_base_product:{item['label']}",
-            item["weight"]
-            * (
-                -paired_product_log_abs_divided(
-                    left_data,
-                    right_data,
-                    f"smooth:paired_base_product_diag:{item['label']}",
-                )
-            ),
+            base_value,
         )
+    current_base_product_values["combined"] = (
+        current_base_product_values["contact"] + current_base_product_values["minus_one"]
+    )
+    add_paired_base_second_divided_diagnostics(current_base_product_values)
 
     one_derivative = (one - ell) * (one - r)
     sqrt_one_minus_alpha = (one - alpha).sqrt()
