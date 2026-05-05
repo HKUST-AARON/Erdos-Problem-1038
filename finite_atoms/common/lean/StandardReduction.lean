@@ -7841,6 +7841,17 @@ lemma outsideRestriction_not_mem_support_of_mem_interval
   exact (outsideRestriction_support_subset_interval_compl C hsupp) hx
 
 /--
+Strict outside points where the real-valued replacement comparison may hit the
+outside-restriction support.  This is the singular branch left after the regular
+support-exclusion argument.
+-/
+def strictOutsideSupportHitSet
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
+  {x : ℝ |
+    StrictOutsideComponent C x ∧
+      x ∈ ((realMeasure μ).restrict C.intervalᶜ).support}
+
+/--
 Pointwise component-replacement comparison at a regular strict outside point.
 
 Here "regular" means the test point is not in the support of the outside
@@ -8037,6 +8048,104 @@ theorem componentReplacement_objective_le_of_strictOutside_supportCase
   · exact hsingular x hxstrict hsupp
   · exact componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
       C hmass_pos hxstrict hsupp
+
+/--
+Replacement positive-set inclusion with the singular support-hit branch kept as
+an explicit exceptional set.
+
+Away from the component interval, the only points where the regular
+support-exclusion comparison is not available are the strict outside points that
+lie in the outside-restriction support.  Endpoints are already a finite null
+exception in the strict-outside formulation.
+-/
+lemma componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    PositiveSet (componentReplacementPotential C) ⊆
+      PositiveSet (unitIntervalLogPotential μ) ∪
+        ({C.left, C.right} : Set ℝ) ∪
+          strictOutsideSupportHitSet C := by
+  intro x hxpos
+  by_cases hxC : x ∈ C.interval
+  · exact Or.inl (Or.inl (C.interval_subset_positiveSet hxC))
+  · rcases C.not_interval_imp_strictOutside_or_endpoint hxC with hstrict | hendpoint
+    · by_cases hsupp :
+          x ∈ ((realMeasure μ).restrict C.intervalᶜ).support
+      · exact Or.inr ⟨hstrict, hsupp⟩
+      · have hle :=
+          componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
+            C hmass_pos hstrict hsupp
+        exact Or.inl (Or.inl (lt_of_lt_of_le hxpos hle))
+    · exact Or.inl (Or.inr (by simpa [Set.mem_insert_iff] using hendpoint))
+
+/--
+Component replacement does not increase objective once the singular support-hit
+branch is Lebesgue-null.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_supportHit_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hnull : volume (strictOutsideSupportHitSet C) = 0) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hsub :=
+    componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
+      C hmass_pos
+  have hmono :
+      volume (PositiveSet (componentReplacementPotential C)) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) :=
+    measure_mono (μ := volume) hsub
+  have hpair : volume ({C.left, C.right} : Set ℝ) = 0 := by
+    apply le_antisymm
+    · calc
+        volume ({C.left, C.right} : Set ℝ) ≤
+            volume (({C.left} : Set ℝ) ∪ ({C.right} : Set ℝ)) := by
+              exact measure_mono (by
+                intro x hx
+                simp at hx ⊢
+                rcases hx with hx | hx
+                · exact Or.inr hx
+                · exact Or.inl hx)
+        _ ≤ volume ({C.left} : Set ℝ) + volume ({C.right} : Set ℝ) :=
+              measure_union_le _ _
+        _ = 0 := by simp
+    · exact bot_le
+  have hunion :
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume ({C.left, C.right} : Set ℝ) +
+            volume (strictOutsideSupportHitSet C) := by
+    calc
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C)
+          ≤ volume (PositiveSet (unitIntervalLogPotential μ) ∪
+              ({C.left, C.right} : Set ℝ)) +
+              volume (strictOutsideSupportHitSet C) :=
+            measure_union_le (μ := volume) _ _
+      _ ≤ (volume (PositiveSet (unitIntervalLogPotential μ)) +
+              volume ({C.left, C.right} : Set ℝ)) +
+              volume (strictOutsideSupportHitSet C) := by
+            exact add_le_add
+              (measure_union_le
+                (μ := volume)
+                (PositiveSet (unitIntervalLogPotential μ))
+                ({C.left, C.right} : Set ℝ))
+              le_rfl
+      _ = volume (PositiveSet (unitIntervalLogPotential μ)) +
+            volume ({C.left, C.right} : Set ℝ) +
+              volume (strictOutsideSupportHitSet C) := by
+            simp [add_assoc]
+  calc
+    volume (PositiveSet (componentReplacementPotential C))
+        ≤ volume (PositiveSet (unitIntervalLogPotential μ) ∪
+            ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) := hmono
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume ({C.left, C.right} : Set ℝ) +
+            volume (strictOutsideSupportHitSet C) := hunion
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
+          simp [hpair, hnull]
 
 /-!
 ## Finite variance drop under barycenter replacement

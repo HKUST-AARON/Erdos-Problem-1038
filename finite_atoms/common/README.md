@@ -123,6 +123,7 @@ outsideRestriction_exists_Ioo_null_of_not_mem_support
 outsideRestriction_logKernel_integrable_of_not_mem_support
 outsideRestriction_support_subset_interval_compl
 outsideRestriction_not_mem_support_of_mem_interval
+strictOutsideSupportHitSet
 componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
 componentBlock_integral_eq_mass_mul_normalized
 componentBlock_integrable_of_normalized_integrable
@@ -139,6 +140,8 @@ componentReplacement_objective_le_of_strictOutside_distSeparated
 componentReplacement_objective_le_of_strictOutside_IooNull
 componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
 componentReplacement_objective_le_of_strictOutside_supportCase
+componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
+componentReplacement_objective_le_of_strictOutside_supportHit_null
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -228,6 +231,10 @@ point not lying in the outside-restriction support, Lean proves
 `componentReplacementPotential C x ≤ unitIntervalLogPotential μ x` directly.
 The objective-level theorem therefore isolates the only remaining singular
 branch: strict outside points that lie in the outside-restriction support.
+That singular branch is now packaged as `strictOutsideSupportHitSet C`.  Lean
+proves that if this exceptional set is Lebesgue-null, then the component
+replacement objective still does not increase; endpoints are handled as the
+same finite null exception as before.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -248,9 +255,9 @@ The following review findings remain real Lean gaps, not solved claims:
    log-kernel specialization, scalar assembly, and canonical normalized-block
    Jensen bridge are formalized, and the normalized first-moment integrability
    plus barycenter-atom/component-block/normalized-block log-kernel
-   integrability are internal.  The remaining local analytic task is to handle
-   the singular support-hit branch in
-   `componentReplacement_objective_le_of_strictOutside_supportCase`.
+   integrability are internal.  The remaining local analytic task is to prove
+   nullity or harmlessness of `strictOutsideSupportHitSet C` from actual
+   minimizer/component topology data.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
