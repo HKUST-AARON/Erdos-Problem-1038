@@ -5,9 +5,14 @@ import PiecewiseFiveAtom181460Formal
 /-!
 # Route closure for the `M = 1.814600` five-atom piecewise tail candidate
 
-This file records the route arithmetic needed for the tail part of the candidate.
-It is conditional on a fixed forcing branch `(-1.708, 0)` and does not assert
-that the block-positivity certificate is proven.
+This file records the route arithmetic and selector bridge needed for the tail
+part of the candidate.  It imports the 560-block piecewise tail certificate and
+uses it to produce the tail selector under the named tail-mass finiteness
+hypothesis below.
+
+The route remains conditional on the separate long-forcing branch that supplies
+`(-1.708, 0)`, or equivalently the `hforcing1836` handoff theorem near the end
+of this file.
 -/
 
 namespace Erdos1038
@@ -71,6 +76,28 @@ def TailSelector (E : Set ℝ) : Prop :=
 
 def TailFiniteSelection (E : Set ℝ) : Prop :=
   ∀ a : ℝ, a ∈ TailParameter → ∃ i : Fin 5, sweptAtom a i ∈ E
+
+def TailMassFiniteHypothesis
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038) : Prop :=
+  ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
+    sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
+    sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
+    ∃ ε : ℝ, 0 < ε ∧
+      StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞
+
+def UnitIntervalTailMassFiniteOffDiagonal
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038) : Prop :=
+  ∀ x : ℝ, x ∈ Icc (-1 : ℝ) 1 →
+    x ∉ StandardReduction.diagonalAtomSet μ →
+    ∃ ε : ℝ, 0 < ε ∧
+      StandardReduction.singularTailMass ε μ x < ∞
+
+theorem TailMassFiniteHypothesis.of_unitInterval_offDiagonal
+    {μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038}
+    (hfinite : UnitIntervalTailMassFiniteOffDiagonal μ) :
+    TailMassFiniteHypothesis μ := by
+  intro a ha i hunit hoff
+  exact hfinite (sweptAtom a i) hunit hoff
 
 theorem TailFiniteSelection.toTailSelector
     {E : Set ℝ} (h : TailFiniteSelection E) :
@@ -1018,12 +1045,7 @@ lemma finiteWeightedPotential_integrable_of_atom_kernels
 theorem tailSelector_from_piecewise_tail_tailMass
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
     (hNorm : UnitIntervalNormalizedSupportAE μ)
-    (htailFinite :
-      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
-        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
-        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
-        ∃ ε : ℝ, 0 < ε ∧
-          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    (htailFinite : TailMassFiniteHypothesis μ) :
     TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ) := by
   intro a ha
   by_cases h0 : swept0 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
@@ -1158,12 +1180,7 @@ theorem augmented_positiveSet_volume_lower_bound_from_piecewise_tail_tailMass
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
     (hNorm : UnitIntervalNormalizedSupportAE μ)
     (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
-    (htailFinite :
-      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
-        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
-        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
-        ∃ ε : ℝ, 0 < ε ∧
-          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    (htailFinite : TailMassFiniteHypothesis μ) :
     ENNReal.ofReal M ≤
       volume (StandardReduction.PositiveSet
         (StandardReduction.unitIntervalLogPotential μ)) :=
@@ -1186,12 +1203,7 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing_or_tailMass
           volume (StandardReduction.PositiveSet
             (StandardReduction.unitIntervalLogPotential μ)) ∨
         LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
-    (htailFinite :
-      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
-        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
-        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
-        ∃ ε : ℝ, 0 < ε ∧
-          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    (htailFinite : TailMassFiniteHypothesis μ) :
     ENNReal.ofReal M ≤
       volume (StandardReduction.PositiveSet
         (StandardReduction.unitIntervalLogPotential μ)) := by
@@ -1215,12 +1227,7 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing1836_or_tailMass
         ENNReal.ofReal (q 1836 1000) ≤
           volume (StandardReduction.PositiveSet
             (StandardReduction.unitIntervalLogPotential μ)))
-    (htailFinite :
-      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
-        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
-        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
-        ∃ ε : ℝ, 0 < ε ∧
-          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    (htailFinite : TailMassFiniteHypothesis μ) :
     ENNReal.ofReal M ≤
       volume (StandardReduction.PositiveSet
         (StandardReduction.unitIntervalLogPotential μ)) := by
