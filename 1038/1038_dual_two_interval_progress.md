@@ -4242,9 +4242,11 @@ The script also has an optional experimental bridge to the existing
 This constructs adjacent corrected-center endpoint rows and calls the existing
 regularized `residue-log-mv` interval winding kernel on each slab.
 
-This is still diagnostic, not a proof-grade interval theorem.  It uses
-double-precision branch centers, finite-difference Jacobians, and sampled
-boundary values.
+This is still a bridge artifact, not the final small-\(\eta\) theorem.  The
+corrected centers are computed with double-precision branch rows and
+finite-difference Newton corrections.  However, once those corrected endpoint
+rows are fixed, the optional boundary-winding mode uses the existing Arb
+interval winding kernel on the corrected tube slabs.
 
 Default range:
 
@@ -4288,7 +4290,10 @@ regularized branch remains well inside a small tube and the sampled boundary
 has degree \(-1\) across both the existing tiny range and a deeper
 near-singular probe.
 
-The optional interval bridge currently fails on the first tiny slab:
+The optional interval bridge initially failed on the first tiny slab because
+the midpoint value used the regularized K2 kernel while the eta-variation
+inflation still called the non-regularized K2 variation kernel.  That mixed
+kernel produced a K2 radius about one order too wide:
 
 ```bash
 .venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
@@ -4309,21 +4314,90 @@ diag_radius=7.496905e-03 K1_rad=8.087813e-07
 K2_rad=7.496905e-03 obstacle=K-width
 ```
 
-This is an important negative result.  Even after using corrected centers,
-the existing `residue-log-mv` interval value kernel is still too wide in the
-second component: `K2_rad` is about \(7.5\cdot10^{-3}\), while the boundary
-separation is only about \(7\cdot10^{-4}\).  Subdivision helps but does not
-close the gap.  The next proof-grade step must therefore improve the value
-kernel itself, not only refine the boundary mesh.
+The fix was to pass `regularize_joint_limit_layer=True` through
+`residue_log_mv_value_box` into
+`_combined_residue_log_value_second_divided_eta_variation_from_arb`.
+
+After this fix, the first corrected slab passes:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --epsilons 1e-8,3e-8 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3 \
+  --max-corrected-residual 1e-6
+```
+
+Result:
+
+```text
+interval slab 1.000000e-08:3.000000e-08:
+status=proof degree_abs=1 min_origin=4.150920e-04 max_angle=2.089305e-01
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=2
+```
+
+The corrected interval bridge also passes the first three tiny slabs:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --epsilons 1e-8,3e-8,1e-7,3e-7 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3 \
+  --max-corrected-residual 1e-6
+```
+
+Result:
+
+```text
+interval slab 1.000000e-08:3.000000e-08:
+status=proof degree_abs=1 min_origin=4.150920e-04 max_angle=2.089305e-01
+interval slab 3.000000e-08:1.000000e-07:
+status=proof degree_abs=1 min_origin=3.984778e-04 max_angle=2.179307e-01
+interval slab 1.000000e-07:3.000000e-07:
+status=proof degree_abs=1 min_origin=3.629017e-04 max_angle=2.554326e-01
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=4
+```
+
+Most importantly for the singular endpoint, the corrected interval bridge also
+passes below \(10^{-8}\):
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --epsilons 3e-10,1e-9,3e-9,1e-8 \
+  --max-correction 0.002 \
+  --tube-radius-B 0.002 \
+  --tube-radius-tau 0.002 \
+  --max-corrected-residual 1e-5 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3
+```
+
+Result:
+
+```text
+interval slab 3.000000e-10:1.000000e-09:
+status=proof degree_abs=1 min_origin=8.418850e-04 max_angle=2.068125e-01
+interval slab 1.000000e-09:3.000000e-09:
+status=proof degree_abs=1 min_origin=8.414754e-04 max_angle=2.068723e-01
+interval slab 3.000000e-09:1.000000e-08:
+status=proof degree_abs=1 min_origin=8.394290e-04 max_angle=2.072483e-01
+TWO-INTERVAL CORRECTED-CENTER TUBE: PASS-DIAGNOSTIC rows=4
+```
+
+The default seven-point interval run passes through
+\([10^{-8},10^{-6}]\) and then fails on the wider higher-\(\eta\) slabs
+\([10^{-6},3\cdot10^{-6}]\) and \([3\cdot10^{-6},10^{-5}]\).  This is not a
+small-\(\eta\) blocker, because the original finite branch certificate already
+covers that range.  It does show that the corrected-center tube should be used
+as the singular endpoint bridge, not as a replacement for the existing finite
+slab certificate.
 
 The remaining proof-grade obligations are now sharper:
 
-1. replace sampled boundary values by Arb interval boundary boxes over eta
-   slabs;
-2. replace finite-difference Newton correction by an interval
+1. replace finite-difference Newton correction by an interval
    Newton-Krawczyk inclusion or a validated boundary-degree certificate;
-3. prove the correction/tube bound uniformly for \(0<\eta<10^{-4}\), or split
+2. prove the correction/tube bound uniformly for \(0<\eta<10^{-4}\), or split
    it into a limiting theorem plus a finite overlap with the existing
    \(\varepsilon\ge10^{-8}\) certificate;
-4. only after that, reconnect this small-\(\eta\) theorem to the global
+3. only after that, reconnect this small-\(\eta\) theorem to the global
    finite-gap reduction.

@@ -284,7 +284,7 @@ def main() -> int:
                 winding_min_origin = 0.0
                 winding_max_angle = 0.0
                 winding_source = str(exc)
-            if winding_status != "PASS" or winding_degree_abs != 1:
+            if winding_status not in {"PASS", "proof"} or winding_degree_abs != 1:
                 print(
                     f"interval slab {low_row.epsilon:.6e}:{high_row.epsilon:.6e}: "
                     f"status={winding_status} degree_abs={winding_degree_abs} "

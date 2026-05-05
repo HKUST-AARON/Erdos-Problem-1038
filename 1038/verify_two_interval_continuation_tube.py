@@ -494,6 +494,7 @@ def residue_log_mv_value_box(
                     base_delta_A_slope=base_delta_A_slope,
                     base_delta_alpha_limit=base_delta_alpha_limit,
                     base_delta_alpha_slope=base_delta_alpha_slope,
+                    regularize_joint_limit_layer=regularize_joint_limit_layer,
                 )
             )
             eta_kernel_debug_terms.extend(
