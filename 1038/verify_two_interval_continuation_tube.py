@@ -170,6 +170,7 @@ def interval_boundary_exclusion(
     null_slope: float,
     eta_subdivisions: int,
     edge_subdivisions: int,
+    value_kernel: str,
 ) -> tuple[float, str]:
     """Check the interval precondition 0 notin K(boundary tube boxes)."""
 
@@ -218,16 +219,19 @@ def interval_boundary_exclusion(
             tau_slope,
             tau_intercept,
         )
-        U_alpha = arb(solver._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
-        H = arb(
-            solver._combined_contact_minus_one_potential_acb_from_arb(
-                arb_A,
-                arb_alpha,
-                arb_epsilon,
-                arb(repr(float(left_weight))),
-                192,
+        if value_kernel == "direct":
+            U_alpha = arb(solver._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+            H = arb(
+                solver._combined_contact_minus_one_potential_acb_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_epsilon,
+                    arb(repr(float(left_weight))),
+                    192,
+                )
             )
-        )
+        else:
+            v.fail(f"interval boundary exclusion {source}: unknown value kernel {value_kernel!r}")
         if not U_alpha.is_finite() or not H.is_finite():
             v.fail(f"interval boundary exclusion {source}: non-finite K value")
         K1 = U_alpha / arb_eta
@@ -292,6 +296,7 @@ def verify_tube(
     max_weighted_defect: float,
     boundary_degree_samples: tuple[int, int],
     interval_boundary_subdivisions: tuple[int, int],
+    interval_boundary_value_kernel: str,
 ) -> tuple[float, str, float, float, float, float, int, float, float, float, str]:
     from flint import arb
 
@@ -321,6 +326,7 @@ def verify_tube(
         null_slope,
         interval_boundary_subdivisions[0],
         interval_boundary_subdivisions[1],
+        interval_boundary_value_kernel,
     )
 
     eta_low = low_row.epsilon ** 0.5
@@ -476,6 +482,12 @@ def main() -> int:
         metavar="ETA,EDGE",
         help="Interval precondition check: subdivide the tube boundary and verify 0 is outside every K box.",
     )
+    parser.add_argument(
+        "--interval-boundary-value-kernel",
+        choices=["direct"],
+        default="direct",
+        help="Value kernel used by --interval-boundary-exclusion.",
+    )
     args = parser.parse_args()
 
     try:
@@ -509,6 +521,7 @@ def main() -> int:
                 args.max_weighted_defect,
                 args.sample_boundary_degree,
                 args.interval_boundary_exclusion,
+                args.interval_boundary_value_kernel,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
