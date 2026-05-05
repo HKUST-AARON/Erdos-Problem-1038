@@ -2705,6 +2705,27 @@ lemma componentBlock_integral_eq_mass_mul_normalized
   exact integral_finiteMeasure_eq_mass_mul_normalize
     (componentBlockFiniteMeasure C) f
 
+lemma componentBlock_integrable_of_normalized_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (f : ℝ → ℝ)
+    (hf :
+      Integrable f
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
+    Integrable f (componentBlock C) := by
+  have hmeasure :
+      componentBlock C =
+        ((componentBlockFiniteMeasure C).mass : ℝ≥0∞) •
+          ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+    calc
+      componentBlock C = (componentBlockFiniteMeasure C : Measure ℝ) := rfl
+      _ = ((componentBlockFiniteMeasure C).mass : ℝ≥0∞) •
+            ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+            conv_lhs =>
+              rw [(componentBlockFiniteMeasure C).self_eq_mass_smul_normalize]
+            rfl
+  rw [hmeasure]
+  exact hf.smul_measure (by simp)
+
 lemma componentBarycenter_eq_normalized_componentBlock_integral
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (hmass_pos : 0 < componentMass C) :
@@ -7583,8 +7604,6 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         ((realMeasure μ).restrict C.intervalᶜ) ∧
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentBlock C) ∧
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
@@ -7592,7 +7611,12 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
     C ?_
   intro x hx
   rcases hdata x hx with
-    ⟨houtside, hblock, hkernel_norm⟩
+    ⟨houtside, hkernel_norm⟩
+  have hblock :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentBlock C) :=
+    componentBlock_integrable_of_normalized_integrable C
+      (fun t : ℝ => Real.log (1 / |x - t|)) hkernel_norm
   refine ⟨houtside, hblock, componentBarycenterAtom_logKernel_integrable C x, ?_⟩
   exact componentBlock_logKernel_jensen_scaled_normalized
     C hmass_pos hx

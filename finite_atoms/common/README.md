@@ -112,6 +112,7 @@ componentBlockFiniteMeasure
 normalized_componentBlock_ae_mem_interval
 normalized_componentBlock_first_moment_integrable
 componentBlock_integral_eq_mass_mul_normalized
+componentBlock_integrable_of_normalized_integrable
 componentBarycenter_eq_normalized_componentBlock_integral
 componentBarycenterAtom_logKernel_integrable
 componentReplacement_potential_le_of_decomposition_and_block_jensen
@@ -176,6 +177,9 @@ hypotheses.
 The barycenter-atom log-kernel integrability is also internal: integration is
 against a finite scalar multiple of a Dirac measure, so the real-valued log
 kernel is integrable without an external assumption.
+The component-block log-kernel integrability is now derived from normalized
+component-block log-kernel integrability by the finite-measure normalization
+identity, so it no longer has to be supplied separately.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -192,9 +196,10 @@ The following review findings remain real Lean gaps, not solved claims:
    block, a.e. support transfer, integral scaling, barycenter identification,
    log-kernel specialization, scalar assembly, and canonical normalized-block
    Jensen bridge are formalized, and the normalized first-moment integrability
-   and barycenter-atom integrability are internal.  The remaining local
-   analytic task is to discharge the outside/component/normalized-block
-   log-kernel integrability hypotheses for an arbitrary strict outside point.
+   plus barycenter-atom/component-block integrability are internal.  The
+   remaining local analytic task is to discharge the outside and normalized
+   component-block log-kernel integrability hypotheses for an arbitrary strict
+   outside point.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
