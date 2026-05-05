@@ -35,6 +35,7 @@ verify_two_interval_small_eta_limit.py
 verify_two_interval_small_eta_remainder.py
 verify_corrected_center_tube.py
 verify_asymptotic_obligation.py
+diagnose_interval_remainder_components.py
 ```
 
 The folder keeps the route-specific solver/verifiers together so the forum
@@ -120,6 +121,19 @@ TWO-INTERVAL ASYMPTOTIC OBLIGATION:
 theorem_status=OPEN
 sampled_gate=PASS
 target_bound=7.000000e-03
+```
+
+Component blocker diagnostic:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_interval_remainder_components.py
+```
+
+Expected summary:
+
+```text
+TWO-INTERVAL INTERVAL REMAINDER COMPONENTS:
+FAIL-DIAGNOSTIC ... blocker=K1
 ```
 
 ## Caveat

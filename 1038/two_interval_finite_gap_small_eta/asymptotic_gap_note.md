@@ -188,3 +188,34 @@ The same behavior at 512-bit and 1024-bit precision indicates that this is not
 a simple precision knob issue.  The finite positive-eta residue-log expression
 has the wrong conditioning for the endpoint.  The proof must use the eta-zero
 normal form and certify the remainder analytically.
+
+## Component-Level Blocker
+
+Direct interval probing on the full endpoint eta range
+\([10^{-16},10^{-8}]\) shows that the second residual component is already
+reasonably controlled by the regularized joint limit-layer kernel, while the
+first component is not:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_interval_remainder_components.py
+```
+
+Observed representative output:
+
+```text
+top-mid:   K1=[+/- 5.26] K2=[-0.022 +/- 5.35e-4]
+right-mid: K1=[+/- 5.07] K2=[+/- 1.07e-4]
+TWO-INTERVAL INTERVAL REMAINDER COMPONENTS:
+FAIL-DIAGNOSTIC ... blocker=K1
+```
+
+So the remaining analytic kernel is more specific than "prove both
+components": the immediate blocker is a proof-grade eta-zero first-divided
+kernel for
+
+```text
+K1 = U(alpha) / eta.
+```
+
+The K2 branch already benefits from the combined residual-level cancellation;
+K1 needs the analogous endpoint-safe first-divided treatment.
