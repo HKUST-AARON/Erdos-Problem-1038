@@ -7588,6 +7588,43 @@ theorem componentBlock_logKernel_jensen_scaled_normalized
     simpa [hmass_eq] using hscale
 
 /--
+For a strict outside test point, the real logarithmic kernel is integrable
+against the canonical normalized component block.
+
+This is the compact-support side of the component-replacement analytic input:
+the normalized block is a probability measure supported a.e. in the compact
+closure `[C.left, C.right]`, while the singularity `t = x` lies strictly outside
+that compact interval.
+-/
+lemma normalized_componentBlock_logKernel_integrable_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (hmass_pos : 0 < componentMass C)
+    (hstrict : StrictOutsideComponent C x) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+  let ν : Measure ℝ :=
+    ((componentBlockFiniteMeasure C).normalize : Measure ℝ)
+  let K : Set ℝ := Icc C.left C.right
+  have hmemK : ∀ᵐ t : ℝ ∂ν, t ∈ K := by
+    filter_upwards [normalized_componentBlock_ae_mem_interval C hmass_pos] with t ht
+    rw [PositiveComponent.interval_eq, Set.mem_Ioo] at ht
+    exact ⟨le_of_lt ht.1, le_of_lt ht.2⟩
+  have hcont :
+      ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+    rcases hstrict with hxl | hrx
+    · exact (logKernel_continuousOn_Ici_right hxl).mono (by
+        intro t ht
+        exact ht.1)
+    · exact (logKernel_continuousOn_Iic_left hrx).mono (by
+        intro t ht
+        exact ht.2)
+  have hintOn :
+      IntegrableOn (fun t : ℝ => Real.log (1 / |x - t|)) K ν :=
+    hcont.integrableOn_compact isCompact_Icc
+  rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hmemK] at hintOn
+  exact hintOn
+
+/--
 Objective non-increase for component replacement using the canonical normalized
 component block.
 
@@ -7602,16 +7639,18 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
     (hmass_pos : 0 < componentMass C)
     (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((realMeasure μ).restrict C.intervalᶜ) ∧
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
+        ((realMeasure μ).restrict C.intervalᶜ)) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine componentReplacement_objective_le_of_strictOutside_logKernel_jensen
     C ?_
   intro x hx
-  rcases hdata x hx with
-    ⟨houtside, hkernel_norm⟩
+  have houtside := hdata x hx
+  have hkernel_norm :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) :=
+    normalized_componentBlock_logKernel_integrable_of_strictOutside
+      C hmass_pos hx
   have hblock :
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         (componentBlock C) :=
