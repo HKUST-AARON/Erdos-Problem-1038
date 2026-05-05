@@ -3531,27 +3531,30 @@ The solver now exposes this as an explicit experimental kernel:
 `verify_two_interval_continuation_tube.py` has the matching
 `--regularize-joint-limit-layer` switch.  This removes the debug-label
 post-processing from the diagnostic and makes the next kernel test reproducible.
-The result is mixed:
+The initial continuation test exposed an implementation bug: the regularized
+midpoint value in the residue-log-mv kernel was evaluated on the whole eta box
+instead of at the eta midpoint, so the midpoint K2 ball carried a spurious
+radius of about \(5.35\cdot10^{-3}\).  After changing that midpoint evaluation
+to a point Arb value, the regularized kernel passes the same finite tiny-slab
+winding checks:
 
 ```text
 small-eta remainder with --renormalize-limit-layer:
   ratio=2.393769e-02  PASS-DIAGNOSTIC
 
-tiny-slab continuation, original residue-log-mv kernel:
-  PASS on eta slice 0:1, min_origin=4.193370e-03
-
-tiny-slab continuation, regularized residue-log-mv kernel:
-  FAIL; top-edge box has origin_lb=4.644815e-03
-        but diag_radius=5.366787e-03
+regularized tiny-slab continuation, remote:
+  [1e-8,1e-6]  pass=4096/4096  fail=0
+                min_origin=0.004166323  max_angle=0.2085875
+  [1e-6,1e-5]  pass=1024/1024  fail=0
+                min_origin=0.004204536  max_angle=0.2066907
 ```
 
-So the regularized kernel fixes the sampled \(K_\eta-K_0\) comparison, but it
-is not yet a drop-in replacement for the continuation winding verifier.  The
-next proof task is to derive the regularized residual map with its own center
-curve and Arb mean-value derivative bounds, then prove that its zero set is
-equivalent to the original equations.  Without that equivalence lemma, the
-regularized kernel remains diagnostic evidence rather than closure of
-\(0<\varepsilon<10^{-8}\).
+So the regularized kernel now fixes the sampled \(K_\eta-K_0\) comparison and
+also behaves stably on the already-certified positive finite tiny slabs.  It is
+still not closure of \(0<\varepsilon<10^{-8}\): the missing theorem is the
+equivalence/regularity lemma saying that the regularized residual map has the
+same zero set as the original equations and admits uniform Arb remainder bounds
+as \(\eta\to0\).
 
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with

@@ -412,27 +412,43 @@ def residue_log_mv_value_box(
     base_delta_A_slope = arb(repr(float(null_slope * tau_slope + b_slope)))
     eta_kernel_debug_terms: list[tuple[str, str]] = []
     if regularize_joint_limit_layer:
+        arb_eta_mid = arb(repr(float(eta_mid)))
+        point_A, point_alpha, point_delta_A, point_delta_alpha = v.arb_affine_parameters(
+            solver,
+            arb,
+            arb_eta_mid,
+            u_mid,
+            u_mid,
+            tau_mid_offset,
+            tau_mid_offset,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
         K1_mid_raw = solver._potential_residue_log_value_divided_from_arb(
-            eta_midpoint_A,
-            eta_midpoint_alpha,
-            arb(repr(float(eta_mid))),
+            point_A,
+            point_alpha,
+            arb_eta_mid,
             arb(repr(float(limit_solution.A))),
             arb(repr(float(limit_solution.alpha))),
             "contact",
             192,
-            eta_midpoint_delta_A,
-            eta_midpoint_delta_alpha,
+            point_delta_A,
+            point_delta_alpha,
         )
         K2_mid_raw = solver._combined_residue_log_value_second_divided_from_arb(
-            eta_midpoint_A,
-            eta_midpoint_alpha,
-            arb(repr(float(eta_mid))),
+            point_A,
+            point_alpha,
+            arb_eta_mid,
             arb(repr(float(left_weight))),
             arb(repr(float(limit_solution.A))),
             arb(repr(float(limit_solution.alpha))),
             192,
-            eta_midpoint_delta_A,
-            eta_midpoint_delta_alpha,
+            point_delta_A,
+            point_delta_alpha,
             regularize_joint_limit_layer=True,
         )
         K_mid = [arb(K1_mid_raw), arb(K2_mid_raw)]
