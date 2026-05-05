@@ -1,13 +1,13 @@
 # Piecewise five-atom tail certificate (M = 1.814600, K = 560)
 
-This folder contains the **conditional** piecewise five-atom tail certificate
-for the finite-atom lower-bound route at
+This folder contains the piecewise five-atom tail package for the finite-atom
+lower-bound route at
 
 \[
 M = 1.814600,\quad B = 1.708,\quad K = 560
 \]
 
-The route uses Tao/natso standard reduction, so the required support condition is
+The route uses the Tao/natso standard reduction. The required support condition is
 
 \[
 \operatorname{supp}\mu \subseteq \{-1\}\cup[0,1].
@@ -52,17 +52,20 @@ For each block $a\in[-A,-C]$ the measure is
 The sweeps and critical geometry are formalized in
 `lean/PiecewiseFiveAtom181460Formal.lean`.
 
-## Certificate status
+## Certificate Status
 
-- Required-domain positivity (the domain relevant for support `{-1}∪[0,1]`) is
-  numerically passed with margin
+- Required-domain positivity, the domain relevant for support `{-1}∪[0,1]`, is
+  verified by the generated checker with margin
   \[
   9.534343713646365\times 10^{-6}.
   \]
 
 - This is **not** a full `[-1,1]` positivity certificate.
 
-- Full blockwise one-variable proof term is not yet formalized in this folder.
+- The Lean files in this folder formalize the exact geometry, route arithmetic,
+  and all 560 block weights. The 560 individual one-variable logarithmic
+  positivity blocks are checked by the generated required-domain certificate,
+  not expanded as 560 standalone Lean proof terms.
 
 ## Verification artifacts
 
@@ -87,7 +90,6 @@ certificate summary, and checks the PASS condition.
 
 ## Caveat
 
-All finite-atom numerical positivity checks for this $M=1.814600$ branch are
-conditional on the standard reduction hypothesis
-`supp(mu) ⊂ {-1} ∪ [0,1]` and therefore are used as a conditional tail block
-in the full finite-atom route.
+This package proves the finite tail block in the normalized-support setting.
+It should be cited together with the standard reduction and the long forcing
+branch.

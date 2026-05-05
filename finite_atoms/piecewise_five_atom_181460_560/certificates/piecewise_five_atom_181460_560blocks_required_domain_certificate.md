@@ -5,10 +5,9 @@ Using the 560-block piecewise five-atom tail package
 `piecewise_five_atom_181460_560blocks_margin_tuned_candidate.json`,
 the required-domain positivity certificate passes under the Tao/natso standard reduction.
 
-## Reduction assumption
+## Reduction Assumption
 
-
-a standard reduction to minimizers is assumed:
+A standard reduction to minimizers is assumed:
 
 \[
 \operatorname{supp}\mu \subseteq \{-1\}\cup[0,1].
@@ -42,7 +41,7 @@ An irrelevant-gap negative point exists (overcheck only), reported separately in
 ## Repro
 
 ```bash
-python3 verify_piecewise_tail_correct_domain.py piecewise_five_atom_181460_560blocks_margin_tuned_candidate.json --gap-scan
+python3 scripts/verify_piecewise_tail_correct_domain.py data/piecewise_five_atom_181460_560blocks_margin_tuned_candidate.json --gap-scan
 python3 scripts/generate_piecewise_560_181460_certificate.py > certificates/piecewise_five_atom_181460_560blocks_required_domain_certificate.json
 ```
 
@@ -54,5 +53,5 @@ bash scripts/verify_piecewise_181460_560_test.sh
 
 ## Caveat
 
-This is a conditional finite-atom tail certificate and is **not** a full 
+This is a normalized-support finite-atom tail certificate and is **not** a full
 `[-1,1]` positivity certificate.

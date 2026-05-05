@@ -16,9 +16,9 @@ $$
 \{x: U_\mu(x)>0\}.
 $$
 
-## Current lower-bound certificate
+## Current Finite-Atom Packages
 
-The repository currently records two finite-atom lower-bound routes:
+The repository currently records two finite-atom lower-bound packages:
 
 $$
 M=1.807100.
@@ -30,7 +30,7 @@ $$
 M=1.814600 \quad\text{(piecewise five-atom, 560 blocks, conditional domain check).}
 $$
 
-Each route has the same two-part structure:
+Each package has the same two-part structure:
 
 1. A two-parameter forcing branch that supplies the long interval part.
 2. A five-atom tail block that supplies the remaining length.
@@ -42,7 +42,7 @@ The exact closing arithmetic is checked in Lean:
 1.708 + (1.814600 - 1.708) = 1.814600
 ```
 
-The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are not duplicated as full measure-theoretic formalizations in this repository.
+The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are recorded as interfaces and local consequences here; they are not duplicated as a complete formalization of the original polynomial problem.
 
 The repository now includes the first formal layer of the standard reduction:
 the normalized-support consequence that forces the baseline interval
@@ -61,6 +61,25 @@ $$
 
 for each block parameter $a\in[-A,-C]$, which corresponds to the $y$-domains
 $[C-1,A-1]\cup[C,A+1]$ in the checker.
+
+The middle interval $[A-1,C]$ corresponds to $x\in(-1,0)$ and is not part of the normalized support. Some blocks are negative there; this is recorded by the diagnostic output and is not used by the finite-atom argument.
+
+## Verification Status
+
+The checked repository status is:
+
+```text
+1.807100:
+  Lean/Mathlib finite-atom tail certificate, route arithmetic, and forcing package checks.
+
+1.814600:
+  Lean/Mathlib exact geometry and route arithmetic.
+  Generated 560-block required-domain certificate with Python verification.
+  Required-domain worst margin: 9.534343713646365e-06.
+  Bad required-domain blocks: 0.
+```
+
+The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate and the 560 individual logarithmic positivity blocks are not yet expanded into 560 standalone Lean proof terms.
 
 ## Repository layout
 
@@ -146,10 +165,12 @@ It proves the pole-free positivity of the five-atom logarithmic potential by a r
 The 1.814600 branch contributes a generated required-domain certificate in
 `finite_atoms/piecewise_five_atom_181460_560/certificates`.
 
-## Check all finite-atom certificates
+## Check All Finite-Atom Files
 
 The repository does not vendor Mathlib. Use any local Lean/Mathlib workspace and pass it through `MATHLIB_WORKSPACE`:
 
 ```bash
 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
 ```
+
+This runs the Lean files and the generated 560-block required-domain checker.
