@@ -1581,3 +1581,54 @@ not another center, radius, or split heuristic.  It is the eta-continuum value
 kernel: either a true eta-divided residual value primitive for
 \(U(\alpha)/\eta\) and \(H/\eta^2\), or an interval bound for the eta variation
 in the sampled-Lipschitz boundary kernel.
+
+## R. Residue-Log Value Kernel Attempt
+
+The next implementation attacked the value kernel directly.  The useful
+identity is the normalized Cauchy-transform primitive
+
+```text
+U(x) = -log|x| - sum Res((F(z(w)) - 1/z(w)) z'(w)) log|w_x-rho|.
+```
+
+The extra residue at \(w=0\) is essential: it has residue \(2\).  Without this
+term the contact value appears correct, but the \(x=-1\) value is shifted by
+about \(2\log|w_{-1}|\).
+
+Two verifier kernels were added:
+
+```text
+--interval-boundary-value-kernel residue-log
+--interval-boundary-value-kernel residue-log-divided
+```
+
+The point-value regression on stored roots passes.  For example the divided
+kernel gives \(K_1,K_2\) at the stored rows at about \(10^{-12}\), matching the
+floating `rescaled_system` residual scale.
+
+However the interval boundary proof still does not close on the bottleneck
+slab.  The direct residue-log value kernel has correct point values but huge
+box dependency:
+
+```text
+slab=0.0002:0.0005, residue-log
+eta=64    K1=[+/- 0.383],   K2=[+/- 93.9]
+eta=4096  K1=[+/- 8.92e-3], K2=[+/- 2.15]
+```
+
+The first eta-divided version is point-correct but still too wide:
+
+```text
+slab=0.0002:0.0005, residue-log-divided
+eta=64    K1=[+/- 5.17e-2], K2=[+/- 12.6]
+eta=4096  K1=[+/- 3.13e-3], K2=[+/- 6.23e-1]
+eta=8192  K1=[+/- 2.75e-3], K2=[+/- 5.29e-1]
+```
+
+Pairing the ell/r sheets in the divided value expression preserved point
+correctness but did not improve the interval enclosure.  The obstruction has
+therefore moved one level deeper: the value primitive is now algebraically
+correct, but the proof-grade interval kernel still needs a tighter Taylor or
+affine-arithmetic representation of the residue-log terms.  The sampled
+Lipschitz kernel remains the best passing diagnostic; the residue-log divided
+kernel is the correct proof target but not yet a certificate.

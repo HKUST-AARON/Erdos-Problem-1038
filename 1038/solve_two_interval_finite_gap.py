@@ -1585,6 +1585,526 @@ def _combined_directional_derivative_residue_log_pair_divided_from_arb(
     return str(divided + limit_value / eta)
 
 
+def _potential_residue_log_value_from_arb(A, alpha, eta, x_kind: str, precision: int) -> str:
+    """Residue-log value primitive for the full potential.
+
+    This evaluates the normalized absolute potential using
+
+        U(x) = -log|x| - sum Res((F(z(w)) - 1/z(w)) z'(w)) log|w_x-rho|.
+
+    Unlike the atom-plus-density value kernels, this keeps the atom and
+    continuous contributions in one residue-log expression.  That is the value
+    level analogue of the derivative residue-log kernels above.
+    """
+
+    from flint import arb, ctx
+
+    ctx.prec = precision
+    epsilon = eta * eta
+    ell = arb(repr(X_LEFT)) + epsilon
+    r = arb(repr(X_RIGHT))
+    one = arb(1)
+    zero = arb(0)
+    beta = one - epsilon
+    center = (alpha + beta) / 2
+    scale = (beta - alpha) / 4
+
+    def log_abs(value):
+        return abs(value).log()
+
+    def preimage_pair(q):
+        y = (q - center) / scale
+        root = (y * y - 4).sqrt()
+        outer = (y - root) / 2
+        return (outer, 1 / outer)
+
+    def left_preimage(q):
+        return preimage_pair(q)[0]
+
+    def branch_value(rho):
+        return scale * (rho - 1 / rho)
+
+    if x_kind == "contact":
+        x = alpha
+        w_x = -one
+    elif x_kind == "minus_one":
+        x = -one
+        w_x = left_preimage(x)
+    else:
+        raise ValueError(f"unknown x_kind {x_kind!r}")
+
+    total = arb(0)
+    pole_data = (
+        (ell, (ell - r) * (ell - one)),
+        (r, (r - ell) * (r - one)),
+        (one, (one - ell) * (one - r)),
+    )
+    for q, q_derivative in pole_data:
+        for rho in preimage_pair(q):
+            residue = (q + A) * branch_value(rho) / q_derivative
+            total += residue * log_abs(w_x - rho)
+
+    # The -1/z normalization contributes residue -1 at both preimages of z=0.
+    for rho in preimage_pair(zero):
+        total -= log_abs(w_x - rho)
+
+    # The Joukowski coordinate contributes an additional residue at w=0.  This
+    # term vanishes at the contact point w=-1, but is essential on the left
+    # sheet, for example at x=-1.
+    total += 2 * log_abs(w_x)
+
+    return str(-log_abs(x) - total)
+
+
+def _rescaled_residue_log_values_from_arb(A, alpha, eta, left_weight, precision: int) -> tuple[str, str]:
+    """Return residue-log boxes for K1=U(alpha)/eta and K2=H/eta^2."""
+
+    from flint import arb
+
+    U_alpha = arb(_potential_residue_log_value_from_arb(A, alpha, eta, "contact", precision))
+    U_minus_one = arb(_potential_residue_log_value_from_arb(A, alpha, eta, "minus_one", precision))
+    H = left_weight * U_alpha + U_minus_one
+    return str(U_alpha / eta), str(H / (eta * eta))
+
+
+def _potential_residue_log_value_divided_from_arb(
+    A,
+    alpha,
+    eta,
+    limit_A,
+    limit_alpha,
+    x_kind: str,
+    precision: int,
+    base_delta_A=None,
+    base_delta_alpha=None,
+) -> str:
+    """First eta-divided residue-log value primitive.
+
+    Returns ``(U_eta(x_eta)-U_0(x_0))/eta`` with pole/preimage/log-ratio
+    differences paired before interval evaluation.
+    """
+
+    from flint import arb, ctx
+
+    ctx.prec = precision
+    one = arb(1)
+    zero = arb(0)
+    epsilon = eta * eta
+    ell = arb(repr(X_LEFT)) + epsilon
+    ell0 = arb(repr(X_LEFT))
+    r = arb(repr(X_RIGHT))
+    beta = one - epsilon
+    beta0 = one
+    center = (alpha + beta) / 2
+    scale = (beta - alpha) / 4
+    center0 = (limit_alpha + beta0) / 2
+    scale0 = (beta0 - limit_alpha) / 4
+    tau = base_delta_alpha if base_delta_alpha is not None else (alpha - limit_alpha) / eta
+    A_div = base_delta_A if base_delta_A is not None else (A - limit_A) / eta
+    center_div = (tau - eta) / 2
+    scale_div = -(tau + eta) / 4
+
+    def log_abs(value):
+        return abs(value).log()
+
+    def log_one_plus_over_z(z):
+        radius = float(abs(z).upper())
+        if radius >= 0.25:
+            return abs(one + z).log() / z
+        total = arb(0)
+        power = arb(1)
+        terms = 48
+        for index in range(terms):
+            if index:
+                power *= z
+            term = power / arb(index + 1)
+            total += -term if index % 2 else term
+        tail = radius**terms / ((terms + 1) * (1.0 - radius))
+        return total + arb(f"[+/- {tail!r}]")
+
+    def log_abs_ratio_divided(value, value0, value_div):
+        z = eta * value_div / value0
+        if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
+            return value_div / value0 * log_one_plus_over_z(z)
+        return log_abs(value / value0) / eta
+
+    def preimage_pair_divided(q, q0, q_div):
+        y = (q - center) / scale
+        y0 = (q0 - center0) / scale0
+        root = (y * y - 4).sqrt()
+        outer = (y - root) / 2
+        root0 = (y0 * y0 - 4).sqrt()
+        outer0 = (y0 - root0) / 2
+        inner = 1 / outer
+        inner0 = 1 / outer0
+        outer_div = (q_div - center_div - scale_div * (outer0 + 1 / outer0)) / (
+            scale * (1 - 1 / (outer * outer0))
+        )
+        inner_div = (q_div - center_div - scale_div * (inner0 + 1 / inner0)) / (
+            scale * (1 - 1 / (inner * inner0))
+        )
+        return ((outer, outer0, outer_div), (inner, inner0, inner_div))
+
+    def branch_value(rho, q_scale):
+        return q_scale * (rho - 1 / rho)
+
+    def branch_value_divided(rho, rho0, rho_div):
+        inverse_div = -rho_div / (rho * rho0)
+        return scale_div * (rho0 - 1 / rho0) + scale * (rho_div - inverse_div)
+
+    def quotient_divided(numerator, numerator0, numerator_div, denominator, denominator0, denominator_div):
+        return (numerator_div * denominator0 - numerator0 * denominator_div) / (denominator * denominator0)
+
+    def residue(q, q_derivative, rho, q_A, q_scale):
+        return (q + q_A) * branch_value(rho, q_scale) / q_derivative
+
+    def residue_divided(q, q0, q_div, q_derivative, q0_derivative, q_derivative_div, rho, rho0, rho_div):
+        numerator = (q + A) * branch_value(rho, scale)
+        numerator0 = (q0 + limit_A) * branch_value(rho0, scale0)
+        numerator_div = (q_div + A_div) * branch_value(rho0, scale0) + (q + A) * branch_value_divided(rho, rho0, rho_div)
+        return quotient_divided(numerator, numerator0, numerator_div, q_derivative, q0_derivative, q_derivative_div)
+
+    if x_kind == "contact":
+        x = alpha
+        x0 = limit_alpha
+        x_div = tau
+        w_x = -one
+        w_x0 = -one
+        w_x_div = zero
+    elif x_kind == "minus_one":
+        x = -one
+        x0 = -one
+        x_div = zero
+        w_x, w_x0, w_x_div = preimage_pair_divided(x, x0, x_div)[0]
+    else:
+        raise ValueError(f"unknown x_kind {x_kind!r}")
+
+    total = -log_abs_ratio_divided(x, x0, x_div)
+
+    ell_derivative = (ell - r) * (ell - one)
+    ell0_derivative = (ell0 - r) * (ell0 - one)
+    r_derivative = (r - ell) * (r - one)
+    r0_derivative = (r - ell0) * (r - one)
+    ell_q_div = eta
+    r_q_div = zero
+    ell_derivative_div = eta * (ell0 - one) + eta * (ell - r)
+    r_derivative_div = -eta * (r - one)
+
+    ell_preimages = preimage_pair_divided(ell, ell0, ell_q_div)
+    r_preimages = preimage_pair_divided(r, r, r_q_div)
+    for (rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div) in zip(ell_preimages, r_preimages):
+        a_ell = residue(ell, ell_derivative, rho_ell, A, scale)
+        a_r = residue(r, r_derivative, rho_r, A, scale)
+        a_ell_div = residue_divided(
+            ell,
+            ell0,
+            ell_q_div,
+            ell_derivative,
+            ell0_derivative,
+            ell_derivative_div,
+            rho_ell,
+            rho_ell0,
+            rho_ell_div,
+        )
+        a_r_div = residue_divided(
+            r,
+            r,
+            r_q_div,
+            r_derivative,
+            r0_derivative,
+            r_derivative_div,
+            rho_r,
+            rho_r0,
+            rho_r_div,
+        )
+        sum_residue = a_ell + a_r
+        sum_residue_div = a_ell_div + a_r_div
+        ratio = (w_x - rho_ell) / (w_x - rho_r)
+        ratio0 = (w_x0 - rho_ell0) / (w_x0 - rho_r0)
+        ratio_div = quotient_divided(
+            w_x - rho_ell,
+            w_x0 - rho_ell0,
+            w_x_div - rho_ell_div,
+            w_x - rho_r,
+            w_x0 - rho_r0,
+            w_x_div - rho_r_div,
+        )
+        base = w_x - rho_r
+        base0 = w_x0 - rho_r0
+        base_div = w_x_div - rho_r_div
+        total -= a_ell_div * log_abs(ratio0)
+        total -= a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)
+        total -= sum_residue_div * log_abs(base0)
+        total -= sum_residue * log_abs_ratio_divided(base, base0, base_div)
+
+    # The -1/z normalization poles at z=0 have constant residue -1.
+    for rho, rho0, rho_div in preimage_pair_divided(zero, zero, zero):
+        total += log_abs_ratio_divided(w_x - rho, w_x0 - rho0, w_x_div - rho_div)
+
+    # The coordinate pole at w=0 has residue 2.
+    total -= 2 * log_abs_ratio_divided(w_x, w_x0, w_x_div)
+
+    # Endpoint atom at z=1 is absent at eta=0; keep the two endpoint sheets
+    # paired before dividing by eta.
+    one_derivative = (one - ell) * (one - r)
+    sqrt_one_minus_alpha = (one - alpha).sqrt()
+    rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
+    rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
+    for rho in (rho_minus, rho_plus):
+        a = (one + A) * branch_value(rho, scale) / one_derivative
+        total -= (a / eta) * log_abs(w_x - rho)
+
+    return str(total)
+
+
+def _rescaled_residue_log_divided_values_from_arb(
+    A,
+    alpha,
+    eta,
+    left_weight,
+    limit_A,
+    limit_alpha,
+    precision: int,
+    base_delta_A=None,
+    base_delta_alpha=None,
+) -> tuple[str, str]:
+    """Return first-order divided K1 and provisional K2 boxes."""
+
+    from flint import arb
+
+    U_alpha_div = arb(
+        _potential_residue_log_value_divided_from_arb(
+            A,
+            alpha,
+            eta,
+            limit_A,
+            limit_alpha,
+            "contact",
+            precision,
+            base_delta_A,
+            base_delta_alpha,
+        )
+    )
+    K2 = _combined_residue_log_value_second_divided_from_arb(
+        A,
+        alpha,
+        eta,
+        left_weight,
+        limit_A,
+        limit_alpha,
+        precision,
+        base_delta_A,
+        base_delta_alpha,
+    )
+    return str(U_alpha_div), K2
+
+
+def _combined_residue_log_value_second_divided_from_arb(
+    A,
+    alpha,
+    eta,
+    left_weight,
+    limit_A,
+    limit_alpha,
+    precision: int,
+    base_delta_A=None,
+    base_delta_alpha=None,
+) -> str:
+    """Term-paired box for ``(left_weight*U(alpha)+U(-1))/eta^2``.
+
+    This is the second cancellation layer for the value kernel: the contact
+    and minus-one first divided contributions are combined term-by-term before
+    the final division by eta.
+    """
+
+    from flint import arb, ctx
+
+    ctx.prec = precision
+    one = arb(1)
+    zero = arb(0)
+    epsilon = eta * eta
+    ell = arb(repr(X_LEFT)) + epsilon
+    ell0 = arb(repr(X_LEFT))
+    r = arb(repr(X_RIGHT))
+    beta = one - epsilon
+    beta0 = one
+    center = (alpha + beta) / 2
+    scale = (beta - alpha) / 4
+    center0 = (limit_alpha + beta0) / 2
+    scale0 = (beta0 - limit_alpha) / 4
+    tau = base_delta_alpha if base_delta_alpha is not None else (alpha - limit_alpha) / eta
+    A_div = base_delta_A if base_delta_A is not None else (A - limit_A) / eta
+    center_div = (tau - eta) / 2
+    scale_div = -(tau + eta) / 4
+
+    def log_abs(value):
+        return abs(value).log()
+
+    def log_one_plus_over_z(z):
+        radius = float(abs(z).upper())
+        if radius >= 0.25:
+            return abs(one + z).log() / z
+        total = arb(0)
+        power = arb(1)
+        terms = 48
+        for index in range(terms):
+            if index:
+                power *= z
+            term = power / arb(index + 1)
+            total += -term if index % 2 else term
+        tail = radius**terms / ((terms + 1) * (1.0 - radius))
+        return total + arb(f"[+/- {tail!r}]")
+
+    def log_abs_ratio_divided(value, value0, value_div):
+        z = eta * value_div / value0
+        if float(abs(z).upper()) < 0.25 and float((one + z).lower()) > 0.0:
+            return value_div / value0 * log_one_plus_over_z(z)
+        return log_abs(value / value0) / eta
+
+    def preimage_pair_divided(q, q0, q_div):
+        y = (q - center) / scale
+        y0 = (q0 - center0) / scale0
+        root = (y * y - 4).sqrt()
+        outer = (y - root) / 2
+        root0 = (y0 * y0 - 4).sqrt()
+        outer0 = (y0 - root0) / 2
+        inner = 1 / outer
+        inner0 = 1 / outer0
+        outer_div = (q_div - center_div - scale_div * (outer0 + 1 / outer0)) / (
+            scale * (1 - 1 / (outer * outer0))
+        )
+        inner_div = (q_div - center_div - scale_div * (inner0 + 1 / inner0)) / (
+            scale * (1 - 1 / (inner * inner0))
+        )
+        return ((outer, outer0, outer_div), (inner, inner0, inner_div))
+
+    def branch_value(rho, q_scale):
+        return q_scale * (rho - 1 / rho)
+
+    def branch_value_divided(rho, rho0, rho_div):
+        inverse_div = -rho_div / (rho * rho0)
+        return scale_div * (rho0 - 1 / rho0) + scale * (rho_div - inverse_div)
+
+    def quotient_divided(numerator, numerator0, numerator_div, denominator, denominator0, denominator_div):
+        return (numerator_div * denominator0 - numerator0 * denominator_div) / (denominator * denominator0)
+
+    def residue(q, q_derivative, rho, q_A, q_scale):
+        return (q + q_A) * branch_value(rho, q_scale) / q_derivative
+
+    def residue_divided(q, q0, q_div, q_derivative, q0_derivative, q_derivative_div, rho, rho0, rho_div):
+        numerator = (q + A) * branch_value(rho, scale)
+        numerator0 = (q0 + limit_A) * branch_value(rho0, scale0)
+        numerator_div = (q_div + A_div) * branch_value(rho0, scale0) + (q + A) * branch_value_divided(rho, rho0, rho_div)
+        return quotient_divided(numerator, numerator0, numerator_div, q_derivative, q0_derivative, q_derivative_div)
+
+    contact = {
+        "weight": left_weight,
+        "x": alpha,
+        "x0": limit_alpha,
+        "x_div": tau,
+        "w": -one,
+        "w0": -one,
+        "w_div": zero,
+    }
+    w_minus, w_minus0, w_minus_div = preimage_pair_divided(-one, -one, zero)[0]
+    minus_one = {
+        "weight": one,
+        "x": -one,
+        "x0": -one,
+        "x_div": zero,
+        "w": w_minus,
+        "w0": w_minus0,
+        "w_div": w_minus_div,
+    }
+    contexts = (contact, minus_one)
+
+    combined_first_divided = arb(0)
+    for item in contexts:
+        combined_first_divided -= item["weight"] * log_abs_ratio_divided(item["x"], item["x0"], item["x_div"])
+
+    ell_derivative = (ell - r) * (ell - one)
+    ell0_derivative = (ell0 - r) * (ell0 - one)
+    r_derivative = (r - ell) * (r - one)
+    r0_derivative = (r - ell0) * (r - one)
+    ell_q_div = eta
+    r_q_div = zero
+    ell_derivative_div = eta * (ell0 - one) + eta * (ell - r)
+    r_derivative_div = -eta * (r - one)
+
+    ell_preimages = preimage_pair_divided(ell, ell0, ell_q_div)
+    r_preimages = preimage_pair_divided(r, r, r_q_div)
+    for (rho_ell, rho_ell0, rho_ell_div), (rho_r, rho_r0, rho_r_div) in zip(ell_preimages, r_preimages):
+        a_ell = residue(ell, ell_derivative, rho_ell, A, scale)
+        a_r = residue(r, r_derivative, rho_r, A, scale)
+        a_ell_div = residue_divided(
+            ell,
+            ell0,
+            ell_q_div,
+            ell_derivative,
+            ell0_derivative,
+            ell_derivative_div,
+            rho_ell,
+            rho_ell0,
+            rho_ell_div,
+        )
+        a_r_div = residue_divided(
+            r,
+            r,
+            r_q_div,
+            r_derivative,
+            r0_derivative,
+            r_derivative_div,
+            rho_r,
+            rho_r0,
+            rho_r_div,
+        )
+        sum_residue = a_ell + a_r
+        sum_residue_div = a_ell_div + a_r_div
+        for item in contexts:
+            ratio = (item["w"] - rho_ell) / (item["w"] - rho_r)
+            ratio0 = (item["w0"] - rho_ell0) / (item["w0"] - rho_r0)
+            ratio_div = quotient_divided(
+                item["w"] - rho_ell,
+                item["w0"] - rho_ell0,
+                item["w_div"] - rho_ell_div,
+                item["w"] - rho_r,
+                item["w0"] - rho_r0,
+                item["w_div"] - rho_r_div,
+            )
+            base = item["w"] - rho_r
+            base0 = item["w0"] - rho_r0
+            base_div = item["w_div"] - rho_r_div
+            item_term = (
+                -a_ell_div * log_abs(ratio0)
+                - a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)
+                - sum_residue_div * log_abs(base0)
+                - sum_residue * log_abs_ratio_divided(base, base0, base_div)
+            )
+            combined_first_divided += item["weight"] * item_term
+
+    for rho, rho0, rho_div in preimage_pair_divided(zero, zero, zero):
+        for item in contexts:
+            combined_first_divided += item["weight"] * log_abs_ratio_divided(
+                item["w"] - rho,
+                item["w0"] - rho0,
+                item["w_div"] - rho_div,
+            )
+
+    for item in contexts:
+        combined_first_divided -= 2 * item["weight"] * log_abs_ratio_divided(item["w"], item["w0"], item["w_div"])
+
+    one_derivative = (one - ell) * (one - r)
+    sqrt_one_minus_alpha = (one - alpha).sqrt()
+    rho_minus = (sqrt_one_minus_alpha - eta) / (sqrt_one_minus_alpha + eta)
+    rho_plus = (sqrt_one_minus_alpha + eta) / (sqrt_one_minus_alpha - eta)
+    for rho in (rho_minus, rho_plus):
+        a = (one + A) * branch_value(rho, scale) / one_derivative
+        for item in contexts:
+            combined_first_divided -= item["weight"] * (a / eta) * log_abs(item["w"] - rho)
+
+    return str(combined_first_divided / eta)
+
+
 def contact_derivative_box_acb(
     A_low: float,
     A_high: float,

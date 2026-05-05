@@ -341,6 +341,30 @@ def interval_boundary_exclusion(
                 tau_low,
                 tau_high,
             )
+        elif value_kernel == "residue-log":
+            K1_raw, K2_raw = solver._rescaled_residue_log_values_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(left_weight))),
+                192,
+            )
+            K1 = arb(K1_raw)
+            K2 = arb(K2_raw)
+        elif value_kernel == "residue-log-divided":
+            K1_raw, K2_raw = solver._rescaled_residue_log_divided_values_from_arb(
+                arb_A,
+                arb_alpha,
+                arb_eta,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit_solution.A))),
+                arb(repr(float(limit_solution.alpha))),
+                192,
+                _base_delta_A,
+                _base_delta_alpha,
+            )
+            K1 = arb(K1_raw)
+            K2 = arb(K2_raw)
         else:
             v.fail(f"interval boundary exclusion {source}: unknown value kernel {value_kernel!r}")
         if not K1.is_finite() or not K2.is_finite():
@@ -593,7 +617,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--interval-boundary-value-kernel",
-        choices=["direct", "sampled-lipschitz"],
+        choices=["direct", "sampled-lipschitz", "residue-log", "residue-log-divided"],
         default="direct",
         help="Value kernel used by --interval-boundary-exclusion.",
     )
