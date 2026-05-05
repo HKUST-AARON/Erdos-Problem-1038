@@ -1609,6 +1609,71 @@ triples in \(J\).
 This finite determinant sign lemma is the current final compact-case
 obstruction.
 
+### E23. Correction to the naive determinant
+
+The direct three-kernel system
+
+\[
+1,\qquad \frac1{x-c},\qquad \int_u^v\frac{ds}{x-s}
+\]
+
+is not automatically Chebyshev, because the integral crosses \(s=c\).  For
+ordered \(x_1<x_2<x_3\) outside \([u,v]\),
+
+\[
+\det
+\begin{pmatrix}
+1 & (x_1-c)^{-1} & L(x_1)\\
+1 & (x_2-c)^{-1} & L(x_2)\\
+1 & (x_3-c)^{-1} & L(x_3)
+\end{pmatrix}
+=
+\frac{
+\prod_{i<j}(x_j-x_i)
+}{
+\prod_i(x_i-c)
+}
+\int_u^v
+\frac{c-s}{\prod_i(x_i-s)}\,ds.
+\]
+
+The factor \(c-s\) changes sign.  Thus interval separation alone does not
+prove the determinant sign; the compact proof must use the stationarity
+equation as well.
+
+### E24. Split-log repair
+
+Split
+
+\[
+L_-(x)=\int_u^c\frac{ds}{x-s},\qquad
+L_+(x)=\int_c^v\frac{ds}{x-s}.
+\]
+
+Each one-sided kernel is a positive Cauchy average, so total positivity applies
+separately to
+
+\[
+1,\quad (x-c)^{-1},\quad L_-
+\]
+
+and
+
+\[
+1,\quad (x-c)^{-1},\quad L_+.
+\]
+
+The original endpoint condition uses \(L=L_-+L_+\), while the escaping
+stationarity equation couples the two sides with the positive lengths
+\[
+a=c-u,\qquad b=v-c.
+\]
+
+The corrected final compact lemma is therefore a split Chebyshev statement:
+the four kernels \(1,(x-c)^{-1},L_-,L_+\) are sign-regular, and the
+stationarity-coupled signed combination cannot avoid a sign change on the real
+ovals.  This replaces the naive three-kernel determinant claim.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

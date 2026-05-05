@@ -5281,6 +5281,137 @@ determinants of the three kernels have fixed sign on every ordered triple of
 points in \(J\).  Once this determinant sign is established, the compact
 non-pinched \(g=2\) chamber is empty below \(M_*\).
 
+### 16.25 Correction: the naive three-kernel determinant is not automatic
+
+The previous paragraph identifies the right local object, but one must not
+silently assume that the three kernels
+
+\[
+1,\qquad \frac1{x-c},\qquad \int_u^v\frac{ds}{x-s}
+\]
+
+are automatically a strict Chebyshev system.  The reason is that the
+integration interval \([u,v]\) contains the pole parameter \(c\).  This creates
+a signed cancellation that is invisible if one only quotes the Cauchy
+determinant formula.
+
+For ordered points
+
+\[
+x_1<x_2<x_3
+\]
+
+outside \([u,v]\), put
+
+\[
+L(x)=\int_u^v\frac{ds}{x-s}.
+\]
+
+Then
+
+\[
+\Delta(x_1,x_2,x_3)
+=
+\det
+\begin{pmatrix}
+1 & (x_1-c)^{-1} & L(x_1)\\
+1 & (x_2-c)^{-1} & L(x_2)\\
+1 & (x_3-c)^{-1} & L(x_3)
+\end{pmatrix}
+\]
+
+satisfies the exact identity
+
+\[
+\boxed{
+\Delta
+=
+\frac{
+(x_2-x_1)(x_3-x_1)(x_3-x_2)
+}{
+\prod_{i=1}^3(x_i-c)
+}
+\int_u^v
+\frac{c-s}{\prod_{i=1}^3(x_i-s)}\,ds.
+}
+\]
+
+The factor \(c-s\) changes sign at \(s=c\).  Hence the determinant sign is
+not controlled by interval separation alone.  A small numerical stress test
+with arbitrary separated \(u<c<v\) and \(x_i\notin[u,v]\) shows both signs
+can occur.  This is not a failure of the global route; it says the compact
+case needs the stationarity equation, not just raw Cauchy total positivity.
+
+The correct lesson is:
+
+\[
+\boxed{
+\text{the compact Chebyshev lemma must use the split at }c
+\text{ and the escaping-component stationarity.}
+}
+\]
+
+### 16.26 Split-log repair
+
+Define the two one-sided logarithmic kernels
+
+\[
+L_-(x)=\int_u^c\frac{ds}{x-s},\qquad
+L_+(x)=\int_c^v\frac{ds}{x-s}.
+\]
+
+Each is a positive average of Cauchy kernels over an interval that does not
+cross \(c\).  Therefore the Cauchy determinant identity applies separately to
+\[
+1,\quad \frac1{x-c},\quad L_-(x)
+\]
+
+and to
+
+\[
+1,\quad \frac1{x-c},\quad L_+(x),
+\]
+
+with fixed sign on every compact chamber where the cuts are separated from
+\([u,v]\).
+
+The original endpoint logarithmic condition uses
+
+\[
+L=L_-+L_+.
+\]
+
+The missing information is exactly the stationarity/rational-balance
+condition, which distinguishes the two sides of \(c\):
+
+\[
+(c-u)W'(u)+(v-c)W'(v)=0.
+\]
+
+Equivalently, in the cleared adjoint problem, the \(L_-\) and \(L_+\) moments
+are not arbitrary; their coefficients are coupled by the positive lengths
+
+\[
+a=c-u,\qquad b=v-c.
+\]
+
+Thus the corrected compact lemma is not a naive three-kernel determinant
+lemma.  It is a split Chebyshev statement:
+
+\[
+\boxed{
+\text{the four kernels }1,\ (x-c)^{-1},\ L_-,\ L_+
+\text{ form a sign-regular system, and the stationarity relation forbids
+the only signed combination that could avoid real-oval sign changes.}
+}
+\]
+
+This is now the precise next proof target.  It is stronger than the earlier
+three-kernel claim and uses the actual variational equation of the escaping
+component.  The next calculation should write the stationarity-coupled
+determinant as a positive combination of the two one-sided Cauchy determinants
+above.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
