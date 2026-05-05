@@ -110,6 +110,7 @@ finiteMeasure_normalize_ae_of_ae
 integral_finiteMeasure_eq_mass_mul_normalize
 componentBlockFiniteMeasure
 normalized_componentBlock_ae_mem_interval
+normalized_componentBlock_first_moment_integrable
 componentBlock_integral_eq_mass_mul_normalized
 componentBarycenter_eq_normalized_componentBlock_integral
 componentReplacement_potential_le_of_decomposition_and_block_jensen
@@ -167,6 +168,10 @@ The objective non-increase theorem has also been lifted to this canonical
 normalized block interface: after the caller supplies only the log-kernel and
 first-moment integrability inputs, Lean produces the Jensen comparison and
 then the component-replacement objective inequality.
+The first-moment input is now discharged internally: because the normalized
+component block is supported in the bounded interval `(C.left, C.right)`, Lean
+proves `Integrable (fun t => t)` for it and removes this from the external
+hypotheses.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -182,9 +187,9 @@ The following review findings remain real Lean gaps, not solved claims:
    log-kernel integrability data as assumptions.  The normalized probability
    block, a.e. support transfer, integral scaling, barycenter identification,
    log-kernel specialization, scalar assembly, and canonical normalized-block
-   Jensen bridge are formalized; the remaining local analytic task is to
-   discharge the required log-kernel integrability hypotheses for an arbitrary
-   strict outside point.
+   Jensen bridge are formalized, and the normalized first-moment integrability
+   is internal.  The remaining local analytic task is to discharge the required
+   log-kernel integrability hypotheses for an arbitrary strict outside point.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,

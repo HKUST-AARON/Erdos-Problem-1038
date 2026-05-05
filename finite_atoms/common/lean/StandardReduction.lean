@@ -2670,6 +2670,32 @@ lemma normalized_componentBlock_ae_mem_interval
     (componentBlockFiniteMeasure_ne_zero_of_mass_pos C hmass_pos)
     (componentBlock_ae_mem_interval C)
 
+lemma normalized_componentBlock_first_moment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    Integrable (fun t : ℝ => t)
+      ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+  refine ⟨aestronglyMeasurable_id, ?_⟩
+  refine HasFiniteIntegral.of_bounded
+    (C := max |C.left| |C.right|) ?_
+  filter_upwards [normalized_componentBlock_ae_mem_interval C hmass_pos] with t ht
+  rw [PositiveComponent.interval_eq, Set.mem_Ioo] at ht
+  have hleft_abs : |C.left| ≤ max |C.left| |C.right| := le_max_left _ _
+  have hright_abs : |C.right| ≤ max |C.left| |C.right| := le_max_right _ _
+  have ht_abs_left : |t| ≤ max |C.left| |C.right| := by
+    by_cases ht_nonneg : 0 ≤ t
+    · rw [abs_of_nonneg ht_nonneg]
+      have ht_le_right : t ≤ C.right := le_of_lt ht.2
+      have hright_le_abs : C.right ≤ |C.right| := le_abs_self C.right
+      exact le_trans ht_le_right (le_trans hright_le_abs hright_abs)
+    · have ht_nonpos : t ≤ 0 := le_of_not_ge ht_nonneg
+      rw [abs_of_nonpos ht_nonpos]
+      have hleft_le_t : C.left ≤ t := le_of_lt ht.1
+      have hneg_t_le : -t ≤ -C.left := neg_le_neg hleft_le_t
+      have hneg_left_le_abs : -C.left ≤ |C.left| := neg_le_abs C.left
+      exact le_trans hneg_t_le (le_trans hneg_left_le_abs hleft_abs)
+  simpa using ht_abs_left
+
 lemma componentBlock_integral_eq_mass_mul_normalized
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (f : ℝ → ℝ) :
@@ -7537,8 +7563,8 @@ component block.
 Compared with `componentReplacement_objective_le_of_strictOutside_logKernel_jensen`,
 this theorem no longer asks the caller to provide the Jensen comparison.  The
 comparison is produced internally from the normalized component block; the
-remaining hypotheses are exactly the integrability inputs needed to make the
-logarithmic integrals well-defined.
+remaining hypotheses are exactly the log-kernel integrability inputs needed to
+make the logarithmic integrals well-defined.
 -/
 theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
@@ -7550,8 +7576,6 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
         (componentBlock C) ∧
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         (componentMass C • Measure.dirac (componentBarycenter C)) ∧
-      Integrable (fun t : ℝ => t)
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) ∧
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
@@ -7560,10 +7584,12 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
     C ?_
   intro x hx
   rcases hdata x hx with
-    ⟨houtside, hblock, hatom, hfirst_norm, hkernel_norm⟩
+    ⟨houtside, hblock, hatom, hkernel_norm⟩
   refine ⟨houtside, hblock, hatom, ?_⟩
   exact componentBlock_logKernel_jensen_scaled_normalized
-    C hmass_pos hx hfirst_norm hkernel_norm
+    C hmass_pos hx
+    (normalized_componentBlock_first_moment_integrable C hmass_pos)
+    hkernel_norm
 
 /-!
 ## Finite variance drop under barycenter replacement
