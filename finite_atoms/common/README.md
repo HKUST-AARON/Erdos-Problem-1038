@@ -113,6 +113,7 @@ normalized_componentBlock_ae_mem_interval
 normalized_componentBlock_first_moment_integrable
 componentBlock_integral_eq_mass_mul_normalized
 componentBarycenter_eq_normalized_componentBlock_integral
+componentBarycenterAtom_logKernel_integrable
 componentReplacement_potential_le_of_decomposition_and_block_jensen
 componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 componentReplacement_objective_le_of_strictOutside_logKernel_jensen
@@ -172,6 +173,9 @@ The first-moment input is now discharged internally: because the normalized
 component block is supported in the bounded interval `(C.left, C.right)`, Lean
 proves `Integrable (fun t => t)` for it and removes this from the external
 hypotheses.
+The barycenter-atom log-kernel integrability is also internal: integration is
+against a finite scalar multiple of a Dirac measure, so the real-valued log
+kernel is integrable without an external assumption.
 
 The following review findings remain real Lean gaps, not solved claims:
 
@@ -188,7 +192,8 @@ The following review findings remain real Lean gaps, not solved claims:
    block, a.e. support transfer, integral scaling, barycenter identification,
    log-kernel specialization, scalar assembly, and canonical normalized-block
    Jensen bridge are formalized, and the normalized first-moment integrability
-   is internal.  The remaining local analytic task is to discharge the required
+   and barycenter-atom integrability are internal.  The remaining local
+   analytic task is to discharge the outside/component/normalized-block
    log-kernel integrability hypotheses for an arbitrary strict outside point.
 
 4. PositiveComponent is still supplied as structure; the extraction of the

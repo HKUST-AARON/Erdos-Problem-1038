@@ -2724,6 +2724,16 @@ lemma componentBarycenter_eq_normalized_componentBlock_integral
   rw [hscale, hmass_eq]
   field_simp [hmass_ne]
 
+lemma componentBarycenterAtom_logKernel_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (x : ℝ) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      (componentMass C • Measure.dirac (componentBarycenter C)) := by
+  exact (integrable_dirac
+    (a := componentBarycenter C)
+    (f := fun t : ℝ => Real.log (1 / |x - t|))
+    (by simp)).smul_measure (componentMass_ne_top C)
+
 lemma componentReplacementMeasure_def
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentReplacementMeasure C =
@@ -7575,8 +7585,6 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         (componentBlock C) ∧
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentMass C • Measure.dirac (componentBarycenter C)) ∧
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
@@ -7584,8 +7592,8 @@ theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integ
     C ?_
   intro x hx
   rcases hdata x hx with
-    ⟨houtside, hblock, hatom, hkernel_norm⟩
-  refine ⟨houtside, hblock, hatom, ?_⟩
+    ⟨houtside, hblock, hkernel_norm⟩
+  refine ⟨houtside, hblock, componentBarycenterAtom_logKernel_integrable C x, ?_⟩
   exact componentBlock_logKernel_jensen_scaled_normalized
     C hmass_pos hx
     (normalized_componentBlock_first_moment_integrable C hmass_pos)
