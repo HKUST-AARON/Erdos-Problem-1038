@@ -2592,6 +2592,112 @@ lemma componentMass_ne_top
   haveI : IsFiniteMeasure (realMeasure μ) := by infer_instance
   exact ne_of_lt (measure_lt_top (realMeasure μ) C.interval)
 
+/--
+Almost-everywhere facts pass from a nonzero finite measure to its normalized
+probability measure.
+-/
+lemma finiteMeasure_normalize_ae_of_ae
+    {p : ℝ → Prop} (ν : FiniteMeasure ℝ) (hν : ν ≠ 0)
+    (hp : ∀ᵐ t : ℝ ∂(ν : Measure ℝ), p t) :
+    ∀ᵐ t : ℝ ∂(ν.normalize : Measure ℝ), p t := by
+  rw [ν.toMeasure_normalize_eq_of_nonzero hν]
+  have hmass_ne : ((ν.mass)⁻¹ : NNReal) ≠ 0 := by
+    exact inv_ne_zero (ν.mass_nonzero_iff.mpr hν)
+  exact (Measure.ae_smul_measure_iff hmass_ne).2 hp
+
+/--
+Integral scaling for a nonzero finite measure and its normalized probability
+measure.
+-/
+lemma integral_finiteMeasure_eq_mass_mul_normalize
+    (ν : FiniteMeasure ℝ) (f : ℝ → ℝ) :
+    (∫ t : ℝ, f t ∂(ν : Measure ℝ)) =
+      (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ) := by
+  calc
+    (∫ t : ℝ, f t ∂(ν : Measure ℝ))
+        = ∫ t : ℝ, f t ∂((ν.mass : ℝ≥0∞) •
+            (ν.normalize : Measure ℝ)) := by
+            conv_lhs => rw [ν.self_eq_mass_smul_normalize]
+            rfl
+    _ = (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ) := by
+          rw [integral_smul_measure]
+          change ((ν.mass : ℝ≥0∞).toReal *
+              ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ)) =
+            (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ)
+          rw [ENNReal.coe_toReal]
+
+/-- The component block as a finite measure. -/
+def componentBlockFiniteMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    FiniteMeasure ℝ :=
+  ⟨componentBlock C, ⟨by
+    rw [componentBlock_univ C]
+    exact lt_top_iff_ne_top.mpr (componentMass_ne_top C)⟩⟩
+
+lemma componentBlockFiniteMeasure_mass
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    (componentBlockFiniteMeasure C).mass = (componentMass C).toNNReal := by
+  apply ENNReal.coe_injective
+  calc
+    ((componentBlockFiniteMeasure C).mass : ℝ≥0∞)
+        = componentBlock C Set.univ := by
+          rw [FiniteMeasure.ennreal_mass]
+          rfl
+    _ = componentMass C := componentBlock_univ C
+    _ = ((componentMass C).toNNReal : ℝ≥0∞) := by
+          exact (ENNReal.coe_toNNReal (componentMass_ne_top C)).symm
+
+lemma componentBlockFiniteMeasure_ne_zero_of_mass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    componentBlockFiniteMeasure C ≠ 0 := by
+  intro hzero
+  have hmass_zero : componentMass C = 0 := by
+    have h :
+        componentBlock C Set.univ = 0 := by
+      simpa [componentBlockFiniteMeasure] using
+        congrArg (fun ν : FiniteMeasure ℝ => (ν : Measure ℝ) Set.univ) hzero
+    simpa [componentBlock_univ C] using h
+  exact (ne_of_gt hmass_pos) hmass_zero
+
+lemma normalized_componentBlock_ae_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    ∀ᵐ t : ℝ ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ),
+      t ∈ C.interval := by
+  exact finiteMeasure_normalize_ae_of_ae
+    (componentBlockFiniteMeasure C)
+    (componentBlockFiniteMeasure_ne_zero_of_mass_pos C hmass_pos)
+    (componentBlock_ae_mem_interval C)
+
+lemma componentBlock_integral_eq_mass_mul_normalized
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (f : ℝ → ℝ) :
+    (∫ t : ℝ, f t ∂componentBlock C) =
+      ((componentBlockFiniteMeasure C).mass : ℝ) *
+        ∫ t : ℝ, f t ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+  exact integral_finiteMeasure_eq_mass_mul_normalize
+    (componentBlockFiniteMeasure C) f
+
+lemma componentBarycenter_eq_normalized_componentBlock_integral
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    componentBarycenter C =
+      ∫ t : ℝ, t ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
+  unfold componentBarycenter
+  have hscale := componentBlock_integral_eq_mass_mul_normalized C
+    (fun t : ℝ => t)
+  have hmass_eq :
+      ((componentBlockFiniteMeasure C).mass : ℝ) =
+        (componentMass C).toReal := by
+    rw [componentBlockFiniteMeasure_mass C]
+    rfl
+  have hmass_ne : (componentMass C).toReal ≠ 0 := by
+    exact ENNReal.toReal_ne_zero.mpr
+      ⟨ne_of_gt hmass_pos, componentMass_ne_top C⟩
+  rw [hscale, hmass_eq]
+  field_simp [hmass_ne]
+
 lemma componentReplacementMeasure_def
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentReplacementMeasure C =

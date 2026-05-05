@@ -106,6 +106,12 @@ integral_realMeasure_eq_outside_add_componentBlock
 integral_componentReplacementMeasure_eq
 unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
 componentReplacementPotential_eq_outside_add_barycenter_logKernel
+finiteMeasure_normalize_ae_of_ae
+integral_finiteMeasure_eq_mass_mul_normalize
+componentBlockFiniteMeasure
+normalized_componentBlock_ae_mem_interval
+componentBlock_integral_eq_mass_mul_normalized
+componentBarycenter_eq_normalized_componentBlock_integral
 componentReplacement_potential_le_of_decomposition_and_block_jensen
 componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 componentReplacement_objective_le_of_strictOutside_logKernel_jensen
@@ -147,6 +153,12 @@ if a probability block represents the normalized component block, Lean scales
 the probability-block Jensen inequality by `componentMass C` and rewrites it
 as the component-block Jensen term required by the log-kernel bridge.
 
+The normalized probability block is now represented canonically by
+`(componentBlockFiniteMeasure C).normalize`.  Lean proves that a.e. support
+inside the component transfers to this normalized block, that integrals against
+`componentBlock C` scale by its finite mass, and that `componentBarycenter C`
+is the mean of the normalized component block whenever `componentMass C > 0`.
+
 The following review findings remain real Lean gaps, not solved claims:
 
 ```text
@@ -158,11 +170,11 @@ The following review findings remain real Lean gaps, not solved claims:
    has not yet been proved lower semicontinuous end-to-end.
 
 3. The component-replacement objective lemma still consumes the outside
-   log-kernel integrability and normalized-block identification data as
-   assumptions.  The measure-level integral decompositions, log-kernel
-   specialization, scalar assembly, and scaled probability-block Jensen bridge
-   are formalized, but deriving the normalized probability block automatically
-   from an arbitrary minimizer component is not yet closed.
+   log-kernel integrability data as assumptions.  The normalized probability
+   block, a.e. support transfer, integral scaling, barycenter identification,
+   log-kernel specialization, scalar assembly, and scaled Jensen bridge are
+   formalized; the remaining local analytic task is to discharge the required
+   log-kernel integrability hypotheses for an arbitrary strict outside point.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,
