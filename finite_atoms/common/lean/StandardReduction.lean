@@ -8176,6 +8176,19 @@ lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
   exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null C
     (hcount.measure_zero volume)
 
+/-- It is enough for the outside-restriction support to be contained in a
+countable set. This is the form needed when the component analysis supplies a
+countable atomic carrier rather than countability of the support as a named
+set. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {S : Set ℝ}
+    (hS_count : S.Countable)
+    (hsub : ((realMeasure μ).restrict C.intervalᶜ).support ⊆ S) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C
+    (hS_count.mono hsub)
+
 /-- Component replacement does not increase the objective if the outside
 restriction has null support. -/
 theorem componentReplacement_objective_le_of_outsideSupport_null
@@ -8201,6 +8214,21 @@ theorem componentReplacement_objective_le_of_outsideSupport_countable
   exact componentReplacement_objective_le_of_strictOutside_supportHit_null
     C hmass_pos
     (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C hcount)
+
+/-- Component replacement does not increase the objective if the outside
+restriction support is covered by a countable set. -/
+theorem componentReplacement_objective_le_of_outsideSupport_subset_countable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    {S : Set ℝ}
+    (hS_count : S.Countable)
+    (hsub : ((realMeasure μ).restrict C.intervalᶜ).support ⊆ S) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
+      C hS_count hsub)
 
 /-!
 ## Finite variance drop under barycenter replacement

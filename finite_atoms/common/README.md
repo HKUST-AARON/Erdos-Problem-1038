@@ -145,8 +145,10 @@ componentReplacement_objective_le_of_strictOutside_supportHit_null
 strictOutsideSupportHitSet_subset_outsideSupport
 strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
 strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
+strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
 componentReplacement_objective_le_of_outsideSupport_null
 componentReplacement_objective_le_of_outsideSupport_countable
+componentReplacement_objective_le_of_outsideSupport_subset_countable
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -219,6 +221,10 @@ There is also a distance-separated interface: if the outside restriction is
 a.e. at positive distance from the strict outside test point, Lean constructs
 the compact certificate internally from `[-1,1]` support and closes the same
 objective comparison.
+The singular support-hit branch has also been reduced to a zero-measure
+criterion: if the outside-restriction support is null, countable, or merely
+contained in a countable carrier, then component replacement does not increase
+the positive-set objective.
 The same interface is now available in a punctured-neighbourhood form: if the
 outside restriction gives zero mass to some open interval around each strict
 outside test point, Lean turns that into positive distance separation and closes
