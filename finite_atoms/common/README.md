@@ -109,6 +109,7 @@ componentReplacementPotential_eq_outside_add_barycenter_logKernel
 componentReplacement_potential_le_of_decomposition_and_block_jensen
 componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 componentReplacement_objective_le_of_strictOutside_logKernel_jensen
+componentBlock_logKernel_jensen_scaled_of_probability_block
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -141,6 +142,11 @@ The newest bridge specializes this assembly to the actual logarithmic kernel
 and the Jensen comparison for every strict outside point, Lean now derives the
 component-replacement objective non-increase directly.
 
+The Jensen side has also been connected to the unnormalized component block:
+if a probability block represents the normalized component block, Lean scales
+the probability-block Jensen inequality by `componentMass C` and rewrites it
+as the component-block Jensen term required by the log-kernel bridge.
+
 The following review findings remain real Lean gaps, not solved claims:
 
 ```text
@@ -152,10 +158,11 @@ The following review findings remain real Lean gaps, not solved claims:
    has not yet been proved lower semicontinuous end-to-end.
 
 3. The component-replacement objective lemma still consumes the outside
-   log-kernel integrability and Jensen-comparison data as assumptions.  The
-   measure-level integral decompositions, log-kernel specialization, and scalar
-   assembly are formalized, but deriving those analytic hypotheses
-   automatically from an arbitrary minimizer component is not yet closed.
+   log-kernel integrability and normalized-block identification data as
+   assumptions.  The measure-level integral decompositions, log-kernel
+   specialization, scalar assembly, and scaled probability-block Jensen bridge
+   are formalized, but deriving the normalized probability block automatically
+   from an arbitrary minimizer component is not yet closed.
 
 4. PositiveComponent is still supplied as structure; the extraction of the
    relevant component from a minimizer, with boundary and replacement legality,

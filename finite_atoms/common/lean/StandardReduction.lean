@@ -7336,6 +7336,57 @@ theorem measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
   · exact measure_barycenter_logKernel_replacement_le_of_mem_Ioo_left μ
       hrx hmem hfirst hkernel_int
 
+/--
+Scaled Jensen comparison for an actual component block represented by a
+probability block.
+
+The existing Jensen theorem is stated for probability measures.  In the
+component-replacement argument the component block has total mass
+`componentMass C`, so this lemma multiplies the probability-block Jensen
+inequality by that mass and rewrites it back to the unnormalized component
+block integral.
+-/
+theorem componentBlock_logKernel_jensen_scaled_of_probability_block
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
+    (block : Measure ℝ) [IsProbabilityMeasure block]
+    (hstrict : StrictOutsideComponent C x)
+    (hmem : ∀ᵐ t : ℝ ∂block, t ∈ Ioo C.left C.right)
+    (hfirst : Integrable (fun t : ℝ => t) block)
+    (hkernel_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) block)
+    (hbary :
+      componentBarycenter C = ∫ t : ℝ, t ∂block)
+    (hblock_kernel :
+      (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) =
+        (componentMass C).toReal *
+          ∫ t : ℝ, Real.log (1 / |x - t|) ∂block) :
+    (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  have hjensen :
+      Real.log (1 / |x - ∫ t : ℝ, t ∂block|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂block :=
+    measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
+      block hstrict hmem hfirst hkernel_int
+  have hmass_nonneg : 0 ≤ (componentMass C).toReal :=
+    ENNReal.toReal_nonneg
+  have hscaled :
+      (componentMass C).toReal *
+          Real.log (1 / |x - ∫ t : ℝ, t ∂block|) ≤
+        (componentMass C).toReal *
+          (∫ t : ℝ, Real.log (1 / |x - t|) ∂block) :=
+    mul_le_mul_of_nonneg_left hjensen hmass_nonneg
+  calc
+    (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|)
+        = (componentMass C).toReal *
+            Real.log (1 / |x - ∫ t : ℝ, t ∂block|) := by
+              rw [hbary]
+    _ ≤ (componentMass C).toReal *
+          (∫ t : ℝ, Real.log (1 / |x - t|) ∂block) := hscaled
+    _ = ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
+          hblock_kernel.symm
+
 /-!
 ## Finite variance drop under barycenter replacement
 
