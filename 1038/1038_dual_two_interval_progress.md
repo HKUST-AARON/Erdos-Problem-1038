@@ -3879,6 +3879,102 @@ the finite-gap dual density.}
 }
 \]
 
+### 16.9 Right-collar forcing from the rational balance
+
+The rational balance gives a first quantitative pinching statement.
+
+Let
+
+\[
+\ell=v-u,\qquad a=c-u,\qquad b=v-c,\qquad \ell=a+b,
+\]
+
+and for \(t>v\) set \(y=t-v\).  The right-side kernel is
+
+\[
+K_R(t)=\frac{t-c}{(u-t)(v-t)}
+=
+\frac{y+b}{y(y+\ell)}.
+\]
+
+As a function of \(y>0\),
+
+\[
+\frac{d}{dy}\frac{y+b}{y(y+\ell)}
+=
+-\frac{y^2+2by+b\ell}{y^2(y+\ell)^2}<0.
+\]
+
+Hence \(K_R\) is strictly decreasing as one moves to the right of \(v\).
+Fix a collar width \(\rho>0\).  If no compensating mass lies in
+
+\[
+(v,v+\rho),
+\]
+
+then the entire right side of the rational balance is bounded by
+
+\[
+\int_{t>v}K_R(t)\,d\mu(t)
+\le
+\mu((v+\rho,1])\frac{\rho+b}{\rho(\rho+\ell)}
+\le
+\frac12\frac{\rho+b}{\rho(\rho+\ell)},
+\]
+
+because the standard reduction gives \(\mu(\{-1\})\ge1/2\), hence the total
+mass to the right is at most \(1/2\).
+
+On the other hand, the atom at \(-1\) alone gives
+
+\[
+\int_{t<u}
+\frac{c-t}{(u-t)(v-t)}\,d\mu(t)
+\ge
+\frac12\frac{c+1}{(u+1)(v+1)}.
+\]
+
+Therefore an escaping component with no right-collar mass in \((v,v+\rho)\)
+must satisfy the necessary inequality
+
+\[
+\boxed{
+\frac{c+1}{(u+1)(v+1)}
+\le
+\frac{\rho+b}{\rho(\rho+\ell)}.
+}
+\]
+
+Equivalently, if
+
+\[
+\boxed{
+\frac{c+1}{(u+1)(v+1)}
+>
+\frac{\rho+b}{\rho(\rho+\ell)},
+}
+\]
+
+then some mass of \(\mu\) must lie inside the collar \((v,v+\rho)\).
+
+This is the first genuine pinching mechanism: every extra component either
+has a sufficiently close right neighbour, or the fixed \(-1\) mass cannot be
+balanced.  In a finite-gap extremal, a forced right neighbour is not harmless;
+it is exactly the configuration that should either merge into the next
+positive component or pinch a gap endpoint.  Thus the next mathematical
+target is a collar-to-pinch lemma:
+
+\[
+\boxed{
+\text{right-collar compensation under } |E|<M_* \text{ forces degeneration to
+the } g=1 \text{ branch, unless } |E|\ge M_*.
+}
+\]
+
+The remaining hard part is to prove that the logarithmic endpoint identity
+and the finite-gap positivity/interlacing conditions rule out a non-degenerate
+collar chain of such escaping components.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

@@ -949,6 +949,55 @@ right-side mass.  The next mathematical lemma is to prove that when
 logarithmic endpoint identity or the positivity/interlacing conditions of the
 finite-gap dual transform.
 
+### E7. Right-collar forcing
+
+Let
+
+\[
+\ell=v-u,\qquad b=v-c.
+\]
+
+For \(t>v\), write \(y=t-v\).  The right-side compensation kernel is
+
+\[
+K_R(t)=
+\frac{t-c}{(u-t)(v-t)}
+=
+\frac{y+b}{y(y+\ell)}.
+\]
+
+It is strictly decreasing in \(y>0\).  Therefore, if there is no right-side
+mass in the collar \((v,v+\rho)\), then
+
+\[
+\int_{t>v}K_R(t)\,d\mu(t)
+\le
+\frac12\frac{\rho+b}{\rho(\rho+\ell)}.
+\]
+
+But the fixed atom at \(-1\) forces the left side to be at least
+
+\[
+\frac12\frac{c+1}{(u+1)(v+1)}.
+\]
+
+Hence absence of right-collar mass implies
+
+\[
+\boxed{
+\frac{c+1}{(u+1)(v+1)}
+\le
+\frac{\rho+b}{\rho(\rho+\ell)}.
+}
+\]
+
+If this inequality fails, the escaping component forces mass in
+\((v,v+\rho)\).  This is the next pinching mechanism: a \(g=2\) escape must
+either be compensated very near its right endpoint or fail the rational
+balance.  The remaining mathematical step is to show that such forced
+near-endpoint compensation degenerates to the \(g=1\) branch, unless the total
+positive length has already reached \(M_*\).
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
