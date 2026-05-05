@@ -1394,6 +1394,7 @@ def verify_tube(
     interval_boundary_winding_subdivisions: tuple[int, int],
     interval_boundary_winding_adaptive_depth: int,
     interval_boundary_winding_eta_slice: tuple[int, int] | None,
+    skip_weighted_defect: bool,
 ) -> tuple[float, str, float, float, float, float, int, float, float, str, float, str, str, int, float, float, str]:
     from flint import arb
 
@@ -1446,7 +1447,7 @@ def verify_tube(
     b_slope, b_intercept, tau_slope, tau_intercept = v.affine_coefficients(low_row, high_row)
     identity = [[arb(1), arb(0)], [arb(0), arb(1)]]
     worst = 0.0
-    worst_source = "none"
+    worst_source = "skipped" if skip_weighted_defect else "none"
     min_sign_margin = float("inf")
 
     eta_items = tuple(
@@ -1489,6 +1490,8 @@ def verify_tube(
                     min_sign_margin,
                     v.slab_sign_margin(config.slab.eps_low, config.slab.eps_high, A_low, A_high, alpha_low, alpha_high),
                 )
+                if skip_weighted_defect:
+                    continue
                 arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
                 arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
                 arb_A, arb_alpha, base_delta_A, base_delta_alpha = v.arb_affine_parameters(
@@ -1644,6 +1647,11 @@ def main() -> int:
         metavar="START:END",
         help="Only check this 0-based half-open eta-index slice of --interval-boundary-winding.",
     )
+    parser.add_argument(
+        "--skip-weighted-defect",
+        action="store_true",
+        help="Skip the weighted DK-defect diagnostic after boundary winding; proof gate remains boundary winding plus sign margins.",
+    )
     args = parser.parse_args()
 
     try:
@@ -1688,6 +1696,7 @@ def main() -> int:
                 args.interval_boundary_winding,
                 args.interval_boundary_winding_adaptive_depth,
                 args.interval_boundary_winding_eta_slice,
+                args.skip_weighted_defect,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(

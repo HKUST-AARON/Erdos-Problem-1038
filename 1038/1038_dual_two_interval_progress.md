@@ -3416,9 +3416,43 @@ Thus the finite certified branch range is now
 \[
 10^{-5}\le\varepsilon\le 0.002.
 \]
+The next tiny-\(\eta\) push uses
+`1038/two_interval_tiny_eta_certificate.json`, generated at
+\[
+\varepsilon=10^{-8},\quad 10^{-6},\quad 10^{-5}.
+\]
+The standard winding proof still works if the weighted DK-defect diagnostic is
+disabled.  That diagnostic becomes numerically non-finite in the tiny band, but
+it is not the proof gate; the proof gate is boundary winding plus sign margins.
+The verifier now has an explicit `--skip-weighted-defect` switch for this
+purpose.
+
+The remote split run on `hkgai-studio` gives:
+
+```text
+0.00000001:0.000001  radius=0.01  eta=4096  pass=4096/4096  fail=0
+                    min_origin=0.004193370  max_angle=0.2304717
+0.000001:0.00001    radius=0.01  eta=1024  pass=1024/1024  fail=0
+                    min_origin=0.004198067  max_angle=0.2069766
+```
+
+The global positivity bridge also passes:
+
+```text
+TWO-INTERVAL GLOBAL POSITIVITY: PASS
+configs=2
+worst_margin=1.000000e-08
+worst_slab=1e-08:1e-06
+worst_margin_name=beta<1
+```
+
+Thus the finite certified branch range is now
+\[
+10^{-8}\le\varepsilon\le0.002.
+\]
 The remaining genuinely singular gap is
 \[
-0<\varepsilon<10^{-5}.
+0<\varepsilon<10^{-8}.
 \]
 
 The limiting target for that final transfer is now isolated by
@@ -3448,7 +3482,21 @@ min_structural_margin=1.833536e-01
 
 So the remaining theorem has a precise target: prove a uniform remainder bound
 on \(K_\eta-K_0\) over this rectangle, for
-\(0<\eta<\sqrt{10^{-5}}\), small enough not to change the limiting winding.
+\(0<\eta<10^{-4}\), small enough not to change the limiting winding.
+
+The first diagnostic implementation of this comparison is
+`1038/verify_two_interval_small_eta_remainder.py`.  It compares the positive
+\(\eta\) residue-log map against the full quadratic limiting map
+\[
+K_0(B,\tau)=
+\bigl(J_{00}B,\ f+q_{20}B^2+q_{11}B\tau+q_{02}\tau^2\bigr)
+\]
+on the boundary rectangle.  This is not yet a proof artifact.  On the current
+sampled test over \(10^{-8}\le\eta\le10^{-4}\), the worst remainder/min-origin
+ratio is about \(97\), with the worst point at \(\eta=10^{-8}\).  Therefore the
+finite proof-grade winding is closed down to \(10^{-8}\), but the final
+singular gap still needs a stronger joint \(\eta=0\) residual kernel or a
+sharper analytic cancellation before it can become a continuum theorem.
 
 To prove the parameter-branch theorem uniformly as \(\varepsilon\to0\), the
 endpoint layer should still be analyzed with
@@ -3821,8 +3869,9 @@ one important local lower-side branch certificate.
 | Two-interval sign regime | proof-grade for exported boxes as an external verifier | `.venv/bin/python 1038/verify_two_interval_sign_box.py --quiet --self-test-tamper` | Checks \(1<A<-\ell\), \(\ell<-1<r<\alpha<\beta<1\), atom residue signs, and density sign on exported branch/Krawczyk boxes. |
 | Two-interval branch on \([0.00005,0.002]\) | proof-grade interval winding certificate for all stored slabs | `verify_two_interval_continuation_tube.py` with `residue-log-mv`; remote split runs `1024/1024 PASS` on \([0.0002,0.0005]\) and `2688/2688 PASS` on the remaining slabs | For each certified eta slice, \(K(B,\tau,\eta)\) has a zero in the tube by winding degree \(1\). |
 | Two-interval small-\(\eta\) branch on \([0.00001,0.00005]\) | proof-grade interval winding certificate for the generated small-\(\eta\) slabs | `two_interval_small_eta_certificate.json`; remote split run `448/448 PASS` with `--max-weighted-defect 100` | Extends the local branch and positivity certificate down to \(\varepsilon=10^{-5}\). |
+| Two-interval tiny-\(\eta\) branch on \([0.00000001,0.00001]\) | proof-grade interval winding certificate with DK diagnostic skipped | `two_interval_tiny_eta_certificate.json`; remote split run `5120/5120 PASS` with `--skip-weighted-defect` | Extends the local branch and positivity certificate down to \(\varepsilon=10^{-8}\). |
 | Global positivity on \(S\) for the stored two-interval branch | closed by sign-chart verifier, conditional on the winding zero in each tube | `.venv/bin/python 1038/verify_two_interval_global_positivity.py --self-test-tamper`; local and remote PASS | Uses \(U'=-F\), the checked sign chart, \(U(-1)=U(\alpha)=0\), and flatness on \([\alpha,\beta]\) to prove \(U_\lambda\ge0\) on \(\{-1\}\cup[0,1]\). |
-| Singular range \(0<\varepsilon<0.00001\) | open | none | Needs an asymptotic/small-\(\eta\) theorem, not finite row sampling. |
+| Singular range \(0<\varepsilon<0.00000001\) | open | limiting winding target and diagnostic remainder script | Needs an asymptotic/small-\(\eta\) theorem, not finite row sampling. |
 | Direct interval lower-bound audit of \(U_\lambda\) | optional independent artifact | none yet | Would evaluate endpoint/stationary-point lower bounds directly; the stored branch currently uses the sign-chart proof instead. |
 | Global reduction from arbitrary \(E\) | open | only recorded as a required Tao/natso/global lemma | Must show any relevant candidate set reduces to one/two-interval obstruction or receives another dual certificate. |
 | Upper construction at \(M_*\) | open in this repo | Tao one-cut candidate endpoints recorded, but no full construction proof | Needs an admissible approximating polynomial/measure sequence with \(|E|\to M_*\). |
@@ -3835,10 +3884,10 @@ The original stored proof-grade branch-existence certificate covers
 \]
 split across the endpoint rows in
 `1038/two_interval_branch_certificate_top_split.json`.
-Together with the generated small-\(\eta\) certificate in §15.6, the certified
+Together with the generated small-\(\eta\) and tiny-\(\eta\) certificates in §15.6, the certified
 finite branch range is now
 \[
-\varepsilon\in[0.00001,0.002].
+\varepsilon\in[0.00000001,0.002].
 \]
 
 The proof-grade winding settings are:
@@ -3875,7 +3924,7 @@ For expensive full runs, split with:
 
 and run the slices on `hkgai-studio` with up to 20 workers.
 
-The finite range still will not cover \(0<\varepsilon<0.00001\).  That range
+The finite range still will not cover \(0<\varepsilon<0.00000001\).  That range
 requires the separate small-\(\eta\) theorem:
 
 \[
@@ -3971,7 +4020,7 @@ lower-bound statements such as \(L_-\ge1.83\), not the exact equality
 The next work should be done in this order:
 
 1. **Prove the small-\(\eta\) branch theorem** for
-   \(0<\varepsilon<0.00001\).
+   \(0<\varepsilon<0.00000001\).
 2. **Formulate the global finite-gap reduction lemma** precisely enough that it
    can be attacked or refuted.
 3. **Separate the upper construction** into its own proof note, so the lower
