@@ -192,6 +192,106 @@ def interval_boundary_exclusion(
             return 0.0
         return min(abs(lower), abs(upper))
 
+    def sampled_lipschitz_component(
+        eta_interval_low: float,
+        eta_interval_high: float,
+        u_low: float,
+        u_high: float,
+        tau_low: float,
+        tau_high: float,
+    ) -> tuple[Any, Any]:
+        eta_mid = (eta_interval_low + eta_interval_high) / 2.0
+        u_mid = (u_low + u_high) / 2.0
+        tau_mid = (tau_low + tau_high) / 2.0
+        center_B, center_tau = v.center_at(eta_mid, low_row, high_row)
+        K_mid = np.asarray(
+            solver.rescaled_system(
+                center_B + u_mid,
+                center_tau + tau_mid,
+                eta_mid,
+                limit_solution,
+                left_weight,
+                null_slope,
+            ),
+            dtype=float,
+        )
+        if not np.all(np.isfinite(K_mid)):
+            v.fail("sampled-lipschitz value kernel: non-finite midpoint K")
+        arb_eta = solver._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver._arb_interval_from_bounds(eta_interval_low * eta_interval_low, eta_interval_high * eta_interval_high)
+        arb_A, arb_alpha, base_delta_A, base_delta_alpha = v.arb_affine_parameters(
+            solver,
+            arb,
+            arb_eta,
+            u_low,
+            u_high,
+            tau_low,
+            tau_high,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        columns = []
+        for direction_A, direction_alpha in ((arb(1), arb(0)), (arb(repr(float(null_slope))), arb(1))):
+            dG1 = arb(
+                solver._contact_directional_derivative_acb_from_arb(
+                    arb_A, arb_alpha, arb_epsilon, direction_A, direction_alpha, 192
+                )
+            )
+            dH_over_eta = arb(
+                solver._combined_directional_derivative_residue_log_pair_divided_from_arb(
+                    arb_A,
+                    arb_alpha,
+                    arb_eta,
+                    direction_A,
+                    direction_alpha,
+                    arb(repr(float(left_weight))),
+                    arb(repr(float(limit_solution.A))),
+                    arb(repr(float(limit_solution.alpha))),
+                    192,
+                    base_delta_A,
+                    base_delta_alpha,
+                )
+            )
+            columns.append([dG1, dH_over_eta])
+        DK = [[columns[0][0], columns[1][0]], [columns[0][1], columns[1][1]]]
+        u_radius = max(abs(u_mid - u_low), abs(u_high - u_mid))
+        tau_radius = max(abs(tau_mid - tau_low), abs(tau_high - tau_mid))
+        # Eta variation is intentionally sampled; this is diagnostic only.
+        eta_radius = max(abs(eta_mid - eta_interval_low), abs(eta_interval_high - eta_mid))
+        eta_samples = []
+        if eta_radius > 0.0:
+            for eta_sample in (eta_interval_low, eta_interval_high):
+                sample_center_B, sample_center_tau = v.center_at(eta_sample, low_row, high_row)
+                eta_samples.append(
+                    np.asarray(
+                        solver.rescaled_system(
+                            sample_center_B + u_mid,
+                            sample_center_tau + tau_mid,
+                            eta_sample,
+                            limit_solution,
+                            left_weight,
+                            null_slope,
+                        ),
+                        dtype=float,
+                    )
+                )
+        eta_error = np.zeros(2)
+        if eta_samples:
+            eta_error = np.max(np.abs(np.asarray(eta_samples) - K_mid), axis=0)
+        values = []
+        for row_idx in range(2):
+            radius = (
+                v.arb_abs_upper("sampled-lipschitz DK", DK[row_idx][0]) * u_radius
+                + v.arb_abs_upper("sampled-lipschitz DK", DK[row_idx][1]) * tau_radius
+                + float(eta_error[row_idx])
+            )
+            values.append(arb(repr(float(K_mid[row_idx]))) + arb(f"[+/- {radius!r}]"))
+        return values[0], values[1]
+
     def check_box(
         eta_interval_low: float,
         eta_interval_high: float,
@@ -230,12 +330,21 @@ def interval_boundary_exclusion(
                     192,
                 )
             )
+            K1 = U_alpha / arb_eta
+            K2 = H / (arb_eta * arb_eta)
+        elif value_kernel == "sampled-lipschitz":
+            K1, K2 = sampled_lipschitz_component(
+                eta_interval_low,
+                eta_interval_high,
+                u_low,
+                u_high,
+                tau_low,
+                tau_high,
+            )
         else:
             v.fail(f"interval boundary exclusion {source}: unknown value kernel {value_kernel!r}")
-        if not U_alpha.is_finite() or not H.is_finite():
+        if not K1.is_finite() or not K2.is_finite():
             v.fail(f"interval boundary exclusion {source}: non-finite K value")
-        K1 = U_alpha / arb_eta
-        K2 = H / (arb_eta * arb_eta)
         sep = max(component_separation(K1), component_separation(K2))
         if sep <= 0.0:
             v.fail(f"interval boundary exclusion {source}: both K components contain 0; K1={K1}, K2={K2}")
@@ -484,7 +593,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--interval-boundary-value-kernel",
-        choices=["direct"],
+        choices=["direct", "sampled-lipschitz"],
         default="direct",
         help="Value kernel used by --interval-boundary-exclusion.",
     )

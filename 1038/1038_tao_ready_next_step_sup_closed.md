@@ -1535,3 +1535,49 @@ eta=2048, edge=32, direct value kernel
 
 So splitting helps the matrix part but does not remove the value-kernel
 obstruction.
+
+## Q. Sampled-Lipschitz Boundary Kernel Diagnostic
+
+To separate the boundary-degree geometry from the direct Arb cancellation
+failure, the verifier now has a diagnostic boundary value kernel:
+
+```text
+--interval-boundary-value-kernel sampled-lipschitz
+```
+
+This evaluates the already-rescaled floating \(K\) at the midpoint of each
+boundary box, then uses an Arb \(D_{(B,\tau)}K\) box to cover the \(B,\tau\)
+box width.  The eta variation is still sampled, so this is not a proof-grade
+continuum boundary certificate.  It is a diagnostic for whether the boundary
+degree route survives once the removable eta cancellation is not destroyed by
+direct value evaluation.
+
+On the bottleneck slab, this kernel changes the result from direct failure to
+boundary exclusion:
+
+```text
+slab=0.0002:0.0005, radius=2.9e-4
+eta=128, edge=16
+interval_boundary_sep=1.174005e-05
+```
+
+A remote 8-slab replay with `eta=64, edge=8` gave boundary exclusion on every
+stored slab:
+
+```text
+0.00005:0.0001   sep=1.152533e-04
+0.0001:0.0002    sep=1.044369e-04
+0.0002:0.0005    sep=1.140422e-05
+0.0005:0.001     sep=1.461786e-04
+0.001:0.00125    sep=6.990542e-05
+0.00125:0.0015   sep=7.332699e-05
+0.0015:0.00175   sep=7.570398e-05
+0.00175:0.002    sep=7.786631e-05
+```
+
+This confirms the current diagnosis.  The two-interval branch and boundary
+degree geometry are numerically coherent; the missing proof-grade component is
+not another center, radius, or split heuristic.  It is the eta-continuum value
+kernel: either a true eta-divided residual value primitive for
+\(U(\alpha)/\eta\) and \(H/\eta^2\), or an interval bound for the eta variation
+in the sampled-Lipschitz boundary kernel.
