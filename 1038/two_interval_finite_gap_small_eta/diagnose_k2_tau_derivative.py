@@ -39,6 +39,11 @@ def main() -> int:
         action="store_true",
         help="also enclose eta-uniform cell secant slopes with endpoint Arb eta variation",
     )
+    parser.add_argument(
+        "--taylor-lipschitz-diagnostic",
+        action="store_true",
+        help="combine eta-uniform cell secants with the candidate curvature allowance",
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -217,6 +222,21 @@ def main() -> int:
         )
         if secant_status != "PASS-DIAGNOSTIC":
             status = "FAIL-DIAGNOSTIC"
+        if args.taylor_lipschitz_diagnostic:
+            curvature_allowance = 0.5 * args.candidate_curvature * step
+            taylor_bound = worst_secant + curvature_allowance
+            taylor_status = "PASS-DIAGNOSTIC" if taylor_bound < args.candidate_lipschitz else "FAIL-DIAGNOSTIC"
+            print(
+                "TWO-INTERVAL K2 TAYLOR LIPSCHITZ: "
+                f"{taylor_status} grid={args.grid:d} step={step:.6e} "
+                f"worst_secant_bound={worst_secant:.6e} "
+                f"candidate_curvature={args.candidate_curvature:.6e} "
+                f"curvature_allowance={curvature_allowance:.6e} "
+                f"taylor_lipschitz_bound={taylor_bound:.6e} "
+                f"candidate_lipschitz={args.candidate_lipschitz:.6e}"
+            )
+            if taylor_status != "PASS-DIAGNOSTIC":
+                status = "FAIL-DIAGNOSTIC"
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 
