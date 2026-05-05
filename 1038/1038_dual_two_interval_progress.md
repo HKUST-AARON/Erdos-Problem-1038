@@ -7496,6 +7496,184 @@ two-dimensional adjoint-ratio argument cannot prove monotonicity; one must add
 the second-variation inequality as an independent condition rather than hoping
 it is hidden inside first-order stationarity.
 
+### 16.56 Curvature clamp as a second-variation discriminant
+
+The clamp in 16.55 is exactly the form of a \(2\times2\) second-variation
+condition.  This is the right mathematical interpretation.
+
+For the left oval, the inequality
+
+\[
+\Gamma d_-AB\le aB^2+Q_cA^2,\qquad A+B=d_-=c-u,
+\]
+
+is the positivity of the quadratic form
+
+\[
+\boxed{
+\mathcal Q_-(A,B)=aB^2-\Gamma d_-AB+Q_cA^2.
+}
+\]
+
+Since \(A,B\) are arbitrary positive endpoint barycentric coordinates on
+\((u,c)\), positivity for every interior point is equivalent to
+
+\[
+\boxed{
+Q_c\ge0,\qquad \Gamma^2d_-^2\le4aQ_c
+\quad\text{when }\Gamma>0.
+}
+\]
+
+This is just the non-positive discriminant condition for \(\mathcal Q_-\).
+Thus the left half of the curvature clamp is not an independent analytic
+estimate; it is the statement that the second variation is non-negative on the
+two-dimensional perturbation spanned by:
+
+1. moving the left endpoint mass/edge coordinate with weight \(B\);
+2. moving the central neck coordinate with weight \(A\).
+
+The right oval gives the analogous quadratic form
+
+\[
+\boxed{
+\mathcal Q_+(A,B)=bB^2+\Gamma d_+AB+Q_cA^2,
+\qquad d_+=v-c,
+}
+\]
+
+and positivity is equivalent to
+
+\[
+\boxed{
+Q_c\ge0,\qquad \Gamma^2d_+^2\le4bQ_c
+\quad\text{when }\Gamma<0.
+}
+\]
+
+Therefore the complete curvature clamp is precisely:
+
+\[
+\boxed{
+\mathcal Q_-\ge0\text{ on the left barycentric cone and }
+\mathcal Q_+\ge0\text{ on the right barycentric cone.}
+}
+\]
+
+This identifies the missing proof ingredient.  The compact branch must supply
+not merely first-order KKT stationarity, but the two scalar second-variation
+inequalities
+
+\[
+\Delta_-:=4aQ_c-\Gamma^2(c-u)^2\ge0
+\quad(\Gamma>0),
+\]
+
+and
+
+\[
+\Delta_+:=4bQ_c-\Gamma^2(v-c)^2\ge0
+\quad(\Gamma<0).
+\]
+
+If \(\Gamma\) has the opposite sign, the corresponding one-oval inequality is
+automatic and no discriminant condition is needed on that side.
+
+This is a useful correction to the previous plan.  The Wronskian route cannot
+be closed from first-order stationarity alone.  It should be closed by the
+standard extremal principle:
+
+\[
+\boxed{
+\text{compact finite-gap extremizers have non-negative second variation under
+endpoint/neck perturbations.}
+}
+\]
+
+The next exact task is to write those endpoint/neck perturbations in the
+Cauchy-transform variables and show that their Hessian entries are exactly
+\((a,Q_c,\Gamma d_-)\) and \((b,Q_c,-\Gamma d_+)\) up to a positive common
+normalisation.  Once that identification is made, the curvature clamp follows
+from positive semidefiniteness.
+
+### 16.57 Endpoint/neck Hessian block to prove
+
+The Hessian identification can be stated without choosing a numerical
+certificate.  Let \(\theta_-\) be the left endpoint-transfer coordinate and
+\(\zeta\) the neck coordinate at \(c\).  The correct local second-variation
+statement is:
+
+\[
+\boxed{
+\delta^2\mathcal L(\theta_-,\zeta)
+=
+\lambda_-
+\left(a\theta_-^2-\Gamma(c-u)\theta_-\zeta+Q_c\zeta^2\right),
+\qquad \lambda_->0.
+}
+\]
+
+Similarly, for the right endpoint-transfer coordinate \(\theta_+\),
+
+\[
+\boxed{
+\delta^2\mathcal L(\theta_+,\zeta)
+=
+\lambda_+
+\left(b\theta_+^2+\Gamma(v-c)\theta_+\zeta+Q_c\zeta^2\right),
+\qquad \lambda_+>0.
+}
+\]
+
+This is now the concrete theorem that should replace the vague phrase
+"second variation positivity."  The entries have a clear origin:
+
+1. \(a\) and \(b\) are the endpoint mass/edge coefficients.  They are positive
+   because the compact density has positive edge weight at the two moving
+   endpoint modes.
+2. \(Q_c\) is the Schur-complement curvature in the neck coordinate after
+   eliminating the local variables \((q,a,b,c)\).
+3. \(\Gamma(c-u)\) and \(-\Gamma(v-c)\) are the mixed endpoint-neck terms.  The
+   factors \(c-u\) and \(v-c\) come from converting the pointwise Cauchy kernel
+   difference
+   \[
+   \frac1{x-u}-\frac1{x-c}
+   \quad\text{or}\quad
+   \frac1{x-c}-\frac1{x-v}
+   \]
+   into barycentric endpoint coordinates.
+
+Once these two Hessian identities are proved, the proof of the logarithmic
+Wronskian sign is short:
+
+\[
+\delta^2\mathcal L\ge0
+\quad\Rightarrow\quad
+\mathcal Q_\pm\ge0
+\quad\Rightarrow\quad
+\text{curvature clamp}
+\quad\Rightarrow\quad
+C_\pm\text{ have the required oriented signs.}
+\]
+
+The remaining algebraic check is whether the Schur-complement coefficient
+called \(Q_c\) in the cokernel basis is exactly the neck Hessian coefficient,
+or differs by a positive normalising factor.  If it differs by a positive
+factor, all inequalities survive after rescaling.  If the factor changes sign,
+then the current gauge for \(F_c\) is oriented incorrectly and must be flipped.
+
+Thus the next hand calculation is:
+
+\[
+\boxed{
+\text{compute the Schur complement of the local KKT block in the neck
+coordinate and compare it with }Q_c.
+}
+\]
+
+No new entity is needed for this.  It is the same \(A\)-matrix from 16.50,
+viewed now as a Hessian block rather than as a cokernel block.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

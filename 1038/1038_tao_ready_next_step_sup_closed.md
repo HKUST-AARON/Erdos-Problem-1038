@@ -2434,6 +2434,48 @@ Q_c\ge0,\qquad
 If endpoint stationarity plus second variation imply this clamp, then the
 logarithmic part of the Wronskian has the required oriented sign.
 
+Equivalently, the clamp is a \(2\times2\) second-variation discriminant.  On
+the left oval it is the positivity of
+
+\[
+\mathcal Q_-(A,B)=aB^2-\Gamma(c-u)AB+Q_cA^2,
+\]
+
+and on the right oval it is the positivity of
+
+\[
+\mathcal Q_+(A,B)=bB^2+\Gamma(v-c)AB+Q_cA^2.
+\]
+
+Thus the missing mathematical step is now very specific: identify these two
+quadratic forms as the endpoint/neck Hessian blocks of the compact finite-gap
+extremal problem.  Positive semidefiniteness then gives the curvature clamp by
+the discriminant inequality.
+
+The precise theorem to prove next is:
+
+\[
+\delta^2\mathcal L(\theta_-,\zeta)
+=
+\lambda_-
+\left(a\theta_-^2-\Gamma(c-u)\theta_-\zeta+Q_c\zeta^2\right),
+\quad \lambda_->0,
+\]
+
+and
+
+\[
+\delta^2\mathcal L(\theta_+,\zeta)
+=
+\lambda_+
+\left(b\theta_+^2+\Gamma(v-c)\theta_+\zeta+Q_c\zeta^2\right),
+\quad \lambda_+>0.
+\]
+
+So the next calculation is to compare \(Q_c\) with the Schur-complement neck
+Hessian coefficient of the local KKT block.  If it agrees up to positive
+normalisation, the curvature clamp follows from second-variation positivity.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
