@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 : "${MATHLIB_WORKSPACE:?Set MATHLIB_WORKSPACE=/path/to/mathlib and retry.}"
 JOBS="${LEAN_JOBS:-6}"
-BUILD="${FORCING1836_BOX_BUILD:-/tmp/erdos1038_forcing1836_box_olean}"
+BUILD="${FORCING1708_STRONG_BOX_BUILD:-/tmp/erdos1038_forcing1708_strong_box_olean}"
 LEAN_DIR="$ROOT/lean"
 
 rm -rf "$BUILD"

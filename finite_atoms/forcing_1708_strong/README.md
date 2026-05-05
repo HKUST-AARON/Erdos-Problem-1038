@@ -1,4 +1,4 @@
-# Strong forcing branch certificate
+# Strong `(-1.708,0)` handoff certificate
 
 This folder records the stronger two-parameter forcing branch used by the
 `M = 1.814600` finite-atom route.
@@ -37,12 +37,16 @@ with worst certified lower bound
 0.00000276921093908335076907373670075951405896314059839585990514842973110247469531
 ```
 
-This is the forcing handoff needed for the 1.814600 route:
+This is a proof-internal handoff for the 1.814600 route:
 
 ```text
 if (-1.708,0) is not contained in the augmented positive set,
 then the forcing branch gives volume at least 1.836.
 ```
+
+The number `1.836` is not the claimed lower bound of this package. It is the
+stronger fallback bound used to rule out the bad case where the long interval
+`(-1.708,0)` is missing.
 
 ## Check command
 

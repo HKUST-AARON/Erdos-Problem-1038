@@ -2,10 +2,10 @@ import Forcing1708StrongFormal
 import Forcing1708StrongBoxData
 
 /-!
-# Aggregate entry point for the stronger `1.836` forcing certificate
+# Aggregate entry point for the strong `(-1.708,0)` handoff certificate
 
-This file collects the checked Lean layers currently available for the stronger
-forcing handoff used by the `M = 1.814600` finite-atom route:
+This file collects the checked Lean layers currently available for the strong
+`(-1.708,0)` handoff used by the `M = 1.814600` finite-atom route:
 
 * exact parameter-domain arithmetic for `a in [-1.708,-sqrt(2)]` and
   `b=s(1.836+a)`;
@@ -13,6 +13,9 @@ forcing handoff used by the `M = 1.814600` finite-atom route:
 
 The analytic interval-log verification is still checked by the fixed JSON
 certificate verifier in `scripts/verify_forcing_1708_strong_interval.py`.
+
+The `1.836` value is a proof-internal contradiction threshold, not the headline
+lower-bound claim of the package.
 -/
 
 namespace Erdos1038

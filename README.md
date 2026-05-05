@@ -75,7 +75,7 @@ The checked repository status is:
 1.814600:
   Lean/Mathlib exact geometry, block coverage, required-domain mapping,
   non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
-  Stronger two-parameter forcing interval certificate for the 1.836 handoff.
+  Strong two-parameter forcing certificate for the (-1.708,0) handoff.
   Lean rational recombination checks for all 5955 stronger forcing boxes.
   Generated 560-block required-domain certificate with Python verification.
   Strong forcing worst margin: 2.7692109390833507e-06.
@@ -104,14 +104,9 @@ The conservative two-parameter forcing branch. It supports the weaker
 finite_atoms/forcing_1708_strong/
 ```
 
-The stronger two-parameter forcing branch. It records the fixed interval
-certificate for
-
-$$
-a\in[-1.708,-\sqrt2],\qquad b=s(1.836+a),\qquad s\in[0,1],
-$$
-
-which is the handoff used by the 1.814600 route.
+The stronger two-parameter forcing branch for the `(-1.708,0)` handoff used by
+the 1.814600 route. The fixed interval certificate and the exact parameter
+range are recorded inside this folder.
 
 ```text
 finite_atoms/common/

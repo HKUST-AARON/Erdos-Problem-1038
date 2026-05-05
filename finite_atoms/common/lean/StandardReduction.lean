@@ -409,6 +409,26 @@ lemma endpoint_mass_ge_half_from_boundary_average {x p : ℝ}
   nlinarith
 
 /--
+Endpoint-mass algebra with the degenerate right-endpoint case separated.
+
+In the standard reduction, the boundary-average inequality proves the endpoint
+mass bound when the translated right endpoint `x` is strictly positive.  If
+`x = 0`, the mathematical proof first identifies the two-point degenerate case
+and, if necessary, reflects it; that separate argument is represented here by
+`hdegenerate`.  This lemma is the precise Lean bridge combining the two cases.
+-/
+lemma endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate {x p : ℝ}
+    (hx : 0 ≤ x)
+    (havg : 1 ≤ (x + 1) * p + (1 - x) * (1 - p))
+    (hdegenerate : x = 0 → (1 / 2 : ℝ) ≤ p) :
+    (1 / 2 : ℝ) ≤ p := by
+  by_cases hx0 : x = 0
+  · exact hdegenerate hx0
+  · have hxne : (0 : ℝ) ≠ x := fun h => hx0 h.symm
+    have hxpos : 0 < x := lt_of_le_of_ne hx hxne
+    exact endpoint_mass_ge_half_from_boundary_average hxpos havg
+
+/--
 The order-theoretic support conclusion from the component reduction.  If the
 normalized support is contained in `[-1,1]`, the positive component contains
 `(-1,0)`, and the only support point inside that component is the endpoint atom

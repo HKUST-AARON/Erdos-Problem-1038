@@ -10,9 +10,10 @@ part of the candidate.  It imports the 560-block piecewise tail certificate and
 uses it to produce the tail selector under the named tail-mass finiteness
 hypothesis below.
 
-The route remains conditional on the separate long-forcing branch that supplies
-`(-1.708, 0)`, or equivalently the `hforcing1836` handoff theorem near the end
-of this file.
+The route remains conditional on the separate strong long-forcing branch that
+supplies `(-1.708, 0)`.  In this file that handoff is named
+`hforcing1708Strong`.  Its internal contradiction threshold is `1.836`, which
+is only used as a stronger fallback because `1.836 > 1.814600`.
 -/
 
 namespace Erdos1038
@@ -1344,13 +1345,13 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing_or_tailMass
 Handoff theorem for the earlier `1.708` forcing branch.
 
 It is enough for the forcing branch to prove that failure of the long interval
-already gives the stronger `1.836` lower bound.  Since `M = 1.814600 < 1.836`,
-the piecewise tail route handles the complementary long-interval case.
+already gives the stronger fallback bound `1.836`.  Since `M = 1.814600 <
+1.836`, the piecewise tail route handles the complementary long-interval case.
 -/
-theorem augmented_positiveSet_volume_lower_bound_from_forcing1836_or_tailMass
+theorem augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_tailMass
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
     (hNorm : UnitIntervalNormalizedSupportAE μ)
-    (hforcing1836 :
+    (hforcing1708Strong :
       ¬ LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
         ENNReal.ofReal (q 1836 1000) ≤
           volume (StandardReduction.PositiveSet
@@ -1362,7 +1363,7 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing1836_or_tailMass
   by_cases hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ
   · exact augmented_positiveSet_volume_lower_bound_from_piecewise_tail_tailMass
       μ hNorm hLong htailFinite
-  · have h1836 := hforcing1836 hLong
+  · have h1836 := hforcing1708Strong hLong
     exact le_trans (by norm_num [M, q]) h1836
 
 /--
@@ -1371,7 +1372,7 @@ Route closure matching the currently formalized `forcing_1708` constants.
 The current forcing certificate has base interval `(-1.7, 0)` and an `1.82`
 fallback, so together with the same 1.814600 tail selector it closes the weaker
 bound `M1700Tail = 1.8066`.  This theorem prevents that certificate from being
-mistaken for the stronger `hforcing1836` handoff needed above.
+mistaken for the stronger `hforcing1708Strong` handoff needed above.
 -/
 theorem augmented_positiveSet_volume_lower_bound_from_forcing1700_or_tailMass
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
