@@ -30,7 +30,7 @@ def load_solver() -> Any:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--grid", type=int, default=401)
-    parser.add_argument("--h", type=float, default=1.0e-5)
+    parser.add_argument("--h", type=float, default=1.0e-4)
     parser.add_argument("--eta-values", default="1e-16,1e-12,1e-8")
     parser.add_argument("--candidate-lipschitz", type=float, default=2.0e-4)
     parser.add_argument("--candidate-curvature", type=float, default=2.5e-4)

@@ -213,7 +213,7 @@ K2 tau-derivative stress diagnostic:
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
   --grid 3 \
-  --h 1e-5 \
+  --h 1e-4 \
   --eta-values 1e-16,1e-8 \
   --secant-certificate \
   --taylor-lipschitz-diagnostic
@@ -225,7 +225,7 @@ Current expected summary:
 TWO-INTERVAL K2 TAU DERIVATIVE:
 PASS-DIAGNOSTIC worst_derivative=1.108587e-04
 candidate_lipschitz=2.000000e-04
-worst_curvature=1.018803e-04
+worst_curvature=1.003451e-04
 candidate_curvature=2.500000e-04
 TWO-INTERVAL K2 ETA-UNIFORM SECANTS:
 PASS-DIAGNOSTIC worst_secant_bound=1.086644e-04

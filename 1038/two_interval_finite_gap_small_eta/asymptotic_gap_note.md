@@ -439,24 +439,22 @@ I added a finite-difference derivative stress script:
 
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
-  --grid 401 \
-  --h 1e-5 \
-  --eta-values 1e-16,1e-12,1e-8
+  --grid 3 \
+  --h 1e-4 \
+  --eta-values 1e-16,1e-8
 ```
 
 Observed output:
 
 ```text
-B=+0.01 eta=1.0e-16 max_abs_derivative=1.108587e-04 max_abs_curvature=1.015854e-04
-B=+0.01 eta=1.0e-12 max_abs_derivative=1.108587e-04 max_abs_curvature=1.016028e-04
-B=+0.01 eta=1.0e-08 max_abs_derivative=1.108302e-04 max_abs_curvature=1.015681e-04
-B=-0.01 eta=1.0e-16 max_abs_derivative=1.106573e-04 max_abs_curvature=1.018803e-04
-B=-0.01 eta=1.0e-12 max_abs_derivative=1.106573e-04 max_abs_curvature=1.018803e-04
-B=-0.01 eta=1.0e-08 max_abs_derivative=1.106289e-04 max_abs_curvature=1.018283e-04
+B=+0.01 eta=1.0e-16 max_abs_derivative=1.108542e-04 max_abs_curvature=1.003451e-04
+B=+0.01 eta=1.0e-08 max_abs_derivative=1.108257e-04 max_abs_curvature=1.003125e-04
+B=-0.01 eta=1.0e-16 max_abs_derivative=1.106528e-04 max_abs_curvature=1.003392e-04
+B=-0.01 eta=1.0e-08 max_abs_derivative=1.106244e-04 max_abs_curvature=1.003073e-04
 TWO-INTERVAL K2 TAU DERIVATIVE: PASS-DIAGNOSTIC
-worst_derivative=1.108587e-04
+worst_derivative=1.108542e-04
 candidate_lipschitz=2.000000e-04
-worst_curvature=1.018803e-04
+worst_curvature=1.003451e-04
 candidate_curvature=2.500000e-04
 ```
 
@@ -480,7 +478,7 @@ Command:
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
   --grid 401 \
-  --h 1e-5 \
+  --h 1e-4 \
   --eta-values 1e-16,1e-8 \
   --secant-certificate
 ```
@@ -520,7 +518,7 @@ two-cell grid gives:
 ```bash
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
   --grid 3 \
-  --h 1e-5 \
+  --h 1e-4 \
   --eta-values 1e-16,1e-8 \
   --secant-certificate \
   --taylor-lipschitz-diagnostic
@@ -538,6 +536,13 @@ curvature_allowance=6.250000e-06
 taylor_lipschitz_bound=1.149144e-04
 candidate_lipschitz=2.000000e-04
 ```
+
+For curvature diagnostics, `h=1e-4` is more stable than `h=1e-5`.  The
+smaller step can amplify cancellation near the cell endpoint and produce
+spurious second-difference spikes.  The first-derivative and secant bounds are
+stable across these step choices; the curvature number should be read as a
+diagnostic target for the eventual interval/Taylor proof, not as the proof
+itself.
 
 This identifies the exact remaining theorem-level replacement:
 
