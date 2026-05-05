@@ -2077,24 +2077,46 @@ The corrected compact row family is therefore
 }
 \]
 
-### E37. New immediate target
+### E37. Correct use of the period row
 
-The next task is a two-oval block sign-variation lemma, not another ordinary
-Chebyshev determinant:
+The next task is not a seven-function Chebyshev determinant.  The period row
+\(\pi_0\) must be recorded, but the sign-variation contradiction uses only
+the six local jet rows:
 
 \[
 \boxed{
-\text{six local jet rows give oriented Chebyshev control, while }
-\pi_0\text{ controls the relative constant mode between the two ovals.}
+\text{prove the KKT ledger contains the six local jet rows plus the period row }
+\pi_0.
 }
 \]
 
-If \(G\) is orthogonal to all seven rows, the six local jet rows force
-internal oriented sign variation unless \(G\) has one sign on each oval.  In
-that exceptional case, the two rows \(1,\pi_0\) form an invertible system for
-the two weighted oval masses, forcing both masses to vanish separately,
-impossible for non-zero one-signed \(G\).  This is now the compact \(g=2\)
-lemma that must be written cleanly.
+Once \(G\) is orthogonal to the six local rows, the determinant lemma already
+forces oriented sign variation.  The extra period row cannot weaken that
+conclusion.  The role of \(\pi_0\) is bookkeeping for the genus-one
+holomorphic period, not determinant sign control.
+
+The six rows that must be derived from KKT are:
+
+\[
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+.
+\]
+
+### E38. Row derivation ledger
+
+The intended sources of the six rows are:
+
+1. total mass at infinity gives \(1\);
+2. \(F(c)=0\) gives \((x-c)^{-1}\);
+3. endpoint field increments
+   \(\Phi(c)-\Phi(u)\) and \(\Phi(v)-\Phi(c)\) give \(L_-,L_+\);
+4. stationarity gives endpoint derivative jets \((x-u)^{-1},(x-v)^{-1}\);
+5. the period equation gives the separate \(\pi_0\) row, recorded but not
+   needed for the determinant.
+
+The remaining compact \(g=2\) mouth is now a finite-dimensional
+Schur-complement rank lemma: after eliminating \(q,a,b,c\), the density row
+span still contains those six local rows.  Once this is proved, the six-kernel
+oriented Chebyshev determinant gives the sign-variation contradiction.
 
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 

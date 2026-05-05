@@ -6429,57 +6429,38 @@ The correct compact row family is:
 The new kernel \(\pi_0\) is not another Cauchy source.  It is the genus-one
 period/oval-balance source.
 
-### 16.41 Correct sign-variation lemma with the period kernel
+### 16.41 Correct use of the period row
 
-Adding \(\pi_0\) changes the Chebyshev statement.  The seven functions above
-do **not** form an ordinary strict Chebyshev system on every seven-point
-subset of a single oval, because \(\pi_0\) is locally proportional to the
-constant function \(1\) on each individual oval.
-
-The right statement is a two-oval, one-jump variation lemma:
+The seventh row \(\pi_0\) must be recorded in the KKT ledger, but it is not
+needed for the Chebyshev contradiction once the six local jet rows are present.
+Indeed, the determinant lemma in 16.35 says that
 
 \[
-\boxed{
-\begin{array}{l}
-\text{The six local jet kernels form an oriented strict Chebyshev system}\\
-\text{on each ordered real-oval component and across mixed tuples;}\\
-\text{the extra period kernel }\pi_0\text{ controls the relative constant}\\
-\text{mode between }I_1\text{ and }I_2.
-\end{array}
-}
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+
 \]
 
-Equivalently, if \(G\) is orthogonal to all seven rows
+already form an oriented strict Chebyshev system on the two real ovals.
+Therefore, by the standard sign-variation theorem, any non-zero \(G\)
+orthogonal to these six rows must have oriented sign variation.
 
-\[
-\pi_0,\quad
-1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+,
-\]
+The period row is still important for the correctness of the KKT system: the
+compact adjoint must satisfy it because the two-cut curve has one holomorphic
+period.  But adding an extra orthogonality condition cannot weaken the
+six-row sign-variation conclusion.  Thus the compact contradiction should be
+organised as follows:
 
-then the six local jet rows force sign variation unless \(G\) has no internal
-sign change on either oval.  In that exceptional case, \(G\) has one sign on
-each oval.  The two rows \(1\) and \(\pi_0\) then form an invertible
-two-by-two system for the weighted masses
+1. prove the KKT ledger contains the six local jet moment rows and the period
+   row \(\pi_0\);
+2. apply the six-kernel oriented Chebyshev lemma only to the six local rows;
+3. obtain oriented sign variation of \(G\);
+4. translate it back to forbidden sign variation of \(H=(x-c)G\) on a real
+   density oval.
 
-\[
-M_j=\int_{I_j}G(x)\omega(x)\,dx,\qquad j=1,2,
-\]
-
-provided \(\pi_0\) is not proportional to \(1\).  Orthogonality to both rows
-therefore forces \(M_1=M_2=0\), impossible for a non-zero one-signed \(G\) on
-each oval.
-
-Thus the compact contradiction should be proved by a block argument:
-
-1. use the six-kernel oriented Chebyshev lemma to remove all cases with
-   insufficient internal sign variation;
-2. use the pair \(1,\pi_0\) to remove the remaining two-constant oval mode;
-3. translate the resulting oriented sign variation of \(G\) back to a
-   forbidden sign change of \(H=(x-c)G\).
-
-This is now the corrected compact \(g=2\) hard mouth.  It is slightly more
-complicated than the six-kernel determinant, but it is mathematically cleaner:
-the genus-one period row is no longer hidden.
+This correction matters.  We do **not** need to prove that the seven functions
+including \(\pi_0\) are an ordinary Chebyshev system.  They are not: \(\pi_0\)
+is piecewise constant and locally duplicates the constant row on each oval.
+The correct role of \(\pi_0\) is bookkeeping for the period equation, not
+determinantal sign control.
 
 ### 16.42 Review after the period-row correction
 
@@ -6493,21 +6474,160 @@ What improved in this step:
    false because the period row is a holomorphic/oval mode.
 3. The determinant proof in 16.35 remains useful, but only for the six local
    jet rows.
-4. The compact \(g=2\) branch now needs a block sign-variation lemma combining
-   the six local jet rows with the oval-balance row \(\pi_0\).
+4. The compact \(g=2\) branch now needs a clean KKT row-ledger proof showing
+   that the six local jet rows really appear; \(\pi_0\) is an additional
+   period row but is not needed in the determinant argument.
 
 The next most needed task is therefore:
 
 \[
 \boxed{
-\text{prove the two-oval block sign-variation lemma for }
-\pi_0,1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
+\text{prove the compact KKT row ledger: six local jet rows plus the period row }
+\pi_0.
 }
 \]
 
-After that, the compact \(g=2\) branch can be connected back to the global
-lower-bound proof.  The later tasks remain: higher-gap degeneration/induction
-and the matching upper construction at \(M_*\).
+After that, the six-kernel determinant from 16.35 gives the sign-variation
+contradiction, and the compact \(g=2\) branch can be connected back to the
+global lower-bound proof.  The later tasks remain: higher-gap
+degeneration/induction and the matching upper construction at \(M_*\).
+
+### 16.43 What the KKT ledger must contain
+
+The ledger now has a precise acceptance criterion.  Starting from an interior
+compact \(g=2\) minimising counterexample, the adjoint condition must imply
+that the density variation \(G\) is orthogonal to at least the following six
+local rows:
+
+\[
+\begin{aligned}
+&\int_J G\omega,\qquad
+\int_J\frac{G\omega}{x-u},\qquad
+\int_J\frac{G\omega}{x-c},\qquad
+\int_J\frac{G\omega}{x-v},\\
+&\int_JL_-G\omega,\qquad
+\int_JL_+G\omega.
+\end{aligned}
+\]
+
+It may also be orthogonal to the period row
+
+\[
+\int_J\pi_0G\omega.
+\]
+
+The period row is not a problem.  The hard part is to justify the six local
+rows without overcounting the eliminated variables \(q,a,b,c\).  The local
+endpoint equations supply \(L_-,L_+\); the zero \(F(c)=0\) supplies
+\((x-c)^{-1}\); stationarity supplies the endpoint jets
+\((x-u)^{-1},(x-v)^{-1}\); and mass normalisation supplies \(1\).
+
+Thus the next proof step is a row-by-row derivation of these six equations
+from the KKT first variation.
+
+### 16.44 Row-by-row derivation skeleton
+
+Here is the derivation skeleton that must be filled in cleanly.
+
+Let \(\eta\) be an arbitrary exterior density variation and write its local
+field on the escaping component as
+
+\[
+\Phi_\eta(y)=\int_J\log\frac1{|y-x|}\,d\eta(x).
+\]
+
+Then the six rows arise as follows.
+
+**Mass row.**  The Stieltjes normalisation at infinity fixes total mass:
+
+\[
+dM(\eta)=\int_J d\eta(x)=\int_JG(x)\omega(x)\,dx.
+\]
+
+This is the row \(1\).
+
+**Zero-at-\(c\) row.**  The dual complementarity equation is \(F(c)=0\).  Its
+density part is
+
+\[
+dF(c)[\eta]=\int_J\frac{d\eta(x)}{c-x}
+=-\int_J\frac{G(x)\omega(x)}{x-c}\,dx.
+\]
+
+This supplies the row \((x-c)^{-1}\).
+
+**Endpoint value rows.**  The endpoint equations \(E_-=E_+=0\), after taking
+differences through the atom point \(c\), use
+
+\[
+\Phi_\eta(c)-\Phi_\eta(u)
+=\int_JL_-(x)G(x)\omega(x)\,dx,
+\]
+
+and
+
+\[
+\Phi_\eta(v)-\Phi_\eta(c)
+=\int_JL_+(x)G(x)\omega(x)\,dx.
+\]
+
+These supply \(L_-\) and \(L_+\).  The common additive field level is absorbed
+by the local atom mass \(q\) and by the endpoint zero equations; it does not
+create a new density kernel.
+
+**Endpoint derivative rows.**  The stationarity equation
+
+\[
+S=aW'(u)+bW'(v)=0
+\]
+
+has density derivative
+
+\[
+dS[\eta]\supset
+a\Phi_\eta'(u)+b\Phi_\eta'(v)
+=
+a\int_J\frac{G(x)\omega(x)}{x-u}\,dx
++b\int_J\frac{G(x)\omega(x)}{x-v}\,dx,
+\]
+
+after the endpoint lengths \(a,b\) have been eliminated using the non-zero
+endpoint pivots.  Since \(a,b>0\), the two endpoint jets appear with
+non-degenerate coefficients.  Together with independent variations of
+\((a,b)\), they supply the rows \((x-u)^{-1}\) and \((x-v)^{-1}\).
+
+**Period row.**  The genus-one period contributes the separate row \(\pi_0\).
+It is recorded in the ledger but is not needed for the six-kernel determinant.
+
+The remaining technical point is to make the phrase "supply the rows"
+precise: after local variables \((q,a,b,c)\) are eliminated, the row rank of
+the density part must still contain the six displayed local rows.  This is a
+finite-dimensional Schur-complement statement.  The non-zero endpoint pivots
+and \(F'(c)<0\) are the ingredients needed to prove it.
+
+### 16.45 Review after this step
+
+This step corrects the previous overcomplication.  We do not need a new
+seven-function Chebyshev determinant.  The proof should be organised as:
+
+1. derive the KKT density row ledger and prove it contains the six local rows;
+2. ignore the extra period row for the sign-variation step, because additional
+   orthogonality only strengthens the hypothesis;
+3. apply the six-kernel oriented Chebyshev determinant from 16.35;
+4. translate sign variation of \(G\) into forbidden sign variation of
+   \(H=(x-c)G\).
+
+The next most needed mathematical task is therefore the finite-dimensional
+Schur-complement rank lemma:
+
+\[
+\boxed{
+\text{after eliminating }q,a,b,c,\text{ the density row span contains }
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
+}
+\]
+
+This is now the smallest remaining compact \(g=2\) mouth.
 
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
