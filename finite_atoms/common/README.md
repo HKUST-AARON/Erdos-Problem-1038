@@ -79,6 +79,73 @@ containing `(-1,0)`, the Lean file proves that the support is contained in
 feed into the normalized endpoint-potential interface used by the finite-atom
 certificate route.
 
+## Standard-reduction status after the current mathematical audit
+
+The pure mathematical reduction has been written as the following chain:
+
+1. Lower semicontinuity of the relaxed objective gives a minimizer.
+2. Among minimizers, choose one with minimal variance.
+3. A positive component has positive mass.
+4. Barycenter replacement outside that component does not increase the
+   logarithmic potential on the complement, hence does not increase the
+   positive-set length.
+5. Variance rigidity forces the restriction of the minimizer to each positive
+   component to be a Dirac mass at its barycenter.
+6. The mean-sign lemma gives a component containing `(-1,0)` after reflection.
+7. Translation of the selected component atom to `-1` gives normalized support
+   in `{-1} ∪ [0,1]`.
+8. The boundary-average argument gives endpoint mass at least `1/2`; the
+   degenerate `x_+ = 0` case is handled separately by the two-point/reflection
+   case.
+
+The Lean file has internalized several downstream pieces of this chain:
+
+```text
+measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
+measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
+endpoint_mass_ge_half_from_boundary_average
+endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
+TaoComponentReductionData.support_subset_normalized
+TaoComponentReductionData.endpointMass_ge_half
+TaoReducedPotentialData.toNormalizedEndpointPotential
+```
+
+The last item added in this layer is
+`endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate`, which
+matches the mathematical proof's split between `x_+ > 0` and the degenerate
+two-point `x_+ = 0` case.
+
+The following review findings remain real Lean gaps, not solved claims:
+
+```text
+1. The core variational provider is still external:
+   TaoVariationalReductionInput.reducedData is an input, not yet a theorem.
+
+2. The actual objective
+   μ ↦ volume {x | 0 < unitIntervalLogPotential μ x}
+   has not yet been proved lower semicontinuous end-to-end.
+
+3. The component-replacement objective lemma still consumes the outside
+   potential inequality as an assumption; the Jensen theorem exists, but the
+   full assembly from an actual component replacement is not yet automatic.
+
+4. PositiveComponent is still supplied as structure; the extraction of the
+   relevant component from a minimizer, with boundary and replacement legality,
+   is not fully formalized.
+
+5. Endpoint lower bound is still packaged as data in TaoReducedPotentialData.
+   The normalized-remainder bridge exists, but the full support decomposition
+   from an arbitrary minimizer is not yet internalized.
+```
+
+So the current honest status is:
+
+```text
+pure mathematical standard-reduction route: written and clarified;
+Lean formalization: downstream bridges are growing, but the full variational
+provider and true-objective l.s.c. are still open formalization tasks.
+```
+
 Check command from the repository root:
 
 ```bash

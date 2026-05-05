@@ -3471,3 +3471,67 @@ lake env lean 1038/FiveAtom1806304Mathlib.lean && lake env lean 1038/FiveAtom180
 ```
 
 Remaining non-internalized parts of the full problem are not numeric-log issues anymore; they are the analytic bridge from these finite checks to global 1038: derivative/root-count monotonicity over the full one-variable domain, the two-parameter forcing branch in Lean, the duality lemma, and the Tao/natso minimizer reduction.
+
+## Update: finite-atom route and standard-reduction audit
+
+The finite-atom lower-bound route currently being tracked is the conditional
+route to
+
+\[
+L_- \ge 1.814600.
+\]
+
+The pure mathematical proof chain has now been organized as:
+
+1. relaxed measure formulation;
+2. lower semicontinuity and minimizer existence;
+3. variance-minimizing minimizer;
+4. positive component atomization via barycenter replacement;
+5. mean-sign lemma;
+6. reflection and translation to normalized support;
+7. endpoint mass lower bound;
+8. normalized finite-atom route using the strong \((-1.708,0)\) handoff and the
+   piecewise five-atom tail certificate.
+
+The key mathematical split in the normalized case is:
+
+\[
+(-1.708,0)\not\subset E_\mu \Rightarrow |E_\mu|\ge 1.836,
+\]
+
+and
+
+\[
+(-1.708,0)\subset E_\mu \Rightarrow |E_\mu|\ge 1.814600.
+\]
+
+The number \(1.836\) is not the claimed bound. It is only the internal
+contradiction threshold used to force the long interval handoff.
+
+The Lean repository has also been updated to reflect this wording and to add a
+small endpoint-mass bridge:
+
+```lean
+endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
+```
+
+This formalizes the split between the nondegenerate right endpoint \(x_+>0\)
+and the degenerate \(x_+=0\) two-point/reflection case.
+
+The code review findings about `StandardReduction.lean` remain important. In
+particular, the full Lean standard reduction is not yet closed: the variational
+provider
+
+```lean
+TaoVariationalReductionInput.reducedData
+```
+
+is still an input, not a theorem derived from arbitrary minimizers. The true
+objective lower-semicontinuity theorem and the extraction of actual positive
+components from minimizers are also still formalization gaps. The current
+state should therefore be described as:
+
+```text
+mathematical route clarified; finite-atom route formal bridges improved;
+full Lean standard reduction still open.
+```
