@@ -1,5 +1,6 @@
 import Mathlib
 import finite_atoms.common.lean.StandardReduction
+import PiecewiseFiveAtom181460Formal
 
 /-!
 # Route closure for the `M = 1.814600` five-atom piecewise tail candidate
@@ -843,6 +844,410 @@ theorem augmented_positiveSet_volume_lower_bound_from_normalized_pointwise
   augmented_positiveSet_long_and_tail_selector_volume_lower_bound μ hLong
     (tailSelector_from_augmented_duality_of_normalized_pointwise
       μ w hNorm hduality hw_nonneg hint hpoint)
+
+/-! ## Concrete 560-block piecewise tail certificate bridge -/
+
+def piecewiseTailRouteWeights (a : ℝ) : Fin 5 → ℝ :=
+  PiecewiseFiveAtom181460Mathlib.piecewiseTailWeights a
+
+theorem piecewiseTailRouteWeights_nonneg
+    {a : ℝ} (ha : a ∈ TailParameter) :
+    ∀ i : Fin 5, 0 ≤ piecewiseTailRouteWeights a i := by
+  simpa [piecewiseTailRouteWeights, TailParameter, M, B, q]
+    using PiecewiseFiveAtom181460Mathlib.piecewiseTailWeights_nonneg
+      (a := a) (by simpa [PiecewiseFiveAtom181460Mathlib.M,
+        PiecewiseFiveAtom181460Mathlib.B, PiecewiseFiveAtom181460Mathlib.q,
+        M, B, q] using ha)
+
+set_option maxHeartbeats 4000000 in
+lemma finiteWeightedPotential_piecewiseTailRouteWeights_eq_V
+    (a x : ℝ) :
+    StandardReduction.finiteWeightedPotential
+        Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) x =
+      PiecewiseFiveAtom181460Mathlib.V
+        (piecewiseTailRouteWeights a ⟨1, by norm_num⟩)
+        (piecewiseTailRouteWeights a ⟨2, by norm_num⟩)
+        (piecewiseTailRouteWeights a ⟨3, by norm_num⟩)
+        (piecewiseTailRouteWeights a ⟨4, by norm_num⟩) (x - a) := by
+  unfold StandardReduction.finiteWeightedPotential
+    PiecewiseFiveAtom181460Mathlib.V sweptAtom
+    swept0 swept1 swept2 swept3 swept4 shift1 shift2 shift3 shift4
+    PiecewiseFiveAtom181460Mathlib.d1 PiecewiseFiveAtom181460Mathlib.d2
+    PiecewiseFiveAtom181460Mathlib.d3 PiecewiseFiveAtom181460Mathlib.d4
+    PiecewiseFiveAtom181460Mathlib.q q
+  simp [Fin.sum_univ_five, one_div, sub_eq_add_neg, add_comm, add_assoc,
+    mul_comm, piecewiseTailRouteWeights,
+    PiecewiseFiveAtom181460Mathlib.piecewiseTailWeights,
+    PiecewiseFiveAtom181460Mathlib.piecewiseBlockWeights]
+
+theorem tailSelector_from_piecewise_tail_duality
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a))
+    (hint : ∀ a : ℝ, a ∈ TailParameter →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ) := by
+  intro a ha
+  by_cases h0 : swept0 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inl h0
+  by_cases h1 : swept1 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inl h1)
+  by_cases h2 : swept2 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inl h2))
+  by_cases h3 : swept3 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inr (Or.inl h3)))
+  by_cases h4 : swept4 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inr (Or.inr h4)))
+  have h0diag : swept0 a ∉ StandardReduction.diagonalAtomSet μ := by
+    intro hd
+    exact h0 (Or.inr hd)
+  have h1diag : swept1 a ∉ StandardReduction.diagonalAtomSet μ := by
+    intro hd
+    exact h1 (Or.inr hd)
+  have h2diag : swept2 a ∉ StandardReduction.diagonalAtomSet μ := by
+    intro hd
+    exact h2 (Or.inr hd)
+  have h3diag : swept3 a ∉ StandardReduction.diagonalAtomSet μ := by
+    intro hd
+    exact h3 (Or.inr hd)
+  have h4diag : swept4 a ∉ StandardReduction.diagonalAtomSet μ := by
+    intro hd
+    exact h4 (Or.inr hd)
+  have hae0 := StandardReduction.ae_ne_of_notMem_diagonalAtomSet
+    (μ := μ) (x := swept0 a) h0diag
+  have hae1 := StandardReduction.ae_ne_of_notMem_diagonalAtomSet
+    (μ := μ) (x := swept1 a) h1diag
+  have hae2 := StandardReduction.ae_ne_of_notMem_diagonalAtomSet
+    (μ := μ) (x := swept2 a) h2diag
+  have hae3 := StandardReduction.ae_ne_of_notMem_diagonalAtomSet
+    (μ := μ) (x := swept3 a) h3diag
+  have hae4 := StandardReduction.ae_ne_of_notMem_diagonalAtomSet
+    (μ := μ) (x := swept4 a) h4diag
+  have hpos_ae :
+      ∀ᵐ x : StandardReduction.UnitInterval1038
+        ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038),
+        0 <
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ) := by
+    filter_upwards [hNorm, hae0, hae1, hae2, hae3, hae4] with x hxNorm hx0 hx1 hx2 hx3 hx4
+    have haPiece :
+        a ∈ Icc
+          (-PiecewiseFiveAtom181460Mathlib.M)
+          (-PiecewiseFiveAtom181460Mathlib.B) := by
+      simpa [TailParameter, M, B, q,
+        PiecewiseFiveAtom181460Mathlib.M,
+        PiecewiseFiveAtom181460Mathlib.B,
+        PiecewiseFiveAtom181460Mathlib.q] using ha
+    have hV := PiecewiseFiveAtom181460Mathlib.piecewiseTail_required_pos
+      (a := a) (x := (x : ℝ)) haPiece hxNorm
+      (by
+        intro hxa
+        apply hx0
+        dsimp [swept0]
+        linarith)
+      (by
+        intro hxa
+        apply hx1
+        dsimp [swept1, shift1]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d1,
+          PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa
+        apply hx2
+        dsimp [swept2, shift2]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d2,
+          PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa
+        apply hx3
+        dsimp [swept3, shift3]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d3,
+          PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa
+        apply hx4
+        dsimp [swept4, shift4]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d4,
+          PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+    simpa [finiteWeightedPotential_piecewiseTailRouteWeights_eq_V] using hV
+  have hintegral_pos :
+      0 < ∫ x : StandardReduction.UnitInterval1038,
+        StandardReduction.finiteWeightedPotential
+          Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ)
+          ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) :=
+    integral_pos_of_integrable_ae_pos_probability μ (hint a ha) hpos_ae
+  rcases (hduality a ha).selects_augmented_atom
+      (by
+        intro i _hi
+        exact piecewiseTailRouteWeights_nonneg ha i)
+      hintegral_pos with
+    ⟨i, _hi, hmem⟩
+  fin_cases i <;> simp [sweptAtom] at hmem
+  · exact Or.inl hmem
+  · exact Or.inr (Or.inl hmem)
+  · exact Or.inr (Or.inr (Or.inl hmem))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl hmem)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr hmem)))
+
+lemma finiteWeightedPotential_integrable_of_atom_kernels
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (w atom : Fin 5 → ℝ)
+    (hlog_int : ∀ i : Fin 5, i ∈ Finset.univ →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          Real.log (1 / |(x : ℝ) - atom i|))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    Integrable
+      (fun x : StandardReduction.UnitInterval1038 =>
+        StandardReduction.finiteWeightedPotential Finset.univ w atom (x : ℝ))
+      (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) := by
+  unfold StandardReduction.finiteWeightedPotential
+  exact integrable_finset_sum Finset.univ (fun i hi =>
+    (hlog_int i hi).const_mul (w i))
+
+theorem tailSelector_from_piecewise_tail_tailMass
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (htailFinite :
+      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
+        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
+        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
+        ∃ ε : ℝ, 0 < ε ∧
+          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    TailSelector (StandardReduction.unitIntervalAugmentedPositiveSet μ) := by
+  intro a ha
+  by_cases h0 : swept0 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inl h0
+  by_cases h1 : swept1 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inl h1)
+  by_cases h2 : swept2 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inl h2))
+  by_cases h3 : swept3 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inr (Or.inl h3)))
+  by_cases h4 : swept4 a ∈ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact Or.inr (Or.inr (Or.inr (Or.inr h4)))
+  have hnotAug : ∀ i : Fin 5,
+      sweptAtom a i ∉ StandardReduction.unitIntervalAugmentedPositiveSet μ := by
+    intro i
+    fin_cases i
+    · simpa [sweptAtom] using h0
+    · simpa [sweptAtom] using h1
+    · simpa [sweptAtom] using h2
+    · simpa [sweptAtom] using h3
+    · simpa [sweptAtom] using h4
+  have hoffdiag : ∀ i : Fin 5, sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ := by
+    intro i hd
+    exact hnotAug i (Or.inr hd)
+  have hatom :
+      ∀ i : Fin 5, i ∈ Finset.univ →
+        (sweptAtom a i < -1 ∨ 1 < sweptAtom a i) ∨
+          (sweptAtom a i ∈ Icc (-1 : ℝ) 1 ∧
+            sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ ∧
+            ∃ ε : ℝ, 0 < ε ∧
+              StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) := by
+    intro i _hi
+    by_cases hunit : sweptAtom a i ∈ Icc (-1 : ℝ) 1
+    · exact Or.inr ⟨hunit, hoffdiag i, htailFinite a ha i hunit (hoffdiag i)⟩
+    · have hout : sweptAtom a i < -1 ∨ 1 < sweptAtom a i := by
+        have hlt_or_gt : sweptAtom a i < -1 ∨ 1 < sweptAtom a i := by
+          by_contra hbad
+          push Not at hbad
+          exact hunit ⟨hbad.1, hbad.2⟩
+        exact hlt_or_gt
+      exact Or.inl hout
+  have hduality :
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) :=
+    StandardReduction.FiniteAtomicUnitIntervalDualityIdentity.of_atoms_outside_or_offDiagonal_tailMass
+      μ Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) hatom
+  have hlog_int : ∀ i : Fin 5, i ∈ Finset.univ →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          Real.log (1 / |(x : ℝ) - sweptAtom a i|))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) := by
+    intro i hi
+    rcases hatom i hi with houtside | hinside
+    · rcases houtside with hleft | hright
+      · have hbase := StandardReduction.unitInterval_logKernel_integrable_of_left_outside
+          (μ := μ) (x := sweptAtom a i) hleft
+        exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+          simp [abs_sub_comm]))
+      · have hbase := StandardReduction.unitInterval_logKernel_integrable_of_right_outside
+          (μ := μ) (x := sweptAtom a i) hright
+        exact hbase.congr (Filter.Eventually.of_forall (fun x => by
+          simp [abs_sub_comm]))
+    · rcases hinside with ⟨_hunit, hoff, ε, hε, htail⟩
+      exact StandardReduction.unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+        hε hoff htail
+  have hint :
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) :=
+    finiteWeightedPotential_integrable_of_atom_kernels μ
+      (piecewiseTailRouteWeights a) (sweptAtom a) hlog_int
+  have hpos_ae :
+      ∀ᵐ x : StandardReduction.UnitInterval1038
+        ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038),
+        0 <
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ) := by
+    filter_upwards [hNorm,
+      StandardReduction.ae_ne_of_notMem_diagonalAtomSet (μ := μ) (x := swept0 a) (hoffdiag ⟨0, by norm_num⟩),
+      StandardReduction.ae_ne_of_notMem_diagonalAtomSet (μ := μ) (x := swept1 a) (hoffdiag ⟨1, by norm_num⟩),
+      StandardReduction.ae_ne_of_notMem_diagonalAtomSet (μ := μ) (x := swept2 a) (hoffdiag ⟨2, by norm_num⟩),
+      StandardReduction.ae_ne_of_notMem_diagonalAtomSet (μ := μ) (x := swept3 a) (hoffdiag ⟨3, by norm_num⟩),
+      StandardReduction.ae_ne_of_notMem_diagonalAtomSet (μ := μ) (x := swept4 a) (hoffdiag ⟨4, by norm_num⟩)] with x hxNorm hx0 hx1 hx2 hx3 hx4
+    have haPiece :
+        a ∈ Icc
+          (-PiecewiseFiveAtom181460Mathlib.M)
+          (-PiecewiseFiveAtom181460Mathlib.B) := by
+      simpa [TailParameter, M, B, q,
+        PiecewiseFiveAtom181460Mathlib.M,
+        PiecewiseFiveAtom181460Mathlib.B,
+        PiecewiseFiveAtom181460Mathlib.q] using ha
+    have hV := PiecewiseFiveAtom181460Mathlib.piecewiseTail_required_pos
+      (a := a) (x := (x : ℝ)) haPiece hxNorm
+      (by intro hxa; apply hx0; dsimp [swept0]; linarith)
+      (by
+        intro hxa; apply hx1; dsimp [swept1, shift1]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d1, PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa; apply hx2; dsimp [swept2, shift2]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d2, PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa; apply hx3; dsimp [swept3, shift3]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d3, PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+      (by
+        intro hxa; apply hx4; dsimp [swept4, shift4]
+        norm_num [PiecewiseFiveAtom181460Mathlib.d4, PiecewiseFiveAtom181460Mathlib.q, q] at hxa ⊢
+        linarith)
+    simpa [finiteWeightedPotential_piecewiseTailRouteWeights_eq_V] using hV
+  have hintegral_pos :
+      0 < ∫ x : StandardReduction.UnitInterval1038,
+        StandardReduction.finiteWeightedPotential
+          Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ)
+          ∂(μ : MeasureTheory.Measure StandardReduction.UnitInterval1038) :=
+    integral_pos_of_integrable_ae_pos_probability μ hint hpos_ae
+  rcases hduality.selects_augmented_atom
+      (by intro i _hi; exact piecewiseTailRouteWeights_nonneg ha i)
+      hintegral_pos with
+    ⟨i, _hi, hmem⟩
+  fin_cases i <;> simp [sweptAtom] at hmem
+  · exact Or.inl hmem
+  · exact Or.inr (Or.inl hmem)
+  · exact Or.inr (Or.inr (Or.inl hmem))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl hmem)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr hmem)))
+
+theorem augmented_positiveSet_volume_lower_bound_from_piecewise_tail_tailMass
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (htailFinite :
+      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
+        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
+        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
+        ∃ ε : ℝ, 0 < ε ∧
+          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  augmented_positiveSet_long_and_tail_selector_volume_lower_bound μ hLong
+    (tailSelector_from_piecewise_tail_tailMass μ hNorm htailFinite)
+
+/--
+Route closure with the forcing branch exposed as an alternative.
+
+The forcing package is expected to prove the left branch: either the long
+interval is already contained in the augmented positive set, or the positive set
+has a stronger lower bound.  This theorem records the exact handoff needed by
+the `M = 1.814600` tail certificate.
+-/
+theorem augmented_positiveSet_volume_lower_bound_from_forcing_or_tailMass
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hforcing :
+      ENNReal.ofReal M ≤
+          volume (StandardReduction.PositiveSet
+            (StandardReduction.unitIntervalLogPotential μ)) ∨
+        LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (htailFinite :
+      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
+        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
+        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
+        ∃ ε : ℝ, 0 < ε ∧
+          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) := by
+  rcases hforcing with hdone | hLong
+  · exact hdone
+  · exact augmented_positiveSet_volume_lower_bound_from_piecewise_tail_tailMass
+      μ hNorm hLong htailFinite
+
+/--
+Handoff theorem for the earlier `1.708` forcing branch.
+
+It is enough for the forcing branch to prove that failure of the long interval
+already gives the stronger `1.836` lower bound.  Since `M = 1.814600 < 1.836`,
+the piecewise tail route handles the complementary long-interval case.
+-/
+theorem augmented_positiveSet_volume_lower_bound_from_forcing1836_or_tailMass
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hforcing1836 :
+      ¬ LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
+        ENNReal.ofReal (q 1836 1000) ≤
+          volume (StandardReduction.PositiveSet
+            (StandardReduction.unitIntervalLogPotential μ)))
+    (htailFinite :
+      ∀ a : ℝ, a ∈ TailParameter → ∀ i : Fin 5,
+        sweptAtom a i ∈ Icc (-1 : ℝ) 1 →
+        sweptAtom a i ∉ StandardReduction.diagonalAtomSet μ →
+        ∃ ε : ℝ, 0 < ε ∧
+          StandardReduction.singularTailMass ε μ (sweptAtom a i) < ∞) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) := by
+  by_cases hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ
+  · exact augmented_positiveSet_volume_lower_bound_from_piecewise_tail_tailMass
+      μ hNorm hLong htailFinite
+  · have h1836 := hforcing1836 hLong
+    exact le_trans (by norm_num [M, q]) h1836
+
+theorem augmented_positiveSet_volume_lower_bound_from_piecewise_tail_duality
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hLong : LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ)
+    (hduality : ∀ a : ℝ, a ∈ TailParameter →
+      StandardReduction.FiniteAtomicUnitIntervalDualityIdentity
+        μ Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a))
+    (hint : ∀ a : ℝ, a ∈ TailParameter →
+      Integrable
+        (fun x : StandardReduction.UnitInterval1038 =>
+          StandardReduction.finiteWeightedPotential
+            Finset.univ (piecewiseTailRouteWeights a) (sweptAtom a) (x : ℝ))
+        (μ : MeasureTheory.Measure StandardReduction.UnitInterval1038)) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  augmented_positiveSet_long_and_tail_selector_volume_lower_bound μ hLong
+    (tailSelector_from_piecewise_tail_duality μ hNorm hduality hint)
 
 /-- Arithmetic facts used by route bookkeeping. -/
 theorem shift1_gt_M : M < shift1 := by

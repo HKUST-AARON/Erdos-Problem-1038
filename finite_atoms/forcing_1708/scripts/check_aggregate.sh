@@ -30,9 +30,10 @@ export MATHLIB_WORKSPACE LEAN_ROOT BUILD_DIR
 compile_list "$LIST_FILE"
 check_index() {
   local rel="$1"
-  (cd "$MATHLIB_WORKSPACE" && LEAN_PATH="$BUILD_DIR${LEAN_PATH:+:$LEAN_PATH}" lake env lean -R "$LEAN_ROOT" "$LEAN_ROOT/$rel.lean")
+  (cd "$MATHLIB_WORKSPACE" && LEAN_PATH="$BUILD_DIR${LEAN_PATH:+:$LEAN_PATH}" lake env lean -R "$LEAN_ROOT" -o "$BUILD_DIR/$rel.olean" "$LEAN_ROOT/$rel.lean")
 }
 check_index "Forcing1708BoxData"
 check_index "Forcing1708GeometryIndex"
 check_index "Forcing1708CoverageIndex"
 check_index "Forcing1708AnalyticPreconditionsIndex"
+check_index "Forcing1708Aggregate"

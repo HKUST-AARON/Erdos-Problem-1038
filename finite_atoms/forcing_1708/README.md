@@ -109,6 +109,14 @@ chunk checks the scaled-atanh log bounds for `base_a`, `base_b`, `base_c`, and
 the interval bounds for the coefficient `C(a,b)`.  The chunks use `n=12` terms
 after power-of-two scaling.
 
+```text
+lean/Forcing1708Aggregate.lean
+```
+
+Provides a single Lean entry point that imports and checks the four aggregate
+indexes above.  This is an aggregate certificate entry point; it does not by
+itself prove the route-level implication needed to force a longer interval.
+
 ## Check commands
 
 From the repository root, use any local Lean/Mathlib workspace through `MATHLIB_WORKSPACE`:
@@ -130,4 +138,5 @@ Forcing1708BoxData.lean
 Forcing1708GeometryIndex.lean
 Forcing1708CoverageIndex.lean
 Forcing1708AnalyticPreconditionsIndex.lean
+Forcing1708Aggregate.lean
 ```
