@@ -86,6 +86,7 @@ class SlabResult:
     max_dk_entry_radius: float
     min_sign_margin: float
     eta_interval_dk_check: bool
+    center_correction_mode: str
     worst_defect_detail: tuple[str, ...]
 
     @property
@@ -413,6 +414,72 @@ def center_correction_over_slab(
     return correction
 
 
+def interval_center_correction_over_slab(
+    eta_low: float,
+    eta_high: float,
+    low_row: EndpointRow,
+    high_row: EndpointRow,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    eta_subdivisions: int,
+) -> np.ndarray:
+    from flint import arb
+
+    solver_module = load_solver()
+    b_slope, b_intercept, tau_slope, tau_intercept = affine_coefficients(low_row, high_row)
+    correction = np.zeros(2)
+    for eta_index, (eta_interval_low, eta_interval_high) in enumerate(eta_intervals(eta_low, eta_high, eta_subdivisions)):
+        eta_mid = (eta_interval_low + eta_interval_high) / 2.0
+        B_mid, tau_mid = center_at(eta_mid, low_row, high_row)
+        J_mid = finite_array(
+            "interval center correction DK",
+            solver_module.analytic_rescaled_jacobian(B_mid, tau_mid, eta_mid, limit_solution, left_weight, null_slope),
+        )
+        try:
+            C_mid = np.linalg.inv(J_mid)
+        except np.linalg.LinAlgError as exc:
+            fail(f"eta-correction-slice {eta_index}: center Jacobian is singular: {exc}")
+        C_arb = [[arb(repr(float(C_mid[i, j]))) for j in range(2)] for i in range(2)]
+        arb_eta = solver_module._arb_interval_from_bounds(eta_interval_low, eta_interval_high)
+        arb_epsilon = solver_module._arb_interval_from_bounds(
+            eta_interval_low * eta_interval_low,
+            eta_interval_high * eta_interval_high,
+        )
+        arb_A, arb_alpha, _base_delta_A, _base_delta_alpha = arb_affine_parameters(
+            solver_module,
+            arb,
+            arb_eta,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            limit_solution,
+            null_slope,
+            b_slope,
+            b_intercept,
+            tau_slope,
+            tau_intercept,
+        )
+        U_alpha = arb(solver_module._contact_potential_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+        U_minus_one = arb(solver_module._potential_minus_one_acb_from_arb(arb_A, arb_alpha, arb_epsilon, 192))
+        if not U_alpha.is_finite() or not U_minus_one.is_finite():
+            fail(f"eta-correction-slice {eta_index}: non-finite Arb center residual")
+        K = [
+            U_alpha / arb_eta,
+            (arb(repr(float(left_weight))) * U_alpha + U_minus_one) / (arb_eta * arb_eta),
+        ]
+        for row_idx in range(2):
+            value = arb(0)
+            for col_idx in range(2):
+                value += C_arb[row_idx][col_idx] * K[col_idx]
+            correction[row_idx] = max(
+                correction[row_idx],
+                arb_abs_upper(f"interval center correction[{row_idx}]", value),
+            )
+    return correction
+
+
 def verify_slab(
     spec: SlabSpec,
     rows: list[Any],
@@ -424,6 +491,7 @@ def verify_slab(
     uv_subdivisions: int,
     eta_interval_dk_check: bool,
     eta_interval_dk_kernel: str,
+    center_correction_mode: str,
 ) -> SlabResult:
     from flint import arb
 
@@ -437,16 +505,28 @@ def verify_slab(
     eta_low = math.sqrt(spec.eps_low)
     eta_high = math.sqrt(spec.eps_high)
     b_slope, b_intercept, tau_slope, tau_intercept = affine_coefficients(low_row, high_row)
-    correction = center_correction_over_slab(
-        eta_low,
-        eta_high,
-        low_row,
-        high_row,
-        limit_solution,
-        left_weight,
-        null_slope,
-        grid_size=2 * eta_subdivisions + 1,
-    )
+    if center_correction_mode == "interval":
+        correction = interval_center_correction_over_slab(
+            eta_low,
+            eta_high,
+            low_row,
+            high_row,
+            limit_solution,
+            left_weight,
+            null_slope,
+            eta_subdivisions,
+        )
+    else:
+        correction = center_correction_over_slab(
+            eta_low,
+            eta_high,
+            low_row,
+            high_row,
+            limit_solution,
+            left_weight,
+            null_slope,
+            grid_size=2 * eta_subdivisions + 1,
+        )
 
     max_defect = np.zeros(2)
     defect_source = ["none", "none"]
@@ -701,6 +781,7 @@ def verify_slab(
         max_dk_entry_radius=max_dk_entry_radius,
         min_sign_margin=min_sign_margin,
         eta_interval_dk_check=eta_interval_dk_check,
+        center_correction_mode=center_correction_mode,
         worst_defect_detail=tuple(defect_detail[int(np.argmin(margin))]),
     )
     if min_sign_margin <= 0.0:
@@ -959,6 +1040,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--center-correction",
+        choices=["sampled", "interval"],
+        default="sampled",
+        help=(
+            "How to bound C K(center). The interval mode encloses the center "
+            "residual on eta subintervals with Arb/Acb."
+        ),
+    )
+    parser.add_argument(
         "--dk11-eta-radius-report",
         type=parse_positive_int_list,
         help=(
@@ -1015,6 +1105,7 @@ def main() -> int:
                 uv_subdivisions,
                 args.eta_interval_dk_check,
                 args.eta_interval_dk_kernel,
+                args.center_correction,
             )
             for spec in specs
         ]
@@ -1033,6 +1124,7 @@ def main() -> int:
                 f"min_sign={result.min_sign_margin:.6e} "
                 f"max_DK_entry_radius={result.max_dk_entry_radius:.6e} "
                 f"eta_DK_mode={'interval' if result.eta_interval_dk_check else 'sampled'} "
+                f"center_correction={result.center_correction_mode} "
                 f"worst_defect_source={result.defect_source[int(np.argmin(result.margin))]}"
             )
 
@@ -1047,6 +1139,7 @@ def main() -> int:
         f"defect=({worst.defect[0]:.6e}, {worst.defect[1]:.6e}), "
         f"eta_samples_uv_subdivisions={worst.eta_subdivisions},{worst.uv_subdivisions}, "
         f"eta_DK_mode={'interval' if worst.eta_interval_dk_check else 'sampled'}, "
+        f"center_correction={worst.center_correction_mode}, "
         f"worst_defect_source={worst.defect_source[int(np.argmin(worst.margin))]}, "
         "status=diagnostic-not-continuum-proof)"
     )

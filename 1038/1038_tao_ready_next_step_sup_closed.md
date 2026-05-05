@@ -1247,3 +1247,66 @@ diagnostically closed.  The remaining work is to promote this diagnostic
 certificate into a cleaner proof artifact: remove the sampled center
 correction, make the interval enclosure fully continuum-grade, and then extend
 or connect this epsilon range to the global lower/upper-bound argument.
+
+## N. First Attempt At Interval Center Correction
+
+The first attempt to remove the sampled center correction was deliberately
+direct: add an Arb/Acb enclosure for the contact value \(U(\alpha)\), then
+compute
+
+```text
+K1 = U(alpha) / eta
+K2 = (left_weight * U(alpha) + U(-1)) / eta^2
+```
+
+on eta subintervals.  This is now available in the verifier as
+`--center-correction interval`.
+
+This direct interval enclosure is mathematically honest, but it is not the
+right proof kernel.  On the already-closed split top slab it fails by a large
+margin:
+
+```bash
+python 1038/verify_two_interval_epsilon_slabs.py \
+  1038/two_interval_branch_certificate_top_split.json \
+  --slab 0.001:0.00125 \
+  --center affine-endpoints \
+  --uv-radii 0.0002,0.0002 \
+  --arb-box-dk-subdivisions 224,2 \
+  --eta-interval-dk-check \
+  --center-correction interval \
+  --quiet
+```
+
+```text
+FAIL component=v
+margin=-5.773515e-02
+correction=5.791379e-02
+defect=2.136760e-05
+radius=2.000000e-04
+dominant=correction
+```
+
+The cause is cancellation loss.  For a coarse diagnostic slice of the same
+slab, the direct Arb balls look like:
+
+```text
+U(alpha)          = [+/- 8.42e-4]
+U(-1)             = [+/- 1.94e-4]
+U(alpha)/eta      = [+/- 2.66e-2]
+(w U(alpha)+U(-1))/eta^2 = [+/- 3.72e-1]
+```
+
+So this cannot be fixed by modestly increasing eta subdivisions.  The center
+residual must be enclosed in the already-cancelled Lyapunov-Schmidt
+coordinates, just as the DK[1,*] entries had to be enclosed by a combined
+kernel rather than by separately evaluating large terms.  The next proof-grade
+step is therefore not "sample more"; it is to implement a combined
+residual-level primitive for
+
+```text
+U(alpha) / eta
+(left_weight * U(alpha) + U(-1)) / eta^2
+```
+
+with the removable eta factors cancelled before Arb evaluation.

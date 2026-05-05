@@ -492,6 +492,116 @@ def potential_minus_one_box_acb(
     )
 
 
+def _contact_potential_acb_from_arb(A, alpha, epsilon, precision: int) -> str:
+    from flint import acb, arb, ctx
+
+    ctx.prec = precision
+    arb_ell = arb(repr(X_LEFT)) + epsilon
+    arb_r = arb(repr(X_RIGHT))
+    arb_beta = arb(1) - epsilon
+    pi = arb.pi()
+
+    def branch_left(q: arb) -> arb:
+        return -((alpha - q) * (arb_beta - q)).sqrt()
+
+    def branch_right(q: arb) -> arb:
+        return ((q - alpha) * (q - arb_beta)).sqrt()
+
+    mass_ell = (arb_ell + A) * branch_left(arb_ell) / ((arb_ell - arb_r) * (arb_ell - arb(1)))
+    mass_r = (arb_r + A) * branch_left(arb_r) / ((arb_r - arb_ell) * (arb_r - arb(1)))
+    mass_1 = (arb(1) + A) * branch_right(arb(1)) / ((arb(1) - arb_ell) * (arb(1) - arb_r))
+    atom_part = (
+        mass_ell * (-(alpha - arb_ell).log())
+        + mass_r * (-(alpha - arb_r).log())
+        + mass_1 * (-(arb(1) - alpha).log())
+    )
+
+    # Use the same two endpoint charts as the contact derivative enclosure.
+    # The v=0 endpoint has an integrable v^2 log(v^2) singularity; we bound a
+    # short tail explicitly.
+    half = (arb_beta - alpha) / 2
+    acb_half = acb(half)
+    acb_beta = acb(arb_beta)
+    acb_A = acb(A)
+    acb_ell = acb(arb_ell)
+    acb_r = acb(arb_r)
+    acb_pi = acb(pi)
+
+    def density_times_dt(u2, endpoint_factor, t):
+        denominator = (t - acb_ell) * (t - acb_r) * (t - acb(1))
+        prefactor = -(acb(8) * u2 * endpoint_factor / acb_pi)
+        return prefactor * acb_half * acb_half * (t + acb_A) / denominator
+
+    def u_integrand(u: acb, analytic: bool) -> acb:
+        u2 = u * u
+        endpoint_factor = (acb(1) - u2).sqrt(analytic=analytic)
+        t = acb_beta - acb(2) * acb_half * u2
+        log_contact = -((acb(2) * acb_half) * (acb(1) - u2)).log(analytic=analytic)
+        return density_times_dt(u2, endpoint_factor, t) * log_contact
+
+    def v_integrand(v: acb, analytic: bool) -> acb:
+        v2 = v * v
+        endpoint_factor = (acb(1) - v2).sqrt(analytic=analytic)
+        t = acb(2) * acb_half * v2 + acb_beta - acb(2) * acb_half
+        log_contact = -((acb(2) * acb_half) * v2).log(analytic=analytic)
+        return density_times_dt(v2, endpoint_factor, t) * log_contact
+
+    continuous_part = acb(0)
+    u_breakpoints = [0.0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8]
+    for left, right in zip(u_breakpoints, u_breakpoints[1:]):
+        continuous_part += acb.integral(
+            u_integrand,
+            arb(repr(left)),
+            arb(repr(right)),
+            rel_tol=arb("1e-45"),
+            abs_tol=arb("1e-45"),
+            deg_limit=64,
+            eval_limit=20000,
+            depth_limit=100,
+        )
+
+    delta = 1.0e-4
+    v_breakpoints = [delta, 0.001, 0.005, 0.02, 0.06, 0.12, 0.25, 0.4, 0.6]
+    for left, right in zip(v_breakpoints, v_breakpoints[1:]):
+        continuous_part += acb.integral(
+            v_integrand,
+            arb(repr(left)),
+            arb(repr(right)),
+            rel_tol=arb("1e-45"),
+            abs_tol=arb("1e-45"),
+            deg_limit=64,
+            eval_limit=20000,
+            depth_limit=100,
+        )
+
+    def tail_radius() -> arb:
+        v = _arb_interval_from_bounds(0.0, delta)
+        v2 = v * v
+        endpoint_factor = (1 - v2).sqrt()
+        t = alpha + 2 * half * v2
+        density = density_times_dt(acb(v2), acb(endpoint_factor), acb(t)).real
+        half_low = max(float(half.lower()), 1.0e-300)
+        coef = float(abs(density).upper()) / (delta * delta)
+        log_weight = -math.log(2.0 * half_low * delta * delta) + 2.0 / 3.0
+        radius = coef * delta**3 * max(log_weight, 0.0) / 3.0
+        return arb(f"[+/- {radius!r}]")
+
+    return str(atom_part + continuous_part.real + tail_radius())
+
+
+def contact_potential_acb(A: float, alpha: float, epsilon: float, precision: int = 256) -> str:
+    """Arb/Acb diagnostic enclosure for ``U(alpha)`` at a fixed point."""
+
+    from flint import arb
+
+    return _contact_potential_acb_from_arb(
+        arb(repr(float(A))),
+        arb(repr(float(alpha))),
+        arb(repr(float(epsilon))),
+        precision,
+    )
+
+
 def _potential_minus_one_directional_derivative_acb_from_arb(
     A,
     alpha,
