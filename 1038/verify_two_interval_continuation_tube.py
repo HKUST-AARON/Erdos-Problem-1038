@@ -72,6 +72,95 @@ def load_payload(path: Path) -> dict[str, Any]:
     return v.load_payload(path)
 
 
+def endpoint_anchor_metrics(rows: list[Any], low_row: Any, high_row: Any, radii: np.ndarray) -> tuple[float, float, float]:
+    """Return endpoint residual, sign, and normalized endpoint-step diagnostics."""
+
+    def row_map(row: Any) -> dict[str, Any]:
+        raw = v.require_mapping(rows[row.index], f"rows[{row.index}]")
+        return raw
+
+    max_residual = 0.0
+    min_sign = float("inf")
+    for endpoint in (low_row, high_row):
+        raw = row_map(endpoint)
+        solution = v.require_mapping(raw.get("solution"), f"rows[{endpoint.index}].solution")
+        residuals = v.require_mapping(solution.get("residuals"), f"rows[{endpoint.index}].solution.residuals")
+        max_residual = max(
+            max_residual,
+            abs(v.finite_float(residuals.get("U_alpha"), f"rows[{endpoint.index}].solution.residuals.U_alpha")),
+            abs(v.finite_float(residuals.get("U_minus_one"), f"rows[{endpoint.index}].solution.residuals.U_minus_one")),
+        )
+        box = v.require_mapping(raw.get("krawczyk_box"), f"rows[{endpoint.index}].krawczyk_box")
+        signs = v.require_mapping(box.get("sign_margins"), f"rows[{endpoint.index}].krawczyk_box.sign_margins")
+        for key, value in signs.items():
+            min_sign = min(min_sign, v.finite_float(value, f"rows[{endpoint.index}].krawczyk_box.sign_margins.{key}"))
+
+    step_units = max(
+        abs(high_row.B - low_row.B) / float(radii[0]),
+        abs(high_row.tau - low_row.tau) / float(radii[1]),
+    )
+    return max_residual, min_sign, step_units
+
+
+def sampled_boundary_degree(
+    low_row: Any,
+    high_row: Any,
+    radii: np.ndarray,
+    limit_solution: Any,
+    left_weight: float,
+    null_slope: float,
+    eta_samples: int,
+    edge_samples: int,
+) -> tuple[int, float, float]:
+    """Sample the winding of K on the tube boundary.
+
+    This is a diagnostic existence probe, not an interval proof.  It is useful
+    for deciding whether the next proof artifact should be a boundary-degree
+    certificate or a different continuation bound.
+    """
+
+    if eta_samples <= 0 or edge_samples <= 0:
+        return 0, float("inf"), 0.0
+    solver = v.load_solver()
+    eta_low = low_row.epsilon ** 0.5
+    eta_high = high_row.epsilon ** 0.5
+    worst_abs_degree = 10**9
+    min_norm = float("inf")
+    max_jump = 0.0
+    for eta_index in range(eta_samples):
+        eta = eta_low + (eta_high - eta_low) * (eta_index + 0.5) / eta_samples
+        center_B, center_tau = v.center_at(eta, low_row, high_row)
+        boundary: list[tuple[float, float]] = []
+        for index in range(edge_samples):
+            t = -1.0 + 2.0 * index / edge_samples
+            boundary.append((center_B + float(radii[0]), center_tau + t * float(radii[1])))
+        for index in range(edge_samples):
+            t = 1.0 - 2.0 * index / edge_samples
+            boundary.append((center_B + t * float(radii[0]), center_tau + float(radii[1])))
+        for index in range(edge_samples):
+            t = 1.0 - 2.0 * index / edge_samples
+            boundary.append((center_B - float(radii[0]), center_tau + t * float(radii[1])))
+        for index in range(edge_samples):
+            t = -1.0 + 2.0 * index / edge_samples
+            boundary.append((center_B + t * float(radii[0]), center_tau - float(radii[1])))
+        values = np.asarray(
+            [solver.rescaled_system(B, tau, eta, limit_solution, left_weight, null_slope) for B, tau in boundary],
+            dtype=float,
+        )
+        if not np.all(np.isfinite(values)):
+            v.fail(f"sampled boundary degree eta_index={eta_index}: non-finite K value")
+        norms = np.linalg.norm(values, axis=1)
+        min_norm = min(min_norm, float(np.min(norms)))
+        angles = np.unwrap(np.arctan2(values[:, 1], values[:, 0]))
+        jumps = np.abs(np.diff(np.r_[angles, angles[0] + 2.0 * np.pi * round((angles[-1] - angles[0]) / (2.0 * np.pi))]))
+        max_jump = max(max_jump, float(np.max(jumps)))
+        total_turn = angles[-1] - angles[0]
+        closing_turn = np.angle(np.exp(1j * (angles[0] - angles[-1])))
+        degree = int(round((total_turn + closing_turn) / (2.0 * np.pi)))
+        worst_abs_degree = min(worst_abs_degree, abs(degree))
+    return worst_abs_degree, min_norm, max_jump
+
+
 def verify_tube(
     config: TubeConfig,
     rows: list[Any],
@@ -80,7 +169,8 @@ def verify_tube(
     null_slope: float,
     kernel: str,
     max_weighted_defect: float,
-) -> tuple[float, str, float]:
+    boundary_degree_samples: tuple[int, int],
+) -> tuple[float, str, float, float, float, float, int, float, float]:
     from flint import arb
 
     solver = v.load_solver()
@@ -89,6 +179,17 @@ def verify_tube(
     if low_row.epsilon > high_row.epsilon:
         low_row, high_row = high_row, low_row
     v.assert_adjacent_endpoint_rows(rows, low_row, high_row)
+    endpoint_residual, endpoint_sign, endpoint_step_units = endpoint_anchor_metrics(rows, low_row, high_row, config.radii)
+    sampled_degree, sampled_boundary_min_norm, sampled_boundary_max_jump = sampled_boundary_degree(
+        low_row,
+        high_row,
+        config.radii,
+        limit_solution,
+        left_weight,
+        null_slope,
+        boundary_degree_samples[0],
+        boundary_degree_samples[1],
+    )
 
     eta_low = low_row.epsilon ** 0.5
     eta_high = high_row.epsilon ** 0.5
@@ -208,7 +309,17 @@ def verify_tube(
             f"slab {config.slab.eps_low:g}:{config.slab.eps_high:g}: weighted defect {worst:.6e} "
             f">= threshold {max_weighted_defect:.6e}; worst_source={worst_source}"
         )
-    return worst, worst_source, min_sign_margin
+    return (
+        worst,
+        worst_source,
+        min_sign_margin,
+        endpoint_residual,
+        endpoint_sign,
+        endpoint_step_units,
+        sampled_degree,
+        sampled_boundary_min_norm,
+        sampled_boundary_max_jump,
+    )
 
 
 def main() -> int:
@@ -217,6 +328,13 @@ def main() -> int:
     parser.add_argument("--config", action="append", type=parse_tube_config, required=True)
     parser.add_argument("--eta-interval-dk-kernel", choices=["acb", "residue-log"], default="acb")
     parser.add_argument("--max-weighted-defect", type=float, default=0.95)
+    parser.add_argument(
+        "--sample-boundary-degree",
+        type=v.parse_subdivisions,
+        default=(0, 0),
+        metavar="ETA,EDGE",
+        help="Diagnostic only: sample K on the tube boundary at ETA eta slices and EDGE points per edge.",
+    )
     args = parser.parse_args()
 
     try:
@@ -228,7 +346,17 @@ def main() -> int:
         worst = -1.0
         worst_label = "none"
         for config in args.config:
-            value, source, sign_margin = verify_tube(
+            (
+                value,
+                source,
+                sign_margin,
+                endpoint_residual,
+                endpoint_sign,
+                endpoint_step_units,
+                sampled_degree,
+                sampled_boundary_min_norm,
+                sampled_boundary_max_jump,
+            ) = verify_tube(
                 config,
                 rows,
                 limit_solution,
@@ -236,13 +364,21 @@ def main() -> int:
                 null_slope,
                 args.eta_interval_dk_kernel,
                 args.max_weighted_defect,
+                args.sample_boundary_degree,
             )
             label = f"{config.slab.eps_low:g}:{config.slab.eps_high:g}"
             print(
                 f"tube={label} PASS weighted_defect={value:.6e} "
                 f"radii=({config.radii[0]:.6e},{config.radii[1]:.6e}) "
                 f"eta_uv={config.eta_subdivisions},{config.uv_subdivisions} "
-                f"min_sign={sign_margin:.6e} worst_source={source}"
+                f"min_sign={sign_margin:.6e} "
+                f"endpoint_residual={endpoint_residual:.6e} "
+                f"endpoint_sign={endpoint_sign:.6e} "
+                f"endpoint_step_units={endpoint_step_units:.6e} "
+                f"sampled_degree_abs={sampled_degree:d} "
+                f"sampled_boundary_min_norm={sampled_boundary_min_norm:.6e} "
+                f"sampled_boundary_max_jump={sampled_boundary_max_jump:.6e} "
+                f"worst_source={source}"
             )
             if value > worst:
                 worst = value

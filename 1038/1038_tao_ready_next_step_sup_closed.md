@@ -1431,3 +1431,32 @@ This still is not the full finite-gap proof.  What remains is now sharper:
 The practical status is therefore improved: the old sampled-center obstruction
 is no longer the only route.  The matrix part needed by the alternative
 continuation route now has a passing interval artifact.
+
+The same verifier now also has a diagnostic boundary-degree probe:
+
+```text
+--sample-boundary-degree ETA,EDGE
+```
+
+This samples \(K\) on the boundary of the tube and reports the absolute winding
+number, the minimum sampled boundary norm, and the largest sampled angle jump.
+This is still not an interval degree proof, but it tests exactly the missing
+existence half of the continuation route.
+
+Remote replay with `--sample-boundary-degree 8,64` gave:
+
+```text
+0.00005:0.0001     sampled_degree_abs=1 min_boundary_norm=1.182967e-04
+0.0001:0.0002      sampled_degree_abs=1 min_boundary_norm=1.085044e-04
+0.0002:0.0005      sampled_degree_abs=1 min_boundary_norm=1.796473e-05
+0.0005:0.001       sampled_degree_abs=1 min_boundary_norm=1.647103e-04
+0.001:0.00125      sampled_degree_abs=1 min_boundary_norm=7.515366e-05
+0.00125:0.0015     sampled_degree_abs=1 min_boundary_norm=7.927235e-05
+0.0015:0.00175     sampled_degree_abs=1 min_boundary_norm=8.227357e-05
+0.00175:0.002      sampled_degree_abs=1 min_boundary_norm=8.462766e-05
+```
+
+The diagnostic bottleneck is now clear: \([2\cdot10^{-4},5\cdot10^{-4}]\) has
+the thinnest sampled boundary clearance.  If a continuum boundary-degree
+certificate is attempted next, that slab is the first one to intervalize and
+split if necessary.
