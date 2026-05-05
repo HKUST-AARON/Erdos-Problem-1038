@@ -6679,10 +6679,12 @@ augmented Schur-complement rank lemma, stated without hiding this issue:
 
 This is now the smallest remaining compact \(g=2\) mouth.
 
-### 16.46 Schur rank matrix to compute
+### 16.46 Obsolete Schur rank-six attempt
 
-The rank lemma can be reduced to an explicit matrix calculation.  The
-augmented KKT rows should be ordered as
+The following was the first attempted matrix formulation.  It is useful for
+setting notation, but the rank-six conclusion is corrected in 16.47.
+
+The augmented KKT rows should be ordered as
 
 \[
 (\mathcal L,M,F_c,E_-,E_+,S)
@@ -6725,7 +6727,7 @@ B_{\rm Schur}
 B_{\rm free}-A_{\rm free}A_{\rm piv}^{-1}B_{\rm piv}.
 \]
 
-The compact \(g=2\) mouth is now:
+The tempting but incorrect target was:
 
 \[
 \boxed{
@@ -6733,32 +6735,345 @@ The compact \(g=2\) mouth is now:
 }
 \]
 
-If this rank is six, the six moment equations are legitimate and the
-Chebyshev contradiction closes the compact branch.  If it is five, then even
-the objective row does not supply enough local jet information, and the proof
-must identify which geometric equation supplies the missing independent
-condition.
+This cannot be the right statement after eliminating four local variables.
+The corrected cokernel formulation is given next.
 
-### 16.47 Review after the augmented-row correction
+### 16.47 Correction: Schur rank six is still the wrong linear algebra
+
+The previous subsection still overstates what elimination can do.  There are
+six augmented rows but four local variables:
+
+\[
+(\mathcal L,M,F_c,E_-,E_+,S)
+\quad\text{versus}\quad
+(q,a,b,c).
+\]
+
+If the local-variable Jacobian \(A\) has rank \(4\), eliminating
+\((q,a,b,c)\) leaves a cokernel of dimension
+
+\[
+6-4=2.
+\]
+
+Therefore the Schur complement cannot produce six independent density moment
+constraints.  The correct object is not a \(6\)-row annihilator.  It is a
+two-dimensional cokernel of the local block.
+
+Concretely, write
+
+\[
+d\mathcal K=A\,d(q,a,b,c)+B\,\xi.
+\]
+
+The admissible density constraints after eliminating local variables are
+obtained by left-null vectors
+
+\[
+\lambda\in\ker A^T.
+\]
+
+For each such \(\lambda\), the remaining density row is
+
+\[
+\lambda^TB\,\xi.
+\]
+
+Thus the actual Schur object is
+
+\[
+\boxed{
+B_{\rm cok}:=\ker(A^T)\,B,
+\qquad
+\operatorname{rank}B_{\rm cok}=2
+\text{ generically.}
+}
+\]
+
+This changes the compact proof target.  The six local jet kernels form a
+Chebyshev system, but the KKT elimination selects only a two-dimensional
+subspace of their span.  One should not claim that \(G\) is orthogonal to all
+six kernels.  Instead, the compact adjoint density kernel has the form
+
+\[
+K_\lambda(x)
+=
+\lambda_0
++\frac{\lambda_u}{x-u}
++\frac{\lambda_c}{x-c}
++\frac{\lambda_v}{x-v}
++\lambda_-L_-(x)
++\lambda_+L_+(x),
+\]
+
+where the coefficient vector \(\lambda\) lies in the two-dimensional cokernel
+selected by the local KKT equations.
+
+The sign-variation tool must therefore be used in the dual Chebyshev way:
+non-zero elements of a Chebyshev span have **few zeros**, while the compact
+positivity/period conditions force **too many zeros or sign alternations** for
+the particular \(K_\lambda\).  This is different from the earlier moment
+orthogonality argument.
+
+### 16.48 Correct compact \(g=2\) mouth after the rank correction
+
+The compact proof should now be reorganised as follows.
+
+1. Compute the \(6\times4\) local-variable Jacobian \(A\) for
+\[
+(\mathcal L,M,F_c,E_-,E_+,S)
+\]
+against
+\[
+(q,a,b,c).
+\]
+
+2. Compute a basis of the two-dimensional cokernel
+\[
+\ker A^T.
+\]
+
+3. Push this cokernel through the six density jets to obtain a two-dimensional
+space
+\[
+\mathcal K_{\rm adj}
+\subset
+\operatorname{span}\{1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+\}.
+\]
+
+4. Prove that every non-zero
+\[
+K\in\mathcal K_{\rm adj}
+\]
+violates the compact positivity/period requirements.  The six-kernel
+Chebyshev determinant is still useful here because it controls zeros of
+non-zero linear combinations in the ambient six-dimensional span.
+
+The new precise target is:
+
+\[
+\boxed{
+\text{show that the two-dimensional KKT cokernel subspace }
+\mathcal K_{\rm adj}
+\text{ contains no admissible sign pattern on the two real ovals.}
+}
+\]
+
+This is a real correction, not just a rephrasing.  The previous "six moment
+orthogonality" target was too strong and not supported by the dimensions of
+the local elimination.
+
+### 16.49 Review after the augmented-row correction
 
 This correction is important.  The previous "rank six" statement for five
-constraint rows was impossible on linear-algebra grounds.  The correct KKT
-object is the augmented row set containing the objective \(d\mathcal L\).  This
-is natural: at an interior minimiser, the obstruction is precisely that
-\(d\mathcal L\) lies in the span of the active constraint differentials.
+constraint rows was impossible on linear-algebra grounds, and the follow-up
+"rank six after adding \(d\mathcal L\)" was still dimensionally wrong after
+eliminating four local variables.  The correct KKT object is now:
+
+\[
+\ker A^T B.
+\]
 
 The next most needed calculation is therefore explicit:
 
 \[
 \boxed{
-\text{write the }6\times6\text{ density-jet matrix for }
-(\mathcal L,M,F_c,E_-,E_+,S)
-\text{ after eliminating }q,a,b,c.
+\text{write }A,\text{ compute }\ker A^T,\text{ and derive the two-dimensional}
+\text{ adjoint kernel subspace }\mathcal K_{\rm adj}.
 }
 \]
 
-This is the current smallest mathematical hard mouth for closing compact
-\(g=2\).
+After that, the problem becomes a two-dimensional sign-pattern exclusion
+inside a six-dimensional Chebyshev span.  This is the current smallest
+mathematical hard mouth for closing compact \(g=2\).
+
+### 16.50 Candidate augmented local matrix
+
+The next calculation can be made concrete by choosing a local gauge.  Use
+relative endpoint rows, subtracting the common exterior field level at \(c\),
+so that the density increments are
+
+\[
+\xi_-=\Phi(c)-\Phi(u),\qquad
+\xi_+=\Phi(v)-\Phi(c),
+\]
+
+rather than the three absolute values \(\Phi(u),\Phi(c),\Phi(v)\).  This is
+legitimate because the common additive level is absorbed by the endpoint zero
+normalisation and the atom mass \(q\).
+
+With rows ordered as
+
+\[
+(\mathcal L,M,F_c,\widetilde E_-,\widetilde E_+,S)
+\]
+
+and variables ordered as
+
+\[
+(q,a,b,c),
+\]
+
+the local-variable block has the expected schematic form
+
+\[
+A=
+\begin{pmatrix}
+0&1&1&0\\
+1&0&0&0\\
+0&0&0&F'(c)\\
+\log(1/a)&-U'(u)&0&A_u\\
+\log(1/b)&0&U'(v)&B_v\\
+0&A_u-aA_{2,u}&B_v+bB_{2,v}&aA_{2,u}+bB_{2,v}
+\end{pmatrix},
+\]
+
+where
+
+\[
+A_u=W'(u),\qquad B_v=W'(v),\qquad
+A_{2,u}=W''(u),\qquad B_{2,v}=W''(v).
+\]
+
+The corresponding density-jet columns are ordered as
+
+\[
+(\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+)
+\]
+
+for
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\ L_-,\ L_+.
+\]
+
+In the same gauge, the density block should have schematic form
+
+\[
+B=
+\begin{pmatrix}
+0&0&0&0&0&0\\
+1&0&0&0&0&0\\
+0&0&-1&0&0&0\\
+0&0&0&0&-1&0\\
+0&0&0&0&0&1\\
+0&a&0&b&0&0
+\end{pmatrix}.
+\]
+
+Signs in the \(\widetilde E_\pm\) rows depend on whether the row is written as
+\(\Phi(c)-\Phi(u)\) or \(\Phi(u)-\Phi(c)\), but this does not affect rank.
+The important structural point is that the six density jets enter in six
+different rows before local elimination:
+
+1. \(\xi_0\) in mass;
+2. \(\xi_c\) in the dual zero;
+3. \(\xi_-,\xi_+\) in the two relative endpoint rows;
+4. \(\xi_u,\xi_v\) in stationarity;
+5. \(\mathcal L\) supplies the extra augmented row needed for a non-trivial
+   cokernel.
+
+The next exact algebraic task is now:
+
+\[
+\boxed{
+\text{compute }\ker A^T\text{ for this }A,\text{ then multiply by }B.
+}
+\]
+
+This will produce the two-dimensional coefficient subspace
+\(\mathcal K_{\rm adj}\).  The signs \(U'(u)>0\), \(U'(v)<0\), \(F'(c)<0\),
+and \(a,b>0\) should be used to show that this subspace cannot contain an
+admissible compact sign pattern.
+
+### 16.51 Explicit cokernel basis
+
+The symbolic cokernel calculation is now small enough to write down.  Put
+
+\[
+p=\log(1/a),\qquad r=\log(1/b),
+\]
+
+\[
+U_u=U'(u)>0,\qquad U_v=U'(v)<0,\qquad F_c=F'(c)<0,
+\]
+
+and keep
+
+\[
+A_u=W'(u),\quad B_v=W'(v),\quad A_{2,u}=W''(u),\quad B_{2,v}=W''(v).
+\]
+
+For the matrix \(A\) in 16.50, a basis of \(\ker A^T\) pushes through \(B\)
+to the following two density-kernel coefficient vectors in the ordered basis
+
+\[
+(1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\ L_-,\ L_+).
+\]
+
+The first vector is
+
+\[
+\boxed{
+\kappa_1=
+\left(
+\frac{-U_u r+U_v p}{U_u},\
+0,\
+-\frac{A_uU_v-B_vU_u}{F_cU_u},\
+0,\
+\frac{U_v}{U_u},\
+1
+\right).
+}
+\]
+
+The second vector is
+
+\[
+\boxed{
+\begin{aligned}
+\kappa_2
+=\bigg(&
+\frac{p(-A_u+aA_{2,u}+B_v+bB_{2,v})}{U_u},\
+a,\\
+&
+\frac{
+A_u^2-A_uaA_{2,u}-A_uB_v-A_ubB_{2,v}
++aA_{2,u}U_u+bB_{2,v}U_u
+}{F_cU_u},\\
+&b,\
+\frac{-A_u+aA_{2,u}+B_v+bB_{2,v}}{U_u},\
+0
+\bigg).
+\end{aligned}
+}
+\]
+
+Thus
+
+\[
+\mathcal K_{\rm adj}
+=
+\operatorname{span}\{K_1,K_2\},
+\]
+
+where \(K_j\) is the corresponding linear combination of the six local jet
+kernels.  This replaces the previous vague "rank" target by an explicit
+two-dimensional space.
+
+The compact \(g=2\) problem is now:
+
+\[
+\boxed{
+\text{show no non-zero }sK_1+tK_2
+\text{ has the admissible compact sign pattern on }I_1\cup I_2.
+}
+\]
+
+The six-kernel Chebyshev determinant says every non-zero \(sK_1+tK_2\) has
+controlled zero count in the ambient Chebyshev span.  What remains is to
+translate the compact positivity/period conditions into a lower bound on the
+number of zeros or sign alternations required of \(sK_1+tK_2\).
 
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 

@@ -2133,7 +2133,7 @@ stationarity simply "gives" two endpoint derivative rows.  Once this augmented
 rank-six statement is proved, the six-kernel oriented Chebyshev determinant
 gives the sign-variation contradiction.
 
-### E39. Schur rank matrix
+### E39. Corrected Schur cokernel target
 
 The next calculation should write
 
@@ -2148,16 +2148,139 @@ where
 \]
 
 are the six density jets, and \(d\mathcal K\) contains
-\((d\mathcal L,dM,dF_c,dE_-,dE_+,dS)\).  After pivoting on the endpoint
-equations and \(F'(c)<0\), the needed statement is
+\((d\mathcal L,dM,dF_c,dE_-,dE_+,dS)\).  Since \(A\) is \(6\times4\), local
+elimination leaves a two-dimensional cokernel, not six independent moment
+constraints.  The correct object is
 
 \[
-\boxed{\operatorname{rank}B_{\rm Schur}=6.}
+\boxed{
+B_{\rm cok}:=\ker(A^T)B.
+}
 \]
 
-If the rank is six, compact \(g=2\) closes by the Chebyshev argument.  If it
-is five, the route is missing one independent geometric equation even after
-including the objective row.
+Thus the compact \(g=2\) target is: compute the two-dimensional adjoint kernel
+subspace
+
+\[
+\mathcal K_{\rm adj}\subset
+\operatorname{span}\{1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+\},
+\]
+
+then prove that no non-zero element of this subspace has the admissible
+compact sign pattern on the two real ovals.  The six-kernel Chebyshev
+determinant remains useful because it controls zeros of every non-zero element
+of the ambient span, but the earlier six-moment orthogonality target was too
+strong.
+
+### E40. Candidate local matrix
+
+Use relative endpoint rows so the endpoint density jets are
+
+\[
+\xi_-=\Phi(c)-\Phi(u),\qquad \xi_+=\Phi(v)-\Phi(c).
+\]
+
+With rows
+
+\[
+(\mathcal L,M,F_c,\widetilde E_-,\widetilde E_+,S)
+\]
+
+and local variables \((q,a,b,c)\), the schematic local block is
+
+\[
+A=
+\begin{pmatrix}
+0&1&1&0\\
+1&0&0&0\\
+0&0&0&F'(c)\\
+\log(1/a)&-U'(u)&0&W'(u)\\
+\log(1/b)&0&U'(v)&W'(v)\\
+0&W'(u)-aW''(u)&W'(v)+bW''(v)&aW''(u)+bW''(v)
+\end{pmatrix}.
+\]
+
+For density jets
+
+\[
+(\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+),
+\]
+
+the schematic density block is
+
+\[
+B=
+\begin{pmatrix}
+0&0&0&0&0&0\\
+1&0&0&0&0&0\\
+0&0&-1&0&0&0\\
+0&0&0&0&-1&0\\
+0&0&0&0&0&1\\
+0&a&0&b&0&0
+\end{pmatrix}.
+\]
+
+The next exact task is to compute \(\ker A^T B\), producing the
+two-dimensional adjoint kernel subspace \(\mathcal K_{\rm adj}\).
+
+### E41. Explicit cokernel basis
+
+Let
+
+\[
+p=\log(1/a),\quad r=\log(1/b),\quad
+U_u=U'(u),\quad U_v=U'(v),\quad F_c=F'(c),
+\]
+
+and write \(A_u=W'(u)\), \(B_v=W'(v)\),
+\(A_{2,u}=W''(u)\), \(B_{2,v}=W''(v)\).  In the ordered kernel basis
+
+\[
+(1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+),
+\]
+
+the cokernel calculation gives two coefficient vectors:
+
+\[
+\kappa_1=
+\left(
+\frac{-U_u r+U_v p}{U_u},
+0,
+-\frac{A_uU_v-B_vU_u}{F_cU_u},
+0,
+\frac{U_v}{U_u},
+1
+\right),
+\]
+
+and
+
+\[
+\begin{aligned}
+\kappa_2
+=\bigg(&
+\frac{p(-A_u+aA_{2,u}+B_v+bB_{2,v})}{U_u},
+a,\\
+&
+\frac{
+A_u^2-A_uaA_{2,u}-A_uB_v-A_ubB_{2,v}
++aA_{2,u}U_u+bB_{2,v}U_u
+}{F_cU_u},
+b,
+\frac{-A_u+aA_{2,u}+B_v+bB_{2,v}}{U_u},
+0
+\bigg).
+\end{aligned}
+\]
+
+Therefore
+
+\[
+\mathcal K_{\rm adj}=\operatorname{span}\{K_1,K_2\}.
+\]
+
+The compact \(g=2\) target is now explicit: prove that no non-zero
+\(sK_1+tK_2\) has the admissible compact sign pattern on the two real ovals.
 
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
