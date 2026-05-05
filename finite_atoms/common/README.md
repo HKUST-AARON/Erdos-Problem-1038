@@ -147,11 +147,15 @@ strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
 strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
 strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
 strictOutsideSupportHitSet_volume_zero_of_subset_countable
+strictOutsideSupportHitSet_volume_zero_of_subset_finite
+strictOutsideSupportHitSet_volume_zero_of_subset_finset
 componentReplacement_objective_le_of_outsideSupport_null
 componentReplacement_objective_le_of_outsideSupport_countable
 componentReplacement_objective_le_of_outsideSupport_subset_countable
 componentReplacement_objective_le_of_supportHit_subset_countable
 componentReplacement_objective_le_of_supportHit_countable
+componentReplacement_objective_le_of_supportHit_subset_finite
+componentReplacement_objective_le_of_supportHit_subset_finset
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -232,6 +236,9 @@ There is also a more local version: it is enough for the actual singular
 support-hit set itself to be countable, or to be contained in a countable
 carrier. This is deliberately weaker than asserting that an a.e. countable
 carrier for the outside measure controls its full topological support.
+The same local criterion is available with either an abstract finite carrier
+or a concrete `Finset` carrier, which is the interface expected from later
+component-topology or atomization arguments.
 The same interface is now available in a punctured-neighbourhood form: if the
 outside restriction gives zero mass to some open interval around each strict
 outside test point, Lean turns that into positive distance separation and closes

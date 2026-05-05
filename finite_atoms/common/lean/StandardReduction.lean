@@ -8200,6 +8200,25 @@ lemma strictOutsideSupportHitSet_volume_zero_of_subset_countable
     volume (strictOutsideSupportHitSet C) = 0 := by
   exact (hS_count.mono hsub).measure_zero volume
 
+/-- A finite carrier for the actual singular support-hit set is enough. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_subset_finite
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {S : Set ℝ}
+    (hS_finite : S.Finite)
+    (hsub : strictOutsideSupportHitSet C ⊆ S) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact strictOutsideSupportHitSet_volume_zero_of_subset_countable C
+    hS_finite.countable hsub
+
+/-- A concrete finite list of possible singular support-hit points is enough. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_subset_finset
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (S : Finset ℝ)
+    (hsub : strictOutsideSupportHitSet C ⊆ (S : Set ℝ)) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact strictOutsideSupportHitSet_volume_zero_of_subset_countable C
+    S.countable_toSet hsub
+
 /-- Component replacement does not increase the objective if the outside
 restriction has null support. -/
 theorem componentReplacement_objective_le_of_outsideSupport_null
@@ -8265,6 +8284,31 @@ theorem componentReplacement_objective_le_of_supportHit_countable
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   exact componentReplacement_objective_le_of_supportHit_subset_countable
     C hmass_pos hcount (subset_rfl)
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is covered by a finite set. -/
+theorem componentReplacement_objective_le_of_supportHit_subset_finite
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    {S : Set ℝ}
+    (hS_finite : S.Finite)
+    (hsub : strictOutsideSupportHitSet C ⊆ S) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_supportHit_subset_countable
+    C hmass_pos hS_finite.countable hsub
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is covered by a concrete finite list. -/
+theorem componentReplacement_objective_le_of_supportHit_subset_finset
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (S : Finset ℝ)
+    (hsub : strictOutsideSupportHitSet C ⊆ (S : Set ℝ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_supportHit_subset_countable
+    C hmass_pos S.countable_toSet hsub
 
 /-!
 ## Finite variance drop under barycenter replacement
