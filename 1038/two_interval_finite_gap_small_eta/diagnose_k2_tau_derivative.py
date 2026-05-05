@@ -50,6 +50,12 @@ def main() -> int:
         help="scan the two tau cells on each B edge for finite-difference curvature stress",
     )
     parser.add_argument("--cell-grid", type=int, default=101)
+    parser.add_argument(
+        "--interval-curvature-box-test",
+        action="store_true",
+        help="try direct Arb second-difference boxes on the four K2 edge cells",
+    )
+    parser.add_argument("--interval-subboxes", type=int, default=8)
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -130,6 +136,38 @@ def main() -> int:
             )
         )
         return float(abs(variation).upper())
+
+    def k2_box(B: float, tau_box: Any, eta_box: Any) -> Any:
+        base_delta_A = arb(repr(float(null_slope))) * tau_box + arb(repr(float(B)))
+        base_delta_alpha = tau_box
+        A = arb(repr(float(limit.A))) + eta_box * base_delta_A
+        alpha = arb(repr(float(limit.alpha))) + eta_box * base_delta_alpha
+        return arb(
+            solver._combined_residue_log_value_second_divided_from_arb(
+                A,
+                alpha,
+                eta_box,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit.A))),
+                arb(repr(float(limit.alpha))),
+                192,
+                base_delta_A,
+                base_delta_alpha,
+                regularize_joint_limit_layer=True,
+            )
+        )
+
+    def k0_2_box(B: float, tau_box: Any) -> Any:
+        qB = arb(repr(float(B)))
+        return (
+            arb(repr(float(forcing)))
+            + arb(repr(float(q20))) * qB * qB
+            + arb(repr(float(q11))) * qB * tau_box
+            + arb(repr(float(q02))) * tau_box * tau_box
+        )
+
+    def remainder_box(B: float, tau_box: Any, eta_box: Any) -> Any:
+        return k2_box(B, tau_box, eta_box) - k0_2_box(B, tau_box)
 
     def k0_2(B: float, tau: float) -> float:
         return forcing + q20 * B * B + q11 * B * tau + q02 * tau * tau
@@ -283,6 +321,60 @@ def main() -> int:
         )
         if scan_status != "PASS-DIAGNOSTIC":
             status = "FAIL-DIAGNOSTIC"
+    if args.interval_curvature_box_test:
+        if args.interval_subboxes <= 0:
+            raise SystemExit("interval-subboxes must be positive")
+        eta_box = solver._arb_interval_from_bounds(min(eta_values), max(eta_values))
+        h_box = arb(repr(float(args.h)))
+        interval_worst = 0.0
+        interval_source = ""
+        failures = 0
+        cell_step = 0.05
+        for B in (0.01, -0.01):
+            for cell in range(2):
+                tau_low = tau0 - 0.05 + cell_step * cell
+                tau_high = tau_low + cell_step
+                usable_low = tau_low + args.h
+                usable_high = tau_high - args.h
+                cell_worst = 0.0
+                for subbox in range(args.interval_subboxes):
+                    low = usable_low + (usable_high - usable_low) * subbox / args.interval_subboxes
+                    high = usable_low + (usable_high - usable_low) * (subbox + 1) / args.interval_subboxes
+                    tau_box = solver._arb_interval_from_bounds(low, high)
+                    try:
+                        curvature = (
+                            remainder_box(B, tau_box + h_box, eta_box)
+                            - 2 * remainder_box(B, tau_box, eta_box)
+                            + remainder_box(B, tau_box - h_box, eta_box)
+                        ) / (h_box * h_box)
+                    except Exception as exc:  # noqa: BLE001
+                        failures += 1
+                        if not interval_source:
+                            interval_source = f"B={B:+.2f},cell={cell},subbox={subbox},{type(exc).__name__}:{exc}"
+                        continue
+                    bound = float(abs(curvature).upper())
+                    cell_worst = max(cell_worst, bound)
+                    if bound > interval_worst:
+                        interval_worst = bound
+                        interval_source = (
+                            f"B={B:+.2f},cell={cell},subbox={subbox},"
+                            f"tau=[{low:.12e},{high:.12e}],curvature={curvature}"
+                        )
+                print(
+                    f"K2_INTERVAL_CURVATURE_BOX B={B:+.2f} cell={cell:d} "
+                    f"subboxes={args.interval_subboxes:d} worst_bound={cell_worst:.6e}"
+                )
+        interval_status = (
+            "PASS-DIAGNOSTIC"
+            if failures == 0 and interval_worst < args.candidate_curvature
+            else "FAIL-DIAGNOSTIC"
+        )
+        print(
+            "TWO-INTERVAL K2 INTERVAL CURVATURE BOX TEST: "
+            f"{interval_status} subboxes={args.interval_subboxes:d} h={args.h:.6e} "
+            f"worst_bound={interval_worst:.6e} candidate_curvature={args.candidate_curvature:.6e} "
+            f"failures={failures:d} worst_source={interval_source!r}"
+        )
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 

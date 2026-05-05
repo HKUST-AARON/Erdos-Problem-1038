@@ -644,3 +644,36 @@ the current K2 edge part of the small-eta singular gap.
 
 This is a conditional closure statement, not yet the theorem itself: the
 four-box curvature bound still has to be certified by interval arithmetic.
+
+## Why Direct Interval Boxes Do Not Close It
+
+I also tested the naive approach: apply Arb directly to a second-difference
+curvature expression on the four boxes, with each cell split into subboxes.
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 3 \
+  --h 1e-4 \
+  --eta-values 1e-16,1e-8 \
+  --interval-curvature-box-test \
+  --interval-subboxes 8
+```
+
+Observed output:
+
+```text
+K2_INTERVAL_CURVATURE_BOX B=+0.01 cell=0 subboxes=8 worst_bound=3.712524e+09
+K2_INTERVAL_CURVATURE_BOX B=+0.01 cell=1 subboxes=8 worst_bound=3.896549e+09
+K2_INTERVAL_CURVATURE_BOX B=-0.01 cell=0 subboxes=8 worst_bound=3.708524e+09
+K2_INTERVAL_CURVATURE_BOX B=-0.01 cell=1 subboxes=8 worst_bound=3.892549e+09
+TWO-INTERVAL K2 INTERVAL CURVATURE BOX TEST: FAIL-DIAGNOSTIC
+worst_bound=3.896549e+09
+candidate_curvature=2.500000e-04
+```
+
+This failure is a dependency/cancellation failure of the naive interval
+expression, not evidence against the branch.  It rules out the cheap path
+"just subdivide the current black-box K2 expression".  The needed proof-grade
+step is more specific: build an analytic second-tau-divided kernel for the
+combined K2 residual, with the same cancellations used by the value-level K2
+kernel before Arb evaluates intervals.

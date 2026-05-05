@@ -242,6 +242,28 @@ PASS-DIAGNOSTIC worst_curvature=1.003451e-04
 candidate_curvature=2.500000e-04
 ```
 
+Naive interval curvature box test:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --grid 3 \
+  --h 1e-4 \
+  --eta-values 1e-16,1e-8 \
+  --interval-curvature-box-test \
+  --interval-subboxes 8
+```
+
+Current expected summary:
+
+```text
+TWO-INTERVAL K2 INTERVAL CURVATURE BOX TEST:
+FAIL-DIAGNOSTIC worst_bound=3.896549e+09
+candidate_curvature=2.500000e-04
+```
+
+This records that the direct black-box interval second-difference route is too
+wide; the remaining proof needs an analytic second-tau-divided K2 kernel.
+
 ## Caveat
 
 This folder does not claim a complete proof of the 1038 infimum.  It is a
