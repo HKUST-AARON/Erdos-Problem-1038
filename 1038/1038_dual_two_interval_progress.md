@@ -8065,6 +8065,199 @@ H_{v\zeta}^{\rm red}=\frac{\lambda}{2}\Gamma(v-c),
 with positive normalisation \(\lambda\) after matching the left/right endpoint
 charts.  This is the exact algebraic form of the remaining proof.
 
+### 16.63 Pullback criterion for the missing Hessian calculation
+
+The remaining second-order calculation can be isolated in one matrix identity.
+Let \(G\) denote the reduced second-variation form on the six density jets
+after the local variables \(y=(q,a,b,c)\) have been eliminated by the bordered
+Hessian.  Thus \(G\) is the symmetric form satisfying
+
+\[
+\delta^2\mathcal L(d\xi)=d\xi^T G\,d\xi
+\]
+
+for tangent density perturbations.
+
+Let \(P\) be the \(6\times4\) tangent-lift matrix defined by 16.62:
+
+\[
+T(h)=P h,\qquad h=(h_u,h_v,h_-,h_+).
+\]
+
+Then the true four-dimensional tangent Hessian is
+
+\[
+\boxed{
+M=P^TGP.
+}
+\]
+
+The three vectors used above are the columns/combinations
+
+\[
+e_u=(1,0,0,0),\qquad e_v=(0,1,0,0),\qquad
+e_\zeta=(0,0,-1,1).
+\]
+
+Therefore H2-H3 are equivalent to the following three scalar identities:
+
+\[
+\boxed{
+e_\zeta^TMe_\zeta=\lambda Q_c,
+}
+\]
+
+\[
+\boxed{
+e_u^TMe_\zeta=-\frac{\lambda}{2}\Gamma(c-u),
+}
+\]
+
+and
+
+\[
+\boxed{
+e_v^TMe_\zeta=\frac{\lambda}{2}\Gamma(v-c).
+}
+\]
+
+This is a useful stopping point because it separates the first-order and
+second-order parts cleanly:
+
+1. \(P\) is already determined by the cokernel calculation.
+2. \(G\) is the only missing object.
+3. Once \(G\) is known, the curvature clamp is a finite algebraic consequence
+   of \(M=P^TGP\).
+
+The next proof step must therefore produce \(G\) from the logarithmic
+potential Lagrangian.  In potential-theoretic terms, \(G\) should be the
+second derivative of the finite-gap dual energy under changes of the local
+Cauchy data:
+
+\[
+\delta^2\mathcal L
+=
+\iint -\log|x-y|\,d(\delta\nu)(x)d(\delta\nu)(y)
++\text{endpoint and constraint curvature terms}.
+\]
+
+After the KKT constraints are imposed, all normal components are removed by
+the bordered Schur complement; the remaining tangent form is \(G\).
+
+Thus the proof has been reduced to the following exact theorem:
+
+\[
+\boxed{
+\textbf{Reduced Hessian theorem.}\quad
+\text{For the compact two-interval extremal ansatz, the reduced jet Hessian }
+G\text{ satisfies the three pullback identities above.}
+}
+\]
+
+If this theorem is proved, then:
+
+\[
+G\succeq0
+\Rightarrow
+M\succeq0
+\Rightarrow
+\text{curvature clamp}
+\Rightarrow
+\text{Wronskian log-part sign}
+\Rightarrow
+\text{compact }g=2\text{ branch excluded.}
+\]
+
+This also makes clear what has not yet been proved.  The current notes have
+not derived \(G\) from the finite-gap Lagrangian.  They have reduced the
+remaining mathematical problem to that derivation.  The next calculation should
+therefore start from the Cauchy-transform energy formula and compute the
+second derivative with respect to the six jet coordinates, before applying the
+projection \(P\).
+
+### 16.64 Decomposition of the reduced Hessian \(G\)
+
+The reduced Hessian \(G\) should be decomposed before attempting any long
+formula.  For a tangent variation \(\delta\nu\) of the compact dual measure,
+the second variation has three contributions:
+
+\[
+\boxed{
+\delta^2\mathcal L
+=
+\mathcal E_{\log}(\delta\nu)
++\mathcal E_{\rm edge}(\delta\nu)
++\mathcal E_{\rm Schur}(\delta\nu).
+}
+\]
+
+Here
+
+\[
+\mathcal E_{\log}(\delta\nu)
+=
+\iint -\log|x-y|\,d(\delta\nu)(x)d(\delta\nu)(y)
+\]
+
+is the direct logarithmic energy term.  In the compact finite-gap regime this
+term is the source of the Hessian positive-semidefinite structure after the
+usual dual sign convention.
+
+The edge term \(\mathcal E_{\rm edge}\) contains the square-root endpoint
+curvatures.  It is responsible for the diagonal endpoint entries \(a\) and
+\(b\).  This is the H1 part already isolated in 16.60.
+
+The Schur term \(\mathcal E_{\rm Schur}\) is the correction obtained by solving
+the first-order constraints for the local variables \(y=(q,a,b,c)\).  In block
+form, if the raw second variation in \((y,\xi)\) variables is
+
+\[
+\begin{pmatrix}
+H_{yy}&H_{y\xi}\\
+H_{\xi y}&H_{\xi\xi}
+\end{pmatrix},
+\]
+
+then the eliminated density-side Hessian has the form
+
+\[
+\boxed{
+G=H_{\xi\xi}-H_{\xi y}H_{yy}^{-1}H_{y\xi}
+}
+\]
+
+when \(H_{yy}\) is invertible in the chosen chart, and otherwise the same
+expression is interpreted as the bordered Schur complement.
+
+This decomposition gives the right proof strategy:
+
+1. prove that \(\mathcal E_{\log}+\mathcal E_{\rm edge}\) supplies the
+   positive-semidefinite form on tangent variations;
+2. compute \(\mathcal E_{\rm Schur}\) in the local variables;
+3. show that after projection by \(P\), the entries involving \(T_\zeta\) are
+   precisely \(Q_c\) and \(\Gamma d_\pm\).
+
+The important mathematical point is that \(Q_c\) is expected to be a
+Schur-complement coefficient, not a raw logarithmic-energy coefficient.  This
+explains why it appeared in \(\kappa_2\): \(\kappa_2\) is already an eliminated
+first-order object.  The same elimination must appear again in the second
+variation.
+
+The next explicit calculation should therefore focus on the local Schur
+piece:
+
+\[
+\boxed{
+\text{compute }H_{\xi y}H_{yy}^{-1}H_{y\xi}
+\text{ for the neck and endpoint-transfer jets.}
+}
+\]
+
+If this produces exactly the combinations \(Q_c\) and \(\Gamma\), then the
+remaining bulk log-energy part only has to be checked for positive
+semidefiniteness on the projected tangent cone.  That is a standard finite-gap
+convexity statement and is likely easier than the current Schur identity.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.

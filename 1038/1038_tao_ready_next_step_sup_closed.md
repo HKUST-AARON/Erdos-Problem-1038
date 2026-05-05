@@ -2564,6 +2564,46 @@ The relevant directions are \(T_u=T(1,0,0,0)\),
 \(T_v=T(0,1,0,0)\), and \(T_\zeta=T(0,0,-1,1)\).  The remaining proof is the
 pullback of the reduced bordered Hessian to these tangent vectors.
 
+Equivalently, if \(G\) is the reduced symmetric second-variation form on the
+six density jets after eliminating \(y=(q,a,b,c)\), and \(P\) is the tangent
+lift matrix above, then
+
+\[
+M=P^TGP
+\]
+
+is the four-dimensional tangent Hessian.  The missing theorem is the three
+entry identity
+
+\[
+e_\zeta^TMe_\zeta=\lambda Q_c,\qquad
+e_u^TMe_\zeta=-\frac{\lambda}{2}\Gamma(c-u),\qquad
+e_v^TMe_\zeta=\frac{\lambda}{2}\Gamma(v-c),
+\]
+
+with \(\lambda>0\).  Thus all first-order algebra has been isolated; the next
+mathematical step is to derive \(G\) from the finite-gap Cauchy-transform
+energy and then apply the projection \(P\).
+
+The reduced Hessian should be decomposed as
+
+\[
+\delta^2\mathcal L
+=
+\mathcal E_{\log}+\mathcal E_{\rm edge}+\mathcal E_{\rm Schur}.
+\]
+
+The edge term gives the endpoint diagonal entries \(a,b\).  The remaining hard
+part is the local Schur piece
+
+\[
+G=H_{\xi\xi}-H_{\xi y}H_{yy}^{-1}H_{y\xi}
+\]
+
+or its bordered version.  The next calculation should show that this Schur
+piece produces the \(Q_c\) neck coefficient and the \(\Gamma d_\pm\) mixed
+endpoint-neck coefficients after applying the projection \(P\).
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
