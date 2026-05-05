@@ -95,6 +95,9 @@ run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean"
 
 "$REPO_ROOT/finite_atoms/forcing_1708/scripts/check_aggregate.sh"
 
+python3 "$REPO_ROOT/finite_atoms/forcing_1836/scripts/verify_forcing_1836_interval.py" \
+  --check-json "$REPO_ROOT/finite_atoms/forcing_1836/forcing_1836_interval_certificate.json"
+
 "$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/scripts/verify_piecewise_181460_560_test.sh"
 
 echo "all finite-atom certificate checks passed"

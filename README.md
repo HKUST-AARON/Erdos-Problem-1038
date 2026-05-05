@@ -75,12 +75,14 @@ The checked repository status is:
 1.814600:
   Lean/Mathlib exact geometry, block coverage, required-domain mapping,
   non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
+  Stronger two-parameter forcing interval certificate for the 1.836 handoff.
   Generated 560-block required-domain certificate with Python verification.
+  Strong forcing worst margin: 2.7692109390833507e-06.
   Required-domain worst margin: 9.534343713646365e-06.
   Bad required-domain blocks: 0.
 ```
 
-The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate and the 560 individual logarithmic positivity blocks are still checked by the generated certificate rather than expanded into 560 standalone Lean proof terms.
+The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate. The 560 tail logarithmic positivity blocks and the stronger two-parameter forcing branch are checked by fixed certificate files and independent verifiers; they are not expanded into standalone Lean proof terms.
 
 ## Repository layout
 
@@ -94,7 +96,21 @@ The five-atom tail certificate. This is the main folder for the five-atom constr
 finite_atoms/forcing_1708/
 ```
 
-The preceding two-parameter forcing branch. It contains the interval certificate data and Lean checks for the branch that supports the long interval contribution.
+The conservative two-parameter forcing branch. It supports the weaker
+`(-1.7,0)` handoff and is kept as a separately checked baseline.
+
+```text
+finite_atoms/forcing_1836/
+```
+
+The stronger two-parameter forcing branch. It records the fixed interval
+certificate for
+
+$$
+a\in[-1.708,-\sqrt2],\qquad b=s(1.836+a),\qquad s\in[0,1],
+$$
+
+which is the handoff used by the 1.814600 route.
 
 ```text
 finite_atoms/common/
@@ -174,4 +190,5 @@ The repository does not vendor Mathlib. Use any local Lean/Mathlib workspace and
 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
 ```
 
-This runs the Lean files and the generated 560-block required-domain checker.
+This runs the Lean files, the stronger forcing certificate checker, and the
+generated 560-block required-domain checker.
