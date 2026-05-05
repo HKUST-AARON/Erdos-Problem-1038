@@ -117,6 +117,7 @@ componentReplacement_objective_le_of_strictOutside_decomposition_jensen
 componentReplacement_objective_le_of_strictOutside_logKernel_jensen
 componentBlock_logKernel_jensen_scaled_of_probability_block
 componentBlock_logKernel_jensen_scaled_normalized
+componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -162,6 +163,10 @@ is the mean of the normalized component block whenever `componentMass C > 0`.
 The canonical normalized block is now wired directly into the scaled Jensen
 comparison, so no external normalized-block identification is needed for the
 Jensen step.
+The objective non-increase theorem has also been lifted to this canonical
+normalized block interface: after the caller supplies only the log-kernel and
+first-moment integrability inputs, Lean produces the Jensen comparison and
+then the component-replacement objective inequality.
 
 The following review findings remain real Lean gaps, not solved claims:
 

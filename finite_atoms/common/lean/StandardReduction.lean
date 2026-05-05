@@ -7530,6 +7530,41 @@ theorem componentBlock_logKernel_jensen_scaled_normalized
       rfl
     simpa [hmass_eq] using hscale
 
+/--
+Objective non-increase for component replacement using the canonical normalized
+component block.
+
+Compared with `componentReplacement_objective_le_of_strictOutside_logKernel_jensen`,
+this theorem no longer asks the caller to provide the Jensen comparison.  The
+comparison is produced internally from the normalized component block; the
+remaining hypotheses are exactly the integrability inputs needed to make the
+logarithmic integrals well-defined.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ) ∧
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentBlock C) ∧
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (componentMass C • Measure.dirac (componentBarycenter C)) ∧
+      Integrable (fun t : ℝ => t)
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) ∧
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_logKernel_jensen
+    C ?_
+  intro x hx
+  rcases hdata x hx with
+    ⟨houtside, hblock, hatom, hfirst_norm, hkernel_norm⟩
+  refine ⟨houtside, hblock, hatom, ?_⟩
+  exact componentBlock_logKernel_jensen_scaled_normalized
+    C hmass_pos hx hfirst_norm hkernel_norm
+
 /-!
 ## Finite variance drop under barycenter replacement
 
