@@ -1402,6 +1402,60 @@ residues and density is inherited in the weak limit.  Hence endpoint pinching
 does not create a new \(g=2\) extremal; it returns to the \(g=1\) two-interval
 branch with possible endpoint atoms.
 
+### E16. Compact non-pinched \(g=2\) chamber
+
+After the pinching and disappearance reductions, any remaining \(g=2\)
+counterexample with \(|E|<M_*\) must be a compact, non-pinched, positive
+finite-gap point.  In such a chamber all inequalities are strict: branch gaps
+are bounded below, \(c-u\) and \(v-c\) are bounded below, residues are
+positive, and density signs have margin.
+
+Therefore a length-minimising counterexample is an interior point of a smooth
+finite-dimensional system
+
+\[
+\mathcal G(\Theta)=0,
+\]
+
+where the active equations include Stieltjes normalization, flat-zero period
+constraints, \(F(c)=0\), endpoint zero equations, and the escaping-component
+stationarity condition.  With
+
+\[
+\mathcal L(\Theta)=(R_0-L_0)+(v-u),
+\]
+
+interior minimality forces
+
+\[
+\boxed{
+d\mathcal L(\Theta)\in \operatorname{span}\{d\mathcal G_j(\Theta)\}.
+}
+\]
+
+Thus the compact \(g=2\) problem is now a finite-dimensional KKT/rank
+obstruction: prove that no positive non-pinched point below \(M_*\) satisfies
+this row-span condition.
+
+### E17. Adjoint obstruction
+
+Coordinate-free, the KKT row-span condition says that there is a non-zero
+adjoint meromorphic differential on the two-cut curve
+
+\[
+w^2=(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)
+\]
+
+This curve has algebraic genus one; the label \(g=2\) here refers to two
+active finite-gap intervals.  The adjoint differential would have prescribed
+principal parts, zero-period conditions, a zero at the escaping atom \(c\),
+endpoint sign conditions, and no sign change on the positive density cuts.
+
+This should be impossible by a divisor count: the adjoint differential is
+forced to have too many real zeros relative to its allowed poles once
+positivity rules out boundary cancellations.  Proving this divisor-count
+lemma would close the compact non-pinched \(g=2\) chamber below \(M_*\).
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

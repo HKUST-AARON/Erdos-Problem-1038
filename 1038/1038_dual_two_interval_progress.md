@@ -4772,6 +4772,153 @@ delete the escaping component, and pinching returns to the already isolated
 non-pinched \(g=2\) positive finite-gap solution; it is now the only case
 still requiring a direct inequality.
 
+### 16.18 Compact non-pinched \(g=2\) chamber
+
+After the pinching reductions, a hypothetical \(g=2\) counterexample with
+\(|E|<M_*\) must lie in a compact non-pinched chamber, unless it has already
+degenerated to the \(g=1\) branch.
+
+Concretely, for some \(\delta>0\), all of the following quantities are bounded
+below by \(\delta\):
+
+\[
+\beta_1-\alpha_1,\quad
+\alpha_2-\beta_1,\quad
+\beta_2-\alpha_2,\quad
+c-u,\quad
+v-c,
+\]
+
+and all residues and cut-density sign margins are also at least \(\delta\).
+The length bound is
+
+\[
+|E|=(R_0-L_0)+(v-u)\le M_*-\delta.
+\]
+
+Inside this chamber there is no endpoint collision, no disappearing atom, and
+no zero-density boundary.  Thus every positivity condition is an open
+inequality, and any length-minimising counterexample is an interior point of a
+finite-dimensional smooth system.
+
+Let \(\Theta\) denote the finite-gap parameters.  These include the branch
+points, the real poles/residues, the zero \(c\) of the numerator \(P\), and
+the finite normalization constants.  The active equations are:
+
+1. the Stieltjes normalization at infinity;
+2. the flat-zero period equation between the two zero bands;
+3. the complementarity zero
+
+\[
+F(c)=0;
+\]
+
+4. the primal escaping-component stationarity
+
+\[
+(c-u)U_\mu'(u)+(v-c)U_\mu'(v)=0;
+\]
+
+5. the endpoint zero equations
+
+\[
+U_\mu(u)=U_\mu(v)=0.
+\]
+
+Write these equations as
+
+\[
+\mathcal G(\Theta)=0
+\]
+
+and write the length functional as
+
+\[
+\mathcal L(\Theta)=(R_0-L_0)+(v-u).
+\]
+
+At an interior compact counterexample minimising length, the KKT condition is
+
+\[
+\boxed{
+d\mathcal L(\Theta)\in \operatorname{span}\{d\mathcal G_j(\Theta)\}.
+}
+\]
+
+Equivalently, if the Jacobian of \(\mathcal G\) has full rank and
+\(d\mathcal L\) is not in its row span, then there is an admissible tangent
+direction decreasing \(\mathcal L\), contradicting minimality.
+
+Thus the compact \(g=2\) problem has been reduced to a finite-dimensional
+rank obstruction:
+
+\[
+\boxed{
+\text{show that no positive, non-pinched }g=2\text{ finite-gap point with }
+\mathcal L<M_*\text{ satisfies the KKT row-span condition.}
+}
+\]
+
+This is the right replacement for the earlier vague phrase "global topology".
+All boundary exits have already been assigned to pinching or lower-genus
+limits; what remains is an interior finite algebraic/transcendental
+non-existence statement.
+
+### 16.19 Adjoint form of the compact rank obstruction
+
+The KKT condition can be stated without choosing a particular coordinate
+chart.  Suppose an interior compact \(g=2\) minimiser exists.  Then there are
+real multipliers, not all zero, such that the first variation
+
+\[
+d\mathcal L-\sum_j\lambda_j\,d\mathcal G_j
+\]
+
+vanishes on every finite-gap tangent direction.
+
+Finite-gap tangent directions are again Cauchy transforms with the same
+hyperelliptic square root, plus rational terms coming from variations of
+poles and branch points.  Therefore the adjoint condition is equivalent to
+the existence of a non-zero meromorphic differential on the two-cut curve.
+The algebraic genus is one; the label \(g=2\) here refers to the two active
+finite-gap intervals.
+
+\[
+w^2=
+(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)
+\]
+
+with the following forced properties:
+
+1. prescribed principal parts at the active poles;
+2. vanishing periods corresponding to the flat-zero constraints;
+3. zeros at the escaping atom \(c\) forced by \(F(c)=0\);
+4. endpoint sign conditions inherited from \(U_\mu(u)=U_\mu(v)=0\);
+5. no allowed sign change on the positive density cuts.
+
+The key point is that these conditions overdetermine a meromorphic
+differential of the available degree.  In divisor language, the adjoint would
+need too many real zeros while having too few poles once positivity removes
+the possible boundary cancellations.
+
+The compact case should therefore be closed by the following divisor-count
+lemma.
+
+\[
+\boxed{
+\text{No non-zero adjoint meromorphic differential satisfying the five
+conditions above exists in the positive non-pinched }g=2\text{ chamber.}
+}
+\]
+
+If this lemma is proved, then the compact \(g=2\) chamber is empty below
+\(M_*\).  Together with the pinching reductions, this would finish the
+normalised \(g=2\) lower-bound step.
+
+The next concrete mathematical task is to write the divisor of this adjoint
+differential explicitly in terms of \(P,Q\) and the four branch points, then
+count zeros and poles after imposing the period and endpoint conditions.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
