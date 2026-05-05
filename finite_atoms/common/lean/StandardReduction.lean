@@ -2743,6 +2743,34 @@ lemma integrable_of_ae_mem_compact_of_continuousOn
   rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hmemK] at hintOn
   exact hintOn
 
+/-- The outside restriction of a unit-interval probability is still supported
+a.e. in `[-1,1]`. -/
+lemma outsideRestriction_ae_mem_unitInterval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
+      t ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_restrict_iff' C.measurableSet_interval.compl]
+  filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htoutside
+  exact ht
+
+/-- The real logarithmic kernel is continuous on any set separated from its
+singularity by a positive distance. -/
+lemma logKernel_continuousOn_of_dist_ge
+    {x ε : ℝ} {K : Set ℝ} (hε : 0 < ε)
+    (hK : K ⊆ {t : ℝ | ε ≤ |x - t|}) :
+    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.div₀
+      ((continuousOn_const.sub continuousOn_id).abs)
+      (fun t ht hzero => by
+        have hdist : ε ≤ |x - t| := hK ht
+        have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
+        exact (ne_of_gt hpos) hzero))
+  · intro t ht hzero
+    have hdist : ε ≤ |x - t| := hK ht
+    have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
+    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
+
 lemma componentBarycenter_eq_normalized_componentBlock_integral
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (hmass_pos : 0 < componentMass C) :
@@ -7663,6 +7691,44 @@ lemma outsideRestriction_logKernel_integrable_of_compact_support
     hmemK hcompact hcont
 
 /--
+Outside-restriction log-kernel integrability from positive separation from the
+test point.
+
+The compact set is constructed internally as
+`[-1,1] ∩ {t : ℝ | ε ≤ |x-t|}`.  This is the natural local condition expected
+from the component bookkeeping: once the outside part is a.e. separated from
+the test point, the log singularity is absent.
+-/
+lemma outsideRestriction_logKernel_integrable_of_dist_ge
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist :
+      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
+        ε ≤ |x - t|) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ {t : ℝ | ε ≤ |x - t|}
+  have hmemK :
+      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K := by
+    filter_upwards [outsideRestriction_ae_mem_unitInterval C, hdist] with t hunit hdist_t
+    exact ⟨hunit, hdist_t⟩
+  have hclosedDist : IsClosed {t : ℝ | ε ≤ |x - t|} := by
+    simpa [Function.comp_def] using
+      isClosed_le
+        (continuous_const : Continuous fun _t : ℝ => ε)
+        ((continuous_abs.comp (continuous_const.sub continuous_id)) :
+          Continuous fun t : ℝ => |x - t|)
+  have hcompact : IsCompact K := by
+    exact isCompact_Icc.inter_right hclosedDist
+  have hcont :
+      ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+    exact logKernel_continuousOn_of_dist_ge hε (by
+      intro t ht
+      exact ht.2)
+  exact outsideRestriction_logKernel_integrable_of_compact_support
+    C K hmemK hcompact hcont
+
+/--
 Objective non-increase for component replacement using the canonical normalized
 component block.
 
@@ -7725,6 +7791,29 @@ theorem componentReplacement_objective_le_of_strictOutside_compactOutside
   rcases hdata x hx with ⟨K, hmemK, hcompact, hcont⟩
   exact outsideRestriction_logKernel_integrable_of_compact_support
     C K hmemK hcompact hcont
+
+/--
+Component-replacement objective non-increase from positive separation of the
+outside restriction from every strict outside test point.
+
+This is the strongest local replacement interface currently formalized: the
+caller supplies the geometric separation data, and Lean derives all
+log-kernel integrability and Jensen inputs.
+-/
+theorem componentReplacement_objective_le_of_strictOutside_distSeparated
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hsep : ∀ x : ℝ, StrictOutsideComponent C x →
+      ∃ ε : ℝ, 0 < ε ∧
+        ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
+          ε ≤ |x - t|) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
+    C hmass_pos ?_
+  intro x hx
+  rcases hsep x hx with ⟨ε, hε, hdist⟩
+  exact outsideRestriction_logKernel_integrable_of_dist_ge C hε hdist
 
 /-!
 ## Finite variance drop under barycenter replacement
