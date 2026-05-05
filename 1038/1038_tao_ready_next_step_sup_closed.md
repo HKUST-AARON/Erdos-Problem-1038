@@ -611,6 +611,100 @@ The next proof action is not to add more sampled epsilon rows.  It is to replace
 the eta-dependent derivative and center-residual checks by a renormalized,
 outward-rounded eta-slab certificate.
 
+### E2. 2026-05-06 mathematical proof ledger
+
+The exact-value target is now fixed as
+
+\[
+M_* = x_R-x_L
+=1.8344304757626617\ldots,
+\]
+
+with
+
+\[
+x_L=-1.8081073680988165,\qquad
+x_R=0.02632310766384517.
+\]
+
+The current paper-level proof chain is:
+
+1. **Upper bound.**  The one-cut primal measure
+
+   \[
+   \mu_a=A(a)\delta_{-1}+f_a(x)\mathbf1_{[a,1]}(x)\,dx
+   \]
+
+   with
+
+   \[
+   f_a(x)=
+   \frac{x+1-A(a)\sqrt{2(1+a)}}
+   {\pi(x+1)\sqrt{(1-x)(x-a)}}
+   \]
+
+   has \(U_{\mu_a}=0\) on \([a,1]\).  At
+   \(a_*=0.804461769730796\ldots\), its two exterior zeros are
+   \(x_L,x_R\), so \(E_{\mu_{a_*}}=(x_L,x_R)\) and
+
+   \[
+   L_-\le M_*.
+   \]
+
+2. **Local lower-bound branch.**  For a regular extremal whose dual active
+   zero set is one interval \([\alpha,\beta]\), the condition
+   \(U_\lambda=0\) on \([\alpha,\beta]\) forces the Cauchy transform to be
+
+   \[
+   F(z)=
+   \frac{z+A}{(z-\ell)(z-r)(z-1)}
+   \sqrt{(z-\alpha)(z-\beta)}.
+   \]
+
+   With
+
+   \[
+   \ell<-1<r<\alpha<\beta<1,\qquad 1<A<-\ell,
+   \]
+
+   the residues at \(\ell,r,1\) and the density on \([\alpha,\beta]\) are
+   positive.  The sign chart reduces \(U_\lambda\ge0\) on \([-1,1]\) to the
+   two contact equations
+
+   \[
+   U_\lambda(\alpha)=0,\qquad U_\lambda(-1)=0.
+   \]
+
+   This is the corrected endpoint-atom two-interval finite-gap ansatz.
+
+3. **Remaining global gap.**  The missing step is not another numeric row.  It
+   is the global topology lemma: every regular \(|E_\mu|<M_*\) counterexample
+   must either fall into the one-cut/two-interval finite-gap branch above, or
+   admit a gap-pinching/Schiffer variation that decreases \(|E_\mu|\).
+
+Equivalently, the next purely mathematical target is the interlacing-collapse
+lemma for positive Stieltjes finite-gap transforms.  On every real component
+away from the dual support,
+
+\[
+F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0,
+\]
+
+so every extra positive component forces a unique zero of \(F\) interlacing
+with boundary poles and cut endpoints.  The expected closure is that such a
+higher-genus interlacing pattern cannot stay positive under
+\(|E_\mu|<M_*\), except by degeneration to the two-interval branch.
+
+Until this interlacing-collapse/global topology lemma is proved, the correct
+status is:
+
+\[
+\boxed{
+L_-\le M_* \text{ is explained by the one-cut construction, while }
+L_-\ge M_* \text{ remains open at the global topology step.}
+}
+\]
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK
