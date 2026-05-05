@@ -1456,6 +1456,104 @@ forced to have too many real zeros relative to its allowed poles once
 positivity rules out boundary cancellations.  Proving this divisor-count
 lemma would close the compact non-pinched \(g=2\) chamber below \(M_*\).
 
+### E18. Clearing denominators
+
+Write
+
+\[
+D(z)=
+(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2),
+\qquad
+w^2=D(z),
+\qquad
+F(z)=\frac{P(z)}{Q(z)}w.
+\]
+
+After fixing the allowed principal parts at the poles of \(Q\), an adjoint
+first variation can be represented as
+
+\[
+\Omega_H=\frac{H(z)}{Q(z)^2w}\,dz,
+\]
+
+modulo the holomorphic differential \(dz/w\).  Here \(H\) is a real polynomial
+whose degree is fixed by the condition that no forbidden pole appears at
+infinity.
+
+The compact obstruction is therefore a real polynomial problem: find a
+non-zero admissible \(H\) with \(H(c)=0\), the required period/endpoint linear
+conditions, and no forbidden sign change on the real cuts.  Excluding such
+\(H\) closes the compact \(g=2\) chamber.
+
+### E19. Real-oval sign obstruction
+
+On the two real cuts
+
+\[
+I_1=[\alpha_1,\beta_1],\qquad I_2=[\alpha_2,\beta_2],
+\]
+
+the compact chamber separates \(Q\) from the branch points, so after clearing
+\(Q^2\) the sign of the adjoint is the sign of the real polynomial \(H\).
+
+The period and endpoint equations become real linear functionals
+
+\[
+H(c)=0,\qquad
+\Lambda_1(H)=\Lambda_2(H)=\Lambda_3(H)=0,
+\]
+
+where the \(\Lambda_j\) are positive-kernel Cauchy or period functionals on
+the real ovals.  The target lemma is:
+
+\[
+\boxed{
+\text{every non-zero admissible }H\text{ satisfying these constraints changes
+sign on a real oval.}
+}
+\]
+
+Such a sign change is incompatible with compact interior positivity of the
+dual density/residue signs.  Thus the compact case is reduced to a Chebyshev
+system/sign-variation lemma for the kernels \(\Lambda_j\).
+
+### E20. Total positivity route
+
+The Chebyshev lemma should be proved using the Cauchy determinant identity.
+For separated real points,
+
+\[
+\det\left(\frac1{x_i-y_j}\right)
+=
+\frac{
+\prod_{i<k}(x_k-x_i)\prod_{j<\ell}(y_j-y_\ell)
+}{
+\prod_{i,j}(x_i-y_j)
+},
+\]
+
+so the Cauchy kernel is strictly sign-regular.  Multiplying by the positive
+elliptic weight
+
+\[
+\frac1{|Q(x)|^2\sqrt{|D(x)|}}
+\]
+
+and integrating over a positive parameter preserve sign-regularity.
+
+The logarithmic endpoint kernels are positive averages of Cauchy kernels,
+since
+
+\[
+\log\frac{|x-u|}{|x-v|}=\int_u^v\frac{ds}{x-s}.
+\]
+
+Therefore the remaining compact \(g=2\) obstruction is now a concrete
+total-positivity statement: the period and endpoint kernels \(\Lambda_j\) must
+form a strict Chebyshev system on the two real ovals after the zero at \(c\)
+is factored out.  Proving this sign-variation lemma would close the compact
+non-pinched chamber.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

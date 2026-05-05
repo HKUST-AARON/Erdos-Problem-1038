@@ -4919,6 +4919,224 @@ The next concrete mathematical task is to write the divisor of this adjoint
 differential explicitly in terms of \(P,Q\) and the four branch points, then
 count zeros and poles after imposing the period and endpoint conditions.
 
+### 16.20 Clearing denominators in the adjoint differential
+
+The adjoint obstruction can be made concrete by clearing the same denominators
+that occur in the finite-gap Stieltjes transform.
+
+Write
+
+\[
+D(z)=
+(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2),
+\qquad
+w^2=D(z),
+\]
+
+and
+
+\[
+F(z)=\frac{P(z)}{Q(z)}w.
+\]
+
+The poles of \(Q\) encode endpoint atoms or active rational poles.  In the
+compact non-pinched chamber, all zeros of \(Q\) stay away from branch points
+and away from the escaping atom \(c\).
+
+After fixing the allowed principal parts at the poles of \(Q\), every adjoint
+first variation can be represented, modulo the single holomorphic
+differential \(dz/w\), in the form
+
+\[
+\Omega_H
+=
+\frac{H(z)}{Q(z)^2\,w}\,dz,
+\]
+
+where \(H\) is a real polynomial.  The square \(Q^2\) appears because varying
+a pole or residue of \(P/Q\) creates at most double poles in the adjoint
+pairing.  The degree of \(H\) is fixed by the condition that \(\Omega_H\) has
+no forbidden pole at the two points at infinity on the compactified curve.
+
+Thus the compact adjoint problem is equivalent to a real polynomial problem:
+find a non-zero real polynomial \(H\), of the admissible degree, such that
+\(\Omega_H\) satisfies:
+
+1. zero \(A\)-periods coming from the flat-zero condition;
+2. the endpoint equations \(U_\mu(u)=U_\mu(v)=0\);
+3. the escaping atom condition \(F(c)=0\), which imposes
+
+\[
+H(c)=0
+\]
+
+after clearing \(Q(c)^2w(c)\ne0\);
+
+4. the sign constraint that \(\Omega_H\) has no sign change on the positive
+density cuts unless it vanishes there.
+
+The last item is the important one.  On each real cut, \(w_+(x)\) is purely
+imaginary and the density sign of \(F\) fixes the sign of
+
+\[
+\frac{P(x)}{Q(x)}
+\]
+
+relative to the chosen branch.  Hence any admissible adjoint variation that
+preserves positivity to first order cannot have an arbitrary sign pattern;
+after multiplying by the fixed sign of \(Q^2w_+\), its sign is the sign of
+the real polynomial \(H(x)\).  Therefore the compact obstruction reduces to:
+
+\[
+\boxed{
+\text{no non-zero admissible }H\text{ has the required zeros, periods, and
+one-sided signs on the two real cuts.}
+}
+\]
+
+This is a sharper target than the previous divisor-count statement because it
+names the actual object to exclude.
+
+### 16.21 Real-oval sign obstruction
+
+The two-cut curve has two real ovals.  In the compact chamber the cuts and
+poles are separated, so after clearing \(Q^2\) the sign of the adjoint on
+each oval is governed by \(H\).
+
+Let the two real cuts be
+
+\[
+I_1=[\alpha_1,\beta_1],\qquad
+I_2=[\alpha_2,\beta_2].
+\]
+
+The zero-period condition for \(\Omega_H\) has the form
+
+\[
+\int_{I_1}\frac{H(x)}{|Q(x)|^2\sqrt{|D(x)|}}\,dx
+=
+\int_{I_2}\frac{H(x)}{|Q(x)|^2\sqrt{|D(x)|}}\,dx
+\]
+
+up to a fixed positive normalization.  The weights are strictly positive in
+the compact chamber.  Therefore, if \(H\) has one sign on both cuts, the
+period equation forces the weighted masses to match exactly.  Varying the
+relative branch length gives a second independent period/endpoint functional,
+so a non-zero \(H\) that keeps a fixed sign on both cuts must satisfy two
+independent positive-weight moment equations.
+
+The escaping atom condition gives \(H(c)=0\), with \(c\) lying in the positive
+component between endpoint constraints, not on a cut.  The endpoint equations
+give two more real linear conditions.  Thus the compact chamber requires a
+real polynomial \(H\) satisfying:
+
+\[
+H(c)=0,\qquad
+\Lambda_1(H)=0,\qquad
+\Lambda_2(H)=0,\qquad
+\Lambda_3(H)=0,
+\]
+
+where each \(\Lambda_j\) is integration against a strictly positive real
+kernel or evaluation of the same Cauchy primitive at an endpoint.
+
+The sign obstruction is:
+
+\[
+\boxed{
+\text{a non-zero admissible }H\text{ satisfying these four constraints must
+change sign on a real oval.}
+}
+\]
+
+But a sign change on a real oval is exactly an infinitesimal loss of positivity
+of the dual density or residue sign, contradicting compact interior
+positivity.  Therefore the remaining compact \(g=2\) case can be closed by
+proving this real-oval sign lemma.
+
+At this point the proof line has been reduced to a precise, local statement:
+the compact chamber is excluded if the positive-kernel linear functionals
+\(\Lambda_j\) form a Chebyshev system on the real ovals after the zero at
+\(c\) is imposed.
+
+### 16.22 Total positivity route for the Chebyshev lemma
+
+There is a standard way to prove the Chebyshev statement: use strict total
+positivity of the Cauchy kernel on separated real intervals.
+
+If
+
+\[
+x_1<\cdots<x_n,\qquad y_1<\cdots<y_n,
+\]
+
+and the \(x_i\)'s lie strictly to one side of the \(y_j\)'s, then
+
+\[
+\det\left(\frac{1}{x_i-y_j}\right)_{i,j=1}^n
+=
+\frac{
+\prod_{i<k}(x_k-x_i)\prod_{j<\ell}(y_j-y_\ell)
+}{
+\prod_{i,j}(x_i-y_j)
+}
+\]
+
+has a fixed non-zero sign.  Multiplication by a positive weight preserves this
+sign-regularity.  Integration against a positive measure in the \(y\)-variable
+also preserves total positivity.
+
+The endpoint and period functionals in Section 16.21 are built from exactly
+these kernels.  For example, a logarithmic endpoint difference can be written
+as
+
+\[
+\log\frac{|x-u|}{|x-v|}
+=
+\int_u^v\frac{ds}{x-s}
+\]
+
+with \(x\) on a cut disjoint from \([u,v]\).  Thus the logarithmic functionals
+are positive averages of Cauchy kernels.  The period kernels are the same
+Cauchy kernels multiplied by the positive elliptic weight
+
+\[
+\frac{1}{|Q(x)|^2\sqrt{|D(x)|}}.
+\]
+
+Consequently the collection
+
+\[
+1,\quad
+\int_u^v\frac{ds}{x-s},\quad
+\frac{1}{x-c},\quad
+\text{period kernel}
+\]
+
+is expected to be a sign-regular system on each compact real oval, after the
+fixed zero \(H(c)=0\) is factored out.  The remaining compact \(g=2\) chamber
+therefore reduces to the following concrete total-positivity lemma.
+
+\[
+\boxed{
+\text{The weighted Cauchy/logarithmic kernels defining }\Lambda_1,\Lambda_2,
+\Lambda_3\text{ are a strict Chebyshev system on the two real ovals.}
+}
+\]
+
+Once this lemma is proved, every non-zero admissible \(H\) satisfying
+
+\[
+H(c)=0,\qquad \Lambda_1(H)=\Lambda_2(H)=\Lambda_3(H)=0
+\]
+
+must have enough sign changes to violate compact positivity.  This would close
+the compact non-pinched \(g=2\) case without any numerical verification.
+
+This is now the best mathematical next step: prove the strict
+total-positivity/Chebyshev lemma directly from the Cauchy determinant formula
+and the separation of intervals in the compact chamber.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
