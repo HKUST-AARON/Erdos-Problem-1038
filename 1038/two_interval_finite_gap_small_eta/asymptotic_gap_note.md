@@ -259,3 +259,38 @@ and direct whole-edge interval boxes are too wide because of dependency in
 \((B,\tau)\).  The next proof-grade step should subdivide boundary boxes and
 bound \(K_\eta-K_0\) directly, using the endpoint-safe K1 and the already
 regularized K2 kernel.
+
+## Direct Remainder Box Attempt
+
+I added a direct boundary-box checker:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/verify_interval_remainder_boxes.py \
+  --edge-boxes 256
+```
+
+It uses the endpoint-safe K1 and the regularized K2 value kernel, then compares
+against the limiting normal form on boundary boxes.
+
+Current result:
+
+```text
+TWO-INTERVAL INTERVAL REMAINDER BOXES: FAIL
+edge_boxes=256 boxes=1024
+target_bound=7.000000e-03
+worst_bound=6.540541e-01
+worst_source=right: D1=[+/- 0.0248] D2=[+/- 0.654]
+```
+
+The trend under subdivision is real but too slow:
+
+```text
+edge_boxes=16   worst_bound ~= 9.80
+edge_boxes=64   worst_bound ~= 2.49
+edge_boxes=256  worst_bound ~= 0.654
+```
+
+Thus the endpoint-safe K1 fix succeeded, but the next blocker is K2 dependency
+on the right/left boundary boxes.  The next kernel should reduce K2 directly on
+fixed \(B=\pm0.01\) edges, rather than relying on generic interval dependency
+over \(\tau\).

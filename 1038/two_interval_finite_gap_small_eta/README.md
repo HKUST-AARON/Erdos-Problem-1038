@@ -37,6 +37,7 @@ verify_corrected_center_tube.py
 verify_asymptotic_obligation.py
 diagnose_interval_remainder_components.py
 diagnose_k1_eta_floor.py
+verify_interval_remainder_boxes.py
 ```
 
 The folder keeps the route-specific solver/verifiers together so the forum
@@ -148,6 +149,19 @@ Expected summary:
 ```text
 TWO-INTERVAL K1 ETA FLOOR:
 PASS-DIAGNOSTIC ... conclusion='K1 endpoint-safe first-divided kernel controls eta floor'
+```
+
+Direct interval remainder boxes:
+
+```bash
+.venv/bin/python 1038/two_interval_finite_gap_small_eta/verify_interval_remainder_boxes.py --edge-boxes 256
+```
+
+Current expected summary:
+
+```text
+TWO-INTERVAL INTERVAL REMAINDER BOXES:
+FAIL ... worst_bound=6.540541e-01 worst_source=right ... D2=[+/- 0.654]
 ```
 
 ## Caveat
