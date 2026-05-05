@@ -1365,3 +1365,69 @@ This identifies the exact remaining technical gap for turning the sampled
 center correction into a continuum-grade interval proof: implement
 eta-divided residual value primitives, not just combined undivided values and
 not just derivative-action bounds.
+
+## P. Continuation Tube Matrix Certificate
+
+The next route avoids using the sampled center residual as the proof object.
+Instead of trying to prove that the affine center is already inside every
+Krawczyk box, it checks the uniform nondegeneracy needed for a continuation or
+degree argument on a tube around the stored branch.
+
+The new verifier is:
+
+```text
+1038/verify_two_interval_continuation_tube.py
+```
+
+For each epsilon slab it checks the weighted defect norm
+
+```text
+max_i sum_j |(I - C(eta_mid) DK(tube, eta))_ij| r_j / r_i
+```
+
+where \(C(\eta_{\mathrm{mid}})\) is the inverse of the analytic center
+Jacobian at the eta-slice midpoint.  A bound strictly below 1 gives the
+matrix/invertibility part of a Krawczyk, degree, or validated-continuation
+lemma on that tube.  This test does not evaluate the center residual and
+therefore bypasses the cancellation failure recorded in sections N and O.
+
+Remote parallel replay on the 24-core machine used one worker per slab:
+
+```bash
+python 1038/verify_two_interval_continuation_tube.py \
+  1038/two_interval_branch_certificate_top_split.json \
+  --config EPS_LOW:EPS_HIGH:R_B,R_TAU:ETA_SUBDIVISIONS,UV_SUBDIVISIONS \
+  --max-weighted-defect 0.95
+```
+
+The eight-slab result is:
+
+```text
+0.00005:0.0001     PASS weighted_defect=4.200592e-01 radius=0.0003  eta=224
+0.0001:0.0002      PASS weighted_defect=3.759217e-01 radius=0.0003  eta=224
+0.0002:0.0005      PASS weighted_defect=1.901542e-01 radius=0.00029 eta=1344
+0.0005:0.001       PASS weighted_defect=1.390401e-01 radius=0.0006  eta=1344
+0.001:0.00125      PASS weighted_defect=1.068380e-01 radius=0.0002  eta=224
+0.00125:0.0015     PASS weighted_defect=9.486253e-02 radius=0.0002  eta=224
+0.0015:0.00175     PASS weighted_defect=8.065402e-02 radius=0.0002  eta=224
+0.00175:0.002      PASS weighted_defect=7.918934e-02 radius=0.0002  eta=224
+```
+
+The worst bound is \(4.200592\cdot10^{-1}<1\), on
+\([5\cdot10^{-5},10^{-4}]\).  This is a real continuum-grade matrix
+certificate for the stored epsilon range: the analytic branch does not appear
+to lose rank inside the certified tubes.
+
+This still is not the full finite-gap proof.  What remains is now sharper:
+
+1. write the continuation/degree lemma that converts this uniform tube
+   nondegeneracy plus endpoint data into existence of a zero of the reduced
+   two-equation system for every eta in the range;
+2. certify the endpoint anchors and the sign/positivity constraints for those
+   zeros;
+3. connect the resulting finite-gap branch back to the global lower/upper-bound
+   argument before making any \(1.83\) or exact-value claim.
+
+The practical status is therefore improved: the old sampled-center obstruction
+is no longer the only route.  The matrix part needed by the alternative
+continuation route now has a passing interval artifact.
