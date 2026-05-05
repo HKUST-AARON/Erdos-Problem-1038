@@ -3586,3 +3586,211 @@ lake env lean 1038/FiveAtom1806304Mathlib.lean && lake env lean 1038/FiveAtom180
 ```
 
 Remaining non-internalized parts of the full problem are not numeric-log issues anymore; they are the analytic bridge from these finite checks to global 1038: derivative/root-count monotonicity over the full one-variable domain, the two-parameter forcing branch in Lean, the duality lemma, and the Tao/natso minimizer reduction.
+
+## 16. Bridge ledger for the \(1.83\) / exact-value route
+
+This section is the current control ledger for connecting the two-interval
+finite-gap branch to a \(1.83\) lower-bound theorem, and eventually to the
+candidate exact value
+\[
+M_* = 1.8344304757626617\ldots
+\]
+It is deliberately written as a gap ledger: no line below should be read as a
+claim that \(L_-\ge1.83\) is already proved.
+
+### 16.1 Target theorem shape
+
+The desired lower-bound theorem has the following conditional structure:
+
+> Under the Tao/natso minimizer reduction to
+> \(S=\{-1\}\cup[0,1]\), every candidate minimizer with
+> \(|E_\mu|<M\), for \(M\) near \(1.83\) and ultimately \(M_*\), admits a
+> nonnegative dual certificate \(\nu\) supported in \(E_\mu^c\) such that
+> \(U_\nu\ge0\) on \(S\).  Therefore the duality lemma in §3 rules out such a
+> minimizer.
+
+The matching exact-value theorem would then add an upper construction:
+
+> There is an admissible sequence of monic real-root polynomials, or an
+> approximable limiting measure, with
+> \(|E|\to M_*\).
+
+Thus the exact theorem needs both:
+
+1. lower side: global dual exclusion up to \(M_*\);
+2. upper side: a construction attaining \(M_*\).
+
+The current repository has not closed either global endpoint.  It has closed
+one important local lower-side branch certificate.
+
+### 16.2 Artifact status table
+
+| Object | Current status | Files / commands | What it proves |
+|---|---|---|---|
+| Conditional finite-atom lower bound \(1.806304\) | strongest closed local lower-bound package | `FiveAtom1806304Mathlib.lean`, `FiveAtom1806304Formal.lean`, five-atom Decimal/Lean checks | A separate finite-atom lower-bound route; useful but not close to \(1.83\). |
+| Two-interval sign regime | proof-grade for exported boxes as an external verifier | `.venv/bin/python 1038/verify_two_interval_sign_box.py --quiet --self-test-tamper` | Checks \(1<A<-\ell\), \(\ell<-1<r<\alpha<\beta<1\), atom residue signs, and density sign on exported branch/Krawczyk boxes. |
+| Two-interval local branch on \([0.0002,0.0005]\) | proof-grade interval winding certificate | `verify_two_interval_continuation_tube.py` with `residue-log-mv`; remote split run `1024/1024 PASS` | For each certified eta slice, \(K(B,\tau,\eta)\) has a zero in the tube by winding degree \(1\). |
+| Two-interval branch on \([0.00005,0.002]\) | diagnostic plus matrix/nondegeneracy subartifact | `verify_two_interval_epsilon_slabs.py`, branch skeleton checks | Strong evidence that the analytic branch persists, but not yet a full branch-existence proof for all slabs. |
+| Singular range \(0<\varepsilon<0.00005\) | open | none | Needs an asymptotic/small-\(\eta\) theorem, not finite row sampling. |
+| Full \(U_\lambda\ge0\) on \(S\) | open beyond sign-chart reduction | no standalone global positivity verifier yet | Needs endpoint/stationary-point interval lower bounds for the potential on all required real segments. |
+| Global reduction from arbitrary \(E\) | open | only recorded as a required Tao/natso/global lemma | Must show any relevant candidate set reduces to one/two-interval obstruction or receives another dual certificate. |
+| Upper construction at \(M_*\) | open in this repo | Tao one-cut candidate endpoints recorded, but no full construction proof | Needs an admissible approximating polynomial/measure sequence with \(|E|\to M_*\). |
+
+### 16.3 Epsilon coverage gap
+
+The current proof-grade branch-existence certificate is only:
+\[
+\varepsilon\in[0.0002,0.0005].
+\]
+
+The stored diagnostic range is:
+\[
+\varepsilon\in[0.00005,0.002],
+\]
+split across the endpoint rows in
+`1038/two_interval_branch_certificate_top_split.json`.
+
+The minimum next certification task is to promote the remaining diagnostic
+slabs to the same proof-grade winding status as §15.3.1.  The recorded
+diagnostic slab settings are:
+
+```text
+0.00005:0.0001   radius=0.0003   eta subdivisions=224
+0.0001:0.0002    radius=0.0003   eta subdivisions=224
+0.0002:0.0005    radius=0.00029  proof-grade winding done
+0.0005:0.001     radius=0.0006   eta subdivisions=1344
+0.001:0.00125    radius=0.0002   eta subdivisions=224
+0.00125:0.0015   radius=0.0002   eta subdivisions=224
+0.0015:0.00175   radius=0.0002   eta subdivisions=224
+0.00175:0.002    radius=0.0002   eta subdivisions=224
+```
+
+For each remaining slab, the target command shape is:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_continuation_tube.py \
+  1038/two_interval_branch_certificate_top_split.json \
+  --config EPS_LOW:EPS_HIGH:R,R:16,1 \
+  --eta-interval-dk-kernel residue-log \
+  --interval-boundary-value-kernel residue-log-mv \
+  --interval-boundary-winding ETA,8 \
+  --interval-boundary-winding-adaptive-depth 2 \
+  --max-weighted-defect 10
+```
+
+For expensive full runs, split with:
+
+```text
+--interval-boundary-winding-eta-slice i:i+1
+```
+
+and run the slices on `hkgai-studio` with up to 20 workers.
+
+The finite range still will not cover \(0<\varepsilon<0.00005\).  That range
+requires the separate small-\(\eta\) theorem:
+
+\[
+K_\eta(B,\tau)=K_0(B,\tau)+O(\eta|\log\eta|)
+\]
+or the stronger Lyapunov-Schmidt expansion already outlined in §15.6, with
+interval remainders strong enough to keep the winding degree stable near the
+limiting branch.
+
+### 16.4 Positivity/support gap
+
+The sign-box verifier already checks the algebraic sign regime on exported
+boxes:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_sign_box.py --quiet --self-test-tamper
+```
+
+This gives positivity of the extracted measure, provided the branch root lies
+inside those boxes.  In the sign chart of §15.1, this reduces measure
+positivity to:
+
+\[
+1<A<-\ell,\qquad \ell<-1<r<\alpha<\beta<1.
+\]
+
+What remains is different: global potential positivity.  The target theorem is:
+
+\[
+U_{\lambda^{(\varepsilon)}}(x)\ge0
+\quad\text{for every }x\in S=\{-1\}\cup[0,1].
+\]
+
+The sign chart reduces much of this check, but a proof artifact still has to
+record interval lower bounds on each required real component.  A useful next
+verifier should:
+
+1. use the residue-log value primitive rather than singular quadrature;
+2. isolate all real roots of \(U'_\lambda=-F\) on each component of
+   \(S\setminus[\alpha,\beta]\);
+3. evaluate \(U_\lambda\) at endpoints and isolated critical brackets;
+4. prove the endpoint/contact equalities \(U(\alpha)=0\) and \(U(-1)\ge0\), or
+   \(U(-1)=0\) on the sharp branch;
+5. export a finite certificate with all interval lower bounds.
+
+This is the next mathematical kernel after extending the winding certificate.
+
+### 16.5 Global candidate-set gap
+
+Even a complete two-interval branch theorem would still not prove
+\(L_-\ge1.83\) by itself.  The global theorem must also say why every relevant
+candidate set \(E\) with \(|E|<1.83\), or eventually \(|E|<M_*\), is covered by
+one of the certified obstruction mechanisms.
+
+At present the required global lemma is still only a target:
+
+> Every normalized minimizing candidate below \(M\) either reduces to the
+> one-interval obstruction, reduces to the two-interval obstruction
+> \(E_\varepsilon=(x_L+\varepsilon,x_R)\cup(1-\varepsilon,1)\), or admits a
+> finite-gap dual certificate of the same square-root rational type.
+
+This is the actual Tao-level gap.  It is not a coding problem alone.  The likely
+route is a finite-gap theorem for finite unions of intervals: for a candidate
+finite union \(E\), construct a Cauchy transform with rational square-root
+structure, certify measure positivity, and prove \(U_\nu\ge0\) on \(S\).
+
+The current two-interval verifier is therefore best viewed as the first
+certified instance of that finite-gap program.
+
+### 16.6 Upper-side gap
+
+The number
+\[
+M_* = x_R-x_L
+=0.02632310766384517-(-1.8081073680988165)
+=1.8344304757626617\ldots
+\]
+comes from the one-cut candidate in Tao's notes.  The lower-side dual
+certificate program cannot by itself prove exactness.  The upper side needs an
+admissible construction:
+
+1. define the candidate limiting measure or polynomial sequence;
+2. prove it is approximable by monic real-root polynomials in the original
+   problem class;
+3. prove the associated set has length tending to \(M_*\).
+
+Until this upper construction is written, the current route can at most support
+lower-bound statements such as \(L_-\ge1.83\), not the exact equality
+\(L_-=M_*\).
+
+### 16.7 Current priority order
+
+The next work should be done in this order:
+
+1. **Extend proof-grade winding coverage** from \([0.0002,0.0005]\) to the
+   remaining stored slabs.
+2. **Write the global potential-positivity verifier** for the two-interval
+   measure, using residue-log primitives and real critical-point isolation.
+3. **Prove the small-\(\eta\) branch theorem** for
+   \(0<\varepsilon<0.00005\).
+4. **Formulate the global finite-gap reduction lemma** precisely enough that it
+   can be attacked or refuted.
+5. **Separate the upper construction** into its own proof note, so the lower
+   and upper sides do not get conflated.
+
+The first item is the best immediate engineering task.  The fourth item is the
+hardest mathematical gap.
