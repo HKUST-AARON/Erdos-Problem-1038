@@ -1949,6 +1949,64 @@ does not affect sign variation.  Proving this six-kernel oriented Chebyshev
 lemma is now the clean remaining mathematical hard mouth for the compact
 non-pinched \(g=2\) branch.
 
+### E33. Determinant proof skeleton for the six-kernel lemma
+
+For ordered \(x_1<\cdots<x_6\), \(x_i\notin[u,v]\), set
+
+\[
+\Delta_6
+=
+\det[1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+]_{x=x_i}.
+\]
+
+Expanding \(L_-,L_+\) gives
+
+\[
+\Delta_6
+=
+\int_u^c\int_c^v
+\det[1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},(x-s)^{-1},(x-t)^{-1}]_{x=x_i}
+\,dt\,ds.
+\]
+
+For \(u<s<c<t<v\), this is, up to a fixed column permutation, a Cauchy
+determinant with one source at infinity and five ordered finite sources.  The
+source Vandermonde is positive, and for \(x_i\notin[u,v]\)
+
+\[
+\operatorname{sgn}\prod_{p=1}^5(x_i-y_p)=\operatorname{sgn}(x_i-c).
+\]
+
+Hence
+
+\[
+\boxed{
+\left(\prod_i\operatorname{sgn}(x_i-c)\right)\Delta_6
+\text{ has a fixed non-zero sign.}
+}
+\]
+
+The integral cannot cancel because the integrand has fixed sign on the whole
+open rectangle \(u<s<c<t<v\).  Thus the six local jet kernels are an oriented
+strict Chebyshev system.
+
+### E34. What remains
+
+The determinant part is now reduced to a clean real-variable lemma.  The next
+mathematical target is not another determinant; it is the exact KKT
+identification:
+
+\[
+\boxed{
+\text{show that the compact adjoint gives six moment equations against }
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
+}
+\]
+
+After that, the six-kernel Chebyshev lemma forces oriented sign variation of
+\(G\), hence forbidden sign variation of \(H=(x-c)G\) on the real density
+ovals.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

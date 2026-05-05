@@ -6063,6 +6063,141 @@ variation without forcing the adjoint \(H=(x-c)G\) to change sign on a real
 oval.  That contradicts compact interior positivity and closes the compact
 non-pinched branch.
 
+### 16.35 Determinant proof skeleton for the six-kernel lemma
+
+The six-kernel lemma can be reduced to one explicit determinant integral.
+For ordered points
+
+\[
+x_1<\cdots<x_6,\qquad x_i\notin [u,v],
+\]
+
+define
+
+\[
+\Delta_6(x_1,\ldots,x_6)
+:=
+\det
+\begin{bmatrix}
+1 &(x-u)^{-1}&(x-c)^{-1}&(x-v)^{-1}&L_-(x)&L_+(x)
+\end{bmatrix}_{x=x_i}.
+\]
+
+Expanding the two averaged columns gives
+
+\[
+\Delta_6
+=
+\int_u^c\int_c^v
+\det
+\begin{bmatrix}
+1 &(x-u)^{-1}&(x-c)^{-1}&(x-v)^{-1}&(x-s)^{-1}&(x-t)^{-1}
+\end{bmatrix}_{x=x_i}
+\,dt\,ds .
+\]
+
+For every interior pair
+
+\[
+u<s<c<t<v,
+\]
+
+the five finite source points are strictly ordered.  After a fixed column
+permutation, the determinant is a standard Cauchy determinant with one source
+at infinity:
+
+\[
+\det
+\begin{bmatrix}
+1 &(x-y_1)^{-1}&\cdots&(x-y_5)^{-1}
+\end{bmatrix}_{x=x_i},
+\qquad
+y_1<\cdots<y_5.
+\]
+
+The Cauchy formula gives a fixed non-zero sign:
+
+\[
+\det
+\begin{bmatrix}
+1 &(x-y_1)^{-1}&\cdots&(x-y_5)^{-1}
+\end{bmatrix}
+=
+C
+\frac{
+\prod_{i<j}(x_j-x_i)\prod_{p<q}(y_q-y_p)
+}{
+\prod_{i,p}(x_i-y_p)
+},
+\]
+
+where \(C=\pm1\) is determined only by the chosen column order.  The source
+Vandermonde is strictly positive for \(u<s<c<t<v\).  Since each \(x_i\) lies
+outside \([u,v]\), the sign of the denominator row factor is
+
+\[
+\operatorname{sgn}\prod_{p=1}^5(x_i-y_p)
+=
+\operatorname{sgn}(x_i-c),
+\]
+
+because there are five finite source points in the escaping gap.  Therefore
+
+\[
+\boxed{
+\left(\prod_{i=1}^6\sigma(x_i)\right)\Delta_6(x_1,\ldots,x_6)
+\text{ has one fixed non-zero sign,}
+\qquad
+\sigma(x)=\operatorname{sgn}(x-c).
+}
+\]
+
+The integral over \(s,t\) cannot cancel because the integrand has the same
+sign for every \(u<s<c<t<v\).  Endpoint coincidences do not matter: the
+averaged columns integrate over the open rectangle up to a measure-zero
+boundary, and the strict sign survives by positivity of the interior
+integration region.
+
+Thus the six local jet kernels are an oriented strict Chebyshev system in the
+determinantal sense.  This closes the determinant part of the compact
+obstruction at the level of a real-variable lemma.
+
+### 16.36 What still remains after the six-kernel determinant
+
+The determinant lemma does **not** by itself prove the exact lower bound.  It
+closes only one local piece:
+
+\[
+\text{field-jet moments on a fixed compact non-pinched }g=2\text{ chamber.}
+\]
+
+The proof still needs the following two mathematical identifications.
+
+First, the KKT adjoint must be shown to use no density functionals beyond the
+six local jet moments.  Sections 16.29--16.33 derive the local formulas, but a
+clean written proof still has to state the finite-dimensional variables and
+perform the Schur elimination without hiding the period-normalisation row.
+
+Second, the sign-variation contradiction must be stated with the correct
+dimension count.  The six-kernel Chebyshev lemma says that a non-zero
+function orthogonal to all six moments has at least six oriented sign changes.
+To use it, the admissible adjoint polynomial \(H=(x-c)G\) must indeed be
+orthogonal to these six moments after all local variables are eliminated.
+Then oriented sign changes of \(G\) translate back into forbidden sign changes
+of \(H\) on the real density ovals.
+
+So the next exact proof target is:
+
+\[
+\boxed{
+\text{write the compact KKT adjoint as six moment equations against }
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+.
+}
+\]
+
+Once that identity is completed, the determinant proof in 16.35 supplies the
+variation-diminishing contradiction.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
