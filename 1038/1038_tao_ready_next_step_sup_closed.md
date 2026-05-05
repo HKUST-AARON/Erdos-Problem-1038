@@ -1674,6 +1674,75 @@ the four kernels \(1,(x-c)^{-1},L_-,L_+\) are sign-regular, and the
 stationarity-coupled signed combination cannot avoid a sign change on the real
 ovals.  This replaces the naive three-kernel determinant claim.
 
+### E25. Oriented split determinant
+
+For \(s\in(u,c)\), \(t\in(c,v)\), and ordered
+\(x_1<\cdots<x_4\) outside \([u,v]\), the Cauchy determinant identity gives
+
+\[
+\det\bigl[1,(x-c)^{-1},(x-s)^{-1},(x-t)^{-1}\bigr]_{x=x_i}
+=
+-
+\frac{
+\prod_{i<j}(x_j-x_i)(c-s)(c-t)(s-t)
+}{
+\prod_i(x_i-c)(x_i-s)(x_i-t)
+}.
+\]
+
+Since \(s<c<t\), the numerator source factor is positive.  After integrating
+over \(s\in[u,c]\), \(t\in[c,v]\), this yields
+
+\[
+\Delta_4
+=
+\det\bigl[1,(x-c)^{-1},L_-,L_+\bigr]_{x=x_i}.
+\]
+
+The sign of the denominator is exactly controlled by
+
+\[
+\sigma(x):=\operatorname{sgn}(x-c).
+\]
+
+Hence
+
+\[
+\boxed{
+\left(\prod_i\sigma(x_i)\right)\Delta_4(x_1,\ldots,x_4)<0.
+}
+\]
+
+So the split kernels are a strict Chebyshev system on the **oriented** real
+ovals, not on the naive un-oriented union.
+
+### E26. Corrected compact target
+
+The orientation is forced by the adjoint zero.  Write
+
+\[
+H(x)=(x-c)G(x).
+\]
+
+No physical sign change of \(H\) on the density cuts means that
+\(\sigma(x)G(x)\), not \(G(x)\), has one ordinary sign across the oriented
+two-oval support.
+
+Thus the compact \(g=2\) obstruction is now reduced to a concrete identity
+check in the mathematics:
+
+\[
+\boxed{
+\text{rewrite the period/endpoint/stationarity first variations as moments
+of }G\text{ against }1,(x-c)^{-1},L_-,L_+
+\text{ with the orientation }\sigma.
+}
+\]
+
+Once this rewriting is established, E25 supplies the Chebyshev sign variation
+and excludes the compact non-pinched chamber.  The remaining gap is no longer
+the determinant sign; it is the exact adjoint-to-split-kernel identification.
+
 ### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
 
 The first useful repair is an algebraic rescaling in the eta-interval DK

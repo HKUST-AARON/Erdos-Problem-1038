@@ -5412,6 +5412,149 @@ component.  The next calculation should write the stationarity-coupled
 determinant as a positive combination of the two one-sided Cauchy determinants
 above.
 
+### 16.27 Oriented four-kernel determinant
+
+The split formulation gives an exact determinant identity which was hidden by
+the collapsed kernel \(L=L_-+L_+\).  For
+
+\[
+s\in(u,c),\qquad t\in(c,v),
+\]
+
+and ordered points \(x_1<\cdots<x_4\) outside \([u,v]\), the Cauchy
+determinant formula gives
+
+\[
+\det
+\begin{pmatrix}
+1 & (x_1-c)^{-1} & (x_1-s)^{-1} & (x_1-t)^{-1}\\
+1 & (x_2-c)^{-1} & (x_2-s)^{-1} & (x_2-t)^{-1}\\
+1 & (x_3-c)^{-1} & (x_3-s)^{-1} & (x_3-t)^{-1}\\
+1 & (x_4-c)^{-1} & (x_4-s)^{-1} & (x_4-t)^{-1}
+\end{pmatrix}
+\]
+
+\[
+=
+-
+\frac{
+\prod_{i<j}(x_j-x_i)\,(c-s)(c-t)(s-t)
+}{
+\prod_{i=1}^4 (x_i-c)(x_i-s)(x_i-t)
+}.
+\]
+
+Since \(s<c<t\), the source factor
+
+\[
+(c-s)(c-t)(s-t)=(c-s)(t-c)(t-s)
+\]
+
+is positive.  Integrating this identity over \(s\in[u,c]\) and
+\(t\in[c,v]\) gives
+
+\[
+\Delta_4(x_1,\ldots,x_4)
+:=
+\det\bigl[1,\ (x-c)^{-1},\ L_-(x),\ L_+(x)\bigr]_{x=x_i}
+\]
+
+\[
+=
+-
+\prod_{i<j}(x_j-x_i)
+\int_u^c\int_c^v
+\frac{(c-s)(t-c)(t-s)}
+{\prod_{i=1}^4 (x_i-c)(x_i-s)(x_i-t)}
+\,dt\,ds .
+\]
+
+The denominator sign is not a defect.  For \(x_i\notin[u,v]\),
+
+\[
+\operatorname{sgn}\bigl((x_i-c)(x_i-s)(x_i-t)\bigr)
+=
+\operatorname{sgn}(x_i-c).
+\]
+
+Therefore, with the real-oval orientation factor
+
+\[
+\sigma(x):=\operatorname{sgn}(x-c),
+\]
+
+one has the fixed sign statement
+
+\[
+\boxed{
+\left(\prod_{i=1}^4\sigma(x_i)\right)
+\Delta_4(x_1,\ldots,x_4)<0
+}
+\]
+
+for every ordered quadruple in the compact separated chamber.
+
+This is the first genuinely useful replacement for the failed naive
+three-kernel determinant.  It says that the split kernels are not an ordinary
+Chebyshev system on the un-oriented union of the two cuts.  They are a strict
+Chebyshev system on the oriented real ovals, where the two sides of the
+escaping component carry opposite signs.
+
+### 16.28 Why the orientation is the right one
+
+The orientation factor is not artificial.  The adjoint already contains the
+forced zero
+
+\[
+H(c)=0.
+\]
+
+Writing
+
+\[
+H(x)=(x-c)G(x),
+\]
+
+the physical condition "no sign change of \(H\) on the positive density cuts"
+does **not** mean that \(G\) has one ordinary sign on
+\(I_1\cup I_2\).  Because \(x-c\) changes sign across the escaping component,
+it means that
+
+\[
+\sigma(x)G(x)
+\]
+
+has one ordinary sign on the oriented union.
+
+Thus the corrected compact obstruction has the following shape:
+
+1. factor \(H=(x-c)G\);
+2. rewrite the period and endpoint first variations as moments of \(G\)
+against the four split kernels
+
+\[
+1,\quad (x-c)^{-1},\quad L_-,\quad L_+;
+\]
+
+3. insert the natural orientation \(\sigma(x)=\operatorname{sgn}(x-c)\);
+4. use the determinant inequality in 16.27 to force sign variation of
+\(\sigma G\);
+5. translate back to a sign change of \(H\) on a real oval, contradicting
+compact interior positivity.
+
+The remaining mathematical hard point is now smaller and sharper than before:
+
+\[
+\boxed{
+\text{derive the exact first-variation identities showing that the compact
+adjoint moments are precisely the oriented split-kernel moments above.}
+}
+\]
+
+Once those identities are written down, the determinant sign is already fixed
+by 16.27; the proof no longer needs a numerical search at this compact
+obstruction.
+
 ## Task5. New finite-certificate lower bound from the stronger forcing branch
 
 This is a small but rigorous increment on the finite-atom lower-bound side.  It is **not** the final Tao finite-gap route and it does not approach the conjectural value \(1.8344304757\ldots\).  Its purpose is to record a concrete certificate produced by combining a stronger forcing interval with the existing five-atom tail block.
