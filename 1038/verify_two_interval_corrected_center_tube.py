@@ -27,12 +27,23 @@ from flint import arb
 
 ROOT = Path(__file__).resolve().parent
 SOLVER_PATH = ROOT / "solve_two_interval_finite_gap.py"
+TUBE_VERIFIER_PATH = ROOT / "verify_two_interval_continuation_tube.py"
 
 
 def load_solver() -> Any:
     spec = importlib.util.spec_from_file_location("solve_two_interval_finite_gap", SOLVER_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot import solver from {SOLVER_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_tube_verifier() -> Any:
+    spec = importlib.util.spec_from_file_location("verify_two_interval_continuation_tube", TUBE_VERIFIER_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot import tube verifier from {TUBE_VERIFIER_PATH}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
@@ -150,6 +161,15 @@ def main() -> int:
     parser.add_argument("--max-correction", type=float, default=1.0e-3)
     parser.add_argument("--max-corrected-residual", type=float, default=1.0e-6)
     parser.add_argument("--min-boundary-norm", type=float, default=1.0e-4)
+    parser.add_argument(
+        "--interval-boundary-winding",
+        default=None,
+        help=(
+            "Optional proof-grade interval boundary winding on adjacent corrected-center slabs, "
+            "formatted eta_subdivisions,edge_boxes."
+        ),
+    )
+    parser.add_argument("--interval-boundary-winding-adaptive-depth", type=int, default=1)
     args = parser.parse_args()
 
     epsilons = parse_epsilons(args.epsilons)
@@ -167,6 +187,7 @@ def main() -> int:
     worst_abs_degree_error = 0
     min_boundary_norm = float("inf")
     max_angle_jump = 0.0
+    corrected_rows: list[tuple[float, float, float]] = []
 
     for epsilon in epsilons:
         eta = math.sqrt(epsilon)
@@ -206,6 +227,7 @@ def main() -> int:
         worst_abs_degree_error = max(worst_abs_degree_error, abs(abs(degree) - 1))
         min_boundary_norm = min(min_boundary_norm, boundary_norm)
         max_angle_jump = max(max_angle_jump, angle_jump)
+        corrected_rows.append((epsilon, float(corrected_center[0]), float(corrected_center[1])))
 
         print(
             f"epsilon={epsilon:.6e} eta={eta:.6e} "
@@ -216,19 +238,88 @@ def main() -> int:
             f"max_angle_jump={angle_jump:.6e}"
         )
 
+    interval_winding_min_origin = float("inf")
+    interval_winding_max_angle = 0.0
+    interval_winding_checked = 0
+    interval_winding_ok = True
+    if args.interval_boundary_winding is not None:
+        parts = args.interval_boundary_winding.split(",")
+        if len(parts) != 2:
+            parser.error("--interval-boundary-winding expects eta_subdivisions,edge_boxes")
+        eta_subdivisions = int(parts[0])
+        edge_boxes = int(parts[1])
+        if eta_subdivisions <= 0 or edge_boxes <= 0:
+            parser.error("--interval-boundary-winding values must be positive")
+        tube = load_tube_verifier()
+        endpoint_rows = [
+            tube.v.EndpointRow(index=index, epsilon=epsilon, B=B, tau=tau)
+            for index, (epsilon, B, tau) in enumerate(corrected_rows)
+        ]
+        for low_row, high_row in zip(endpoint_rows, endpoint_rows[1:]):
+            try:
+                (
+                    winding_status,
+                    winding_degree_abs,
+                    winding_min_origin,
+                    winding_max_angle,
+                    winding_source,
+                ) = tube.interval_boundary_winding(
+                    low_row,
+                    high_row,
+                    radii,
+                    limit,
+                    float(left_weight),
+                    float(null_slope),
+                    eta_subdivisions,
+                    edge_boxes,
+                    "residue-log-mv",
+                    0,
+                    args.interval_boundary_winding_adaptive_depth,
+                    None,
+                    True,
+                )
+            except tube.v.VerificationError as exc:
+                winding_status = "FAIL"
+                winding_degree_abs = 0
+                winding_min_origin = 0.0
+                winding_max_angle = 0.0
+                winding_source = str(exc)
+            if winding_status != "PASS" or winding_degree_abs != 1:
+                print(
+                    f"interval slab {low_row.epsilon:.6e}:{high_row.epsilon:.6e}: "
+                    f"status={winding_status} degree_abs={winding_degree_abs} "
+                    f"min_origin={winding_min_origin:.6e} max_angle={winding_max_angle:.6e} "
+                    f"source={winding_source}"
+                )
+                interval_winding_ok = False
+            interval_winding_checked += 1
+            interval_winding_min_origin = min(interval_winding_min_origin, winding_min_origin)
+            interval_winding_max_angle = max(interval_winding_max_angle, winding_max_angle)
+            print(
+                f"interval slab {low_row.epsilon:.6e}:{high_row.epsilon:.6e}: "
+                f"status={winding_status} degree_abs={winding_degree_abs} "
+                f"min_origin={winding_min_origin:.6e} max_angle={winding_max_angle:.6e}"
+            )
+
     ok = (
         worst_correction <= args.max_correction
         and worst_corrected_residual <= args.max_corrected_residual
         and worst_abs_degree_error == 0
         and min_boundary_norm >= args.min_boundary_norm
+        and interval_winding_ok
     )
+    if args.interval_boundary_winding is not None and interval_winding_checked != max(0, len(corrected_rows) - 1):
+        ok = False
     print(
         "TWO-INTERVAL CORRECTED-CENTER TUBE: "
         f"{'PASS-DIAGNOSTIC' if ok else 'FAIL-DIAGNOSTIC'} rows={len(epsilons)} "
         f"worst_correction={worst_correction:.6e} "
         f"worst_corrected_residual={worst_corrected_residual:.6e} "
         f"min_boundary_norm={min_boundary_norm:.6e} "
-        f"max_angle_jump={max_angle_jump:.6e}"
+        f"max_angle_jump={max_angle_jump:.6e} "
+        f"interval_winding_checked={interval_winding_checked:d} "
+        f"interval_winding_min_origin={interval_winding_min_origin:.6e} "
+        f"interval_winding_max_angle={interval_winding_max_angle:.6e}"
     )
     return 0 if ok else 1
 

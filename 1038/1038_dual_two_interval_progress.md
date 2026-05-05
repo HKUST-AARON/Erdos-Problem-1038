@@ -4232,6 +4232,16 @@ This verifier:
 5. samples the rectangle boundary around the corrected center and computes the
    winding degree by summing adjacent complex argument increments.
 
+The script also has an optional experimental bridge to the existing
+`verify_two_interval_continuation_tube.py` interval boundary-winding checker:
+
+```text
+--interval-boundary-winding ETA,EDGE
+```
+
+This constructs adjacent corrected-center endpoint rows and calls the existing
+regularized `residue-log-mv` interval winding kernel on each slab.
+
 This is still diagnostic, not a proof-grade interval theorem.  It uses
 double-precision branch centers, finite-difference Jacobians, and sampled
 boundary values.
@@ -4277,6 +4287,34 @@ This confirms the current local geometry: after the Newton correction, the
 regularized branch remains well inside a small tube and the sampled boundary
 has degree \(-1\) across both the existing tiny range and a deeper
 near-singular probe.
+
+The optional interval bridge currently fails on the first tiny slab:
+
+```bash
+.venv/bin/python 1038/verify_two_interval_corrected_center_tube.py \
+  --epsilons 1e-8,3e-8 \
+  --interval-boundary-winding 8,8 \
+  --interval-boundary-winding-adaptive-depth 3 \
+  --max-corrected-residual 1e-6
+```
+
+Result:
+
+```text
+TWO-INTERVAL CORRECTED-CENTER TUBE: FAIL-DIAGNOSTIC rows=2
+...
+source=interval boundary winding proof failed at eta=0,right=0/t0/t0/t0:
+angle sector reaches 0; origin_lb=7.058612e-04 center_norm=8.194868e-04
+diag_radius=7.496905e-03 K1_rad=8.087813e-07
+K2_rad=7.496905e-03 obstacle=K-width
+```
+
+This is an important negative result.  Even after using corrected centers,
+the existing `residue-log-mv` interval value kernel is still too wide in the
+second component: `K2_rad` is about \(7.5\cdot10^{-3}\), while the boundary
+separation is only about \(7\cdot10^{-4}\).  Subdivision helps but does not
+close the gap.  The next proof-grade step must therefore improve the value
+kernel itself, not only refine the boundary mesh.
 
 The remaining proof-grade obligations are now sharper:
 
