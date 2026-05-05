@@ -519,7 +519,7 @@ two-cell grid gives:
 .venv/bin/python 1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
   --grid 3 \
   --h 1e-4 \
-  --eta-values 1e-16,1e-8 \
+  --eta-values 1e-16,3e-16,1e-15,3e-15,1e-14,3e-14,1e-13,3e-13,1e-12,3e-12,1e-11,3e-11,1e-10,3e-10,1e-9,3e-9,1e-8 \
   --secant-certificate \
   --taylor-lipschitz-diagnostic
 ```
@@ -584,11 +584,14 @@ Observed cell output:
 K2_CELL_CURVATURE B=+0.01 cell=0 max_abs_curvature=1.003451e-04
 K2_CELL_CURVATURE B=+0.01 cell=1 max_abs_curvature=1.003439e-04
 K2_CELL_CURVATURE B=-0.01 cell=0 max_abs_curvature=1.003435e-04
-K2_CELL_CURVATURE B=-0.01 cell=1 max_abs_curvature=1.003421e-04
+K2_CELL_CURVATURE B=-0.01 cell=1 max_abs_curvature=1.003427e-04
 TWO-INTERVAL K2 CELL CURVATURE SCAN: PASS-DIAGNOSTIC
 worst_curvature=1.003451e-04
 candidate_curvature=2.500000e-04
 ```
+
+This command uses a 17-level eta ladder from `1e-16` to `1e-8`; the worst
+curvature still occurs at the lower eta endpoint.
 
 This is still sampled, but it is now aligned with the exact future proof
 artifact: prove the curvature bound on these four boxes using interval/Taylor
