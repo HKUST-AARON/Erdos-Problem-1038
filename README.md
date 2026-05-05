@@ -76,6 +76,7 @@ The checked repository status is:
   Lean/Mathlib exact geometry, block coverage, required-domain mapping,
   non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
   Stronger two-parameter forcing interval certificate for the 1.836 handoff.
+  Lean rational recombination checks for all 5955 stronger forcing boxes.
   Generated 560-block required-domain certificate with Python verification.
   Strong forcing worst margin: 2.7692109390833507e-06.
   Required-domain worst margin: 9.534343713646365e-06.

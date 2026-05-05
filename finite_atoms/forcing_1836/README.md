@@ -58,3 +58,31 @@ Expected output ends with:
 ```text
 status: PASS
 ```
+
+## Lean rational arithmetic layer
+
+The JSON certificate is also unpacked into Lean chunks:
+
+```text
+lean/box_arith_chunks/Forcing1836BoxArith000.lean
+...
+lean/box_arith_chunks/Forcing1836BoxArith119.lean
+lean/Forcing1836BoxData.lean
+```
+
+These files check the rational recombination layer for all 5955 boxes:
+
+```text
+box shape
+positive weights
+positive C(a,b) lower bound
+stored lower bound > 10^-6
+stored lower bound <= recombined rational lower bound
+```
+
+To check this layer:
+
+```bash
+LEAN_JOBS=8 MATHLIB_WORKSPACE=/path/to/mathlib \
+  finite_atoms/forcing_1836/scripts/check_box_arith.sh
+```
