@@ -1956,6 +1956,15 @@ def _combined_residue_log_value_second_divided_from_arb(
             return value_div / value0 * log_one_plus_over_z(z)
         return log_abs(value / value0) / eta
 
+    def product_log_abs_divided(coefficient, coefficient0, coefficient_div, value, value0, value_div):
+        log_ratio_div = log_abs_ratio_divided(value, value0, value_div)
+        left = coefficient_div * log_abs(value) + coefficient0 * log_ratio_div
+        direct = (coefficient * log_abs(value) - coefficient0 * log_abs(value0)) / eta
+        try:
+            return left.intersection(direct)
+        except ValueError:
+            return left
+
     def preimage_pair_divided(q, q0, q_div):
         y = (q - center) / scale
         y0 = (q0 - center0) / scale0
@@ -2048,7 +2057,9 @@ def _combined_residue_log_value_second_divided_from_arb(
         zip(ell_preimages, r_preimages)
     ):
         a_ell = residue(ell, ell_derivative, rho_ell, A, scale)
+        a_ell0 = residue(ell0, ell0_derivative, rho_ell0, limit_A, scale0)
         a_r = residue(r, r_derivative, rho_r, A, scale)
+        a_r0 = residue(r, r0_derivative, rho_r0, limit_A, scale0)
         a_ell_div = residue_divided(
             ell,
             ell0,
@@ -2072,6 +2083,7 @@ def _combined_residue_log_value_second_divided_from_arb(
             rho_r_div,
         )
         sum_residue = a_ell + a_r
+        sum_residue0 = a_ell0 + a_r0
         sum_residue_div = a_ell_div + a_r_div
         for item in contexts:
             ratio = (item["w"] - rho_ell) / (item["w"] - rho_r)
@@ -2087,6 +2099,14 @@ def _combined_residue_log_value_second_divided_from_arb(
             base = item["w"] - rho_r
             base0 = item["w0"] - rho_r0
             base_div = item["w_div"] - rho_r_div
+            base_product = product_log_abs_divided(
+                sum_residue,
+                sum_residue0,
+                sum_residue_div,
+                base,
+                base0,
+                base_div,
+            )
             add_combined_term(
                 f"smooth:s{sheet_index}:ratio_coeff:{item['label']}",
                 item["weight"] * (-a_ell_div * log_abs(ratio0)),
@@ -2096,12 +2116,8 @@ def _combined_residue_log_value_second_divided_from_arb(
                 item["weight"] * (-a_ell * log_abs_ratio_divided(ratio, ratio0, ratio_div)),
             )
             add_combined_term(
-                f"smooth:s{sheet_index}:base_coeff:{item['label']}",
-                item["weight"] * (-sum_residue_div * log_abs(base0)),
-            )
-            add_combined_term(
-                f"smooth:s{sheet_index}:base_log:{item['label']}",
-                item["weight"] * (-sum_residue * log_abs_ratio_divided(base, base0, base_div)),
+                f"smooth:s{sheet_index}:base_product:{item['label']}",
+                item["weight"] * (-base_product),
             )
 
     one_derivative = (one - ell) * (one - r)
