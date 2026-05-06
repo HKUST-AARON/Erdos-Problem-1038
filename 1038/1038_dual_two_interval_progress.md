@@ -9265,36 +9265,69 @@ theorem queue.
     determinant involving the moving rows \(x_i\), the normalization rows
     \(\ell_r\), the branch endpoint rows, and the real pole/residue rows.
 
-    This is where the present proof still fails.  The current documents do not
-    prove the two inputs needed to orient that block determinant:
+    The first of the two missing inputs can be closed.  Since the regular
+    finite-gap transform is the Cauchy transform of a positive dual measure,
+    every pole of \(F\) off the cuts is an atom of that positive measure.
+    Therefore the \(Q\)-poles are real, simple in the regular chart, and have
+    positive residues.  On each complementary real interval,
 
-    1. finite-gap positivity has not yet been upgraded to a theorem that all
-       \(Q\)-poles appearing in this regular \(g=2\) chart are real,
-       separated, and interlaced with the cuts and zeros in the order required
-       by the confluent Cauchy determinant;
-    2. the confluent Cauchy orientation for the full block
-       \((A,r_\Gamma;LB,LH_\Gamma^{\rm raw})\), including double pole-state
-       rows and the equality row at \(c\), has not been proved.
+    \[
+    F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0,
+    \]
+
+    so \(F\) is strictly decreasing between consecutive support points.
+    Hence each complementary interval contains at most one zero, and the
+    zeros, branch endpoints, and real poles interlace in the usual Stieltjes
+    order.  If a pole is non-real, multiple, has zero/negative residue, or
+    collides with a branch endpoint, the point is not a regular positive
+    non-pinched chart point and is routed to boundary/lower genus.
+
+    Thus
+
+    \[
+    \boxed{
+    \text{real separated/interlaced }Q\text{-poles: PASS in the regular positive chart.}
+    }
+    \tag{Gate1QPoles}
+    \]
+
+    The remaining failure is the second input: the confluent Cauchy orientation
+    for the full Schur block
+    \[
+    (A,r_\Gamma;LB,LH_\Gamma^{\rm raw}),
+    \]
+    including double pole-state rows and the equality row at \(c\), has not
+    been proved.
 
     The six-kernel Chebyshev lemma does not supply either input.  It signs a
     local jet kernel family; it does not sign the repaired moving-Schiffer
     Schur complement.  Therefore `AugmentedSchifferChebyshevLemma` is not
-    proved in the current document.  The precise missing theorem is:
+    proved in the current document.  The precise remaining theorem is:
 
     \[
     \boxed{
-    \begin{gathered}
-    \text{Real-interlacing of the }Q\text{-poles}\\
-    +\ \text{confluent Cauchy sign of }(Gate1BlockDet)\\
+    \text{confluent Cauchy sign of }(Gate1BlockDet)
     \Longrightarrow
     \text{RawAugmentedCircuitSign.}
-    \end{gathered}}
+    }
     \tag{Gate1MissingSign}
     \]
 
-    Since those two sign inputs are not yet established, Gate 1 remains
-    blocked at the raw augmented determinant sign.  This is not a failure of
-    the \(A_c\)-elimination, not a failure of the period column, and not a
+    This remaining theorem is not automatic from the current moving-chart
+    notation.  The rows \(\ell_r\) were only specified as independent chart
+    rows; an arbitrary invertible row change preserves the chart but can change
+    the apparent orientation of the Schur determinant unless the row
+    orientation and row type are fixed.  To finish Gate 1 one must replace the
+    abstract regular chart rows by a canonical total-positive row system:
+    ordered real pole evaluation/confluent derivative rows, the chosen
+    free-period row written as a positive Cauchy average or removed by the
+    free-period quotient, and the fixed equality row at \(c\).  Without that
+    canonical row system, the sign of (Gate1BlockDet) is not a well-defined
+    consequence of the existing hypotheses.
+
+    Therefore Gate 1 remains blocked only at the Schur-block orientation
+    theorem.  This is not a failure of the \(A_c\)-elimination, not a failure
+    of the period column, not a failure of \(Q\)-pole interlacing, and not a
     failure of the rank subcheck.
 
     Therefore the current honest conclusion is:

@@ -3237,22 +3237,34 @@ up to the fixed column-order sign.  After differentiating in a moving point
 and multiplying by \(Q(x)^2R(x)\), the endpoint rows are
 \(-H_\gamma^{\rm rep}(x)\) and the period lift is \(-\kappa Q(x)^2\).
 
-The remaining missing sign theorem is therefore not abstract anymore.  One
-must prove:
+The real-pole part is now closed in the regular positive chart.  Since
+\(F\) is the Cauchy transform of a positive dual measure, every \(Q\)-pole is
+a real atom with positive residue; on each complementary real interval
+
+\[
+F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0,
+\]
+
+so zeros, branch endpoints, and poles interlace.  Non-real, multiple,
+zero-residue, or colliding poles are boundary/lower-genus cases.
+
+The remaining missing sign theorem is therefore only the Schur-block
+orientation:
 
 \[
 \boxed{
-\text{real interlacing of the }Q\text{-poles}
-+\text{ confluent Cauchy sign of the Schur block}
+\text{confluent Cauchy sign of the Schur block}
 \Rightarrow
 \text{RawAugmentedCircuitSign}.
 }
 \]
 
-The current text does not yet prove either real \(Q\)-pole interlacing in this
-regular \(g=2\) chart or the confluent Cauchy orientation for the full block
-including double pole-state rows and the equality row at \(c\).  Thus Gate 1
-remains blocked at this exact determinant sign input.
+The current text does not yet prove the confluent Cauchy orientation for the
+full block including double pole-state rows and the equality row at \(c\).  In
+particular, the moving-chart rows \(\ell_r\) are still only independent chart
+rows; to sign the Schur determinant they must be fixed as canonical
+total-positive rows, not arbitrary row-gauge choices.  Thus Gate 1 remains
+blocked at this exact determinant sign input.
 
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
