@@ -11080,6 +11080,18 @@ theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
   rw [← hrestrict_eq]
   exact hdirac_zero
 
+theorem unique_support_in_component_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 := by
+  exact unique_support_in_component_of_support_neighborhood_zero
+    (by simpa [PositiveComponent.interval_eq] using
+      (isOpen_Ioo : IsOpen (Ioo C.left C.right)))
+    (realMeasure_support_open_neighborhood_pos μ)
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac)
+
 /--
 Concrete normalized-support form from a selected component whose non-endpoint
 open sub-neighborhoods carry no realMeasure mass.
@@ -14313,6 +14325,68 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact ⟨mean_choice, reflected, translation, C, R,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hprimary_replacement, hunique⟩
+
+/--
+Atomized-component version of the automatic-tail endpoint consequence.
+
+This removes the manually supplied component-support uniqueness input from
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data`.
+It is derived from endpoint atomization of the selected component block.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_atomization_data
+    (hComponentReplacementAutoTailAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailAtomizationDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hcomponent_atomized⟩
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    unique_support_in_component_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
