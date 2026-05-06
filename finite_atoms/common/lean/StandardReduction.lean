@@ -6194,6 +6194,19 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer_of_compact_th
       hcore)
 
 /--
+Primary minimizer existence for the truncated-sup surrogate, with the compact
+threshold-core and lower-semicontinuity inputs generated internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν := by
+  exact admissible_probability_lsc_exists_minimizer_ennreal
+    unitIntervalTruncatedPositiveSetObjective
+    unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous
+
+/--
 Secondary minimizer selector for the truncated-sup surrogate.  Since this file
 does not define a concrete second-moment objective on `ProbabilityMeasure
 UnitInterval1038`, the secondary objective is an explicit lower-semicontinuous
