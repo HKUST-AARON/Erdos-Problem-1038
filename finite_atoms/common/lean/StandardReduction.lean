@@ -2247,6 +2247,82 @@ lemma unitIntervalLogPotential_eq_realMeasure
     unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
   simpa [realMeasure] using unitIntervalLogPotential_eq_map_subtypeVal μ x
 
+/-! ## Concrete reflection/translation normalization map -/
+
+/-- Point map used by the concrete Tao normalization: optional reflection,
+followed by translation. -/
+def taoNormalizePoint (reflected : Bool) (translation x : ℝ) : ℝ :=
+  (if reflected then -x else x) + translation
+
+/-- Real push-forward measure under the concrete Tao normalization map. -/
+def taoNormalizeRealMeasure
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    Measure ℝ :=
+  Measure.map (taoNormalizePoint reflected translation) (realMeasure μ)
+
+/-- Potential of the concrete normalized real measure. -/
+def taoNormalizedPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    ℝ → ℝ :=
+  measureLogPotential (taoNormalizeRealMeasure μ reflected translation)
+
+lemma taoNormalizePoint_false (translation x : ℝ) :
+    taoNormalizePoint false translation x = x + translation := by
+  rfl
+
+lemma taoNormalizePoint_true (translation x : ℝ) :
+    taoNormalizePoint true translation x = -x + translation := by
+  rfl
+
+lemma taoNormalizeRealMeasure_false
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    taoNormalizeRealMeasure μ false translation =
+      Measure.map (fun t : ℝ => t + translation) (realMeasure μ) := by
+  rfl
+
+lemma taoNormalizeRealMeasure_true
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    taoNormalizeRealMeasure μ true translation =
+      Measure.map (fun t : ℝ => -t + translation) (realMeasure μ) := by
+  rfl
+
+lemma measureLogPotential_reflect_translate (μ : Measure ℝ) (x shift : ℝ) :
+    measureLogPotential (Measure.map (fun t : ℝ => -t + shift) μ)
+      (-x + shift) =
+    measureLogPotential μ x := by
+  unfold measureLogPotential
+  rw [integral_map]
+  · apply integral_congr_ae
+    filter_upwards with t
+    have habs : |-x + shift - (-t + shift)| = |x - t| := by
+      rw [show -x + shift - (-t + shift) = -(x - t) by ring]
+      exact abs_neg (x - t)
+    rw [habs]
+  · fun_prop
+  · exact (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+
+theorem taoNormalizedPotential_false_apply
+    (μ : ProbabilityMeasure UnitInterval1038) (translation x : ℝ) :
+    taoNormalizedPotential μ false translation (x + translation) =
+      unitIntervalLogPotential μ x := by
+  change measureLogPotential
+      (Measure.map (fun t : ℝ => t + translation) (realMeasure μ))
+      (x + translation) = unitIntervalLogPotential μ x
+  rw [measureLogPotential_translate]
+  exact (unitIntervalLogPotential_eq_realMeasure μ x).symm
+
+theorem taoNormalizedPotential_true_apply
+    (μ : ProbabilityMeasure UnitInterval1038) (translation x : ℝ) :
+    taoNormalizedPotential μ true translation (-x + translation) =
+      unitIntervalLogPotential μ x := by
+  change measureLogPotential
+      (Measure.map (fun t : ℝ => -t + translation) (realMeasure μ))
+      (-x + translation) = unitIntervalLogPotential μ x
+  rw [measureLogPotential_reflect_translate]
+  exact (unitIntervalLogPotential_eq_realMeasure μ x).symm
+
 /-- Unit-interval version of the boundary Jensen step. -/
 theorem one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
     (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
