@@ -9714,6 +9714,82 @@ theorem queue.
     required orientation.  Without this column-orientation lemma, row total
     positivity alone still does not prove RawAugmentedCircuitSign.
 
+    Column-side audit.
+
+    The column-side lemma cannot be checked from rows alone.  It depends on
+    the correction column space \(B\) in
+
+    \[
+    H_\gamma^{\rm rep}=H_\gamma^{\rm raw}-BA^{-1}r_\gamma.
+    \]
+
+    This matters because the fixed-\(Q\) Hermite correction space is already
+    known to fail: with only the Hermite pole-cancellation basis
+    \(B_{k,0},B_{k,1}\), the normalized endpoint columns satisfy
+
+    \[
+    H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+    =
+    -\frac12\operatorname{lc}(P)Q^2,
+    \]
+
+    hence collapse onto the period column.  Thus the moving numerator/pole
+    correction space must be used, and its columns must enter the sign proof.
+
+    The final Gate 1 theorem is therefore the following more precise statement.
+
+    \[
+    \boxed{\textbf{MovingCorrectionColumnOrientationLemma.}}
+    \]
+
+    Let \(B_1,\ldots,B_N\) be the actual moving correction numerators
+
+    \[
+    B_\nu=QD\,\Delta P_\nu-PD\,\Delta Q_\nu
+    \]
+
+    used in the regular moving Schiffer chart.  Form the full canonical block
+
+    \[
+    \boxed{
+    \mathcal M_{\rm mov}
+    =
+    \begin{pmatrix}
+    A & r_{\alpha_1}&r_{\beta_1}&r_{\alpha_2}&r_{\beta_2}&r_\Pi\\
+    LB&
+    L(H_{\alpha_1}^{\rm raw})&
+    L(H_{\beta_1}^{\rm raw})&
+    L(H_{\alpha_2}^{\rm raw})&
+    L(H_{\beta_2}^{\rm raw})&
+    L(\kappa Q^2)
+    \end{pmatrix}.
+    }
+    \tag{Gate1MovingBlock}
+    \]
+
+    Here \(A_{\mu\nu}=\ell_\mu(B_\nu)\), \(r_{\gamma,\mu}=\ell_\mu(H_\gamma^{\rm raw})\),
+    and \(L\) ranges over the raw circuit rows: moving point evaluations,
+    boundary row \(b\), and equality row \(\rho\).  The lemma must prove that
+    every relevant minor of \(\mathcal M_{\rm mov}\) has the ordered sign
+    needed for the lifted circuit inequality.
+
+    If MovingCorrectionColumnOrientationLemma holds, then:
+
+    \[
+    \text{MovingCorrectionColumnOrientationLemma}
+    \Rightarrow
+    \text{SchurBlockTotalPositivityLemma}
+    \Rightarrow
+    \text{RawAugmentedCircuitSign}.
+    \tag{Gate1FinalConditional}
+    \]
+
+    The endpoint-period column problem is therefore not a row-realization
+    problem anymore.  It is a concrete finite determinant problem for the
+    actual moving correction columns \(QD\Delta P-PD\Delta Q\).  The current
+    text has not yet supplied those columns explicitly enough to sign
+    \(\mathcal M_{\rm mov}\).  That is the last Gate 1 hard datum.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

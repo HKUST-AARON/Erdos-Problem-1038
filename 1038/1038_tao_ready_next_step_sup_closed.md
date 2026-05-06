@@ -3378,6 +3378,28 @@ which must sign the full canonical block containing the four raw endpoint
 columns \(PQD_\gamma\) and the period lift column \(Q^2\).  Only after this
 column-orientation lemma is proved does RawAugmentedCircuitSign follow.
 
+There is one important refinement.  The column sign cannot be checked from the
+rows alone.  If the correction space is the old fixed-\(Q\) Hermite
+pole-cancellation space, the endpoint columns collapse back to a multiple of
+the period column.  Therefore the final Gate 1 datum is the actual moving
+correction column basis
+
+\[
+B_\nu=QD\,\Delta P_\nu-PD\,\Delta Q_\nu.
+\]
+
+The remaining theorem is
+
+\[
+\boxed{\textbf{MovingCorrectionColumnOrientationLemma}}
+\]
+
+for the full block whose correction columns are \(B_\nu\), endpoint columns are
+\(-\frac12PQD_\gamma\), and period lift is \(\kappa Q^2\).  Once this full
+moving block has the required ordered sign, Sylvester transfer gives
+SchurBlockTotalPositivityLemma and then RawAugmentedCircuitSign.  Without this
+moving correction column determinant, Gate 1 remains open.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
