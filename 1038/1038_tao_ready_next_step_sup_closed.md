@@ -3483,6 +3483,33 @@ h^TQ_{\rm eff}h<0.
 This is the current Gate 1 hard mouth.  The row-realization and moving-column
 interpolation audits are now explicit; the remaining sign is second-order.
 
+Gate 1 data dictionary.  The fixed-\(Q\) Hermite endpoint table is audit-only.
+The proof-grade columns are
+
+\[
+C_\Pi=\kappa/R,\qquad
+C_\gamma=H_\gamma^{\rm rep}/(Q^2R)
+\quad(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2).
+\]
+
+For every seed \(j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\}\),
+
+\[
+\rho_j=-C_j(c),\qquad
+V_j(s)=\int_s^\infty C_j(y)\,dy,\qquad
+b_j=aV_j(u)+bV_j(v).
+\]
+
+We use
+
+\[
+V_S=(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2})^T,
+\quad
+b_S=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T,
+\quad
+\rho_S=(\rho_{\alpha_1},\rho_{\beta_1},\rho_{\alpha_2},\rho_{\beta_2})^T.
+\]
+
 The exact second-order replacement is now the following finite statement.  For
 each minimal raw augmented atomic certificate
 

@@ -8848,9 +8848,10 @@ theorem queue.
 
     Those correction terms are not a positive Cauchy average of the six local
     kernels in the earlier fixed-\(Q\) audit.  This was the old obstruction.
-    Gate 1 below replaces the collapsed fixed-\(Q\) endpoint table by the
-    repaired moving Schiffer chart and the canonical total-positive Schur
-    block, which proves RawAugmentedCircuitSign in the regular chart.
+    The later Gate 1 audit replaces the collapsed fixed-\(Q\) endpoint table
+    by repaired moving Schiffer columns, but the determinant-orientation route
+    still fails; the proof-grade continuation is the \(Q_{\rm eff}\) and
+    cone-envelope analysis below.
 
     Collapse audit of the fixed-\(Q\) endpoint columns.
 
@@ -9945,6 +9946,85 @@ theorem queue.
     it has been reduced to the second-variation Hessian calculation above.
 
     Gate 1 second-variation reduction.
+
+    Gate 1 data dictionary.
+
+    From this point onward, the fixed-\(Q\) Hermite endpoint table is used only
+    as a collapse audit.  The proof-grade endpoint columns are the repaired
+    moving-Schiffer columns.  We use the following uniform notation.
+
+    \[
+    \boxed{
+    C_\Pi(z)=\frac{\kappa}{R(z)},\qquad
+    C_\gamma(z)=\frac{H_\gamma^{\rm rep}(z)}{Q(z)^2R(z)}
+    \quad
+    \left(\gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}\right).
+    }
+    \tag{G1DataC}
+    \]
+
+    The period orientation is chosen so that the period-transfer density has
+    the positive orientation fixed earlier.  For every seed
+
+    \[
+    j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \]
+
+    define
+
+    \[
+    \boxed{
+    \rho_j=R_c(G_j)=-C_j(c),
+    \qquad
+    V_j(s)=\int_s^\infty C_j(y)\,dy,
+    }
+    \tag{G1DataRhoV}
+    \]
+
+    with the real boundary value on the relevant component of
+    \(\mathbb C\setminus J\).  The reduced boundary entry is
+
+    \[
+    \boxed{
+    b_j=aV_j(u)+bV_j(v).
+    }
+    \tag{G1DataB}
+    \]
+
+    Finally set
+
+    \[
+    \boxed{
+    V_S(x)=
+    \begin{pmatrix}
+    V_{\alpha_1}(x)\\
+    V_{\beta_1}(x)\\
+    V_{\alpha_2}(x)\\
+    V_{\beta_2}(x)
+    \end{pmatrix},
+    \quad
+    b_S=
+    \begin{pmatrix}
+    b_{\alpha_1}\\
+    b_{\beta_1}\\
+    b_{\alpha_2}\\
+    b_{\beta_2}
+    \end{pmatrix},
+    \quad
+    \rho_S=
+    \begin{pmatrix}
+    \rho_{\alpha_1}\\
+    \rho_{\beta_1}\\
+    \rho_{\alpha_2}\\
+    \rho_{\beta_2}
+    \end{pmatrix}.
+    }
+    \tag{G1DataVectors}
+    \]
+
+    Thus every later occurrence of \(b_S,\rho_S,V_S,V_\Pi,b_\Pi,\rho_\Pi\)
+    refers to the repaired moving-chart data above, not to the collapsed
+    fixed-\(Q\) endpoint table.
 
     We now record the exact implication that replaces the failed first-order
     sign theorem.  Let
