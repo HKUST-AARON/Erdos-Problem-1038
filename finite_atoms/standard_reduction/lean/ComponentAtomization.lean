@@ -26,7 +26,7 @@ noncomputable section
 
 open Set
 open MeasureTheory
-open scoped ENNReal BigOperators
+open scoped ENNReal BigOperators Topology
 
 /--
 The normalized component block has an integrable second moment.  This is the
@@ -107,6 +107,70 @@ theorem componentBlock_eq_componentMass_smul_dirac_of_normalized_block_eq_dirac
     _ = componentMass C • Measure.dirac (componentBarycenter C) := by
           rw [componentBlockFiniteMeasure_mass C,
             ENNReal.coe_toNNReal (componentMass_ne_top C)]
+
+/-- The support of a scaled Dirac measure is contained in its atom. -/
+lemma support_smul_dirac_subset_singleton (c : ℝ≥0∞) (a : ℝ) :
+    (c • Measure.dirac a : Measure ℝ).support ⊆ ({a} : Set ℝ) := by
+  intro t ht
+  by_contra hta
+  have hU_mem : ({a}ᶜ : Set ℝ) ∈ 𝓝 t := by
+    exact IsOpen.mem_nhds isClosed_singleton.isOpen_compl hta
+  have hzero : (c • Measure.dirac a : Measure ℝ) ({a}ᶜ : Set ℝ) = 0 := by
+    simp
+  have hpos : 0 < (c • Measure.dirac a : Measure ℝ) ({a}ᶜ : Set ℝ) := by
+    rw [Measure.mem_support_iff_forall] at ht
+    exact ht ({a}ᶜ : Set ℝ) hU_mem
+  simp [hzero] at hpos
+
+/--
+If the selected support is contained in the topological support of the actual
+measure, then component-block atomization forces every selected support point
+inside the positive component to be the barycenter.
+-/
+theorem unique_support_in_component_of_componentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {Support : Set ℝ}
+    (hSupport_subset : Support ⊆ (realMeasure μ).support)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C)) :
+    ∀ t : ℝ, t ∈ Support → t ∈ C.interval →
+      t = componentBarycenter C := by
+  intro t htSupport htComp
+  have htInterior : t ∈ interior C.interval := by
+    simpa [PositiveComponent.interval_eq] using htComp
+  have htBlock : t ∈ (componentBlock C).support := by
+    exact Measure.interior_inter_support
+      (μ := realMeasure μ) (s := C.interval)
+      ⟨htInterior, hSupport_subset htSupport⟩
+  have htDirac :
+      t ∈ (componentMass C • Measure.dirac (componentBarycenter C) :
+        Measure ℝ).support := by
+    simpa [hblock] using htBlock
+  have htSingleton :
+      t ∈ ({componentBarycenter C} : Set ℝ) :=
+    support_smul_dirac_subset_singleton
+      (componentMass C) (componentBarycenter C) htDirac
+  simpa using htSingleton
+
+/--
+Endpoint-specialized support uniqueness: if the barycenter has been normalized
+to `-1`, atomization gives the exact `unique_support_in_component` field used
+by `TaoVariationComponentPackage`.
+-/
+theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {Support : Set ℝ}
+    (hSupport_subset : Support ⊆ (realMeasure μ).support)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C))
+    (hbary : componentBarycenter C = -1) :
+    ∀ t : ℝ, t ∈ Support → t ∈ C.interval → t = -1 := by
+  intro t htSupport htComp
+  rw [← hbary]
+  exact unique_support_in_component_of_componentBlock_eq_dirac
+    C hSupport_subset hblock t htSupport htComp
 
 /--
 A component whose barycenter replacement is known not to increase objective by

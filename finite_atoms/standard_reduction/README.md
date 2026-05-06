@@ -66,9 +66,12 @@ block and proves the measure-level bridge
 componentBlock C = componentMass C • Measure.dirac (componentBarycenter C)
 ```
 
-from normalized-block Dirac rigidity.  The remaining upstream input in this
-layer is the actual Tao variation data selecting the positive component and
-providing the replacement/secondary-objective hypotheses.
+from normalized-block Dirac rigidity.  It also proves the support-order bridge
+which turns this atomization statement into the `unique_support_in_component`
+field once the selected support is contained in the actual topological support
+and the barycenter has been normalized to `-1`.  The remaining upstream input
+in this layer is the actual Tao variation data selecting the positive component
+and providing the replacement/secondary-objective hypotheses.
 
 ## Check command
 
