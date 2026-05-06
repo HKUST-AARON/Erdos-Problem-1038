@@ -294,10 +294,16 @@ At provider level, the file now exposes
 CanonicalAtomizedRightRegionPackageFromVariation
 CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalRightRegionPackageFromVariation
 CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+normalizedEndpointPotential_from_atomized_rightRegionPackage
+baseline_subset_positive_from_atomized_rightRegionPackage
+baseline_length_from_atomized_rightRegionPackage
+exists_relaxed_minimizer_with_normalizedEndpointPotential_from_atomized
+exists_baseline_length_from_atomized_rightRegionPackage
 ```
 
 so atomized right-region data for every relaxed minimizer feeds directly into
-the existing canonical component-package consequences.
+the existing canonical component-package consequences without requiring callers
+to invoke the intermediate conversion manually.
 
 The constructors
 

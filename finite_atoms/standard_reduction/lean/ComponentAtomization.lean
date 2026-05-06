@@ -2086,6 +2086,65 @@ theorem exists_baseline_length_from_canonical_componentPackage
     exact ⟨M, baseline_length_from_canonical_componentPackage Hvar M⟩
 
 /--
+Atomized right-region variation data gives the normalized endpoint-potential
+interface without forcing callers to manually pass through the ordinary
+component-package provider.
+-/
+def normalizedEndpointPotential_from_atomized_rightRegionPackage
+    (H : CanonicalAtomizedRightRegionPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    NormalizedEndpointPotential (VariationEndpoint.RelaxedPotential M) :=
+  normalizedEndpointPotential_from_canonical_componentPackage
+    H.toCanonicalComponentPackageFromVariation M
+
+/--
+Atomized right-region variation data gives the baseline positive-set inclusion.
+-/
+theorem baseline_subset_positive_from_atomized_rightRegionPackage
+    (H : CanonicalAtomizedRightRegionPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    BaselinePunctured ⊆ PositiveSet (VariationEndpoint.RelaxedPotential M) :=
+  baseline_subset_positive_from_canonical_componentPackage
+    H.toCanonicalComponentPackageFromVariation M
+
+/--
+Atomized right-region variation data gives the baseline positive-set length
+lower bound.
+-/
+theorem baseline_length_from_atomized_rightRegionPackage
+    (H : CanonicalAtomizedRightRegionPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    ENNReal.ofReal (Real.sqrt 2) ≤
+      volume (PositiveSet (VariationEndpoint.RelaxedPotential M)) :=
+  baseline_length_from_canonical_componentPackage
+    H.toCanonicalComponentPackageFromVariation M
+
+/--
+Diagonal-safe minimizer plus atomized right-region variation data gives a
+relaxed minimizer carrying the normalized endpoint-potential interface.
+-/
+theorem exists_relaxed_minimizer_with_normalizedEndpointPotential_from_atomized
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : CanonicalAtomizedRightRegionPackageFromVariation) :
+    Nonempty (Σ M : MinimizerExistence.RelaxedMinimizer,
+      NormalizedEndpointPotential (VariationEndpoint.RelaxedPotential M)) :=
+  exists_relaxed_minimizer_with_normalizedEndpointPotential_from_canonical
+    Hcore Hvar.toCanonicalComponentPackageFromVariation
+
+/--
+Diagonal-safe minimizer plus atomized right-region variation data gives the
+baseline interval length consequence.
+-/
+theorem exists_baseline_length_from_atomized_rightRegionPackage
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : CanonicalAtomizedRightRegionPackageFromVariation) :
+    ∃ M : MinimizerExistence.RelaxedMinimizer,
+      ENNReal.ofReal (Real.sqrt 2) ≤
+        volume (PositiveSet (VariationEndpoint.RelaxedPotential M)) :=
+  exists_baseline_length_from_canonical_componentPackage
+    Hcore Hvar.toCanonicalComponentPackageFromVariation
+
+/--
 A component whose barycenter replacement is known not to increase objective by
 countability of the singular strict-outside support-hit branch.
 -/
