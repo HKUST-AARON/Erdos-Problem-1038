@@ -2829,7 +2829,73 @@ This \(H_\gamma\) satisfies \(H_\gamma(p_k)=H_\gamma'(p_k)=0\), so
 \(H_\gamma/(Q^2R)\) has no off-cut pole at the fixed \(Q\)-zeros.  If \(d=0\),
 the correction sum is empty.
 
-What remains is the actual algebraic computation of these entries and the
+The endpoint column then simplifies.  The correct decay input is
+\(\deg P\le d-3\), not necessarily equality.  Therefore
+
+\[
+\frac{H_\gamma^{raw}}{Q^2R}=O(z^{-2}),\qquad
+\frac{B_{k,1}}{Q^2R}=O(z^{-3}),
+\]
+
+so
+
+\[
+\boxed{
+R_0(G_\gamma)=0,\qquad
+R_c(G_\gamma)=-C_\gamma(c)
+=-\frac{H_\gamma(c)}{Q(c)^2R(c)}.
+}
+\]
+
+With zero total mass, normalize \(V_\gamma(\infty)=0\).  Since
+\(V_\gamma'=-C_\gamma\),
+
+\[
+\boxed{
+V_\gamma(s)=\int_s^\infty C_\gamma(y)\,dy
+\qquad(s\notin J).
+}
+\]
+
+Thus
+
+\[
+\boxed{
+b_\gamma=
+a\int_u^\infty C_\gamma(y)\,dy+
+b\int_v^\infty C_\gamma(y)\,dy.
+}
+\]
+
+Let
+
+\[
+e_2=\binom01,\qquad
+A_c(x)=(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}e_2.
+\]
+
+Since \(E_\gamma=(0,-C_\gamma(c))^T\), the equality-corrected \(Z_0\)-column is
+
+\[
+\boxed{
+f_\gamma(x)=V_\gamma(x)+C_\gamma(c)A_c(x).
+}
+\]
+
+The period column is still
+
+\[
+C_\Pi=\frac{H_\Pi}{Q^2R},\quad
+E_\Pi=\binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)},\quad
+b_\Pi=aV_\Pi(u)+bV_\Pi(v),
+\]
+
+\[
+f_\Pi=V_\Pi-(U_{\psi_1},U_{\psi_2})M^{-1}E_\Pi.
+\]
+
+So the endpoint columns are now explicit in terms of \(H_\gamma\) and \(A_c\);
+the remaining missing input is the period-transfer numerator \(H_\Pi\) and the
 positive-circuit sign proof.
 
 ### Priority 6: regularity interface

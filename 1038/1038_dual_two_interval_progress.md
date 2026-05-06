@@ -8360,8 +8360,147 @@ theorem queue.
     rank-defect table.  If \(d=0\), the correction sum is empty and
     \(H_\gamma=-\frac12PQD_\gamma\).
 
-    The remaining, still unproved, part is not definitional: one must compute
-    these entries and prove the positive-circuit inequalities (C4),(C5).
+    Endpoint-column simplification.
+
+    The endpoint columns simplify further.  Since \(g=2\), the finite-gap
+    decay condition gives
+
+    \[
+    \deg P\le d-3.
+    \]
+
+    Hence
+
+    \[
+    \deg H_\gamma^{\rm raw}
+    =
+    \deg(PQD_\gamma)\le (d-3)+d+3=2d,
+    \]
+
+    while \(Q^2R\) has degree \(2d+2\) at infinity.  Therefore
+
+    \[
+    \frac{H_\gamma^{\rm raw}}{Q^2R}=O(z^{-2}).
+    \]
+
+    The Hermite correction terms \(B_{k,1}\) have degree at most \(2d-1\), so
+
+    \[
+    \frac{B_{k,1}}{Q^2R}=O(z^{-3}).
+    \]
+
+    Thus
+
+    \[
+    \boxed{
+    R_0(G_\gamma)=[z^{-1}]_\infty C_\gamma=0.
+    }
+    \tag{EndpointMassZero}
+    \]
+
+    The branch equality row is consequently
+
+    \[
+    \boxed{
+    R_c(G_\gamma)=-C_\gamma(c)
+    =
+    -\frac{H_\gamma(c)}{Q(c)^2R(c)}.
+    }
+    \tag{EndpointRc}
+    \]
+
+    Since the endpoint seed has zero total mass, its logarithmic potential is
+    normalized by \(V_\gamma(\infty)=0\).  For \(s\notin J\),
+
+    \[
+    V_\gamma'(s)=-C_\gamma(s),
+    \]
+
+    hence, along the real gap component not crossing \(J\),
+
+    \[
+    \boxed{
+    V_\gamma(s)=\int_s^\infty C_\gamma(y)\,dy.
+    }
+    \tag{EndpointPotential}
+    \]
+
+    In particular,
+
+    \[
+    \boxed{
+    b_\gamma
+    =
+    a\int_u^\infty C_\gamma(y)\,dy
+    +
+    b\int_v^\infty C_\gamma(y)\,dy.
+    }
+    \tag{EndpointBoundaryEntry}
+    \]
+
+    For the \(Z_0\)-function, write
+
+    \[
+    e_2=\binom01,\qquad
+    A_c(x)=
+    (U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}e_2.
+    \]
+
+    Since
+
+    \[
+    E_\gamma=\binom{0}{-C_\gamma(c)},
+    \]
+
+    the equality-corrected endpoint column is
+
+    \[
+    \boxed{
+    f_\gamma(x)=V_\gamma(x)+C_\gamma(c)A_c(x),
+    \qquad x\in Z_0.
+    }
+    \tag{EndpointZColumn}
+    \]
+
+    Therefore the endpoint part of the reduced Schiffer table is the closed
+    formula
+
+    \[
+    \boxed{
+    \begin{aligned}
+    C_\gamma(z)&=\frac{H_\gamma(z)}{Q(z)^2R(z)},\\
+    E_\gamma&=\binom{0}{-C_\gamma(c)},\\
+    b_\gamma&=
+    a\int_u^\infty C_\gamma(y)\,dy+
+    b\int_v^\infty C_\gamma(y)\,dy,\\
+    f_\gamma(x)&=V_\gamma(x)+C_\gamma(c)A_c(x).
+    \end{aligned}
+    }
+    \tag{EndpointReducedColumn}
+    \]
+
+    The period column remains
+
+    \[
+    C_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)},\qquad
+    E_\Pi=\binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)},
+    \]
+
+    \[
+    b_\Pi=aV_\Pi(u)+bV_\Pi(v),
+    \qquad
+    f_\Pi(x)=V_\Pi(x)
+    -(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\Pi.
+    \tag{PeriodReducedColumn}
+    \]
+
+    Thus the endpoint columns are explicit in terms of \(H_\gamma\) and
+    \(A_c\).  The period column still depends on the chosen period-transfer
+    numerator \(H_\Pi\).
+
+    The remaining, still unproved, part is not definitional: one must specify
+    the period-transfer numerator \(H_\Pi\) in the same chart and prove the
+    positive-circuit inequalities (C4),(C5).
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
