@@ -1887,6 +1887,29 @@ def CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
   right_endpoint_not_mem_support := right_endpoint_not_mem_support
 
 /--
+Atomized right-region variation input for every relaxed minimizer.  This is
+the provider-level form of the current normalized route: it packages the
+atomized component data and then reuses the ordinary right-region provider.
+-/
+structure CanonicalAtomizedRightRegionPackageFromVariation where
+  atomized_right_region_data : ∀ M : MinimizerExistence.RelaxedMinimizer,
+    CanonicalAtomizedRightRegionPackageData M
+
+/-- Atomized right-region variation data supplies ordinary right-region data. -/
+def CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalRightRegionPackageFromVariation
+    (H : CanonicalAtomizedRightRegionPackageFromVariation) :
+    CanonicalRightRegionPackageFromVariation where
+  right_region_data := fun M =>
+    (H.atomized_right_region_data M).toCanonicalRightRegionPackageData
+
+/-- Atomized right-region variation data supplies canonical component packages. -/
+def CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+    (H : CanonicalAtomizedRightRegionPackageFromVariation) :
+    CanonicalComponentPackageFromVariation :=
+  H.toCanonicalRightRegionPackageFromVariation
+    |>.toCanonicalComponentPackageFromVariation
+
+/--
 Canonical component-package variation data directly gives the normalized
 endpoint-potential interface for each relaxed minimizer.
 -/

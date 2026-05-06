@@ -283,6 +283,17 @@ component-block atomization input, but replaces the direct
 `componentBarycenter = -1` field by endpoint positive mass and the
 nondegenerate left-endpoint condition `component.left ≠ -1`.
 
+At provider level, the file now exposes
+
+```lean
+CanonicalAtomizedRightRegionPackageFromVariation
+CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalRightRegionPackageFromVariation
+CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+```
+
+so atomized right-region data for every relaxed minimizer feeds directly into
+the existing canonical component-package consequences.
+
 The constructors
 
 ```lean
