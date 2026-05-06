@@ -9076,6 +9076,52 @@ theorem queue.
     Under the execution protocol, Gates 3--7 must not be written as completed
     consequences until this sign theorem is discharged.
 
+    Why this still does not close Gate 1.
+
+    The repaired rank check is necessary, but it is not the raw augmented
+    circuit sign.  Rank is a linear independence statement; (RAS) is an
+    oriented cone statement.  These are different assertions.
+
+    A minimal finite-dimensional model shows the gap.  Take
+
+    \[
+    F(x_i)=e_i\in\mathbb R^4,\qquad
+    b=-(1,1,1,1).
+    \]
+
+    Then the four endpoint columns are full rank and
+
+    \[
+    b+\sum_{i=1}^4F(x_i)=0
+    \]
+
+    is a positive circuit.  If the lifted values are
+
+    \[
+    \tau_*=1,\qquad \tau(x_i)=0,
+    \]
+
+    then the lifted circuit value is \(1\ge0\), so the reduced LP is blocked.
+    If instead \(\tau_*=-1\), the same rank data gives a negative lifted value.
+    Thus the rank condition alone contains no information about the sign of
+    the positive circuit lift.
+
+    Consequently the only way to close Gate 1 is to prove an additional
+    total-positivity / Chebyshev orientation statement for the actual repaired
+    Schiffer columns.  In the present notation this means an explicit
+    determinant identity for
+
+    \[
+    H_{\alpha_1}^{\rm rep},\ H_{\beta_1}^{\rm rep},\
+    H_{\alpha_2}^{\rm rep},\ H_{\beta_2}^{\rm rep},\ \kappa Q^2,
+    \]
+
+    with the equality row \(\rho_j=-C_j^{\rm rep}(c)\).  The current document
+    defines these repaired columns only through the abstract moving-chart
+    system \(\mathcal L_{\rm Sch}\).  Until that system is written explicitly
+    and its determinants are signed, (RAS) is not a consequence of the existing
+    hypotheses.
+
     Therefore the current honest conclusion is:
 
     \[
@@ -9154,7 +9200,7 @@ theorem queue.
 
     \[
     \boxed{
-    \textbf{Gate 2 result: PASS.}\quad
+    \textbf{Gate 2 result: PASS conditional on reduced LP feasibility.}\quad
     \text{Reduced LP feasible}
     \Rightarrow
     \text{rank-defect candidate is not a minimizer.}

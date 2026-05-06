@@ -3176,6 +3176,33 @@ The algebraic reductions are usable, and the repaired moving-chart table
 removes the fixed-\(Q\) endpoint-column collapse.  The raw augmented determinant
 sign is still open.
 
+Why it is still open: the rank check is not a sign theorem.  Rank says the
+endpoint columns do not collapse modulo \(C_\Pi\); the raw augmented circuit
+test asks that every positive relation in the first four coordinates has
+negative \(V_\Pi\)-lift.  Full rank alone does not imply this.  For example,
+in an abstract four-dimensional model one may take
+
+\[
+F(x_i)=e_i,\qquad b=-(1,1,1,1),
+\]
+
+so \(b+\sum_iF(x_i)=0\) is a positive circuit with full-rank endpoint columns.
+The lifted sign is positive if \(\tau_*=1,\tau(x_i)=0\), and negative if
+\(\tau_*=-1,\tau(x_i)=0\).  The rank data are identical.  Therefore Gate 1
+cannot close from chart injectivity alone.
+
+To close it one must prove the actual two-cut determinant orientation for the
+repaired Schiffer columns
+
+\[
+H_{\alpha_1}^{\rm rep},H_{\beta_1}^{\rm rep},
+H_{\alpha_2}^{\rm rep},H_{\beta_2}^{\rm rep},\kappa Q^2
+\]
+
+together with the equality row \(\rho_j=-C_j^{\rm rep}(c)\).  The current note
+still defines the repaired columns through the abstract moving-chart system, so
+that determinant identity has not yet been established.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
