@@ -2323,6 +2323,94 @@ theorem taoNormalizedPotential_true_apply
   rw [measureLogPotential_reflect_translate]
   exact (unitIntervalLogPotential_eq_realMeasure μ x).symm
 
+theorem positiveSet_taoNormalizedPotential_false_eq_preimage
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    PositiveSet (taoNormalizedPotential μ false translation) =
+      (fun y : ℝ => y - translation) ⁻¹'
+        PositiveSet (unitIntervalLogPotential μ) := by
+  ext y
+  constructor
+  · intro hy
+    have happly := taoNormalizedPotential_false_apply μ translation (y - translation)
+    have hy_eq : y - translation + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+  · intro hy
+    have happly := taoNormalizedPotential_false_apply μ translation (y - translation)
+    have hy_eq : y - translation + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+
+theorem positiveSet_taoNormalizedPotential_true_eq_preimage
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    PositiveSet (taoNormalizedPotential μ true translation) =
+      (fun y : ℝ => -y + translation) ⁻¹'
+        PositiveSet (unitIntervalLogPotential μ) := by
+  ext y
+  constructor
+  · intro hy
+    have happly := taoNormalizedPotential_true_apply μ translation (-y + translation)
+    have hy_eq : -(-y + translation) + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+  · intro hy
+    have happly := taoNormalizedPotential_true_apply μ translation (-y + translation)
+    have hy_eq : -(-y + translation) + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+
+theorem volume_positiveSet_taoNormalizedPotential_false
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ false translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hset := positiveSet_taoNormalizedPotential_false_eq_preimage μ translation
+  have hmap : Measure.map (fun y : ℝ => y - translation) volume = volume := by
+    simpa [sub_eq_add_neg] using
+      (map_add_right_eq_self (μ := volume) (-translation))
+  have hmeas : NullMeasurableSet (PositiveSet (unitIntervalLogPotential μ)) volume := by
+    exact (unitIntervalLogPotential_measurableSet_threshold μ (0 : ℝ)).nullMeasurableSet
+  rw [hset]
+  exact Measure.measure_preimage_of_map_eq_self hmap hmeas
+
+theorem volume_positiveSet_taoNormalizedPotential_true
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ true translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hset := positiveSet_taoNormalizedPotential_true_eq_preimage μ translation
+  have hmeas : NullMeasurableSet (PositiveSet (unitIntervalLogPotential μ)) volume := by
+    exact (unitIntervalLogPotential_measurableSet_threshold μ (0 : ℝ)).nullMeasurableSet
+  rw [hset]
+  have htranslate :
+      volume ((fun y : ℝ => y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+        volume (PositiveSet (unitIntervalLogPotential μ)) := by
+    exact Measure.measure_preimage_of_map_eq_self
+      (map_add_right_eq_self (μ := volume) translation) hmeas
+  have hneg :
+      volume ((fun y : ℝ => -y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+        volume ((fun y : ℝ => y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) := by
+    have hpre :
+        ((fun y : ℝ => -y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+          (fun y : ℝ => (-1 : ℝ) * y) ⁻¹'
+            ((fun y : ℝ => y + translation) ⁻¹'
+              PositiveSet (unitIntervalLogPotential μ)) := by
+      ext y
+      simp
+    rw [hpre, Real.volume_preimage_mul_left (by norm_num : (-1 : ℝ) ≠ 0)]
+    simp
+  exact hneg.trans htranslate
+
+theorem volume_positiveSet_taoNormalizedPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ reflected translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  cases reflected
+  · exact volume_positiveSet_taoNormalizedPotential_false μ translation
+  · exact volume_positiveSet_taoNormalizedPotential_true μ translation
+
 /-- Unit-interval version of the boundary Jensen step. -/
 theorem one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
     (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
