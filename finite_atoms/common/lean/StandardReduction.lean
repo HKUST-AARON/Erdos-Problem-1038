@@ -9426,6 +9426,21 @@ theorem componentReplacement_objective_le_of_forall_small_tailMass_exception
   exact componentReplacement_objective_le_add_of_tailMass_exception
     R hε N hN htailFinite
 
+/--
+Exact objective nonincrease with the small exceptional sets generated
+internally from the singular-tail bad-set estimate.
+-/
+theorem componentReplacement_objective_le_of_singularTail_small_exceptions
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_forall_small_tailMass_exception
+    R hε ?_
+  intro η hη
+  exact singularTail_exists_small_strictOutside_exception C ε η hη
+
 /-!
 ## Finite variance drop under barycenter replacement
 
