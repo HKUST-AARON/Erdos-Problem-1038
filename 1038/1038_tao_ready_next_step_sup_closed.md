@@ -3168,13 +3168,14 @@ Gate status:
 
 \[
 \boxed{
-\textbf{Gate 1 rank status: PASS in the regular moving Schiffer chart; raw sign still open.}
+\textbf{Gate 1 status: BLOCKED.}\quad
+\text{The rank subcheck passes, but the raw augmented sign is not proved.}
 }
 \]
 
 The algebraic reductions are usable, and the repaired moving-chart table
-removes the fixed-\(Q\) endpoint-column collapse.  The raw augmented determinant
-sign is still open.
+removes the fixed-\(Q\) endpoint-column collapse.  Gate 2 is only a conditional
+first-variation interface until the raw augmented determinant sign is proved.
 
 Why it is still open: the rank check is not a sign theorem.  Rank says the
 endpoint columns do not collapse modulo \(C_\Pi\); the raw augmented circuit

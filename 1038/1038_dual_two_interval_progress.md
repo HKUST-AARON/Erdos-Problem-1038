@@ -9064,17 +9064,19 @@ theorem queue.
 
     \[
     \boxed{
-    \textbf{Gate 1 rank status: PASS in the regular moving Schiffer chart; raw sign still open.}
+    \textbf{Gate 1 status: BLOCKED.}\quad
+    \text{The rank subcheck passes, but the raw augmented sign is not proved.}
     }
     \]
 
     The failure is not in the \(A_c\)-elimination, the period column, the
     zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
     repaired table removes the fixed-\(Q\) endpoint-column collapse and the
-    rank check passes by regular chart injectivity.  The remaining Gate 1 proof
-    obligation is `AugmentedSchifferChebyshevLemma`, or another proof of (RAS).
-    Under the execution protocol, Gates 3--7 must not be written as completed
-    consequences until this sign theorem is discharged.
+    rank subcheck passes by regular chart injectivity.  The remaining Gate 1
+    proof obligation is `AugmentedSchifferChebyshevLemma`, or another proof of
+    (RAS).  Under the execution protocol, Gate 2 may be recorded only as a
+    conditional first-variation interface, and Gates 3--7 must not be written
+    as completed consequences until this sign theorem is discharged.
 
     Why this still does not close Gate 1.
 
