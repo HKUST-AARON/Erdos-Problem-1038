@@ -2744,6 +2744,46 @@ theorem PositiveComponent.baseline_subset_interval_of_left_lt_endpoint_right_non
   exact ⟨lt_trans hleft hx.1, lt_of_lt_of_le hx.2 hright⟩
 
 /--
+The baseline placement alone forces the right endpoint to be nonnegative.  It
+does not force strict positivity: the component could end exactly at `0`.
+-/
+theorem PositiveComponent.right_nonneg_of_baseline_subset_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    0 ≤ C.right := by
+  by_contra hnot
+  have hright_neg : C.right < 0 := lt_of_not_ge hnot
+  let x : ℝ := C.right / 2
+  have hx_base : x ∈ Ioo (-1 : ℝ) 0 := by
+    constructor
+    · have hleft_lt_right : -1 < C.right := by
+        have hmid : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+        have hmem := hbaseline hmid
+        rw [C.interval_eq] at hmem
+        exact lt_trans (by norm_num : (-1 : ℝ) < -(1 : ℝ) / 2) hmem.2
+      dsimp [x]
+      linarith
+    · dsimp [x]
+      linarith
+  have hx_interval := hbaseline hx_base
+  rw [C.interval_eq] at hx_interval
+  have hx_ge_right : C.right ≤ x := by
+    dsimp [x]
+    linarith
+  exact not_lt_of_ge hx_ge_right hx_interval.2
+
+/--
+Strict right-endpoint positivity from an actual positive point in the selected
+component.  This is the exact extra witness needed beyond baseline placement.
+-/
+theorem PositiveComponent.right_pos_of_pos_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {x : ℝ} (hxpos : 0 < x) (hx : x ∈ C.interval) :
+    0 < C.right := by
+  rw [C.interval_eq] at hx
+  exact lt_trans hxpos hx.2
+
+/--
 Maximal-open-interval formulation for the selected positive component.
 
 This is the topological interface needed by the Tao reduction: any open
