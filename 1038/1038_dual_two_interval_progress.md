@@ -167,10 +167,11 @@ If Theorem U and Theorem L are proved in the same normalization, then
 \]
 
 Current audit: the ledger contains a route skeleton, but Gate 1
-\(\text{SchurBlockTotalPositivityLemma}\), Gate 3 boundary compactness, and
-Gate 5/Lemma R still need expansion into stand-alone proof-grade lemmas before
-this final boxed equality can be treated as an unconditional proof.  Gate 6 is
-the current proof-grade upper construction.
+\(\text{SchurBlockTotalPositivityLemma}\), Gate 3 boundary compactness,
+Gate 4 high-genus Schur complement/global-capacity control, and Gate 5/Lemma R
+still need expansion into stand-alone proof-grade lemmas before this final
+boxed equality can be treated as an unconditional proof.  Gate 6 is the current
+proof-grade upper construction.
 
 ### 0.2 Current Review Decision
 
@@ -9761,19 +9762,28 @@ theorem queue.
     \tag{G4route}
     \]
 
-    Thus:
+    Thus the intended high-genus route is:
 
     \[
     \boxed{
-    \textbf{Gate 4 result: PROOF-GRADE PASS.}\quad
-    \text{Regular compact high-genus chambers leave no new counterexample.}
+    \textbf{Gate 4 status: proof route identified, global Schur complement
+    proof still required.}\quad
+    \text{The local-neck reduction is not yet proof-grade.}
     }
     \]
 
-    Combining Gates 1--4, all regular finite-gap compact chambers are reduced
-    to the one-cut/lower-genus branch or excluded by the local \(g=2\)
-    obstruction.  The remaining gates are regularity removal and the one-cut
-    upper construction.
+    To upgrade Gate 4 to PASS, the proof must explicitly show that freezing
+    outside rows and applying outside bump correctors produces a legitimate
+    Schur complement whose effective local rows are exactly the \(g=2\) neck
+    rows, with all non-local logarithmic-capacity tails accounted for.  If that
+    Schur complement loses rank or changes the local orientation, the state
+    must be routed to Gate 3 boundary/lower genus rather than treated as a
+    closed high-genus exclusion.
+
+    Conditional on Gates 1, 3, and 4, all regular finite-gap compact chambers
+    are reduced to the one-cut/lower-genus branch or excluded by the local
+    \(g=2\) obstruction.  The remaining gates are regularity removal and the
+    one-cut upper construction.
 
     Gate 5: Lemma R / regularity removal.
 
@@ -10050,14 +10060,14 @@ theorem queue.
     \]
 
     The last gate is theorem assembly, but it is conditional: Gates 1--5 give
-    the lower exclusion only after the open Gate 1, Gate 3, and Gate 5 proof
-    obligations are closed.  Gate 6 gives the matching one-cut upper
+    the lower exclusion only after the open Gate 1, Gate 3, Gate 4, and Gate 5
+    proof obligations are closed.  Gate 6 gives the matching one-cut upper
     construction.
 
     Gate 7: Final theorem assembly.
 
-    Conditional on the remaining Gate 1, Gate 3, and Gate 5 lemmas, Gates
-    1--5 prove the lower-bound exclusion.  Indeed, assume for
+    Conditional on the remaining Gate 1, Gate 3, Gate 4, and Gate 5 lemmas,
+    Gates 1--5 prove the lower-bound exclusion.  Indeed, assume for
     contradiction that there is an admissible normalized minimizer with
 
     \[

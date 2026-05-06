@@ -248,8 +248,24 @@ Current compact \(g=2\) status is now sharper:
    4.1, \(V<0\) on \(Z_0\), negative boundary length derivative, and the
    required cokernel projection.
 
+Current exact-route audit:
+
+- The one-cut upper construction is now the most stable proof-grade component:
+  Gate 6 defines \(M_{\rm oc}\) by exact equations and proves
+  \(L_-\le M_{\rm oc}\).
+- The lower bound is still open.  The first hard mouth is the compact
+  non-pinched \(g=2\) rank-defect chamber, now reduced to
+  `SchurBlockTotalPositivityLemma` / raw augmented circuit signs.
+- Boundary \(g=2\) routing still needs a compactness lemma.
+- High genus still needs a proof that outside-row freezing gives a legitimate
+  Schur complement with all global logarithmic-capacity tails accounted for.
+- Lemma R still needs the regularization/row-restoration theorem from arbitrary
+  minimizers to regular finite-gap approximants.
+
 Useful corrections already recorded:
 
+- the exact one-cut upper bound \(M_{\rm oc}\) is defined by analytical
+  equations, not by a decimal;
 - the no-endpoint-atom ansatz is wrong;
 - brute-force small-eta subdivision is not a main route;
 - whole-slab `Div2` intervalization creates artificial eta dependency;
@@ -259,8 +275,8 @@ Useful corrections already recorded:
 - the rank-six Schur conclusion was dimensionally wrong;
 - regular free-period compact \(g=2\) is excluded by the free-period
   lineality/sign contradiction;
-- rank-defect compact \(g=2\) is reduced to the anchored Schiffer LP, not yet
-  closed.
+- rank-defect compact \(g=2\) is reduced to the raw augmented circuit
+  obstruction, not yet closed.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
@@ -312,7 +328,7 @@ The current route decision is to stop treating small-eta/top-slab Krawczyk
 tuning as the main line.  Those records remain useful diagnostics, but the
 exact proof needs global finite-gap classification.
 
-### Priority 1: write the one-cut upper construction cleanly
+### Priority 1: one-cut upper construction status
 
 This gives the matching upper bound
 
@@ -334,39 +350,22 @@ d\mu_a(x)
 +\frac{x+1-c_a}{\pi(x+1)\sqrt{(1-x)(x-a)}}\,1_{[a,1]}(x)\,dx.
 \]
 
-The required pure-math work is to prove:
+This work is now carried out in Gate 6 below: the coefficient is fixed by the
+potential level equation, the density and mass identities are verified, and the
+exterior zero structure is proved by the derivative sign table.  The resulting
+statement is:
 
 \[
-\mu_a\ge0,\qquad
-\mu_a(\mathbb R)=1,
-\qquad
-U_{\mu_a}(x)=0\quad (x\in[a,1]),
+\boxed{\text{Gate 6: }L_-\le M_{\rm oc}\text{ is proof-grade.}}
 \]
 
-and to identify the two exterior zeros
-
-\[
-x_L<x_R
-\]
-
-of \(U_{\mu_a}\), with
-
-\[
-x_R-x_L=M_{\rm oc}.
-\]
-
-This is the upper construction.  It is not the difficult global lower-bound
-classification, but it fixes the exact number that the lower bound must match.
-
-Current mathematical gap: the coefficient \(m_a\), equivalently \(A(a)\), must
-be defined by the potential level condition, not by total mass.  In the
-one-cut notation
+The formula is recorded here for reference.  In the one-cut notation
 
 \[
 s=\sqrt{2(1+a)},\qquad c_a=A(a)s,
 \]
 
-the mass identity makes the total mass automatic; the missing scalar equation
+the mass identity makes the total mass automatic, and the scalar level equation
 is
 
 \[
@@ -389,22 +388,10 @@ J(a)=\frac1\pi\int_a^1
 {(t+1)\sqrt{(1-t)(t-a)}}\,dt.
 \]
 
-The decimal values \(x_L,x_R\) must eventually be replaced by defining
-equations or certified intervals plus monotonicity.
-
-2026-05-06 audit:
-
-The candidate density, mass identity, and derivative normalization are
-coherent.  The missing proof-grade step is to derive the exterior potential
-from \(U'_a\) with a fixed branch convention, define \(a_*,x_L,x_R\) by exact
-equations, and prove the sign/monotonicity table showing that
-
-\[
-E_{\mu_{a_*}}=(x_L,x_R)
-\]
-
-up to endpoints.  This remains a required upper-construction write-up, not a
-lower-bound classification theorem.
+The decimal values \(x_L,x_R\) are numerical evaluations of the exact
+zero equations and are not definitions.  This upper construction is not the
+difficult global lower-bound classification, but it fixes the exact value that
+the lower bound must match.
 
 ### Priority 2: keep the corrected two-interval branch as local model
 
@@ -3409,7 +3396,7 @@ The free-period quotient remains harmless in high genus: the filling variables
 \(\tau_1,\ldots,\tau_{g-1}\) force all period multipliers in an extended
 left-cokernel to vanish, so no independent pointwise sign-shifter is created.
 
-The local block has three outcomes:
+The intended local block has three outcomes:
 
 1. regular, giving the same positive-lineality/KKT-normal contradiction as the
    regular \(g=2\) case;
@@ -3420,15 +3407,20 @@ The local block has three outcomes:
 
 \[
 \boxed{
-\textbf{Gate 4 result: PROOF-GRADE PASS.}\quad
-g\ge3\text{ regular compact chambers contain a local }g=2
-\text{ obstruction or route to boundary/lower genus.}
+\textbf{Gate 4 status: proof route identified, global Schur complement proof
+still required.}\quad
+\text{The high-genus local-neck reduction is not yet proof-grade.}
 }
 \]
 
-Thus, conditional on the Gate 1 and Gate 3 proof obligations, Gate 4 removes
-all regular finite-gap compact chambers except the one-cut/lower-genus branch
-still handled by the upper/lower assembly.
+To upgrade Gate 4 to PASS, the proof must show that freezing outside rows and
+using outside bump correctors gives a legitimate Schur complement whose local
+rows are exactly the \(g=2\) neck rows, with the non-local logarithmic-capacity
+tails fully accounted for.  If the Schur complement loses rank or changes
+orientation, the case must be routed to Gate 3 boundary/lower genus.  Thus,
+conditional on the Gate 1, Gate 3, and Gate 4 proof obligations, the
+high-genus chambers are reduced to the one-cut/lower-genus branch or the local
+\(g=2\) obstruction.
 
 Gate 5 is the non-regular minimizer regularization proof obligation.
 Let \(\mu\) be a compactified normalized minimizer with
@@ -3544,7 +3536,7 @@ L_-\le M_{\rm oc}.
 \]
 
 The remaining step is final theorem assembly, but it is conditional until Gate
-1, Gate 3, and Gate 5 are upgraded to proof-grade lemmas.
+1, Gate 3, Gate 4, and Gate 5 are upgraded to proof-grade lemmas.
 
 Gate 7 assembles the conditional theorem.  If the remaining proof obligations
 are closed, Gates 1--5 imply the lower bound: any normalized minimizer with
