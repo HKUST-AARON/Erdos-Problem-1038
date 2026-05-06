@@ -3825,8 +3825,8 @@ and
 \mathcal X_\Pi=\{\xi:\Pi(\xi)=0\}.
 \]
 
-The finite row matrix used in the compact \(g=2\) cokernel argument is
-proof-grade only if
+The naive finite row matrix used in the compact \(g=2\) cokernel argument
+would be proof-grade only if
 
 \[
 \boxed{
@@ -3863,7 +3863,95 @@ G_{\rm br}(\xi,\zeta)=
 \bar G_{\rm br}(\rho\xi,\rho\zeta).
 \]
 
-If this quotient lemma is not proved, the compact proof must keep
+This quotient lemma is now judged false as stated.  The reason is the direct
+log-energy term in \(G_{\rm br}\):
+
+\[
+\mathcal E_{\log}(\xi,\zeta)
+=
+\iint -\log|x-y|\,d\xi(x)d\zeta(y).
+\]
+
+The map \(\rho\) has finite rank, so
+\(\ker(\rho|_{\mathcal X_\Pi})\) is still infinite-dimensional.  One can
+choose nonzero smooth signed perturbations supported away from the endpoint
+singularities with all seven listed rows zero.  Since \(R_0(\xi)=0\), such
+perturbations have zero total mass, and logarithmic energy is positive on
+nonzero zero-mass signed perturbations:
+
+\[
+\mathcal E_{\log}(\xi,\xi)>0.
+\]
+
+Thus these row-kernel perturbations are not in the radical of \(G_{\rm br}\).
+A finite-rank edge or state-lift correction cannot make the full log-energy
+depend only on finitely many row values.  Therefore the proof must not try to
+descend \(G_{\rm br}\) by radical quotient.
+
+The correct replacement is a Feshbach / energy-minimal lift.  Let
+
+\[
+W=\ker(\rho|_{\mathcal X_\Pi}).
+\]
+
+The next useful lemma is:
+
+\[
+\boxed{\textbf{Lemma Log-Energy Positive Kernel and Minimal Row Lift.}}
+\]
+
+Prove
+
+\[
+\mathcal E_{\log}(w,w)>0
+\qquad (0\ne w\in W),
+\]
+
+and, for every actual row vector
+
+\[
+r\in V=\rho(\mathcal X_\Pi),
+\]
+
+construct an \(\mathcal E_{\log}\)-minimal lift \(Sr\in\mathcal X_\Pi\)
+satisfying
+
+\[
+\rho(Sr)=r,\qquad
+\mathcal E_{\log}(Sr,w)=0\quad\forall w\in W.
+\]
+
+If the non-log part factors through the row map,
+
+\[
+G_{\rm br}=\mathcal E_{\log}+B_\rho,\qquad
+B_\rho(\xi,\zeta)=b(\rho\xi,\rho\zeta),
+\]
+
+then every perturbation decomposes as
+
+\[
+\xi=Sr+w,\qquad r=\rho(\xi),\quad w\in W,
+\]
+
+and
+
+\[
+G_{\rm br}(\xi,\xi)
+=\mathcal E_{\log}(w,w)
++\left(\mathcal E_{\log}(Sr,Sr)+b(r,r)\right).
+\]
+
+The finite object is therefore the effective form
+
+\[
+Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r)
+\qquad (r\in V),
+\]
+
+not a naive quotient of \(G_{\rm br}\) by \(\ker\rho\).
+
+If this minimal-lift reduction is not proved, the compact proof must keep
 \(G_{\rm br}\) on actual densities and make every cokernel vector act through
 the functional
 
@@ -3874,6 +3962,31 @@ the functional
 
 In that formulation \(\lambda\) is meaningful only modulo \(V^\perp\).  A
 nonzero ambient row vector that vanishes on \(V\) is not a real obstruction.
+
+There is still a separate finite-row realization lemma, which is useful for
+first-variation and Chebyshev tests but does not replace the minimal-lift
+lemma.  For kernels
+
+\[
+k_0=1,\quad k_u=(x-u)^{-1},\quad k_c=(x-c)^{-1},\quad
+k_v=(x-v)^{-1},\quad k_-=L_-,\quad k_+=L_+,\quad k_\Pi=\pi_0,
+\]
+
+define
+
+\[
+\operatorname{Rel}
+=\left\{\lambda\in\mathbb R^7:
+\sum_i\lambda_i k_i=0\text{ on }J\right\}.
+\]
+
+Then smooth compactly supported density perturbations realize exactly
+\(\operatorname{Rel}^\perp\).  If the seven kernels are independent, every
+period-zero local row vector is realizable.  This follows by choosing bump
+functions near points where the kernel evaluation matrix has full rank.
+
+But realization alone does not make \(G_{\rm br}\) finite-dimensional.  It only
+guarantees that row test directions are actual density directions.
 
 This is the next hard mouth.  One may not treat
 

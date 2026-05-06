@@ -848,7 +848,8 @@ The second-variation theorem must prove
 \]
 
 The next hard mouth is not yet the curvature clamp.  Since \(G_{\rm br}\) is
-defined on actual density perturbations, the finite-row reduction first needs
+defined on actual density perturbations, a naive finite-row quotient would
+need
 
 \[
 \boxed{
@@ -870,9 +871,49 @@ Equivalently, \(G_{\rm br}\) must descend to
 V=\rho(\mathcal X_\Pi)\subset\mathbb R^7.
 \]
 
-Until this quotient/realization lemma is proved, the six local rows cannot be
-treated as arbitrary free coordinates.  Any cokernel vector is meaningful only
-through its action on the actual row image \(V\).
+But this radical quotient is probably false as stated, because \(G_{\rm br}\)
+contains the full log-energy
+
+\[
+\mathcal E_{\log}(\xi,\xi)
+=\iint-\log|x-y|\,d\xi(x)d\xi(y),
+\]
+
+which is positive on nonzero zero-mass perturbations in the finite row kernel.
+The replacement is a Feshbach / energy-minimal lift:
+
+\[
+W=\ker(\rho|_{\mathcal X_\Pi}),\qquad
+\xi=Sr+w,
+\]
+
+\[
+\rho(Sr)=r,\qquad
+\mathcal E_{\log}(Sr,w)=0\quad(w\in W).
+\]
+
+The finite effective object, if the non-log part factors through rows, is
+
+\[
+Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r),
+\qquad r\in V.
+\]
+
+Separately, one should prove a row-realization lemma: smooth compactly
+supported density bumps realize all row vectors in
+\(\operatorname{Rel}^{\perp}\), and if the seven kernels
+
+\[
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,\pi_0
+\]
+
+are independent, every period-zero six-row vector is actually realizable.
+This supports Chebyshev tests, but it does not by itself make the Hessian
+finite-dimensional.
+
+Until the minimal-lift or actual-density formulation is closed, the six local
+rows cannot be treated as arbitrary free Hessian coordinates.  Any cokernel
+vector is meaningful only through its action on the actual row image \(V\).
 
 After that, the curvature clamp needs exactly five reduced-Hessian identities:
 
