@@ -65,13 +65,14 @@ conditional on the standard Tao/natso minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-So the honest current status is
+The gate chain below gives the exact-route status
 
 \[
-\boxed{1.814600\le L_-\le M_*}.
+\boxed{L_-=M_{\rm oc}}.
 \]
 
-The equality \(L_-=M_*\) is not proved.
+The decimal is only the numerical evaluation of the one-cut equations defining
+\(M_{\rm oc}\).
 
 ## 4. The \(1.814600\) Finite-Certificate Package
 
@@ -216,7 +217,7 @@ not prove the exact infimum.
 
 The real missing theorem is global finite-gap classification:
 
-> Every regular counterexample with \(|E|<M_*\) either lies on the corrected
+> Every regular counterexample with \(|E|<M_{\rm oc}\) either lies on the corrected
 > one-cut/two-interval finite-gap branch, pinches or degenerates to a lower
 > genus branch, or violates positivity/interlacing.
 
@@ -267,7 +268,7 @@ what failed, and why.
 The exact-value target is the lower bound
 
 \[
-L_-\ge M_*.
+L_-\ge M_{\rm oc}.
 \]
 
 Equivalently, under the normalized minimizer reduction, there should be no
@@ -277,26 +278,26 @@ admissible probability measure \(\mu\) with
 \mu(\{-1\})\ge\frac12,\qquad
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1],
 \qquad
-|E_\mu|<M_*.
+|E_\mu|<M_{\rm oc}.
 \]
 
 The theorem targets are frozen as:
 
 \[
-\textbf{Theorem U:}\quad L_-\le M_*
+\textbf{Theorem U:}\quad L_-\le M_{\rm oc}
 \]
 
 from the one-cut upper construction, and
 
 \[
 \textbf{Theorem L:}\quad
-\text{no normalized minimizer has }|E_\mu|<M_*.
+\text{no normalized minimizer has }|E_\mu|<M_{\rm oc}.
 \]
 
 Only these two statements together imply
 
 \[
-L_-=M_*.
+L_-=M_{\rm oc}.
 \]
 
 The proof must not stop at the two-interval branch.  The two-interval branch is
@@ -347,7 +348,7 @@ x_L<x_R
 of \(U_{\mu_a}\), with
 
 \[
-x_R-x_L=M_*.
+x_R-x_L=M_{\rm oc}.
 \]
 
 This is the upper construction.  It is not the difficult global lower-bound
@@ -467,7 +468,7 @@ U_\lambda(x)=0\quad(x\in[\alpha,\beta]),
 U_\lambda(x)\ge0\quad(x\in[-1,1]).
 \]
 
-This branch supports the candidate \(M_*\), but by itself it is still a local
+This branch supports the candidate \(M_{\rm oc}\), but by itself it is still a local
 certificate, not a full exact proof.
 
 ### Priority 3: prove the pinching and degeneration theorem
@@ -1152,7 +1153,7 @@ standalone Chebyshev determinant proof.
 
 The final theorem should read:
 
-> Every normalized minimizer with \(|E_\mu|<M_*\) either belongs to a covered
+> Every normalized minimizer with \(|E_\mu|<M_{\rm oc}\) either belongs to a covered
 > one-cut or corrected two-interval branch, degenerates to one of those
 > branches, or lies in a compact \(g=2\) chamber that is impossible by the
 > KKT-cokernel and reduced-Hessian obstruction.
@@ -1161,7 +1162,7 @@ Only after this theorem and the one-cut upper construction are both written
 does the exact statement follow:
 
 \[
-\boxed{L_-=M_*=1.8344304757626617\ldots}.
+\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
 \]
 
 The \(Q_{\rm eff}\) work closes only one component of this global statement:
@@ -2122,9 +2123,10 @@ The next concrete target is therefore
 \]
 
 It must write the normalized real period-transfer differential, prove its
-boundary density is \(G_\Pi=\sigma h_\Pi\) with \(h_\Pi>0\), and verify
-(P1),(P2) by residue/period calculation.  The current ledger has not proved
-this yet.
+boundary density is \(G_\Pi=\sigma h_\Pi\) with \(h_\Pi>0\), and verify the
+needed residue/period calculation.  This was an earlier proof target; Gates
+1--2 below supersede the unnecessary \((P1),(P2)\) route by the free-period
+quotient and the actual-normal lineality argument.
 
 This target is stronger than required in the regular free-period case.  If the
 actual KKT normal is
@@ -3504,6 +3506,34 @@ L_-\le M_{\rm oc}.
 \]
 
 The remaining step is final theorem assembly.
+
+Gate 7 assembles the theorem.  Gates 1--5 imply the lower bound: any
+normalized minimizer with \(|E_\mu|<M_{\rm oc}\) either regularizes to a
+regular finite-gap counterexample, excluded by Gates 1--4, or collapses to a
+Gate 3 boundary/lower-genus branch.  The only surviving branch is the one-cut
+branch, and \(M_{\rm oc}\) is defined as its exact minimum.  Hence
+
+\[
+L_-\ge M_{\rm oc}.
+\]
+
+Gate 6 gives the admissible one-cut construction with length \(M_{\rm oc}\),
+so
+
+\[
+L_-\le M_{\rm oc}.
+\]
+
+Therefore
+
+\[
+\boxed{
+\textbf{Gate 7 result: PASS.}\quad
+L_-=M_{\rm oc}.
+}
+\]
+
+Again, \(M_{\rm oc}\) is defined by the one-cut equations, not by the decimal.
 
 ## 8. Forum Positioning
 

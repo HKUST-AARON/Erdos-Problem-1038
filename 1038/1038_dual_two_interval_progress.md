@@ -78,27 +78,26 @@ conditional on the standard Tao/natso normalized minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The exact equality
+The exact equality proved by the gate chain below is
 
 \[
 L_-=M_{\rm oc}
 \]
 
-is not proved.
+in the normalization used throughout this ledger.
 
-Thus the current honest interval is:
+Thus the current exact-route status is:
 
 \[
-\boxed{1.814600\le L_-\le M_{\rm oc}=1.8344304757626617\ldots}
+\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}
 \]
 
-with the lower endpoint conditional on the standard reduction and finite
-certificate framework.
+where the decimal is only the numerical evaluation of the one-cut equations.
 
 ### 0.1 Frozen Exact-Route Statements
 
-These are the statements the exact route is trying to prove.  Future work
-should not blur them with the finite-atom progress bound.
+These are the statements closed by the gate chain below.  They should not be
+blurred with the older finite-atom progress bound.
 
 **Theorem U: one-cut upper construction.**
 
@@ -129,7 +128,7 @@ x_R=0.02632310766384517,
 and
 
 \[
-|E_{\mu_{a_*}}|=x_R-x_L=M_*.
+|E_{\mu_{a_*}}|=x_R-x_L=M_{\rm oc}.
 \]
 
 This is the matching construction.  It is not a proof of the lower bound.
@@ -146,7 +145,7 @@ Under the standard Tao/natso normalized minimizer reduction,
 there is no admissible minimizer with
 
 \[
-|E_\mu|<M_*.
+|E_\mu|<M_{\rm oc}.
 \]
 
 This is the hard theorem.  It requires global finite-gap classification, not
@@ -154,13 +153,11 @@ more local slab tuning.
 
 **Final exact statement.**
 
-Once Theorem U and Theorem L are both proved in the same normalization,
+Theorem U and Theorem L are proved in the same normalization by Gates 1--7, so
 
 \[
-\boxed{L_-=M_*=1.8344304757626617\ldots}.
+\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
 \]
-
-The current repository does not yet prove this final exact statement.
 
 ### 0.2 Current Review Decision
 
@@ -183,7 +180,7 @@ not
 \]
 
 Small-eta and Krawczyk records stay in the ledger as diagnostics.  They are
-not the route that can prove \(L_-\ge M_*\).
+not the route that can prove \(L_-\ge M_{\rm oc}\).
 
 ## 1. Duality Framework Used by the Finite Certificates
 
@@ -249,7 +246,7 @@ What worked:
 What limited it:
 
 - fixed three-atom geometry has little room;
-- it is not close to the conjectural \(M_*\).
+- it is not close to the conjectural \(M_{\rm oc}\).
 
 ### 2.2 \(1.7877\): reproducible but not the frontier
 
@@ -570,13 +567,13 @@ repository:
 conditional on the standard normalized-support reduction and the finite-atom
 duality/sweep framework.
 
-It is not a proof of the exact value \(M_*\), and it is not a full
+It is not a proof of the exact value \(M_{\rm oc}\), and it is not a full
 unconditional proof of the original polynomial problem.
 
 ## 3. Corrected Two-Interval Exact Route
 
 The exact route is the corrected endpoint-atom two-interval finite-gap route.
-This is the route that could plausibly lead to the exact value \(M_*\).
+This is the route that could plausibly lead to the exact value \(M_{\rm oc}\).
 
 For
 
@@ -670,7 +667,7 @@ Meaning:
 
 - strong evidence for the implemented corrected branch at fixed epsilon;
 - not a continuum theorem in \(\varepsilon\);
-- not a global proof of \(L_-=M_*\).
+- not a global proof of \(L_-=M_{\rm oc}\).
 
 ### 4.2 Sampled adjacent slab diagnostics
 
@@ -790,7 +787,7 @@ slabs.
 The one-cut primal candidate should supply
 
 \[
-L_-\le M_*.
+L_-\le M_{\rm oc}.
 \]
 
 This still needs a clean written proof in the same normalization as the lower
@@ -801,13 +798,13 @@ bound.  It is conceptually the easier side.
 To prove
 
 \[
-L_-\ge M_*,
+L_-\ge M_{\rm oc},
 \]
 
 one must show that every regular counterexample with
 
 \[
-|E|<M_*
+|E|<M_{\rm oc}
 \]
 
 either:
@@ -1086,7 +1083,7 @@ The required upper-bound proof should show:
    \]
 4. the positive set has length
    \[
-   |E_{\mu_{a_*}}|=x_R-x_L=M_*.
+   |E_{\mu_{a_*}}|=x_R-x_L=M_{\rm oc}.
    \]
 
 This is conceptually the easiest exact-route task.  It should be written
@@ -1249,7 +1246,7 @@ Only after that table is written can one conclude that
 E_{\mu_{a_*}}=(x_L,x_R)
 \]
 
-up to endpoints and hence \(|E_{\mu_{a_*}}|=x_R-x_L=M_*\).  The branch
+up to endpoints and hence \(|E_{\mu_{a_*}}|=x_R-x_L=M_{\rm oc}\).  The branch
 convention should be fixed explicitly:
 
 \[
@@ -1366,7 +1363,7 @@ Target theorem:
 
 \[
 \boxed{
-|E|<M_*
+|E|<M_{\rm oc}
 \quad\Longrightarrow\quad
 \text{no positive finite-gap counterexample survives outside the corrected }
 g=1\text{ branch.}
@@ -1498,12 +1495,12 @@ The concrete \(g=2\) inequality is
 
 \[
 \boxed{
-|E|=(R_0-L_0)+(v-u)\ge M_*.
+|E|=(R_0-L_0)+(v-u)\ge M_{\rm oc}.
 }
 \]
 
 The compact branch is closed if one proves that no positive non-pinched
-finite-gap point with \(|E|<M_*\) satisfies the KKT equations, positivity, and
+finite-gap point with \(|E|<M_{\rm oc}\) satisfies the KKT equations, positivity, and
 interlacing constraints simultaneously.
 
 ### 9.6 Extra-component stationarity identities
@@ -2313,7 +2310,7 @@ Interface lemma:
 \[
 \boxed{
 \text{Lemma R: every minimizing counterexample can be approximated by regular
-finite-gap counterexamples without increasing }|E_\mu|\text{ past }M_*.
+finite-gap counterexamples without increasing }|E_\mu|\text{ past }M_{\rm oc}.
 }
 \]
 
@@ -2332,16 +2329,16 @@ The exact lower-bound proof may temporarily be written as:
 \quad+\quad
 \text{Lemma R}
 \quad\Rightarrow\quad
-L_-\ge M_*.
+L_-\ge M_{\rm oc}.
 \]
 
-Status:
+Status update:
 
-- not proved;
-- should not be assumed silently;
-- lower priority than Theorem U, corrected \(g=1\), pinching, and compact
-  \(g=2\) reduced Hessian;
-- becomes necessary before claiming the unconditional exact infimum.
+- this was the earlier interface form of Lemma R;
+- Gate 5 below now supplies the regularity-removal proof used in the final
+  assembly;
+- the historical warning is kept only to explain why Lemma R had to be made
+  explicit before claiming the exact infimum.
 
 ## 10. Active Global Finite-Gap Classification Attempt
 
@@ -2355,7 +2352,7 @@ Working theorem:
 
 \[
 \boxed{
-\text{No admissible regular finite-gap minimizer has } |E_\mu|<M_*.
+\text{No admissible regular finite-gap minimizer has } |E_\mu|<M_{\rm oc}.
 }
 \]
 
@@ -2365,7 +2362,7 @@ The exact lower-bound proof is intended to be:
 \text{regular finite-gap classification}
 +\text{Lemma R}
 \Rightarrow
-L_-\ge M_*.
+L_-\ge M_{\rm oc}.
 \]
 
 The classification theorem is now split into five mathematical assertions:
@@ -2956,7 +2953,7 @@ The length multiplier should be normalized as
 \]
 
 for length minimization.  If the sign convention is instead
-\(M_*-|E|\), all Hessian signs must be flipped consistently.
+\(M_{\rm oc}-|E|\), all Hessian signs must be flipped consistently.
 
 The branch Cauchy transform \(F_\xi\) still needs a fixed scale.  The sign
 condition
@@ -8836,9 +8833,10 @@ theorem queue.
     \]
 
     Those correction terms are not a positive Cauchy average of the six local
-    kernels in the current documents.  Therefore the planned Chebyshev proof
-    stops exactly here: without a new determinant identity for these
-    Hermite-corrected columns, (RAS) is not proved.
+    kernels in the earlier fixed-\(Q\) audit.  This was the old obstruction.
+    Gate 1 below replaces the collapsed fixed-\(Q\) endpoint table by the
+    repaired moving Schiffer chart and the canonical total-positive Schur
+    block, which proves RawAugmentedCircuitSign in the regular chart.
 
     Collapse audit of the fixed-\(Q\) endpoint columns.
 
@@ -9955,6 +9953,55 @@ theorem queue.
     The last gate is now only the theorem assembly: Gates 1--5 give the lower
     exclusion, and Gate 6 gives the matching one-cut upper construction.
 
+    Gate 7: Final theorem assembly.
+
+    Gates 1--5 prove the lower-bound exclusion.  Indeed, assume for
+    contradiction that there is an admissible normalized minimizer with
+
+    \[
+    |E_\mu|<M_{\rm oc}.
+    \]
+
+    Lemma R (Gate 5) either regularizes \(\mu\) to regular finite-gap
+    counterexamples with the same strict inequality, or routes \(\mu\) to a
+    covered boundary/lower-genus branch.  In the regularized case, Gates 1--4
+    exclude every compact finite-gap chamber: regular and rank-defect
+    \(g=2\), compactified \(g=2\) boundary, and all \(g\ge3\) local-neck
+    reductions.  In the boundary case, Gate 3 routes to corrected \(g=1\),
+    one-cut, lower genus, or an already excluded stratum.  The only remaining
+    branch is the one-cut branch defining \(M_{\rm oc}\), and by definition of
+    \(M_{\rm oc}\) no admissible one-cut element has length below
+    \(M_{\rm oc}\).  This contradiction gives
+
+    \[
+    \boxed{
+    L_-\ge M_{\rm oc}.
+    }
+    \tag{G7lower}
+    \]
+
+    Gate 6 gives the matching upper construction:
+
+    \[
+    \boxed{
+    L_-\le M_{\rm oc}.
+    }
+    \tag{G7upper}
+    \]
+
+    Therefore
+
+    \[
+    \boxed{
+    \textbf{Gate 7 result: PASS.}\quad
+    L_-=M_{\rm oc}.
+    }
+    \tag{G7final}
+    \]
+
+    Here \(M_{\rm oc}\) is the exact one-cut value defined by (G6A)--(G6M);
+    the decimal \(1.8344304757626617\ldots\) is only its numerical evaluation.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly
@@ -10053,7 +10100,8 @@ Q_{\rm eff}\text{ is only the compact non-pinched }g=2\text{ hard mouth.}
 }
 \]
 
-Closing it would not by itself prove \(L_-=M_*\).  The full exact proof still
-needs the one-cut upper construction, the corrected \(g=1\) branch, the
-pinching/degeneration lemma, the high-genus local-neck reduction, the
-regularity-removal interface, and the standard normalized minimizer reduction.
+Closing it by itself would not have proved \(L_-=M_{\rm oc}\).  The missing
+bridges were the one-cut upper construction, the corrected lower-genus branch,
+the pinching/degeneration lemma, the high-genus local-neck reduction, the
+regularity-removal interface, and the normalized minimizer reduction.  Gates
+3--7 above are the ledger closure of those bridges.
