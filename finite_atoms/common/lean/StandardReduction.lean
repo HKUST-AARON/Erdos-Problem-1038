@@ -8715,6 +8715,54 @@ theorem unique_support_in_component_of_support_neighborhood_zero
   exact (hSupport_nhds t htSupport U hUopen htU)
     (hzero U hUopen hUsub hendpoint_not_mem)
 
+theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0 := by
+  intro U hU hUsub hendpoint
+  have hrestrict_eq :
+      componentBlock C U = realMeasure μ U := by
+    unfold componentBlock
+    rw [Measure.restrict_apply]
+    · have hinter : U ∩ C.interval = U := by
+        ext x
+        constructor
+        · intro hx
+          exact hx.1
+        · intro hx
+          exact ⟨hx, hUsub hx⟩
+      rw [hinter]
+    · exact hU.measurableSet
+  have hdirac_zero : componentBlock C U = 0 := by
+    rw [hdirac]
+    simp [Measure.smul_apply, hendpoint]
+  rw [← hrestrict_eq]
+  exact hdirac_zero
+
+theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_ne_top : componentMass C ≠ ⊤ := R.mass_ne_top
+  ext s
+  calc
+    componentBlock C s =
+        (componentMass C * (componentMass C)⁻¹) * componentBlock C s := by
+      rw [ENNReal.mul_inv_cancel hmass_ne_zero hmass_ne_top]
+      simp
+    _ = componentMass C * ((componentMass C)⁻¹ * componentBlock C s) := by
+      rw [mul_assoc]
+    _ = componentMass C * normalizedComponentBlock C s := by
+      rfl
+    _ = componentMass C * Measure.dirac (-1 : ℝ) s := by
+      rw [hdirac]
+    _ = (componentMass C • Measure.dirac (-1 : ℝ)) s := by
+      rfl
+
 def taoVariationComponentPackage_of_component_replacement_data
     (μ : ProbabilityMeasure UnitInterval1038)
     (mean_choice : TaoVariationMeanChoice)
