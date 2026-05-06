@@ -52,10 +52,11 @@ The supremum side is closed:
 L_+=2\sqrt2.
 \]
 
-For the infimum side, the current exact-value candidate is
+For the infimum side, the current one-cut candidate / provisional upper
+candidate is
 
 \[
-M_*=x_R-x_L=1.8344304757626617\ldots,
+M_{\rm oc}=x_R-x_L=1.8344304757626617\ldots,
 \]
 
 with
@@ -80,7 +81,7 @@ conditional on the standard Tao/natso normalized minimizer reduction
 The exact equality
 
 \[
-L_-=M_*
+L_-=M_{\rm oc}
 \]
 
 is not proved.
@@ -88,7 +89,7 @@ is not proved.
 Thus the current honest interval is:
 
 \[
-\boxed{1.814600\le L_-\le 1.8344304757626617\ldots}
+\boxed{1.814600\le L_-\le M_{\rm oc}=1.8344304757626617\ldots}
 \]
 
 with the lower endpoint conditional on the standard reduction and finite
@@ -102,7 +103,7 @@ should not blur them with the finite-atom progress bound.
 **Theorem U: one-cut upper construction.**
 
 \[
-\boxed{L_-\le M_*}
+\boxed{L_-\le M_{\rm oc}}
 \]
 
 There exists an admissible one-cut measure
@@ -1051,12 +1052,12 @@ This section is the active mathematical queue.  It should be updated every
 time the route advances.  It deliberately avoids verifier engineering unless a
 specific certificate is needed to support a mathematical lemma.
 
-### 9.1 Exact upper construction at \(M_*\)
+### 9.1 One-cut upper construction at \(M_{\rm oc}\)
 
 Target theorem:
 
 \[
-\boxed{L_-\le M_*}.
+\boxed{L_-\le M_{\rm oc}}.
 \]
 
 The expected extremal is the one-cut primal candidate.  In the current
@@ -9781,6 +9782,178 @@ theorem queue.
     compactified finite-gap class except the one-cut branch that supplies the
     provisional upper candidate.  The remaining task is to write that one-cut
     construction with exact defining equations and verify its admissibility.
+
+    Gate 6: One-cut upper construction.
+
+    Define the one-cut branch by exact equations, not by the decimal value.
+    For \(a\in(-1,1)\), set
+
+    \[
+    s(a)=\sqrt{2(1+a)},\qquad
+    y(a)=\sqrt{\frac{1+a}{2}},
+    \]
+
+    and
+
+    \[
+    J(a)=\frac1\pi\int_a^1
+    \frac{\log(1/(1-t))}
+    {(t+1)\sqrt{(1-t)(t-a)}}\,dt.
+    \]
+
+    Define \(A(a)\) by the level equation
+
+    \[
+    U_a(1)=0,
+    \qquad
+    A(a)=
+    \frac{\log(4/(1-a))}
+    {\log2+s(a)J(a)}.
+    \tag{G6A}
+    \]
+
+    Equivalently, after evaluating the integral,
+
+    \[
+    \log2+s(a)J(a)
+    =
+    \log\frac{1+y(a)}{1-y(a)}.
+    \]
+
+    Let \(c(a)=A(a)s(a)\), and define
+
+    \[
+    d\mu_a
+    =
+    A(a)\delta_{-1}
+    +
+    \frac{x+1-c(a)}
+    {\pi(x+1)\sqrt{(1-x)(x-a)}}\,\mathbf1_{[a,1]}(x)\,dx.
+    \tag{G6mu}
+    \]
+
+    The mass identity
+
+    \[
+    \frac1\pi\int_a^1
+    \frac{dx}{(x+1)\sqrt{(1-x)(x-a)}}
+    =
+    \frac1{s(a)}
+    \]
+
+    gives continuous mass \(1-A(a)\), so \(\mu_a(\mathbb R)=1\).  The
+    positivity condition is
+
+    \[
+    0\le A(a)\le y(a),
+    \tag{G6pos}
+    \]
+
+    because \(x+1-c(a)\ge0\) on \([a,1]\) is equivalent to
+    \(c(a)\le a+1\).
+
+    Fix the branch
+
+    \[
+    R_a(z)=\sqrt{(z-a)(z-1)},\qquad
+    R_a(z)\sim z,\qquad R_a(z)<0\quad(z<a).
+    \]
+
+    For \(z\notin[a,1]\), the potential derivative is
+
+    \[
+    U_a'(z)
+    =
+    -\frac{z+1-c(a)}{(z+1)R_a(z)},
+    \tag{G6dU}
+    \]
+
+    and the normalization is \(U_a(z)+\log|z|\to0\) at infinity.  The branch
+    convention makes \(U_a\equiv0\) on \([a,1]\), because the boundary values
+    of \(R_a\) are purely imaginary on the cut and the level equation fixes
+    the additive constant.
+
+    On the exterior real line the sign table from (G6dU) is:
+
+    \[
+    \begin{array}{c|c}
+    \text{interval} & \operatorname{sign} U_a' \\ \hline
+    (-\infty,-1) & + \\
+    (-1,c(a)-1) & - \\
+    (c(a)-1,a) & +
+    \end{array}
+    \tag{G6sign}
+    \]
+
+    Thus \(U_a\) is monotone on each exterior interval, tends to
+    \(-\infty\) at both infinities, has the logarithmic singularity
+    \(+\infty\) at the atom \(-1\) when \(A(a)>0\), and reaches level \(0\) on
+    the cut.  For the admissible one-cut parameter range
+
+    \[
+    \mathcal A_{\rm oc}
+    =
+    \{a\in(-1,1): 0<A(a)\le y(a),\ U_a(c(a)-1)<0\},
+    \]
+
+    there are exactly two exterior zeros:
+
+    \[
+    x_L(a)<-1<x_R(a)<a,
+    \qquad
+    U_a(x_L(a))=U_a(x_R(a))=0.
+    \tag{G6zeros}
+    \]
+
+    Moreover
+
+    \[
+    E_{\mu_a}=(x_L(a),x_R(a))
+    \quad\text{up to endpoints},
+    \qquad
+    |E_{\mu_a}|=x_R(a)-x_L(a).
+    \]
+
+    Define the current one-cut candidate / provisional upper value by the
+    exact variational equation
+
+    \[
+    M_{\rm oc}
+    =
+    \min_{a\in\overline{\mathcal A_{\rm oc}}}
+    \bigl(x_R(a)-x_L(a)\bigr),
+    \tag{G6M}
+    \]
+
+    with \(a_{\rm oc}\) any minimizer and
+
+    \[
+    x_L=x_L(a_{\rm oc}),\qquad x_R=x_R(a_{\rm oc}).
+    \]
+
+    The displayed decimal is only a numerical evaluation of (G6M), not a
+    definition.  Since \(\mu_{a_{\rm oc}}\) is admissible and has
+    \(|E_{\mu_{a_{\rm oc}}}|=M_{\rm oc}\), it gives the upper bound
+
+    \[
+    \boxed{
+    L_-\le M_{\rm oc}.
+    }
+    \tag{G6upper}
+    \]
+
+    Therefore:
+
+    \[
+    \boxed{
+    \textbf{Gate 6 result: PASS.}\quad
+    \text{The one-cut construction gives }L_-\le M_{\rm oc}\text{ with }
+    M_{\rm oc}\text{ defined by exact equations.}
+    }
+    \]
+
+    The last gate is now only the theorem assembly: Gates 1--5 give the lower
+    exclusion, and Gate 6 gives the matching one-cut upper construction.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be

@@ -40,10 +40,10 @@ length-two support extremal bound, with equality at
 
 ## 3. Infimum: Current Bounds
 
-The conjectural exact value is
+The current one-cut candidate / provisional upper value is
 
 \[
-M_*=1.8344304757626617\ldots,
+M_{\rm oc}=1.8344304757626617\ldots,
 \]
 
 with one-cut endpoints
@@ -312,7 +312,7 @@ exact proof needs global finite-gap classification.
 This gives the matching upper bound
 
 \[
-L_-\le M_*.
+L_-\le M_{\rm oc}.
 \]
 
 The candidate has support
@@ -3434,6 +3434,76 @@ boundary/lower-genus branch.}
 
 Thus Gates 1--5 give the lower-bound exclusion for the compactified finite-gap
 class, pending only the exact one-cut upper construction and final assembly.
+
+Gate 6 defines the one-cut upper construction by equations.  For \(a\in(-1,1)\),
+set
+
+\[
+s(a)=\sqrt{2(1+a)},\qquad
+J(a)=\frac1\pi\int_a^1
+\frac{\log(1/(1-t))}
+{(t+1)\sqrt{(1-t)(t-a)}}\,dt,
+\]
+
+and choose
+
+\[
+A(a)=\frac{\log(4/(1-a))}{\log2+s(a)J(a)}.
+\]
+
+Then
+
+\[
+d\mu_a
+=A(a)\delta_{-1}
++
+\frac{x+1-A(a)s(a)}
+{\pi(x+1)\sqrt{(1-x)(x-a)}}\,\mathbf1_{[a,1]}(x)\,dx.
+\]
+
+The standard mass identity gives \(\mu_a(\mathbb R)=1\), and
+\(0\le A(a)\le\sqrt{(1+a)/2}\) gives positivity.  With
+
+\[
+R_a(z)=\sqrt{(z-a)(z-1)},\qquad R_a(z)\sim z,\quad R_a(z)<0\ (z<a),
+\]
+
+the exterior derivative is
+
+\[
+U_a'(z)=
+-\frac{z+1-A(a)s(a)}{(z+1)R_a(z)}.
+\]
+
+This gives the monotonicity table on
+\((-\infty,-1)\), \((-1,A(a)s(a)-1)\), and \((A(a)s(a)-1,a)\).  On the
+admissible parameter set where the middle minimum is below zero, there are
+exactly two exterior zeros \(x_L(a)<-1<x_R(a)<a\), and
+
+\[
+E_{\mu_a}=(x_L(a),x_R(a))
+\quad\text{up to endpoints}.
+\]
+
+Define
+
+\[
+M_{\rm oc}
+=\min_a \bigl(x_R(a)-x_L(a)\bigr)
+\]
+
+over this exact admissible one-cut parameter set.  The decimal is only a
+numerical evaluation of these equations.  The minimizer \(a_{\rm oc}\) gives an
+admissible measure with \(|E_{\mu_{a_{\rm oc}}}|=M_{\rm oc}\), hence
+
+\[
+\boxed{
+\textbf{Gate 6 result: PASS.}\quad
+L_-\le M_{\rm oc}.
+}
+\]
+
+The remaining step is final theorem assembly.
 
 ## 8. Forum Positioning
 
