@@ -1367,6 +1367,35 @@ theorem augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_tailM
     exact le_trans (by norm_num [M, q]) h1836
 
 /--
+Endpoint-route data needed by the `M = 1.814600` finite-atom route.
+
+This is the concrete route-side target for the abstract
+`EndpointRouteClosureENNReal.routeFromEndpoint` input in `StandardReduction`.
+It deliberately exposes the three remaining route-side facts: normalized
+support, the strong `1.708` forcing handoff, and tail-mass finiteness at the
+five moving atoms.
+-/
+structure Route181460EndpointData
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038) where
+  normalizedSupport : UnitIntervalNormalizedSupportAE μ
+  forcing1708Strong :
+    ¬ LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
+      ENNReal.ofReal (q 1836 1000) ≤
+        volume (StandardReduction.PositiveSet
+          (StandardReduction.unitIntervalLogPotential μ))
+  tailMassFinite : TailMassFiniteHypothesis μ
+
+/-- The endpoint-route package closes the `M = 1.814600` lower bound. -/
+theorem Route181460EndpointData.lower_bound
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (D : Route181460EndpointData μ) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_tailMass
+    μ D.normalizedSupport D.forcing1708Strong D.tailMassFinite
+
+/--
 Route closure matching the currently formalized `forcing_1708` constants.
 
 The current forcing certificate has base interval `(-1.7, 0)` and an `1.82`

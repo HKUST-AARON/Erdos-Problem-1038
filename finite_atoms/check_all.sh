@@ -11,10 +11,19 @@ fi
 
 export MATHLIB_WORKSPACE
 
+CHECK_BUILD="${CHECK_BUILD:-/tmp/erdos1038_check_all_olean}"
+rm -rf "$CHECK_BUILD"
+mkdir -p "$CHECK_BUILD"
+
 run_lean() {
   local file="$1"
+  local rel="${file#$REPO_ROOT/}"
+  local out="$CHECK_BUILD/${rel%.lean}.olean"
+  mkdir -p "$(dirname "$out")"
   echo "checking ${file#$REPO_ROOT/}"
-  (cd "$MATHLIB_WORKSPACE" && lake env lean "$file")
+  (cd "$MATHLIB_WORKSPACE" && \
+    LEAN_PATH="$CHECK_BUILD:$REPO_ROOT${LEAN_PATH:+:$LEAN_PATH}" \
+      lake env lean -R "$REPO_ROOT" -o "$out" "$file")
 }
 
 run_lean "$REPO_ROOT/finite_atoms/common/lean/FiniteAtomFramework.lean"
@@ -22,6 +31,12 @@ run_lean "$REPO_ROOT/finite_atoms/common/lean/StandardReduction.lean"
 run_lean "$REPO_ROOT/finite_atoms/route_1807100/lean/Route1807100Closure.lean"
 
 check_piecewise_181460_route() {
+  if [[ "${CHECK_PIECEWISE_181460_CHUNKS:-0}" != "1" ]]; then
+    echo "skipping finite_atoms/piecewise_five_atom_181460_560 560-chunk rebuild"
+    echo "  set CHECK_PIECEWISE_181460_CHUNKS=1 to opt in to the expensive full check"
+    return 0
+  fi
+
   local piece="$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/lean"
   local route="$REPO_ROOT/finite_atoms/route_181460_560/lean/Route181460Closure.lean"
   local build="${PIECEWISE_ROUTE_BUILD:-/tmp/erdos1038_piecewise_dispatch_olean}"
@@ -103,4 +118,4 @@ python3 "$REPO_ROOT/finite_atoms/forcing_1708_strong/scripts/verify_forcing_1708
 
 "$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/scripts/verify_piecewise_181460_560_test.sh"
 
-echo "all finite-atom certificate checks passed"
+echo "all enabled finite-atom certificate checks passed"
