@@ -2089,6 +2089,21 @@ theorem realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
     (measurableSet_singleton (-1 : ℝ))]
   simpa [Set.preimage, Set.mem_singleton_iff] using hp
 
+theorem unitInterval_endpoint_atom_eq_of_realMeasure_endpoint_atom_eq
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} = ENNReal.ofReal p := by
+  have hmap :
+      realMeasure μ ({-1} : Set ℝ) =
+        (μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1} := by
+    rw [realMeasure]
+    rw [Measure.map_apply continuous_subtype_val.measurable
+      (measurableSet_singleton (-1 : ℝ))]
+    rfl
+  exact hmap.symm.trans hp
+
 theorem unitInterval_endpoint_atom_ne_top
     (μ : ProbabilityMeasure UnitInterval1038) :
     (μ : Measure UnitInterval1038)
@@ -10295,6 +10310,41 @@ theorem realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_
   exact realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
     hbaseline
     (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint hdirac)
+
+/--
+Endpoint atomization of the selected component produces a genuine endpoint atom
+of the real push-forward measure.
+-/
+theorem realMeasure_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    0 < realMeasure μ ({-1} : Set ℝ) := by
+  have hblock_atom : componentBlock C ({-1} : Set ℝ) = componentMass C := by
+    rw [hdirac]
+    simp [Measure.smul_apply]
+  have hle : componentBlock C ({-1} : Set ℝ) ≤ realMeasure μ ({-1} : Set ℝ) := by
+    unfold componentBlock
+    exact Measure.restrict_le_self ({-1} : Set ℝ)
+  exact lt_of_lt_of_le (by simpa [hblock_atom] using R.mass_pos) hle
+
+/--
+Endpoint atomization of the selected component produces a genuine endpoint atom
+of the original subtype probability measure.
+-/
+theorem unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    0 < (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} := by
+  have hreal :=
+    realMeasure_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hdirac
+  rw [realMeasure] at hreal
+  rw [Measure.map_apply continuous_subtype_val.measurable
+    (measurableSet_singleton (-1 : ℝ))] at hreal
+  simpa [Set.preimage, Set.mem_singleton_iff] using hreal
 
 theorem realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
