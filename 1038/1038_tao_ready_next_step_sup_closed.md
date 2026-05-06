@@ -70,7 +70,7 @@ The gate chain below gives a conditional exact-route skeleton:
 \[
 \boxed{
 \text{if the remaining sign, compactness, and regularity lemmas are closed,
-then }L_-=M_{\rm oc}.
+then }L_- = M_{\rm oc}.
 }
 \]
 
@@ -317,7 +317,7 @@ from the one-cut upper construction, and
 Only these two statements together imply
 
 \[
-L_-=M_{\rm oc}.
+L_- = M_{\rm oc}.
 \]
 
 The proof must not stop at the two-interval branch.  The two-interval branch is
@@ -1153,7 +1153,7 @@ Only after this theorem and the one-cut upper construction are both written
 does the exact statement follow:
 
 \[
-\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
+\boxed{L_- = M_{\rm oc}=1.8344304757626617\ldots}.
 \]
 
 The \(Q_{\rm eff}\) work closes only one component of this global statement:
@@ -4235,6 +4235,32 @@ system for \(P_\theta\) degenerates, the case routes to Gate 3; if it has no
 sign table, the \(Z_0\)-atomic branch is a concrete obstruction rather than a
 closed case.
 
+The strict lifted gap has to be checked with the same residual.  With
+\[
+G_\theta=\theta\cdot V_S-V_\Pi
+\]
+define
+\[
+G_\theta^{(b)}=\theta\cdot b_S-b_\Pi
+=aG_\theta(u)+bG_\theta(v),
+\qquad
+G_\theta^{(c)}=\theta\cdot\rho_S-\rho_\Pi.
+\]
+Then the \(\eta>0\) strict dual inequality is equivalent to
+\[
+G_{\theta_\Lambda}^{(b)}
+-\Lambda G_{\theta_\Lambda}^{(c)}>0,
+\]
+and the homogeneous strict dual inequality is equivalent to
+\[
+\lambda G_{\theta_\lambda}^{(c)}<0.
+\]
+Thus Gate 1 still reduces to a finite explicit task: construct the dual
+majorants, prove the \(P_\theta\)-sign tables on \(Z_0\), and verify these
+strict residual inequalities.  Equality is not an interior closure; it routes
+to Gate 3 contact/boundary degeneration or remains a concrete Gate 1
+obstruction.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
@@ -4516,7 +4542,7 @@ Therefore
 \[
 \boxed{
 \textbf{Gate 7 assembly: CONDITIONAL.}\quad
-\text{If the remaining proof obligations are closed, then }L_-=M_{\rm oc}.
+\text{If the remaining proof obligations are closed, then }L_- = M_{\rm oc}.
 }
 \]
 

@@ -81,7 +81,7 @@ conditional on the standard Tao/natso normalized minimizer reduction
 The gate chain below gives a conditional proof skeleton whose target conclusion is
 
 \[
-L_-=M_{\rm oc}
+L_- = M_{\rm oc}
 \]
 
 in the normalization used throughout this ledger.
@@ -92,7 +92,7 @@ honest status is:
 \[
 \boxed{
 \text{conditional skeleton: if the remaining sign/compactness/regularity
-lemmas are closed, then }L_-=M_{\rm oc}.
+lemmas are closed, then }L_- = M_{\rm oc}.
 }
 \]
 
@@ -163,7 +163,7 @@ more local slab tuning.
 If Theorem U and Theorem L are proved in the same normalization, then
 
 \[
-\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
+\boxed{L_- = M_{\rm oc}=1.8344304757626617\ldots}.
 \]
 
 Current audit: the ledger contains a route skeleton, but Gate 1
@@ -681,7 +681,7 @@ Meaning:
 
 - strong evidence for the implemented corrected branch at fixed epsilon;
 - not a continuum theorem in \(\varepsilon\);
-- not a global proof of \(L_-=M_{\rm oc}\).
+- not a global proof of \(L_- = M_{\rm oc}\).
 
 ### 4.2 Sampled adjacent slab diagnostics
 
@@ -11789,6 +11789,101 @@ theorem queue.
     sign table above fails, then the \(Z_0\)-atomic branch remains a concrete
     obstruction; one must not declare Gate 1 closed.
 
+    Strict lift gap in residual variables.
+
+    The majorant alone is not enough; it must give the strict lifted gap in
+    the correct direction.  With the present convention
+
+    \[
+    G_\theta=\theta\cdot V_S-V_\Pi,
+    \]
+
+    define the boundary and anchor residuals
+
+    \[
+    \boxed{
+    G_\theta^{(b)}
+    :=
+    \theta\cdot b_S-b_\Pi
+    =
+    aG_\theta(u)+bG_\theta(v),
+    }
+    \tag{G1BoundaryResidual}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    G_\theta^{(c)}
+    :=
+    \theta\cdot\rho_S-\rho_\Pi.
+    }
+    \tag{G1AnchorResidual}
+    \]
+
+    Therefore the strict dual inequality for the \(\eta>0\) atom branch is
+    exactly
+
+    \[
+    \theta_\Lambda\cdot(-b_S+\Lambda\rho_S)
+    <
+    -b_\Pi+\Lambda\rho_\Pi
+    \]
+
+    if and only if
+
+    \[
+    \boxed{
+    G_{\theta_\Lambda}^{(b)}
+    -\Lambda G_{\theta_\Lambda}^{(c)}
+    >0.
+    }
+    \tag{G1StrictLiftEtaResidual}
+    \]
+
+    This sign is positive because \(G_\theta\) was defined as
+    \(\theta\cdot V_S-V_\Pi\).  If the opposite residual convention is used,
+    every displayed strict residual sign must be reversed.
+
+    Similarly, the homogeneous strict inequality
+
+    \[
+    \theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi
+    \]
+
+    is equivalent to
+
+    \[
+    \boxed{
+    \lambda G_{\theta_\lambda}^{(c)}<0.
+    }
+    \tag{G1StrictLiftHomResidual}
+    \]
+
+    We record the exact strict-gap lemma:
+
+    \[
+    \boxed{\textbf{Gate1StrictLiftGap}.}
+    }
+    \]
+
+    Suppose the dual majorant lemma gives \(G_\theta\ge0\) on \(Z_0\).  If, in
+    addition, (G1StrictLiftEtaResidual) holds for the corresponding
+    \(\theta_\Lambda\), then the \(\eta>0\) \(Z_0\)-atomic certificate is
+    excluded for that \(\Lambda\).  If
+    (G1StrictLiftHomResidual) holds for the corresponding \(\theta_\lambda\),
+    then the homogeneous \(Z_0\)-atomic certificate is excluded for that
+    \(\lambda\).
+
+    Equality in either strict residual is not an interior closure.  It must
+    either be routed to Gate 3 as a contact degeneration, endpoint/pole
+    collision, density-sign boundary, or chart-rank loss, or it remains an
+    explicit Gate 1 obstruction.  Thus the remaining proof target after Step 5
+    is completely finite and explicit: construct the majorants
+    \(\theta_\Lambda,\theta_\lambda\), prove their \(P_\theta\)-sign tables on
+    \(Z_0\), and verify the strict residual inequalities above.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
@@ -12488,7 +12583,7 @@ theorem queue.
     \boxed{
     \textbf{Gate 7 assembly: CONDITIONAL.}\quad
     \text{If Gates 1, 3, 5, and 6 are upgraded to proof-grade lemmas, then }
-    L_-=M_{\rm oc}.
+    L_- = M_{\rm oc}.
     }
     \tag{G7conditional}
     \]
@@ -12596,7 +12691,7 @@ Q_{\rm eff}\text{ is only the compact non-pinched }g=2\text{ hard mouth.}
 }
 \]
 
-Closing it by itself would not have proved \(L_-=M_{\rm oc}\).  The missing
+Closing it by itself would not have proved \(L_- = M_{\rm oc}\).  The missing
 bridges were the one-cut upper construction, the corrected lower-genus branch,
 the pinching/degeneration lemma, the high-genus local-neck reduction, the
 regularity-removal interface, and the normalized minimizer reduction.  Gates
