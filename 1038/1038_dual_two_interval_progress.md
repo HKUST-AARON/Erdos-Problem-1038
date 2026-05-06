@@ -3360,14 +3360,18 @@ the same slab is small:
 ```text
 B=+0.01: min=-3.866451994643e-02,
          max=-3.365209117925e-02,
-         width=5.012428767178e-03
+         width=5.012428767178e-03,
+         max_adjacent_secant=1.712308640868e+00
 B=-0.01: min=-3.848223378191e-02,
          max=-3.352323065664e-02,
-         width=4.959003125277e-03
+         width=4.959003125277e-03,
+         max_adjacent_secant=1.694064000049e+00
 ```
 
 Thus the immediate proof target is realistic: reduce the interval enclosure
-from radius \(39.1\) to a \(10^{-2}\)-scale derivative/Taylor enclosure.
+from radius \(39.1\) to a \(10^{-2}\)-scale derivative/Taylor enclosure.  A
+direct \(B'(s)\) enclosure with radius on the order of \(2\) across the slab
+would already be in the right range.
 
 ### 15.8 Explicit \(s\)-derivatives for the paired residue-log block
 

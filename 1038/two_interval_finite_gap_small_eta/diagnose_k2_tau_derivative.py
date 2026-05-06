@@ -231,21 +231,29 @@ def main() -> int:
                 if sample_grid < 2:
                     raise SystemExit("joint-layer-sample-grid must be 0 or at least 2")
                 sampled_values = []
+                sampled_etas = []
                 for index in range(sample_grid):
                     eta_sample = eta_low + (eta_high - eta_low) * index / (sample_grid - 1)
                     sample_value, sample_terms = joint_layer_terms(B, tau, arb(repr(float(eta_sample))))
                     sample_joint = arb(
                         find_debug_term(sample_terms, "limit_layer_joint_regularized_second:combined")
                     )
+                    sampled_etas.append(eta_sample)
                     sampled_values.append(float(sample_joint.mid()))
                 sample_min = min(sampled_values)
                 sample_max = max(sampled_values)
+                adjacent_secants = [
+                    abs((sampled_values[index + 1] - sampled_values[index]) / (sampled_etas[index + 1] - sampled_etas[index]))
+                    for index in range(sample_grid - 1)
+                ]
+                max_adjacent_secant = max(adjacent_secants)
                 print(
                     "K2_JOINT_LAYER_SAMPLE_RANGE "
                     f"B={B:+.2f} tau={tau:.12e} samples={sample_grid:d} "
                     f"eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
                     f"min={sample_min:.12e} max={sample_max:.12e} "
-                    f"width={sample_max - sample_min:.12e}"
+                    f"width={sample_max - sample_min:.12e} "
+                    f"max_adjacent_secant={max_adjacent_secant:.12e}"
                 )
 
     def k0_2_box(B: float, tau_box: Any) -> Any:
