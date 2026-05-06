@@ -9040,6 +9040,22 @@ theorem componentReplacement_objective_le_of_outside_integrability_jensen
     (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
 
 /--
+Primary objective nonincrease for the concrete barycenter replacement, obtained
+by combining strict-outside Jensen with the positive-set objective bridge.
+-/
+theorem componentReplacement_primaryObjective_nonincrease_of_outside_integrability
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_potential_le C
+    (componentReplacement_strictOutside_potential_le_of_outside_integrability_jensen
+      R houtside_integrable)
+
+/--
 Outside-restricted real-measure log-kernel integrability from finite singular
 tail mass.
 
