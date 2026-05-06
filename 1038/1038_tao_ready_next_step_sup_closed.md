@@ -2994,6 +2994,34 @@ The point formula is therefore fine; the interval dependency is not.  The
 remaining proof step is to replace the current whole-slab `Div2` enclosure by a
 true \(s=t\eta\) derivative enclosure for the regularized joint layer.
 
+The derivative formula must be written with the observation point included.  A
+paired smooth-pole block has the form
+
+\[
+a_\ell(s)\log\left|\frac{x(s)-\rho_\ell(s)}{x(s)-\rho_r(s)}\right|
++S(s)\log|x(s)-\rho_r(s)|,\qquad S=a_\ell+a_r.
+\]
+
+Thus the analytic \(s\)-derivative is
+
+\[
+\begin{aligned}
+&a_\ell'(s)\log\left|\frac{x-\rho_\ell}{x-\rho_r}\right|
++a_\ell(s)\left(
+\frac{x'-\rho_\ell'}{x-\rho_\ell}
+-\frac{x'-\rho_r'}{x-\rho_r}
+\right)\\
+&\quad
++S'(s)\log|x-\rho_r|
++S(s)\frac{x'-\rho_r'}{x-\rho_r}.
+\end{aligned}
+\]
+
+For the contact value, \(x(s)=-1\), so \(x'=0\).  For the \(-1\) value,
+\(x(s)\) is the Joukowski preimage of \(z=-1\), so \(x'\) must be included.
+This is the exact formula the next interval proof should enclose on the shared
+variable \(s=t\eta\).
+
 ### J. Tao note calibration and the first hard number after reading it
 
 The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with

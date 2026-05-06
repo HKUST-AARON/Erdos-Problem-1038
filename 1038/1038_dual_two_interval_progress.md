@@ -3338,6 +3338,111 @@ model is still too coarse.  The next closure attempt must use a true
 \(s=t\eta\) derivative enclosure for the regularized joint layer, not a
 whole-slab second-divided algebra with repeated eta dependencies.
 
+### 15.8 Explicit \(s\)-derivatives for the paired residue-log block
+
+The analytic derivative enclosure must include every \(s\)-dependent quantity.
+For a smooth-pole pair, write the paired block as
+
+\[
+B(s)=
+a_\ell(s)\log\left|\frac{x(s)-\rho_\ell(s)}{x(s)-\rho_r(s)}\right|
++S(s)\log|x(s)-\rho_r(s)|,
+\qquad
+S(s)=a_\ell(s)+a_r(s).
+\]
+
+Then the exact derivative is
+
+\[
+\boxed{
+\begin{aligned}
+B'(s)=&
+a_\ell'(s)\log\left|\frac{x-\rho_\ell}{x-\rho_r}\right|
++a_\ell(s)
+\left(
+\frac{x'-\rho_\ell'}{x-\rho_\ell}
+-\frac{x'-\rho_r'}{x-\rho_r}
+\right)\\
+&+S'(s)\log|x-\rho_r|
++S(s)\frac{x'-\rho_r'}{x-\rho_r}.
+\end{aligned}
+}
+\]
+
+The contact context has \(x(s)=-1\), hence \(x'=0\).  The minus-one context has
+\(x(s)=w_{-1}(s)\), the chosen Joukowski preimage of \(z=-1\), and must include
+the \(x'\) term.  Omitting \(x'\) would give a false proof for the minus-one
+half of the cancellation.
+
+All remaining derivatives are rational once the square-root preimage is
+represented by the Joukowski variable.  Let
+
+\[
+y_q(s)=\frac{q(s)-c(s)}{k(s)},\qquad
+\rho_q+\rho_q^{-1}=y_q.
+\]
+
+Then
+
+\[
+\boxed{
+\rho_q'(s)=
+\frac{y_q'(s)}{1-\rho_q(s)^{-2}}.
+}
+\]
+
+The branch value
+
+\[
+R_q(s)=k(s)\left(\rho_q-\rho_q^{-1}\right)
+\]
+
+satisfies
+
+\[
+\boxed{
+R_q'(s)=
+k'(s)\left(\rho_q-\rho_q^{-1}\right)
++k(s)\rho_q'(s)\left(1+\rho_q^{-2}\right).
+}
+\]
+
+For a pole \(q\in\{\ell,r\}\), with the other two denominator roots denoted
+\(q_1,q_2\), the residue is
+
+\[
+a_q(s)=
+\frac{(q(s)+A(s))R_q(s)}
+{(q(s)-q_1(s))(q(s)-q_2(s))}.
+\]
+
+Thus the logarithmic derivative form is
+
+\[
+\boxed{
+\frac{a_q'}{a_q}
+=
+\frac{q'+A'}{q+A}
++\frac{R_q'}{R_q}
+-\frac{q'-q_1'}{q-q_1}
+-\frac{q'-q_2'}{q-q_2}.
+}
+\]
+
+These formulas give the next proof-grade enclosure target:
+
+\[
+\boxed{
+\text{enclose }B'(s)\text{ directly for }s\in[0,\eta_{\max}]
+\text{ and integrate over }s=t\eta.
+}
+\]
+
+This is strictly stronger than the current `Div2` whole-slab model: it never
+forms two independent copies of the same residue-log term.  It also handles the
+contact and minus-one contexts uniformly, with the only difference being
+\(x'=0\) versus \(x'=w_{-1}'(s)\).
+
 ## 16. Mathematical proof ledger for the exact-value route
 
 This section records the current paper-level proof chain for the conjectural
