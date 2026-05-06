@@ -9647,45 +9647,74 @@ theorem queue.
 
     Gate 4: HighGenusLocalNeckReduction.
 
-    Let a regular compact finite-gap chamber have genus \(g\ge3\), with
-    ordered cuts
+    The proof-grade statement is:
 
     \[
-    J_i=[\alpha_i,\beta_i],\qquad i=1,\ldots,g,
+    \boxed{
+    \textbf{HighGenusLocalNeckReduction.}\quad
+    \mathcal C^{\rm reg}_{g\ge3}
+    \subset
+    \text{local }g=2\text{ obstruction}
+    \cup \partial\mathcal C.
+    }
+    \tag{G4theorem}
     \]
 
-    and non-pinched gaps \((\beta_i,\alpha_{i+1})\).  Choose any adjacent
-    two-cut block
+    Let a regular compact finite-gap chamber have genus \(g\ge3\), with
+    ordered cuts \(J_i=[\alpha_i,\beta_i]\).  Since the chamber is compact and
+    non-pinched, all gaps \((\beta_i,\alpha_{i+1})\) are nonempty.  Let
+    \(K\) be the actual KKT normal after the free-period quotient.  If the
+    projection of \(K\) to every adjacent two-cut block vanished, then by
+    overlapping adjacent blocks \(K\) would vanish on every cut.  The Cauchy
+    transform of \(K\) would then vanish on the support and at infinity, hence
+    \(K=0\), contradicting nontriviality of the separating normal.  Therefore
+    some adjacent block
 
     \[
     J_{i,i+1}=J_i\cup J_{i+1}
     \]
 
-    with neck gap \((\beta_i,\alpha_{i+1})\).  If no such adjacent block is
-    available, then some gap or cut has already pinched, and Gate 3 routes the
-    sequence to boundary/lower genus.  Thus it suffices to treat a regular
-    non-pinched adjacent block.
+    has nonzero normal projection and a genuine local neck gap
+    \((\beta_i,\alpha_{i+1})\).
 
-    Freeze all branch endpoints, pole-state rows, mass rows, and active-zero
-    rows outside a small neighborhood of \(J_{i,i+1}\).  As in the
-    \(R_0,R_c\) equality correction, choose smooth signed bump correctors
-    supported in the positive-density interiors of the frozen outside cuts.
-    Their row matrix is invertible on the outside constraints by the regular
-    chart hypothesis.  If that outside row matrix is not invertible, the
-    high-genus chart has dropped rank; this is a chart-rank degeneration and
-    is routed by Gate 3.
+    Freeze all rows supported outside a small neighborhood of this block:
+    outside branch endpoints, outside pole-state rows, outside active-zero
+    rows, and the outside period/filling rows.  Let \(R_{\rm out}\) be their
+    row matrix evaluated on smooth signed density bumps supported in the
+    positive-density interiors of the outside cuts.  Regularity of the
+    high-genus chart says exactly that this row map has full rank after the
+    local block variables are held fixed.  If it does not, the full chart
+    Jacobian has dropped rank; by Gate 3 this is a boundary/lower-genus
+    degeneration, not a regular high-genus interior.
 
-    Taking the Schur complement of the frozen outside rows leaves a local
-    two-cut system on \(J_i\cup J_{i+1}\).  The local boundary rows are exactly
-    the same rows as in the \(g=2\) neck calculation: the local anchor row,
-    the two endpoint difference rows, the mass/equality rows removed by smooth
-    bumps, and the local Schiffer endpoint columns for the four endpoints
+    Hence choose outside bump correctors \(\Psi_{\rm out}\) with
+    \(R_{\rm out}(\Psi_{\rm out})=I\).  For any local perturbation \(G_{\rm loc}\),
+    set
+
+    \[
+    \widehat G_{\rm loc}
+    =
+    G_{\rm loc}
+    -
+    \Psi_{\rm out}\,R_{\rm out}(G_{\rm loc}).
+    \tag{G4correct}
+    \]
+
+    Then all frozen outside rows vanish on \(\widehat G_{\rm loc}\).  This is
+    the Schur complement of the outside row block.  Because the correctors are
+    supported away from the neck, they are \(C^1\) near the local moving
+    boundaries and continuous near the local active-zero set; they restore
+    constraints without changing the sign of a strict local neck descent after
+    taking the local perturbation small enough.
+
+    The remaining rows on \(J_i\cup J_{i+1}\) are exactly the \(g=2\) rows:
+    the local anchor row, the two endpoint difference rows, the smooth-bump
+    equality rows, and the four Schiffer endpoint columns
     \[
     \alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}.
     \]
-    The outside correctors change these columns only by rows that vanish on
-    the local Schur complement, so the reduced local LP has the same form as
-    the \(g=2\) reduced LP:
+    Thus the Schur-complement local LP has the same form as the \(g=2\)
+    reduced LP:
 
     \[
     b_\Pi^{(i)}+\sum_{\gamma\in\{\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\}}
@@ -9700,11 +9729,11 @@ theorem queue.
     \tag{G4LP}
     \]
 
-    The free-period quotient does not introduce a new pointwise
-    sign-shifter.  In genus \(g\), the period rows are absorbed by the
-    corresponding filling variables \(\tau_1,\ldots,\tau_{g-1}\).  For any
-    extended left-cokernel \((\kappa,\kappa_\Pi)\), the \(\tau\)-columns force
-    the period multipliers to vanish, exactly as in the \(g=2\) quotient:
+    The free-period quotient does not introduce a new pointwise sign-shifter.
+    In genus \(g\), the period rows are absorbed by the filling variables
+    \(\tau_1,\ldots,\tau_{g-1}\).  For any extended left-cokernel
+    \((\kappa,\kappa_\Pi)\), the \(\tau\)-columns force the period multipliers
+    to vanish:
 
     \[
     \kappa^TA=0,\qquad \kappa_{\Pi,m}=0\quad(m=1,\ldots,g-1).
@@ -9752,7 +9781,7 @@ theorem queue.
 
     \[
     \boxed{
-    \textbf{Gate 4 result: PASS.}\quad
+    \textbf{Gate 4 result: PROOF-GRADE PASS.}\quad
     \text{Regular compact high-genus chambers leave no new counterexample.}
     }
     \]

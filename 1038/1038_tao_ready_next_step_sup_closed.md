@@ -3374,19 +3374,27 @@ Thus Gates 1--3 remove the regular interior, rank-defect interior, and boundary
 \(g=2\) compact cases.  The remaining global gates are high-genus local-neck
 reduction, Lemma R, and the one-cut upper construction.
 
-Gate 4 removes regular compact high-genus chambers.  For a regular non-pinched
-finite-gap chamber with \(g\ge3\), choose an adjacent two-cut block
+Gate 4 removes regular compact high-genus chambers as a proof-grade local-neck
+lemma.  For a regular non-pinched chamber with \(g\ge3\), let \(K\) be the
+actual KKT normal after the free-period quotient.  If \(K\) projected to zero
+on every adjacent two-cut block, overlapping adjacent blocks would force
+\(K=0\) on every cut, contradicting the nontrivial separating normal.
+Therefore some adjacent block has a nonzero normal projection:
 
 \[
 J_i\cup J_{i+1}
 = [\alpha_i,\beta_i]\cup[\alpha_{i+1},\beta_{i+1}].
 \]
 
-Freeze all rows outside this block and use smooth signed bump correctors on
-the outside cuts to restore the frozen rows.  Regularity makes the outside row
-matrix invertible; if it is not invertible, the chart has already degenerated
-and Gate 3 applies.  The Schur complement is the same local two-cut neck system
-as in the \(g=2\) proof, with endpoint columns
+Freeze all rows outside this block.  The outside row matrix on smooth signed
+bumps supported in outside positive-density interiors is invertible by the
+regular chart hypothesis; if it is not, the full chart has dropped rank and
+Gate 3 applies.  The Schur complement corrector
+\[
+\widehat G_{\rm loc}=G_{\rm loc}-\Psi_{\rm out}R_{\rm out}(G_{\rm loc})
+\]
+kills all frozen rows and is supported away from the neck.  The remaining rows
+are precisely the \(g=2\) neck rows for endpoint columns
 \(\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\).
 
 The free-period quotient remains harmless in high genus: the filling variables
@@ -3404,7 +3412,7 @@ The local block has three outcomes:
 
 \[
 \boxed{
-\textbf{Gate 4 result: PASS.}\quad
+\textbf{Gate 4 result: PROOF-GRADE PASS.}\quad
 g\ge3\text{ regular compact chambers contain a local }g=2
 \text{ obstruction or route to boundary/lower genus.}
 }
