@@ -375,6 +375,202 @@ def TaoComponentReductionData.toTaoEndpointNormalizationData_of_endpointRemainde
       intro x hx
       simpa [hendpointMass] using Hrem.potential_decomposition_lower x hx)
 
+/-! ### Canonical endpoint variation package -/
+
+/--
+Canonical endpoint version of `TaoVariationComponentPackage`.
+
+Compared with `TaoVariationComponentPackage`, this structure no longer asks
+the caller to provide an arbitrary endpoint mass or arbitrary remainder
+measure.  The endpoint mass is fixed to the pushed-forward measure of `{-1}`,
+and the remainder is fixed to `endpointRemainder μ`.  Thus the remaining
+fields are the component/variation fields plus the genuine analytic
+endpoint-remainder inputs packaged in `CanonicalEndpointRemainderData`.
+-/
+structure CanonicalEndpointVariationPackageData
+    (μ : ProbabilityMeasure UnitInterval1038) (U : ℝ → ℝ) where
+  mean_choice : TaoVariationMeanChoice
+  reflected : Bool
+  translation : ℝ
+  component : Set ℝ
+  Support : Set ℝ
+  xMinus : ℝ
+  xPlus : ℝ
+  component_positive : component ⊆ PositiveSet U
+  component_interval : component = Ioo xMinus xPlus
+  baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component
+  support_bounded : Support ⊆ Icc (-1 : ℝ) 1
+  unique_support_in_component :
+    ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1
+  right_endpoint_positive : 0 < xPlus
+  boundary_average :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal)
+  remainder_data :
+    CanonicalEndpointRemainderData μ Support U
+
+/--
+Convert canonical endpoint variation data into the existing concrete
+`TaoVariationComponentPackage`.
+
+This removes repeated endpoint-remainder bookkeeping from the standard
+reduction interface: a.e. support, endpoint exclusion, mass identity, mass
+nonnegativity, kernel integrability, and potential decomposition are all
+provided by the canonical endpoint-remainder lemmas.
+-/
+def CanonicalEndpointVariationPackageData.toTaoVariationComponentPackage
+    {μ : ProbabilityMeasure UnitInterval1038} {U : ℝ → ℝ}
+    (D : CanonicalEndpointVariationPackageData μ U) :
+    TaoVariationComponentPackage U where
+  mean_choice := D.mean_choice
+  reflected := D.reflected
+  translation := D.translation
+  component := D.component
+  Support := D.Support
+  endpointMass := ((realMeasure μ) (({-1} : Set ℝ))).toReal
+  xMinus := D.xMinus
+  xPlus := D.xPlus
+  component_positive := D.component_positive
+  component_interval := D.component_interval
+  baseline_inside_component := D.baseline_inside_component
+  support_bounded := D.support_bounded
+  unique_support_in_component := D.unique_support_in_component
+  right_endpoint_positive := D.right_endpoint_positive
+  boundary_average := D.boundary_average
+  remainder := endpointRemainder μ
+  remainder_support_in_support :=
+    endpointRemainder_ae_mem_support μ
+      D.remainder_data.support_contains_real_support
+  remainder_no_endpoint := endpointRemainder_ae_ne_endpoint μ
+  remainder_mass := endpointRemainder_mass μ
+  remainder_mass_nonneg := endpointRemainder_mass_nonneg μ
+  kernel_integrable := D.remainder_data.kernel_integrable
+  potential_decomposition_lower :=
+    D.remainder_data.potential_decomposition_lower
+
+/-- Build endpoint-normalized data directly from canonical endpoint data. -/
+def CanonicalEndpointVariationPackageData.toTaoEndpointNormalizationData
+    {μ : ProbabilityMeasure UnitInterval1038} {U : ℝ → ℝ}
+    (D : CanonicalEndpointVariationPackageData μ U) :
+    TaoEndpointNormalizationData U :=
+  D.toTaoVariationComponentPackage.toTaoEndpointNormalizationData
+
+/-- Build reduced-potential data directly from canonical endpoint data. -/
+def CanonicalEndpointVariationPackageData.toTaoReducedPotentialData
+    {μ : ProbabilityMeasure UnitInterval1038} {U : ℝ → ℝ}
+    (D : CanonicalEndpointVariationPackageData μ U) :
+    TaoReducedPotentialData U :=
+  D.toTaoVariationComponentPackage.toTaoReducedPotentialData
+
+/-- Build the finite-route endpoint potential directly from canonical data. -/
+def CanonicalEndpointVariationPackageData.toNormalizedEndpointPotential
+    {μ : ProbabilityMeasure UnitInterval1038} {U : ℝ → ℝ}
+    (D : CanonicalEndpointVariationPackageData μ U) :
+    NormalizedEndpointPotential U :=
+  D.toTaoVariationComponentPackage.toNormalizedEndpointPotential
+
+/--
+Specialization to the unmodified unit-interval logarithmic potential.  The
+endpoint-plus-remainder decomposition is already proved as an equality, so this
+constructor only asks for support containment and endpoint-remainder kernel
+integrability.
+-/
+def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus : ℝ)
+    (component_positive :
+      component ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (boundary_average :
+      1 ≤
+        (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+          (1 - xPlus) *
+            (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal))
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (kernel_integrable :
+      ∀ x : ℝ, x ∈ BaselinePunctured →
+        Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+          (endpointRemainder μ)) :
+    CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) where
+  mean_choice := mean_choice
+  reflected := reflected
+  translation := translation
+  component := component
+  Support := Support
+  xMinus := xMinus
+  xPlus := xPlus
+  component_positive := component_positive
+  component_interval := component_interval
+  baseline_inside_component := baseline_inside_component
+  support_bounded := support_bounded
+  unique_support_in_component := unique_support_in_component
+  right_endpoint_positive := right_endpoint_positive
+  boundary_average := boundary_average
+  remainder_data :=
+    CanonicalEndpointRemainderData.of_unitIntervalLogPotential μ Support
+      support_contains_real_support kernel_integrable
+
+/--
+Canonical component-package form of the variation input for relaxed
+minimizers.  This is narrower than
+`VariationEndpoint.ComponentPackageFromVariation`: it requires the upstream
+variation argument to produce the canonical endpoint package for the actual
+relaxed minimizer measure, with endpoint mass and remainder already fixed to
+the canonical choices.
+-/
+structure CanonicalComponentPackageFromVariation where
+  canonicalPackage : ∀ M : MinimizerExistence.RelaxedMinimizer,
+    CanonicalEndpointVariationPackageData M.μ
+      (VariationEndpoint.RelaxedPotential M)
+
+/--
+A canonical component-package provider supplies the existing component-package
+variation interface.
+-/
+def CanonicalComponentPackageFromVariation.toComponentPackageFromVariation
+    (H : CanonicalComponentPackageFromVariation) :
+    VariationEndpoint.ComponentPackageFromVariation where
+  componentPackage := fun M =>
+    (H.canonicalPackage M).toTaoVariationComponentPackage
+
+/--
+Diagonal-safe minimizer plus canonical component package.
+-/
+theorem exists_relaxed_minimizer_with_canonical_component_package
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : CanonicalComponentPackageFromVariation) :
+    Nonempty (Σ M : MinimizerExistence.RelaxedMinimizer,
+      CanonicalEndpointVariationPackageData M.μ
+        (VariationEndpoint.RelaxedPotential M)) := by
+  rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+      Hcore with ⟨M⟩
+  exact ⟨⟨M, Hvar.canonicalPackage M⟩⟩
+
+/--
+Canonical variation packages imply the baseline interval length consequence.
+-/
+theorem exists_baseline_length_from_canonical_componentPackage
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : CanonicalComponentPackageFromVariation) :
+    ∃ M : MinimizerExistence.RelaxedMinimizer,
+      ENNReal.ofReal (Real.sqrt 2) ≤
+        volume (PositiveSet (VariationEndpoint.RelaxedPotential M)) :=
+  VariationEndpoint.exists_baseline_length_from_componentPackage_of_oneSidedCompactCore
+    Hcore Hvar.toComponentPackageFromVariation
+
 /--
 A component whose barycenter replacement is known not to increase objective by
 countability of the singular strict-outside support-hit branch.

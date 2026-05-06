@@ -85,6 +85,46 @@ endpoint-plus-remainder decomposition is now proved as an equality, so the
 canonical-remainder data only needs support containment and log-kernel
 integrability.
 
+The canonical endpoint construction has also been lifted one level higher to
+the variation package itself.  The structure
+
+```lean
+CanonicalEndpointVariationPackageData
+```
+
+fixes the endpoint mass to `(realMeasure μ) {-1}` and fixes the remainder to
+`endpointRemainder μ`.  Its converters build:
+
+```lean
+TaoVariationComponentPackage
+TaoEndpointNormalizationData
+TaoReducedPotentialData
+NormalizedEndpointPotential
+```
+
+without asking downstream arguments to re-supply the endpoint/remainder
+bookkeeping.  For the unmodified potential there is a constructor
+
+```lean
+CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential
+```
+
+which only keeps the support-containment and endpoint-remainder kernel
+integrability inputs, because the potential decomposition is already proved by
+the canonical endpoint-remainder equality.
+
+At the relaxed-minimizer interface, the same file defines
+
+```lean
+CanonicalComponentPackageFromVariation
+```
+
+and converts it to the existing
+`VariationEndpoint.ComponentPackageFromVariation`.  This keeps the dependency
+direction acyclic: `VariationEndpoint.lean` stays independent of component
+atomization, while `ComponentAtomization.lean` provides the narrower canonical
+provider and the baseline-length consequence built from it.
+
 ## Check command
 
 From the repository root:
