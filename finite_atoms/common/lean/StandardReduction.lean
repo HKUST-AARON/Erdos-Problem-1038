@@ -2508,6 +2508,82 @@ lemma PositiveComponent.interval_subset_positiveSet
     C.interval ⊆ PositiveSet (unitIntervalLogPotential μ) :=
   C.interval_pos
 
+/--
+Maximal-open-interval formulation for the selected positive component.
+
+This is the topological interface needed by the Tao reduction: any open
+interval contained in the positive set and intersecting the selected component
+is already part of the selected component.  It is deliberately a predicate,
+not a new component structure.
+-/
+def PositiveComponent.IntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Prop :=
+  ∀ l r : ℝ, l < r →
+    Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ) →
+    (Ioo l r ∩ C.interval).Nonempty →
+      Ioo l r ⊆ C.interval
+
+/--
+The local component-selection bridge for the endpoint `-1`.
+
+If the selected positive component contains the right baseline `(-1,0)`, the
+endpoint `-1` is positive, and a left neighbourhood of `-1` is positive, then
+maximality of the selected component forces the whole left neighbourhood
+`(-1-ε,-1)` into the same component.  This is the formal open-left-cover step
+needed before feeding the component into the atomized right-region package.
+
+The theorem does not prove endpoint positivity or component maximality; it
+isolates the exact topological step once those analytic inputs are available.
+-/
+theorem PositiveComponent.left_open_cover_of_intervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.IntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_pos : (-1 : ℝ) ∈ PositiveSet (unitIntervalLogPotential μ)) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  intro y hy
+  have hleft_endpoint_lt : -(1 : ℝ) - ε < -1 := by
+    linarith
+  let l : ℝ := ((-(1 : ℝ) - ε) + y) / 2
+  have hl_lower : -(1 : ℝ) - ε < l := by
+    dsimp [l]
+    linarith [hy.1]
+  have hl_y : l < y := by
+    dsimp [l]
+    linarith [hy.1]
+  have hy_mhalf : y < (-(1 : ℝ) / 2) := by
+    linarith [hy.2]
+  have hl_mthreequarter : l < (-(3 : ℝ) / 4) := by
+    have hl_lt_neg_one : l < -1 := by
+      dsimp [l]
+      linarith [hy.2, hleft_endpoint_lt]
+    linarith
+  have hJ_pos :
+      Ioo l (-(1 : ℝ) / 2) ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_pos ⟨lt_trans hl_lower hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_pos
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact C.interval_subset_positiveSet
+          (hbaseline ⟨hq_base_left, hq_base_right⟩)
+  have hJ_inter : (Ioo l (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · exact ⟨hl_mthreequarter, by norm_num⟩
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo l (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax l (-(1 : ℝ) / 2) (by linarith [hl_y, hy_mhalf]) hJ_pos hJ_inter
+  exact hJ_subset ⟨hl_y, hy_mhalf⟩
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
