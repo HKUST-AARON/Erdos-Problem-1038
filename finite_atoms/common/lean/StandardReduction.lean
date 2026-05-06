@@ -7867,6 +7867,21 @@ lemma logKernel_continuousOn_Ici_right {x c : ℝ} (hc : x < c) :
     have hpos : 0 < |x - t| := abs_pos.mpr hxt
     exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
 
+lemma logKernel_continuousOn_away {x : ℝ} {K : Set ℝ}
+    (haway : ∀ t : ℝ, t ∈ K → x ≠ t) :
+    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.div₀
+      ((continuousOn_const.sub continuousOn_id).abs)
+      (fun t ht hzero => by
+        exact (haway t ht) (sub_eq_zero.mp (abs_eq_zero.mp hzero))))
+  · intro t ht hzero
+    have hxt : x - t ≠ 0 := by
+      intro h
+      exact (haway t ht) (sub_eq_zero.mp h)
+    have hpos : 0 < |x - t| := abs_pos.mpr hxt
+    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
+
 theorem finite_barycenter_logKernel_replacement_le_left
     {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w y : ι → ℝ) {x c : ℝ}
@@ -8889,6 +8904,54 @@ theorem realMeasure_endpointRemainder_eq_restrict_endpointCompl_componentCompl_o
       hdirac
   ] with t ht
   exact propext ht
+
+theorem endpointRemainder_logKernel_integrable_of_mem_atomized_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {x : ℝ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ))
+    (hxC : x ∈ C.interval) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  let A : Set ℝ := ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ
+  let S : Set ℝ := A ∩ Icc (-1 : ℝ) 1
+  have hendpoint :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ =
+        (realMeasure μ).restrict A := by
+    simpa [A] using
+      realMeasure_endpointRemainder_eq_restrict_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+        hdirac
+  have hrestrict_unit :
+      (realMeasure μ).restrict A = (realMeasure μ).restrict S := by
+    apply Measure.restrict_congr_set
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht
+    exact propext ⟨fun hA => ⟨hA, ht⟩, fun hS => hS.1⟩
+  have hCopen : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ C.intervalᶜ
+  have hK : IsCompact K := by
+    exact isCompact_Icc.inter_right hCopen.isClosed_compl
+  have hS_meas : MeasurableSet S := by
+    exact ((measurableSet_singleton (-1 : ℝ)).compl.inter
+      C.measurableSet_interval.compl).inter measurableSet_Icc
+  have hS_sub_K : S ⊆ K := by
+    intro t ht
+    exact ⟨ht.2, ht.1.2⟩
+  have haway : ∀ t : ℝ, t ∈ K → x ≠ t := by
+    intro t ht hxt
+    have htC : t ∈ C.interval := by
+      simpa [hxt] using hxC
+    exact ht.2 htC
+  have hcont : ContinuousOn f K :=
+    logKernel_continuousOn_away haway
+  have hint : IntegrableOn f S (realMeasure μ) :=
+    hcont.integrableOn_of_subset_isCompact hK hS_meas hS_sub_K
+      (measure_ne_top (realMeasure μ) _)
+  change Integrable f ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)
+  rw [hendpoint, hrestrict_unit]
+  simpa [IntegrableOn] using hint
 
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
