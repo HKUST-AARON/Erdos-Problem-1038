@@ -152,6 +152,7 @@ potential sign through Jensen's logarithmic inequality:
 endpointRemainder_boundary_distance_of_potential_nonpos
 boundary_average_of_boundary_potential_nonpos
 boundary_average_of_right_endpoint_not_positive
+boundary_average_of_component_right_endpoint_not_positive
 ```
 
 Thus the `boundary_average` field can be obtained from a nonpositive boundary
@@ -160,6 +161,12 @@ hypotheses, and the canonical endpoint-remainder support-order theorem above.
 For a genuine maximal positive component, the latest bridge replaces the
 nonpositive boundary-potential input by the more natural topological statement
 that the right endpoint is not in the positive set.
+
+The component-order version derives the `boundary_average` field from the
+right-endpoint non-positivity statement, the component support-order data, and
+the required distance/log integrability hypotheses.  The remaining upstream
+topological task is to prove the right-endpoint non-positivity statement for
+the selected maximal positive component.
 
 At the relaxed-minimizer interface, the same file defines
 

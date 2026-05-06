@@ -880,6 +880,57 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential
       support_contains_real_support kernel_integrable
 
 /--
+Boundary-average constructor from component-order data and right-endpoint
+topology.
+
+This is the narrow bridge needed by the canonical endpoint package: it derives
+only the algebraic `boundary_average` field, leaving construction of the full
+package to `of_unitIntervalLogPotential`.
+-/
+theorem boundary_average_of_component_right_endpoint_not_positive
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (right_endpoint_not_positive :
+      xPlus ∉ PositiveSet (unitIntervalLogPotential μ))
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+  boundary_average_of_right_endpoint_not_positive μ
+    (le_of_lt right_endpoint_positive)
+    (endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order μ
+      support_contains_real_support support_bounded
+      (by
+        intro y hy
+        have hycomp : y ∈ component := baseline_inside_component hy
+        simpa [component_interval] using hycomp)
+      (by
+        intro t htSupport htComp
+        exact unique_support_in_component t htSupport
+          (by simpa [component_interval] using htComp)))
+    right_endpoint_not_positive hε hdist_lower hdist_int hlog_int
+    hrem_dist_int
+
+/--
 Canonical component-package form of the variation input for relaxed
 minimizers.  This is narrower than
 `VariationEndpoint.ComponentPackageFromVariation`: it requires the upstream
