@@ -642,6 +642,102 @@ theorem boundary_average_of_right_endpoint_not_positive
     hrem_dist_int
   exact le_of_not_gt hnot_positive
 
+/-! ### Automatic integrability bridges for the boundary Jensen step -/
+
+/-- The distance from a fixed point is integrable against the real unit-interval
+probability measure. -/
+private theorem realMeasure_distance_integrable
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    Integrable (fun t : ℝ => |x - t|) (realMeasure μ) := by
+  haveI : IsFiniteMeasure (realMeasure μ) := inferInstance
+  exact integrable_of_ae_mem_compact_of_continuousOn
+    (realMeasure μ) (Icc (-1 : ℝ) 1)
+    (fun t : ℝ => |x - t|)
+    (realMeasure_ae_mem_unitInterval μ)
+    isCompact_Icc
+    ((continuousOn_const.sub continuousOn_id).abs)
+
+/-- The endpoint remainder distance is integrable once the remainder is a.e.
+supported in a compact right-side interval. -/
+private theorem endpointRemainder_distance_integrable_of_ae_mem_Icc
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus : ℝ}
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1) :
+    Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ) := by
+  haveI : IsFiniteMeasure (endpointRemainder μ) := by
+    refine ⟨?_⟩
+    rw [endpointRemainder_mass μ]
+    exact ENNReal.ofReal_lt_top
+  exact integrable_of_ae_mem_compact_of_continuousOn
+    (endpointRemainder μ) (Icc xPlus 1)
+    (fun t : ℝ => |xPlus - t|)
+    hrem_support
+    isCompact_Icc
+    ((continuousOn_const.sub continuousOn_id).abs)
+
+/-- `log |x - t|` is continuous on any set separated from `x`. -/
+private lemma logAbsKernel_continuousOn_of_dist_ge
+    {x ε : ℝ} {K : Set ℝ} (hε : 0 < ε)
+    (hK : K ⊆ {t : ℝ | ε ≤ |x - t|}) :
+    ContinuousOn (fun t : ℝ => Real.log |x - t|) K := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.sub continuousOn_id).abs
+  · intro t ht
+    have hdist : ε ≤ |x - t| := hK ht
+    exact ne_of_gt (lt_of_lt_of_le hε hdist)
+
+/--
+If a fixed point is a.e. separated from the real unit-interval measure, then
+the boundary logarithmic kernel is integrable.
+-/
+private theorem realMeasure_logAbs_integrable_of_dist_ge
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |x - t|) :
+    Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ) := by
+  haveI : IsFiniteMeasure (realMeasure μ) := inferInstance
+  let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ {t : ℝ | ε ≤ |x - t|}
+  have hmemK : ∀ᵐ t : ℝ ∂realMeasure μ, t ∈ K := by
+    filter_upwards [realMeasure_ae_mem_unitInterval μ, hdist_lower] with t htI hdist
+    exact ⟨htI, hdist⟩
+  have hclosed_sep : IsClosed ({t : ℝ | ε ≤ |x - t|} : Set ℝ) := by
+    exact isClosed_Ici.preimage ((continuous_const.sub continuous_id).abs)
+  have hcompact : IsCompact K := isCompact_Icc.inter_right hclosed_sep
+  have hcont :
+      ContinuousOn (fun t : ℝ => Real.log |x - t|) K := by
+    exact logAbsKernel_continuousOn_of_dist_ge hε (by
+      intro t ht
+      exact ht.2)
+  exact integrable_of_ae_mem_compact_of_continuousOn
+    (realMeasure μ) K (fun t : ℝ => Real.log |x - t|)
+    hmemK hcompact hcont
+
+/-! ### Boundary-average constructors with automatic integrability -/
+
+/--
+Boundary-average constructor from nonpositive boundary potential, deriving all
+distance/log integrability inputs from the standard compact support and the
+separation hypothesis.
+-/
+theorem boundary_average_of_boundary_potential_nonpos_auto_integrable
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus ε : ℝ}
+    (hxPlus_nonneg : 0 ≤ xPlus)
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1)
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  exact boundary_average_of_boundary_potential_nonpos μ hxPlus_nonneg
+    hrem_support hpotential_nonpos hε hdist_lower
+    (realMeasure_distance_integrable μ xPlus)
+    (realMeasure_logAbs_integrable_of_dist_ge μ hε hdist_lower)
+    (endpointRemainder_distance_integrable_of_ae_mem_Icc μ hrem_support)
+
 /--
 On the baseline punctured interval, the log kernel is integrable against the
 canonical endpoint remainder once the normalized support shape
@@ -1107,6 +1203,118 @@ theorem boundary_average_of_component_right_cover
       hcover)
     support_contains_real_support hε hdist_lower hdist_int hlog_int
     hrem_dist_int
+
+/--
+Right-cover component bridge with the standard distance/log integrability
+obligations discharged automatically.
+-/
+theorem boundary_average_of_component_right_cover_auto_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
+    (hcover :
+      ∀ y : ℝ, xMinus < y →
+        y ∈ PositiveSet (unitIntervalLogPotential μ) →
+          y ∈ Ioo xMinus xPlus)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  exact boundary_average_of_component_right_cover μ component Support
+    xMinus xPlus ε component_interval baseline_inside_component support_bounded
+    unique_support_in_component right_endpoint_positive hcont hcover
+    support_contains_real_support hε hdist_lower
+    (realMeasure_distance_integrable μ xPlus)
+    (realMeasure_logAbs_integrable_of_dist_ge μ hε hdist_lower)
+    (endpointRemainder_distance_integrable_of_ae_mem_Icc μ
+      (endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order μ
+        support_contains_real_support support_bounded
+        (by
+          intro y hy
+          have hycomp : y ∈ component := baseline_inside_component hy
+          simpa [component_interval] using hycomp)
+        (by
+          intro t htSupport htComp
+          exact unique_support_in_component t htSupport
+            (by simpa [component_interval] using htComp))))
+
+/--
+Canonical unit-potential package from the right-cover maximal-component
+interface.
+
+This is the first endpoint-package constructor on the actual main path that
+does not ask callers to separately provide the boundary-average integrability
+bookkeeping.  The remaining analytic hypotheses are the genuine ones:
+continuity at the right endpoint, maximal-component right coverage, and
+a positive a.e. separation from the boundary point.
+-/
+def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (component_positive :
+      component ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
+    (hcover :
+      ∀ y : ℝ, xMinus < y →
+        y ∈ PositiveSet (unitIntervalLogPotential μ) →
+          y ∈ Ioo xMinus xPlus)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) := by
+  have hboundary :
+      1 ≤
+        (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+          (1 - xPlus) *
+            (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+    boundary_average_of_component_right_cover_auto_integrable μ
+      component Support xMinus xPlus ε component_interval
+      baseline_inside_component support_bounded unique_support_in_component
+      right_endpoint_positive hcont hcover support_contains_real_support
+      hε hdist_lower
+  have hsupport_norm :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+    refine support_subset_endpoint_union_nonnegative
+      (xMinus := xMinus) (xPlus := xPlus)
+      (fun t ht => support_bounded (support_contains_real_support ht)) ?_ ?_
+    · intro y hy
+      have hycomp : y ∈ component := baseline_inside_component hy
+      simpa [component_interval] using hycomp
+    · intro t htSupport htComp
+      exact unique_support_in_component t (support_contains_real_support htSupport)
+        (by simpa [component_interval] using htComp)
+  exact CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential μ
+    mean_choice reflected translation component Support xMinus xPlus
+    component_positive component_interval baseline_inside_component
+    support_bounded unique_support_in_component right_endpoint_positive
+    hboundary support_contains_real_support
+    (endpointRemainder_kernel_integrable_of_normalized_support μ hsupport_norm)
 
 /--
 Canonical component-package form of the variation input for relaxed

@@ -187,6 +187,24 @@ and absence of positive points strictly to the right.  The `right_cover`
 variant replaces the latter with a maximal-component coverage statement:
 every positive point to the right of `xMinus` lies in `(xMinus,xPlus)`.
 
+The boundary Jensen step now also discharges the routine integrability
+obligations from compact support and endpoint separation:
+
+```lean
+boundary_average_of_boundary_potential_nonpos_auto_integrable
+boundary_average_of_component_right_cover_auto_integrable
+CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover
+```
+
+The public constructor
+`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover`
+is the intended entry point.  It no longer asks callers to separately provide
+integrability of `|xPlus - t|`, `Real.log |xPlus - t|`, the endpoint-remainder
+distance integral, the boundary-average inequality, or the baseline kernel
+integrability.  The remaining analytic inputs are the genuine ones:
+`∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|`, local continuity at the endpoint, and
+maximal-component coverage.
+
 At the relaxed-minimizer interface, the same file defines
 
 ```lean
