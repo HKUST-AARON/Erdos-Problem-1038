@@ -11251,6 +11251,92 @@ theorem queue.
     previously recorded fixed-row \(C\)-matrix is the off-cut subblock; the
     atomic point rows are supplied by the regularized limit above.
 
+    Point-row blow-up audit.
+
+    The regularized point rows have a decisive asymptotic.  If \(x\) stays in
+    the positive-distance interior of \(Z_0\cap J\), then the symmetric row
+    \(k_{x,\varepsilon}\) has Riesz norm
+
+    \[
+    \boxed{
+    \mathcal E_{\log}(g_{x,\varepsilon},g_{x,\varepsilon})
+    =
+    \log\frac1\varepsilon+O(1),
+    \qquad \varepsilon\downarrow0,
+    }
+    \tag{G1PointSelfBlowup}
+    \]
+
+    with the sign fixed by the positive zero-mass logarithmic energy.  The
+    reason is local: near \(x\), the two-cut density and the branch \(R\) are
+    smooth nonzero after flattening the cut, and the symmetric off-cut
+    logarithmic source has the same \(H^{1/2}\)-trace singularity as the
+    Poisson kernel in a half-plane.  The zero-mass and period-normalizing
+    corrections are smooth in a neighbourhood of \(x\), so they only change
+    the \(O(1)\) term.
+
+    For distinct support points separated from each other and from endpoints,
+    the cross terms remain finite:
+
+    \[
+    \mathcal E_{\log}(g_{x_i,\varepsilon},g_{x_j,\varepsilon})=O(1)
+    \quad (i\ne j).
+    \tag{G1PointCrossFinite}
+    \]
+
+    Consequently, if the atomic certificate contains at least one genuine
+    \(Z_0\)-atom, then
+
+    \[
+    \boxed{
+    \mathcal E_{\log}
+    \left(
+    \sum_k w_kg_{x_k,\varepsilon},
+    \sum_k w_kg_{x_k,\varepsilon}
+    \right)
+    =
+    \left(\sum_{\chi}W_\chi^2\right)\log\frac1\varepsilon+O(1),
+    }
+    \tag{G1PointClusterBlowup}
+    \]
+
+    where the sum is over clusters of support points that remain mutually
+    \(o(1)\)-close and \(W_\chi\) is the total positive weight in the cluster.
+    Since \(w_k>0\), every nonempty cluster has \(W_\chi>0\).  Thus the
+    divergent coefficient is strictly positive unless the \(Z_0\)-atomic part
+    is absent.
+
+    This proves a necessary correction to the second-variation route:
+
+    \[
+    \boxed{
+    \text{A certificate with a nonzero }Z_0\text{-atomic part cannot be
+    excluded by a finite negative }Q_{\rm eff}\text{ lift.}
+    }
+    \tag{G1PointAtomNoQeff}
+    \]
+
+    The point-row load diverges with the positive sign, whereas
+    \(B_{\rm at}\) is finite.  Therefore the \(Q_{\rm eff}\) continuation can
+    only close the no-\(Z_0\)-atom subcase, or it must be preceded by a
+    separate no-atom theorem for the reduced Farkas certificate.
+
+    The Gate 1 dichotomy is now exact:
+
+    \[
+    \boxed{
+    \begin{array}{ll}
+    \zeta=0: & \text{prove the finite off-cut Schur test
+    (G1FinalSchurTest);}\\[0.3em]
+    \zeta\ne0: & \text{prove a no-}Z_0\text{-atom theorem or return to the
+    first-order raw sign problem.}
+    \end{array}}
+    \tag{G1PointDichotomy}
+    \]
+
+    This is not a new route.  It is the compatibility condition forced by the
+    actual Hilbert topology of the \(Z_0\)-restriction row.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

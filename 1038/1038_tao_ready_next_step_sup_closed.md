@@ -4022,6 +4022,35 @@ for every normalized non-boundary atomic certificate.  The fixed \(C\)-matrix
 above is the off-cut subblock; the point rows enter through this regularized
 limit.
 
+The point-row limit has a positive blow-up.  For \(x\) in the interior of
+\(Z_0\cap J\),
+
+\[
+\mathcal E_{\log}(g_{x,\varepsilon},g_{x,\varepsilon})
+=
+\log\frac1\varepsilon+O(1),
+\]
+
+while separated cross terms are \(O(1)\).  Hence for positive atomic weights,
+
+\[
+\mathcal E_{\log}\left(\sum_k w_kg_{x_k,\varepsilon},
+\sum_k w_kg_{x_k,\varepsilon}\right)
+=
+\left(\sum_\chi W_\chi^2\right)\log\frac1\varepsilon+O(1),
+\]
+
+with \(W_\chi>0\) for every nonempty cluster.  Thus a certificate with a
+nonzero \(Z_0\)-atomic part cannot be excluded by a finite negative
+\(Q_{\rm eff}\) lift: the point-row Riesz load diverges with positive sign,
+while \(B_{\rm at}\) remains finite.  Gate 1 therefore splits into:
+
+\[
+\zeta=0:\ \text{finite off-cut Schur test};
+\qquad
+\zeta\ne0:\ \text{prove a no-}Z_0\text{-atom theorem or return to raw sign}.
+\]
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
