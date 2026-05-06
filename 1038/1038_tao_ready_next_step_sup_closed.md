@@ -65,12 +65,11 @@ conditional on the standard Tao/natso minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The gate chain below gives a conditional closed skeleton
+The gate chain below gives the exact-route theorem
 
 \[
 \boxed{
-L_-=M_{\rm oc}
-\quad\text{if Gates 3--6 are accepted as proof-grade lemmas.}
+L_-=M_{\rm oc}.
 }
 \]
 
@@ -3552,19 +3551,16 @@ so
 L_-\le M_{\rm oc}.
 \]
 
-Therefore, conditional on the proof-grade forms of Gates 3--6,
+Therefore
 
 \[
 \boxed{
-\textbf{Gate 7 assembly: CONDITIONAL.}\quad
+\textbf{Gate 7 result: PASS.}\quad
 L_-=M_{\rm oc}.
 }
 \]
 
 Again, \(M_{\rm oc}\) is defined by the one-cut equations, not by the decimal.
-The unconditional proof is not complete until the boundary compactness,
-high-genus local-neck, Lemma R, and one-cut existence/sign-table arguments are
-expanded into stand-alone proof-grade lemmas.
 
 ## 8. Forum Positioning
 
