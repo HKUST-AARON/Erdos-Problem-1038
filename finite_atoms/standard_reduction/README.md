@@ -233,9 +233,20 @@ and converts it to the existing
 `VariationEndpoint.ComponentPackageFromVariation`.  This keeps the dependency
 direction acyclic: `VariationEndpoint.lean` stays independent of component
 atomization, while `ComponentAtomization.lean` provides the narrower canonical
-provider and the baseline-length consequence built from it.  The diagonal-safe
-path continues to use `OneSidedCompactCore`; it does not go through the older
-compact tail-mass stability interface.
+provider.  It now also gives the normalized endpoint-potential interface,
+baseline inclusion, and baseline-length consequence directly from the canonical
+provider:
+
+```lean
+normalizedEndpointPotential_from_canonical_componentPackage
+baseline_subset_positive_from_canonical_componentPackage
+baseline_length_from_canonical_componentPackage
+exists_relaxed_minimizer_with_normalizedEndpointPotential_from_canonical
+exists_baseline_length_from_canonical_componentPackage
+```
+
+The diagonal-safe path continues to use `OneSidedCompactCore`; it does not go
+through the older compact tail-mass stability interface.
 
 ## Check command
 

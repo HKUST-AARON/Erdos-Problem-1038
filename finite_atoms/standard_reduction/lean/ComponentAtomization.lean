@@ -1568,6 +1568,40 @@ def CanonicalComponentPackageFromVariation.toComponentPackageFromVariation
     (H.canonicalPackage M).toTaoVariationComponentPackage
 
 /--
+Canonical component-package variation data directly gives the normalized
+endpoint-potential interface for each relaxed minimizer.
+-/
+def normalizedEndpointPotential_from_canonical_componentPackage
+    (H : CanonicalComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    NormalizedEndpointPotential (VariationEndpoint.RelaxedPotential M) :=
+  (H.canonicalPackage M).toTaoReducedPotentialData
+    |>.toNormalizedEndpointPotential
+
+/--
+Canonical component-package variation data gives the baseline positive-set
+inclusion for each relaxed minimizer.
+-/
+theorem baseline_subset_positive_from_canonical_componentPackage
+    (H : CanonicalComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    BaselinePunctured ⊆ PositiveSet (VariationEndpoint.RelaxedPotential M) :=
+  (H.canonicalPackage M).toTaoReducedPotentialData
+    |>.baseline_subset_positive
+
+/--
+Canonical component-package variation data gives the baseline positive-set
+length lower bound for each relaxed minimizer.
+-/
+theorem baseline_length_from_canonical_componentPackage
+    (H : CanonicalComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    ENNReal.ofReal (Real.sqrt 2) ≤
+      volume (PositiveSet (VariationEndpoint.RelaxedPotential M)) :=
+  (H.canonicalPackage M).toTaoReducedPotentialData
+    |>.baseline_length_le_positiveSet
+
+/--
 Diagonal-safe minimizer plus canonical component package.
 -/
 theorem exists_relaxed_minimizer_with_canonical_component_package
@@ -1581,6 +1615,19 @@ theorem exists_relaxed_minimizer_with_canonical_component_package
   exact ⟨⟨M, Hvar.canonicalPackage M⟩⟩
 
 /--
+Diagonal-safe minimizer plus the normalized endpoint-potential interface,
+using the canonical component-package provider directly.
+-/
+theorem exists_relaxed_minimizer_with_normalizedEndpointPotential_from_canonical
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : CanonicalComponentPackageFromVariation) :
+    Nonempty (Σ M : MinimizerExistence.RelaxedMinimizer,
+      NormalizedEndpointPotential (VariationEndpoint.RelaxedPotential M)) := by
+  rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+      Hcore with ⟨M⟩
+  exact ⟨⟨M, normalizedEndpointPotential_from_canonical_componentPackage Hvar M⟩⟩
+
+/--
 Canonical variation packages imply the baseline interval length consequence.
 -/
 theorem exists_baseline_length_from_canonical_componentPackage
@@ -1589,8 +1636,10 @@ theorem exists_baseline_length_from_canonical_componentPackage
     ∃ M : MinimizerExistence.RelaxedMinimizer,
       ENNReal.ofReal (Real.sqrt 2) ≤
         volume (PositiveSet (VariationEndpoint.RelaxedPotential M)) :=
-  VariationEndpoint.exists_baseline_length_from_componentPackage_of_oneSidedCompactCore
-    Hcore Hvar.toComponentPackageFromVariation
+  by
+    rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+        Hcore with ⟨M⟩
+    exact ⟨M, baseline_length_from_canonical_componentPackage Hvar M⟩
 
 /--
 A component whose barycenter replacement is known not to increase objective by
