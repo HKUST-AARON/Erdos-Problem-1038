@@ -2764,6 +2764,71 @@ raw normalization vectors \(n_\gamma\), and the basis rows
 \(E(B_m),b(B_m),f_{B_m}\).  This is the computable finite-dimensional form of
 the endpoint Schiffer table.
 
+In the free-period fixed-\(Q\) chart this becomes explicit.  Assume
+
+\[
+Q(z)=\prod_{k=1}^d(z-p_k),
+\qquad
+p_k\notin J\cup\{u,c,v\},\qquad Q'(p_k)\ne0.
+\]
+
+The only normalization rows are pole-cancellation rows
+
+\[
+\mathcal N_{k,0}(H)=H(p_k),\qquad
+\mathcal N_{k,1}(H)=H'(p_k).
+\]
+
+Let
+
+\[
+L_k(z)=\prod_{\ell\ne k}\frac{z-p_\ell}{p_k-p_\ell}.
+\]
+
+Use the Hermite basis
+
+\[
+B_{k,0}(z)=\bigl(1-2L_k'(p_k)(z-p_k)\bigr)L_k(z)^2,
+\qquad
+B_{k,1}(z)=(z-p_k)L_k(z)^2.
+\]
+
+Then the normalization matrix is the identity:
+
+\[
+B_{k,0}(p_\ell)=\delta_{k\ell},\quad B'_{k,0}(p_\ell)=0,\qquad
+B_{k,1}(p_\ell)=0,\quad B'_{k,1}(p_\ell)=\delta_{k\ell}.
+\]
+
+For
+
+\[
+H_\gamma^{raw}=-\frac12PQD_\gamma,
+\]
+
+\[
+H_\gamma^{raw}(p_k)=0,\qquad
+(H_\gamma^{raw})'(p_k)
+=-\frac12P(p_k)Q'(p_k)D_\gamma(p_k).
+\]
+
+Thus
+
+\[
+\boxed{
+H_\gamma(z)
+=
+-\frac12P(z)Q(z)D_\gamma(z)
++
+\frac12\sum_{k=1}^d
+P(p_k)Q'(p_k)D_\gamma(p_k)B_{k,1}(z).
+}
+\]
+
+This \(H_\gamma\) satisfies \(H_\gamma(p_k)=H_\gamma'(p_k)=0\), so
+\(H_\gamma/(Q^2R)\) has no off-cut pole at the fixed \(Q\)-zeros.  If \(d=0\),
+the correction sum is empty.
+
 What remains is the actual algebraic computation of these entries and the
 positive-circuit sign proof.
 

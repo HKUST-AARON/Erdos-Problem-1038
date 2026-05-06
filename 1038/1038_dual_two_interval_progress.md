@@ -8246,6 +8246,120 @@ theorem queue.
     the raw rows.  This is the reduced Schiffer seed table in computable
     finite-dimensional form.  No density-closure or PV step is used.
 
+    In the free-period fixed-\(Q\) chart this matrix has a concrete Hermite
+    form.  Assume the regular non-pinched case in which
+
+    \[
+    Q(z)=\prod_{k=1}^d(z-p_k),
+    \qquad p_k\notin J\cup\{u,c,v\},
+    \qquad Q'(p_k)\ne0.
+    \]
+
+    Pole collisions or multiple \(Q\)-zeros are boundary cases and are routed
+    to the pinching/lower-genus part of the proof.  The normalization rows are
+    only the off-cut pole-cancellation rows
+
+    \[
+    \mathcal N_{k,0}(H)=H(p_k),\qquad
+    \mathcal N_{k,1}(H)=H'(p_k),
+    \qquad k=1,\ldots,d.
+    \tag{FixedQN}
+    \]
+
+    There is no period row in this free-period chart, and \(R_0,R_c\) are not
+    included because they are corrected by \(\psi_1,\psi_2\).  The forbidden
+    Laurent terms at infinity are absent if the correction numerators are
+    chosen in \(\mathbb R[z]_{\le 2d-1}\): then
+    \(H/(Q^2R)=O(z^{-3})\) for \(g=2\), hence certainly has Cauchy-transform
+    decay.
+
+    Let \(L_k(z)\) be the Lagrange polynomials for \(p_1,\ldots,p_d\):
+
+    \[
+    L_k(z)=\prod_{\ell\ne k}\frac{z-p_\ell}{p_k-p_\ell}.
+    \]
+
+    The Hermite basis of \(\mathbb R[z]_{\le 2d-1}\) is
+
+    \[
+    B_{k,0}(z)=\bigl(1-2L_k'(p_k)(z-p_k)\bigr)L_k(z)^2,
+    \]
+
+    \[
+    B_{k,1}(z)=(z-p_k)L_k(z)^2.
+    \]
+
+    It satisfies
+
+    \[
+    B_{k,0}(p_\ell)=\delta_{k\ell},\qquad
+    B'_{k,0}(p_\ell)=0,
+    \]
+
+    \[
+    B_{k,1}(p_\ell)=0,\qquad
+    B'_{k,1}(p_\ell)=\delta_{k\ell}.
+    \]
+
+    Hence the normalization matrix for the ordered rows
+    \((\mathcal N_{1,0},\mathcal N_{1,1},\ldots,\mathcal N_{d,0},\mathcal N_{d,1})\)
+    and ordered basis
+    \((B_{1,0},B_{1,1},\ldots,B_{d,0},B_{d,1})\) is the identity.
+
+    For
+
+    \[
+    H_\gamma^{\rm raw}=-\frac12P QD_\gamma,
+    \]
+
+    one has
+
+    \[
+    H_\gamma^{\rm raw}(p_k)=0,
+    \]
+
+    and
+
+    \[
+    (H_\gamma^{\rm raw})'(p_k)
+    =
+    -\frac12P(p_k)Q'(p_k)D_\gamma(p_k).
+    \]
+
+    Therefore in this concrete chart
+
+    \[
+    \boxed{
+    H_\gamma^{\rm corr}(z)
+    =
+    -\frac12
+    \sum_{k=1}^d
+    P(p_k)Q'(p_k)D_\gamma(p_k)\,B_{k,1}(z),
+    }
+    \tag{FixedQCorr}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    H_\gamma(z)
+    =
+    -\frac12P(z)Q(z)D_\gamma(z)
+    +
+    \frac12
+    \sum_{k=1}^d
+    P(p_k)Q'(p_k)D_\gamma(p_k)\,B_{k,1}(z).
+    }
+    \tag{FixedQEndpointSeed}
+    \]
+
+    By construction \(H_\gamma(p_k)=H_\gamma'(p_k)=0\) for every \(k\), so
+    \(C_\gamma=H_\gamma/(Q^2R)\) has no off-cut pole at any \(p_k\).  This is
+    the explicit normalized endpoint seed used in the fixed-\(Q\) free-period
+    rank-defect table.  If \(d=0\), the correction sum is empty and
+    \(H_\gamma=-\frac12PQD_\gamma\).
+
     The remaining, still unproved, part is not definitional: one must compute
     these entries and prove the positive-circuit inequalities (C4),(C5).
 
