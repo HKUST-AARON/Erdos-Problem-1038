@@ -272,6 +272,17 @@ support is fixed to `(realMeasure μ).support`, so the caller only proves the
 boundedness of the actual topological support rather than two opposite support
 containments.
 
+The constructors
+
+```lean
+CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
+```
+
+remove the direct component-block atomization input when the caller has
+the countable-support-hit normalized rigidity package.  It uses
+`CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac`
+internally.
+
 ## Check command
 
 From the repository root:

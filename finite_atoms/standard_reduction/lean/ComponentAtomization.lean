@@ -2081,6 +2081,47 @@ theorem FiniteSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac
     D.replacement.component D.replacement.componentMass_pos
     D.normalized_block_eq_dirac
 
+/-! ### Atomized right-region constructors from rigidity data -/
+
+/--
+Build atomized right-region data from countable-support-hit normalized
+rigidity.  This discharges the `component_block_atomized` field through the
+existing secondary-minimizer rigidity theorem.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α}
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CountableSupportHitNormalizedBlockRigidityData P a b M.μ)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (right_region_eq :
+      D.replacement.component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩
+          Ioi D.replacement.component.left)
+    (baseline_inside_component :
+      Ioo (-1 : ℝ) 0 ⊆ D.replacement.component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (barycenter_eq_endpoint :
+      componentBarycenter D.replacement.component = -1)
+    (right_endpoint_positive : 0 < D.replacement.component.right)
+    (right_endpoint_not_mem_support :
+      D.replacement.component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M where
+  mean_choice := mean_choice
+  reflected := reflected
+  translation := translation
+  component := D.replacement.component
+  right_region_eq := right_region_eq
+  baseline_inside_component := baseline_inside_component
+  real_support_bounded := real_support_bounded
+  component_block_atomized := D.componentBlock_eq_dirac
+  barycenter_eq_endpoint := barycenter_eq_endpoint
+  right_endpoint_positive := right_endpoint_positive
+  right_endpoint_not_mem_support := right_endpoint_not_mem_support
+
 end
 end ComponentAtomization
 end StandardReduction
