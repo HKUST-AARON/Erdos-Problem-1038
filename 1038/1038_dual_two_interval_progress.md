@@ -9124,6 +9124,179 @@ theorem queue.
     and its determinants are signed, (RAS) is not a consequence of the existing
     hypotheses.
 
+    Explicit moving Schiffer chart for Gate 1.
+
+    The fixed-\(Q\) Hermite endpoint table above is no longer a proof-grade
+    table; it is only the failed audit that shows why endpoint columns
+    collapse if the numerator and pole-state variables are frozen.  The
+    proof-grade endpoint column is the moving-chart column
+
+    \[
+    H_\gamma^{\rm rep}
+    =
+    QD\,\Delta_\gamma P
+    -PD\,\Delta_\gamma Q
+    -\frac12PQD_\gamma.
+    \]
+
+    Choose real bases \(E_1,\ldots,E_m\) for the allowed
+    \(\Delta P\)-space and \(F_1,\ldots,F_n\) for the allowed
+    \(\Delta Q\)-space.  Write
+
+    \[
+    \Delta_\gamma P=\sum_{i=1}^m x_{\gamma,i}E_i,
+    \qquad
+    \Delta_\gamma Q=\sum_{j=1}^n y_{\gamma,j}F_j,
+    \qquad
+    X_\gamma=(x_{\gamma,1},\ldots,x_{\gamma,m},
+    y_{\gamma,1},\ldots,y_{\gamma,n})^T.
+    \]
+
+    Let \(B\) be the linear map from coefficients \(X\) to the numerator
+
+    \[
+    B X
+    =
+    QD\,\Delta P_X-PD\,\Delta Q_X.
+    \]
+
+    Let \(\ell_1,\ldots,\ell_{m+n}\) be the independent moving-chart rows:
+    zero mass, the selected free-period/filling convention, the moving-\(Q\)
+    gauge, pole/residue-state rows, and the regular chart rows.  The branch row
+    \(R_c\) is not included, because it is corrected by the boundary-neutral
+    bump pair.  Put
+
+    \[
+    A_{ri}:=\ell_r(B e_i),
+    \qquad
+    (r_\gamma)_r:=\ell_r\!\left(-\frac12PQD_\gamma\right).
+    \]
+
+    The endpoint correction is therefore the explicit finite system
+
+    \[
+    \boxed{
+    AX_\gamma=-r_\gamma.
+    }
+    \tag{Gate1MatrixSchiffer}
+    \]
+
+    If \(A\) is singular, the point is not a regular moving Schiffer chart
+    point.  It is a chart-rank / pole-state degeneration and must be routed to
+    pinching, boundary, or lower genus.  In the regular non-pinched interior
+    case \(A\) is invertible and
+
+    \[
+    \boxed{
+    H_\gamma^{\rm rep}
+    =
+    -\frac12PQD_\gamma
+    -B A^{-1}r_\gamma.
+    }
+    \tag{Gate1RepColumn}
+    \]
+
+    This is the first point where the previous abstraction is removed: every
+    repaired endpoint column is now a Schur-complement column built from
+    explicit rows \(\ell_r\), not an unspecified \(\mathcal L_{\rm Sch}\).
+
+    Block determinant identity.
+
+    Let \(L_1,\ldots,L_q\) be any evaluation/differentiated Cauchy rows used in
+    a raw augmented determinant: rows at moving points \(x_i\), the endpoint
+    boundary row \(b\), and the equality row \(\rho_j=-C_j^{\rm rep}(c)\).
+    Applying \(L_s\) to (Gate1RepColumn) gives
+
+    \[
+    L_s(H_\gamma^{\rm rep})
+    =
+    L_s\!\left(-\frac12PQD_\gamma\right)
+    -
+    L_sB\,A^{-1}r_\gamma.
+    \]
+
+    Hence every determinant whose endpoint columns are
+    \(H_\gamma^{\rm rep}\) is a Schur complement.  In matrix form,
+
+    \[
+    \boxed{
+    \det L(H_{\Gamma}^{\rm rep})
+    =
+    \frac{
+    \det
+    \begin{pmatrix}
+    A & r_\Gamma\\
+    LB & L(H_\Gamma^{\rm raw})
+    \end{pmatrix}}
+    {\det A},
+    }
+    \tag{Gate1BlockDet}
+    \]
+
+    up to the fixed sign determined by the chosen column order.  Here
+    \(H_\Gamma^{\rm raw}=(-\frac12PQD_{\alpha_1},-\frac12PQD_{\beta_1},
+    -\frac12PQD_{\alpha_2},-\frac12PQD_{\beta_2})\).  The period lift
+    contributes the extra column \(\kappa Q^2\), and the equality row is the
+    evaluation row \(H\mapsto -H(c)/(Q(c)^2R(c))\).  Thus any Gate 1 sign proof
+    must sign the block determinant (Gate1BlockDet), not merely the endpoint
+    rank matrix.
+
+    Attempted AugmentedSchifferChebyshevLemma.
+
+    Differentiating a nondegenerate raw augmented circuit determinant in a
+    moving point uses
+
+    \[
+    V_j'(x)=-C_j(x).
+    \]
+
+    Multiplication of the differentiated row by \(Q(x)^2R(x)\) changes the
+    endpoint entries into
+
+    \[
+    -H_{\alpha_1}^{\rm rep}(x),\quad
+    -H_{\beta_1}^{\rm rep}(x),\quad
+    -H_{\alpha_2}^{\rm rep}(x),\quad
+    -H_{\beta_2}^{\rm rep}(x),
+    \]
+
+    while the period lift becomes \(-\kappa Q(x)^2\).  Substituting
+    (Gate1BlockDet) would reduce the desired sign to a confluent Cauchy
+    determinant involving the moving rows \(x_i\), the normalization rows
+    \(\ell_r\), the branch endpoint rows, and the real pole/residue rows.
+
+    This is where the present proof still fails.  The current documents do not
+    prove the two inputs needed to orient that block determinant:
+
+    1. finite-gap positivity has not yet been upgraded to a theorem that all
+       \(Q\)-poles appearing in this regular \(g=2\) chart are real,
+       separated, and interlaced with the cuts and zeros in the order required
+       by the confluent Cauchy determinant;
+    2. the confluent Cauchy orientation for the full block
+       \((A,r_\Gamma;LB,LH_\Gamma^{\rm raw})\), including double pole-state
+       rows and the equality row at \(c\), has not been proved.
+
+    The six-kernel Chebyshev lemma does not supply either input.  It signs a
+    local jet kernel family; it does not sign the repaired moving-Schiffer
+    Schur complement.  Therefore `AugmentedSchifferChebyshevLemma` is not
+    proved in the current document.  The precise missing theorem is:
+
+    \[
+    \boxed{
+    \begin{gathered}
+    \text{Real-interlacing of the }Q\text{-poles}\\
+    +\ \text{confluent Cauchy sign of }(Gate1BlockDet)\\
+    \Longrightarrow
+    \text{RawAugmentedCircuitSign.}
+    \end{gathered}}
+    \tag{Gate1MissingSign}
+    \]
+
+    Since those two sign inputs are not yet established, Gate 1 remains
+    blocked at the raw augmented determinant sign.  This is not a failure of
+    the \(A_c\)-elimination, not a failure of the period column, and not a
+    failure of the rank subcheck.
+
     Therefore the current honest conclusion is:
 
     \[

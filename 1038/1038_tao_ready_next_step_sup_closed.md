@@ -3204,6 +3204,56 @@ together with the equality row \(\rho_j=-C_j^{\rm rep}(c)\).  The current note
 still defines the repaired columns through the abstract moving-chart system, so
 that determinant identity has not yet been established.
 
+The explicit Gate 1 repair attempt is now:
+
+\[
+H_\gamma^{\rm rep}
+=-\frac12PQD_\gamma-BA^{-1}r_\gamma,
+\]
+
+where \(A X_\gamma=-r_\gamma\) is the finite moving-chart system for
+\((\Delta_\gamma P,\Delta_\gamma Q)\).  The rows of \(A\) are the zero-mass
+row, the free-period/filling convention, the moving-\(Q\) gauge,
+pole/residue-state rows, and regular chart rows; \(R_c\) is excluded because
+it is corrected by the bump pair.  If \(A\) is singular, the point is routed to
+boundary/lower genus.
+
+For any raw augmented determinant, the repaired endpoint columns satisfy the
+Schur-complement identity
+
+\[
+\det L(H_\Gamma^{\rm rep})
+=
+\frac{
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}}
+{\det A},
+\]
+
+up to the fixed column-order sign.  After differentiating in a moving point
+and multiplying by \(Q(x)^2R(x)\), the endpoint rows are
+\(-H_\gamma^{\rm rep}(x)\) and the period lift is \(-\kappa Q(x)^2\).
+
+The remaining missing sign theorem is therefore not abstract anymore.  One
+must prove:
+
+\[
+\boxed{
+\text{real interlacing of the }Q\text{-poles}
++\text{ confluent Cauchy sign of the Schur block}
+\Rightarrow
+\text{RawAugmentedCircuitSign}.
+}
+\]
+
+The current text does not yet prove either real \(Q\)-pole interlacing in this
+regular \(g=2\) chart or the confluent Cauchy orientation for the full block
+including double pole-state rows and the equality row at \(c\).  Thus Gate 1
+remains blocked at this exact determinant sign input.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
