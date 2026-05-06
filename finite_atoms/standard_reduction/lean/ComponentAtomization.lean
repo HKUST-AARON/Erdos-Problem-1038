@@ -352,6 +352,22 @@ theorem CountableSupportHitNormalizedBlockRigidityData.normalized_block_eq_dirac
   simpa [block] using hdirac
 
 /--
+Countable-support-hit normalized rigidity gives the actual component-block
+atomization statement.
+-/
+theorem CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α} {μ : ProbabilityMeasure UnitInterval1038}
+    (D : CountableSupportHitNormalizedBlockRigidityData P a b μ) :
+    componentBlock D.replacement.component =
+      componentMass D.replacement.component •
+        Measure.dirac (componentBarycenter D.replacement.component) := by
+  exact componentBlock_eq_componentMass_smul_dirac_of_normalized_block_eq_dirac
+    D.replacement.component D.replacement.componentMass_pos
+    D.normalized_block_eq_dirac
+
+/--
 Finite-carrier variant of normalized component-block rigidity.
 -/
 structure FiniteSupportHitNormalizedBlockRigidityData
@@ -407,6 +423,22 @@ theorem FiniteSupportHitNormalizedBlockRigidityData.normalized_block_eq_dirac
         intro h
         exact D.secondary_eq_to_second_moment_eq h)
   simpa [block] using hdirac
+
+/--
+Finite-support-hit normalized rigidity gives the actual component-block
+atomization statement.
+-/
+theorem FiniteSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α} {μ : ProbabilityMeasure UnitInterval1038}
+    (D : FiniteSupportHitNormalizedBlockRigidityData P a b μ) :
+    componentBlock D.replacement.component =
+      componentMass D.replacement.component •
+        Measure.dirac (componentBarycenter D.replacement.component) := by
+  exact componentBlock_eq_componentMass_smul_dirac_of_normalized_block_eq_dirac
+    D.replacement.component D.replacement.componentMass_pos
+    D.normalized_block_eq_dirac
 
 end
 end ComponentAtomization

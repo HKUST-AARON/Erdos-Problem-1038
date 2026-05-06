@@ -49,7 +49,11 @@ bridges consume it, but it is not the preferred proof target.
 `EndpointFromVariation`.  Given endpoint-normalized data for the potential
 presented to the finite-atom route, it proves the normalized endpoint-potential
 consequences for any `RelaxedMinimizer`.  Reflection/translation normalization
-and its objective invariance remain upstream work.
+and its objective invariance remain upstream work.  The file also provides the
+narrower `ComponentPackageFromVariation` interface: if Tao's concrete
+component/remainder package is supplied for each relaxed minimizer, the
+endpoint data and baseline consequences are produced by the existing formal
+packagers rather than by a generic endpoint-data hypothesis.
 
 `lean/ComponentAtomization.lean` packages the barycenter-replacement part of
 the variation argument.  It exposes objective non-increase from countable or

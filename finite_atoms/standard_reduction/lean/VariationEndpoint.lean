@@ -38,6 +38,24 @@ structure EndpointFromVariation where
   endpointData : ∀ M : MinimizerExistence.RelaxedMinimizer,
     TaoEndpointNormalizationData (RelaxedPotential M)
 
+/--
+Concrete component-package form of the endpoint input.
+
+This is narrower than `EndpointFromVariation`: instead of directly supplying
+endpoint-normalized data, it supplies Tao's component/remainder package for
+each relaxed minimizer.  The conversion to endpoint data is then performed by
+the already-formal component and remainder packagers in `StandardReduction`.
+-/
+structure ComponentPackageFromVariation where
+  componentPackage : ∀ M : MinimizerExistence.RelaxedMinimizer,
+    TaoVariationComponentPackage (RelaxedPotential M)
+
+/-- Concrete component-package variation data supplies endpoint data. -/
+def ComponentPackageFromVariation.toEndpointFromVariation
+    (H : ComponentPackageFromVariation) : EndpointFromVariation where
+  endpointData := fun M =>
+    (H.componentPackage M).toTaoEndpointNormalizationData
+
 /-- Endpoint data immediately gives the normalized endpoint-potential interface. -/
 def normalizedEndpointPotential
     (H : EndpointFromVariation)
@@ -59,6 +77,55 @@ theorem baseline_subset_positive
     (M : MinimizerExistence.RelaxedMinimizer) :
     BaselinePunctured ⊆ PositiveSet (RelaxedPotential M) :=
   (H.endpointData M).baseline_subset_positive
+
+/-- Component-package variation data immediately gives the endpoint interface. -/
+def normalizedEndpointPotential_from_componentPackage
+    (H : ComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    NormalizedEndpointPotential (RelaxedPotential M) :=
+  normalizedEndpointPotential H.toEndpointFromVariation M
+
+/-- Component-package variation data gives the baseline positive-set length lower bound. -/
+theorem baseline_length_from_componentPackage
+    (H : ComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    ENNReal.ofReal (Real.sqrt 2) ≤
+      volume (PositiveSet (RelaxedPotential M)) :=
+  baseline_length H.toEndpointFromVariation M
+
+/-- Component-package variation data gives the baseline interval inclusion. -/
+theorem baseline_subset_positive_from_componentPackage
+    (H : ComponentPackageFromVariation)
+    (M : MinimizerExistence.RelaxedMinimizer) :
+    BaselinePunctured ⊆ PositiveSet (RelaxedPotential M) :=
+  baseline_subset_positive H.toEndpointFromVariation M
+
+/--
+Preferred diagonal-safe constructor using concrete Tao component packages
+rather than a generic endpoint-data provider.
+-/
+theorem exists_relaxed_minimizer_with_component_package_of_oneSidedCompactCore
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : ComponentPackageFromVariation) :
+    Nonempty (Σ M : MinimizerExistence.RelaxedMinimizer,
+      TaoVariationComponentPackage (RelaxedPotential M)) := by
+  rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+      Hcore with ⟨M⟩
+  exact ⟨⟨M, Hvar.componentPackage M⟩⟩
+
+/--
+Baseline-length existence form using the preferred diagonal-safe core and
+concrete component/remainder packages.
+-/
+theorem exists_baseline_length_from_componentPackage_of_oneSidedCompactCore
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : ComponentPackageFromVariation) :
+    ∃ M : MinimizerExistence.RelaxedMinimizer,
+      ENNReal.ofReal (Real.sqrt 2) ≤
+        volume (PositiveSet (RelaxedPotential M)) := by
+  rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+      Hcore with ⟨M⟩
+  exact ⟨M, baseline_length_from_componentPackage Hvar M⟩
 
 /--
 Combined minimizer plus endpoint package from the two preceding layers:
