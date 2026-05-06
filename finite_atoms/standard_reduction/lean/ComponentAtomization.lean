@@ -232,6 +232,26 @@ theorem not_mem_positiveSet_of_continuousAt_no_right_points
   exact not_mem_of_mem_nhds_no_right_points hpre hNoRight hr
 
 /--
+Right-side maximality of a component interval excludes positive points to the
+right endpoint.
+
+The hypothesis says that every positive point to the right of `xMinus` belongs
+to the selected interval `(xMinus,xPlus)`.  This is the exact coverage property
+that a maximal positive component will later supply.
+-/
+theorem no_right_positive_of_component_right_cover
+    {U : ℝ → ℝ} {xMinus xPlus : ℝ}
+    (hxMinus_lt_xPlus : xMinus < xPlus)
+    (hcover :
+      ∀ y : ℝ, xMinus < y → y ∈ PositiveSet U → y ∈ Ioo xMinus xPlus) :
+    ∀ y : ℝ, xPlus < y → y ∉ PositiveSet U := by
+  intro y hy hpos
+  have hxMinus_lt_y : xMinus < y :=
+    lt_trans hxMinus_lt_xPlus hy
+  have hycomp := hcover y hxMinus_lt_y hpos
+  exact not_lt_of_ge (le_of_lt hy) hycomp.2
+
+/--
 The full component-order information gives the sharper normalized support
 shape used in Tao's endpoint-mass boundary estimate: after normalization, every
 selected support point is either the endpoint atom `-1` or lies to the right of
@@ -1030,6 +1050,61 @@ theorem boundary_average_of_component_continuousAt_no_right_positive
     baseline_inside_component support_bounded unique_support_in_component
     right_endpoint_positive
     (not_mem_positiveSet_of_continuousAt_no_right_points hcont hNoRight)
+    support_contains_real_support hε hdist_lower hdist_int hlog_int
+    hrem_dist_int
+
+/--
+Boundary-average constructor from local endpoint continuity and right-side
+component coverage.
+
+This replaces the raw `no-right-positive` input by the coverage statement that
+every positive point to the right of `xMinus` belongs to the selected component
+interval.  That is the maximal-component property needed in the Tao reduction.
+-/
+theorem boundary_average_of_component_right_cover
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
+    (hcover :
+      ∀ y : ℝ, xMinus < y →
+        y ∈ PositiveSet (unitIntervalLogPotential μ) →
+          y ∈ Ioo xMinus xPlus)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+  boundary_average_of_component_continuousAt_no_right_positive μ
+    component Support xMinus xPlus ε component_interval
+    baseline_inside_component support_bounded unique_support_in_component
+    right_endpoint_positive hcont
+    (no_right_positive_of_component_right_cover
+      (by
+        have hbase : (-1 / 2 : ℝ) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+        have hcomp : (-1 / 2 : ℝ) ∈ component :=
+          baseline_inside_component hbase
+        have hIoo : (-1 / 2 : ℝ) ∈ Ioo xMinus xPlus := by
+          simpa [component_interval] using hcomp
+        exact lt_trans hIoo.1 hIoo.2)
+      hcover)
     support_contains_real_support hε hdist_lower hdist_int hlog_int
     hrem_dist_int
 

@@ -140,6 +140,7 @@ The same section records the small open-set boundary lemma
 ```lean
 not_mem_of_isOpen_no_right_points
 not_mem_positiveSet_of_continuousAt_no_right_points
+no_right_positive_of_component_right_cover
 ```
 
 which is the topological core for the later maximal-component step: if the
@@ -169,6 +170,7 @@ boundary_average_of_boundary_potential_nonpos
 boundary_average_of_right_endpoint_not_positive
 boundary_average_of_component_right_endpoint_not_positive
 boundary_average_of_component_continuousAt_no_right_positive
+boundary_average_of_component_right_cover
 ```
 
 Thus the `boundary_average` field can be obtained from a nonpositive boundary
@@ -181,7 +183,9 @@ that the right endpoint is not in the positive set.
 The component-order versions derive the `boundary_average` field either from
 right-endpoint non-positivity directly, or from the more primitive pair of
 inputs expected from the maximal-component argument: local endpoint continuity
-and absence of positive points strictly to the right.
+and absence of positive points strictly to the right.  The `right_cover`
+variant replaces the latter with a maximal-component coverage statement:
+every positive point to the right of `xMinus` lies in `(xMinus,xPlus)`.
 
 At the relaxed-minimizer interface, the same file defines
 
