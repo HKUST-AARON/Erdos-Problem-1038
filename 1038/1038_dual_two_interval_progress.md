@@ -9790,6 +9790,160 @@ theorem queue.
     text has not yet supplied those columns explicitly enough to sign
     \(\mathcal M_{\rm mov}\).  That is the last Gate 1 hard datum.
 
+    Moving-column algebra audit.
+
+    The natural moving correction image can be computed.  In the monic
+    \(Q\)-chart,
+
+    \[
+    \deg \Delta P\le d-3,\qquad \deg \Delta Q\le d-1,
+    \]
+
+    and
+
+    \[
+    QD\Delta P-PD\Delta Q
+    =
+    D(Q\Delta P-P\Delta Q).
+    \]
+
+    Since \(\gcd(P,Q)=1\) in a regular chart, the map
+
+    \[
+    (\Delta P,\Delta Q)\longmapsto Q\Delta P-P\Delta Q
+    \]
+
+    from
+
+    \[
+    \mathbb R[z]_{\le d-3}\oplus\mathbb R[z]_{\le d-1}
+    \]
+
+    to \(\mathbb R[z]_{\le 2d-3}\) is an isomorphism.  Indeed, if
+    \(Q\Delta P=P\Delta Q\), then \(Q\mid\Delta Q\), impossible for
+    \(\deg\Delta Q\le d-1\) unless \(\Delta Q=0\), and then \(\Delta P=0\);
+    the dimensions are both \(2d-2\).  Therefore the moving correction columns
+    span exactly
+
+    \[
+    \boxed{
+    D\cdot\mathbb R[z]_{\le 2d-3}.
+    }
+    \tag{Gate1CorrectionImage}
+    \]
+
+    Now consider the raw endpoint columns
+
+    \[
+    E_\gamma:=P QD_\gamma.
+    \]
+
+    At the branch endpoint \(\delta\),
+
+    \[
+    E_\gamma(\delta)=0\quad(\delta\ne\gamma),
+    \qquad
+    E_\gamma(\gamma)=P(\gamma)Q(\gamma)D_\gamma(\gamma).
+    \]
+
+    In the regular non-pinched chart these endpoint values are nonzero.  Hence
+    for any polynomial \(F\in\mathbb R[z]_{\le 2d+1}\), choose
+
+    \[
+    a_\gamma=
+    \frac{F(\gamma)}
+    {P(\gamma)Q(\gamma)D_\gamma(\gamma)}.
+    \]
+
+    Then
+
+    \[
+    F-\sum_\gamma a_\gamma E_\gamma
+    \]
+
+    vanishes at all four branch endpoints, hence is divisible by \(D\); its
+    quotient has degree at most \(2d-3\).  Thus
+
+    \[
+    \boxed{
+    \mathbb R[z]_{\le 2d+1}
+    =
+    D\mathbb R[z]_{\le 2d-3}
+    \oplus
+    \operatorname{span}\{E_{\alpha_1},E_{\beta_1},E_{\alpha_2},E_{\beta_2}\}.
+    }
+    \tag{Gate1EndpointInterpolation}
+    \]
+
+    Since \(Q^2\in\mathbb R[z]_{\le 2d}\), the period numerator has the
+    interpolation identity
+
+    \[
+    \boxed{
+    Q^2
+    =
+    D W_Q
+    +
+    \sum_\gamma
+    \frac{Q(\gamma)}
+    {P(\gamma)D_\gamma(\gamma)}
+    \,P QD_\gamma,
+    \qquad
+    W_Q\in\mathbb R[z]_{\le 2d-3}.
+    }
+    \tag{Gate1PeriodInterpolation}
+    \]
+
+    This identity is decisive.  Modulo the natural moving correction image
+    \(D\mathbb R[z]_{\le 2d-3}\), the period lift column is already in the span
+    of the four raw endpoint columns.  Therefore a pure first-order
+    endpoint-period column-orientation determinant cannot be a nonzero
+    full-block total-positive determinant in this natural moving quotient.
+
+    The first-order Gate 1 route has consequently reached its algebraic limit:
+    after the row side is closed, the column side shows that the period lift is
+    an endpoint interpolation class modulo moving corrections.  Any remaining
+    sign information is not contained in the first-order Schur block alone; it
+    must come from the second variation / effective endpoint Hessian.
+
+    The correct next Gate 1 replacement is therefore:
+
+    \[
+    \boxed{\textbf{EffectiveEndpointHessianLemma.}}
+    \]
+
+    It must compute the finite second-variation form on the endpoint
+    interpolation quotient after the minimal moving correction has been
+    eliminated.  In symbols, if \(P_{\rm ep}\) denotes the four endpoint
+    interpolation columns and \(S\) is the energy-minimal lift of the row data,
+    then the relevant matrix is
+
+    \[
+    \boxed{
+    Q_{\rm eff}
+    =
+    P_{\rm ep}^{T}
+    \bigl(B_{\rm loc}+C_{\log}^{-1}\bigr)
+    P_{\rm ep},
+    }
+    \tag{Gate1Qeff}
+    \]
+
+    where \(B_{\rm loc}\) is the finite local branch Hessian and
+    \(C_{\log}\) is the Feshbach/Riesz Gram matrix of the row representers for
+    the zero-mass, free-period Hilbert space.  The rank-defect fallback is
+    excluded only after proving that every nonnegative atomic Farkas
+    certificate yields an endpoint direction \(h\) with
+
+    \[
+    h^TQ_{\rm eff}h<0.
+    \tag{Gate1QeffNeg}
+    \]
+
+    This is now the proof-grade Gate 1 continuation.  The first-order
+    RawAugmentedCircuitSign route is not closed by determinant orientation;
+    it has been reduced to the second-variation Hessian calculation above.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

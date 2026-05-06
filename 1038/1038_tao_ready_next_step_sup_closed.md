@@ -3400,6 +3400,89 @@ moving block has the required ordered sign, Sylvester transfer gives
 SchurBlockTotalPositivityLemma and then RawAugmentedCircuitSign.  Without this
 moving correction column determinant, Gate 1 remains open.
 
+The moving-column algebra now gives a sharper audit.  In the monic \(Q\)-chart,
+
+\[
+QD\Delta P-PD\Delta Q=D(Q\Delta P-P\Delta Q),
+\]
+
+and, since \(\gcd(P,Q)=1\),
+
+\[
+(\Delta P,\Delta Q)\mapsto Q\Delta P-P\Delta Q
+\]
+
+is an isomorphism from
+
+\[
+\mathbb R[z]_{\le d-3}\oplus\mathbb R[z]_{\le d-1}
+\]
+
+onto \(\mathbb R[z]_{\le 2d-3}\).  Thus the actual moving correction image is
+
+\[
+\boxed{D\mathbb R[z]_{\le 2d-3}.}
+\]
+
+For the raw endpoint columns \(E_\gamma=PQD_\gamma\), endpoint interpolation
+gives
+
+\[
+\boxed{
+\mathbb R[z]_{\le 2d+1}
+=
+D\mathbb R[z]_{\le 2d-3}
+\oplus
+\operatorname{span}\{E_{\alpha_1},E_{\beta_1},E_{\alpha_2},E_{\beta_2}\}.
+}
+\]
+
+Since \(Q^2\in\mathbb R[z]_{\le 2d}\), the period numerator satisfies
+
+\[
+\boxed{
+Q^2
+=
+DW_Q
++
+\sum_\gamma
+\frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}\,PQD_\gamma,
+\qquad
+W_Q\in\mathbb R[z]_{\le 2d-3}.
+}
+\]
+
+Therefore, modulo the actual moving correction image, the period lift is
+already an endpoint interpolation class.  A purely first-order
+endpoint-period determinant cannot be the missing nonzero total-positive block
+in this quotient.  Gate 1 does not close by determinant orientation alone.
+The proof-grade continuation is the second-variation effective endpoint
+Hessian:
+
+\[
+\boxed{\textbf{EffectiveEndpointHessianLemma}}
+\]
+
+which must compute the finite form
+
+\[
+Q_{\rm eff}
+=
+P_{\rm ep}^{T}
+\bigl(B_{\rm loc}+C_{\log}^{-1}\bigr)
+P_{\rm ep}
+\]
+
+after the minimal moving correction has been eliminated, and prove that every
+nonnegative atomic Farkas certificate produces an endpoint direction \(h\) with
+
+\[
+h^TQ_{\rm eff}h<0.
+\]
+
+This is the current Gate 1 hard mouth.  The row-realization and moving-column
+interpolation audits are now explicit; the remaining sign is second-order.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
