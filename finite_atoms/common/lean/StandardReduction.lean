@@ -8905,6 +8905,43 @@ def taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_da
     hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
     hcomponent_atomized
 
+/-- Variant where component atomization is supplied in normalized form.  This is
+the natural output of the barycenter/secondary-minimizer rigidity argument, and
+the scaled component-block statement is derived internally. -/
+def taoVariationComponentPackage_of_unitIntervalSupport_normalized_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_data
+    μ mean_choice reflected translation C endpointMass xMinus xPlus
+    hcomponent_interval hbaseline hright_endpoint_positive hboundary_average
+    hunit_endpoint_mass hendpoint_mass_nonneg hremainder_mass_nonneg
+    hkernel_integrable
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized)
+
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
