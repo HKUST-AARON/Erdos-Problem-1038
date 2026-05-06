@@ -1906,6 +1906,22 @@ lemma realMeasure_ae_mem_unitInterval
     continuous_subtype_val.measurable.aemeasurable measurableSet_Icc).2
     (Filter.Eventually.of_forall (fun t : UnitInterval1038 => t.2))
 
+theorem realMeasure_endpointRemainder_support_in_support
+    (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
+    (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, t ∈ Support := by
+  exact hSupport.filter_mono (ae_restrict_le)
+
+theorem realMeasure_endpointRemainder_no_endpoint
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, t ≠ -1 := by
+  have hmem :
+      ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ,
+        t ∈ ({-1} : Set ℝ)ᶜ :=
+    ae_restrict_mem₀ (measurableSet_singleton (-1 : ℝ)).compl.nullMeasurableSet
+  filter_upwards [hmem] with t ht
+  simpa using ht
+
 /-- Real points carrying positive mass for the pushed-forward unit-interval measure. -/
 def diagonalAtomSet (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
   {x : ℝ | 0 < (μ : Measure UnitInterval1038) {t : UnitInterval1038 | (t : ℝ) = x}}
