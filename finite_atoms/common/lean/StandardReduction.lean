@@ -2280,6 +2280,26 @@ theorem tao_boundary_average_of_boundary_distance_upper
       μ hε hdist_lower hdist_int hlog_int hpotential_nonpos)
     hdistance_upper
 
+/--
+Endpoint half-mass consequence of the boundary-distance form of Tao's boundary
+average inequality.
+-/
+theorem endpoint_mass_ge_half_of_boundary_distance_upper
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus endpointMass ε : ℝ}
+    (hright_endpoint_positive : 0 < xPlus)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int : Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hdistance_upper :
+      (∫ t, |xPlus - t| ∂realMeasure μ) ≤
+        (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)) :
+    (1 / 2 : ℝ) ≤ endpointMass := by
+  exact endpoint_mass_ge_half_from_boundary_average hright_endpoint_positive
+    (tao_boundary_average_of_boundary_distance_upper μ hε hdist_lower
+      hdist_int hlog_int hpotential_nonpos hdistance_upper)
+
 /-!
 ## Finite atomic dual-potential selector
 
