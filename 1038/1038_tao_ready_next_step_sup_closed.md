@@ -3010,6 +3010,22 @@ point_joint=[-0.0361573694 +/- 1.40e-11]
 box_joint=[+/- 39.1]
 ```
 
+With `--joint-layer-sample-grid 5`, the sampled range on the same slab is
+small:
+
+```text
+B=+0.01: min=-3.866451994643e-02,
+         max=-3.365209117925e-02,
+         width=5.012428767178e-03
+B=-0.01: min=-3.848223378191e-02,
+         max=-3.352323065664e-02,
+         width=4.959003125277e-03
+```
+
+So the target for a proof-grade \(s=t\eta\) derivative enclosure is not
+microscopic; it only needs to reduce the slab enclosure from radius \(39.1\) to
+the \(10^{-2}\) scale.
+
 The derivative formula must be written with the observation point included.  A
 paired smooth-pole block has the form
 

@@ -69,6 +69,12 @@ def main() -> int:
         action="store_true",
         help="only run --joint-layer-dependency-report and return success after printing it",
     )
+    parser.add_argument(
+        "--joint-layer-sample-grid",
+        type=int,
+        default=0,
+        help="when reporting joint-layer dependency, also sample this many eta points in the slab",
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -199,7 +205,7 @@ def main() -> int:
                 return term_value
         return "missing"
 
-    def print_joint_layer_dependency_report(eta_low: float, eta_high: float) -> None:
+    def print_joint_layer_dependency_report(eta_low: float, eta_high: float, sample_grid: int = 0) -> None:
         eta_mid = 0.5 * (eta_low + eta_high)
         eta_point = arb(repr(float(eta_mid)))
         eta_box = solver._arb_interval_from_bounds(eta_low, eta_high)
@@ -221,6 +227,26 @@ def main() -> int:
                 f"box_value={box_value} box_radius={box_value.rad()} "
                 f"box_joint={box_joint}"
             )
+            if sample_grid > 0:
+                if sample_grid < 2:
+                    raise SystemExit("joint-layer-sample-grid must be 0 or at least 2")
+                sampled_values = []
+                for index in range(sample_grid):
+                    eta_sample = eta_low + (eta_high - eta_low) * index / (sample_grid - 1)
+                    sample_value, sample_terms = joint_layer_terms(B, tau, arb(repr(float(eta_sample))))
+                    sample_joint = arb(
+                        find_debug_term(sample_terms, "limit_layer_joint_regularized_second:combined")
+                    )
+                    sampled_values.append(float(sample_joint.mid()))
+                sample_min = min(sampled_values)
+                sample_max = max(sampled_values)
+                print(
+                    "K2_JOINT_LAYER_SAMPLE_RANGE "
+                    f"B={B:+.2f} tau={tau:.12e} samples={sample_grid:d} "
+                    f"eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
+                    f"min={sample_min:.12e} max={sample_max:.12e} "
+                    f"width={sample_max - sample_min:.12e}"
+                )
 
     def k0_2_box(B: float, tau_box: Any) -> Any:
         qB = arb(repr(float(B)))
@@ -244,7 +270,11 @@ def main() -> int:
     if args.joint_layer_dependency_report_only:
         if len(eta_values) < 2:
             raise SystemExit("joint-layer-dependency-report-only requires at least two eta values")
-        print_joint_layer_dependency_report(min(eta_values), max(eta_values))
+        print_joint_layer_dependency_report(
+            min(eta_values),
+            max(eta_values),
+            args.joint_layer_sample_grid,
+        )
         return 0
 
     worst_derivative = 0.0
@@ -449,7 +479,7 @@ def main() -> int:
     if args.joint_layer_dependency_report:
         eta_low = min(eta_values)
         eta_high = max(eta_values)
-        print_joint_layer_dependency_report(eta_low, eta_high)
+        print_joint_layer_dependency_report(eta_low, eta_high, args.joint_layer_sample_grid)
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 
