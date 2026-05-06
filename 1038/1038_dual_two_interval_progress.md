@@ -9944,6 +9944,122 @@ theorem queue.
     RawAugmentedCircuitSign route is not closed by determinant orientation;
     it has been reduced to the second-variation Hessian calculation above.
 
+    Gate 1 second-variation reduction.
+
+    We now record the exact implication that replaces the failed first-order
+    sign theorem.  Let
+
+    \[
+    \mathfrak c=(\eta;\,w_1,x_1,\ldots,w_N,x_N;\lambda)
+    \]
+
+    be a minimal raw augmented atomic certificate, so
+
+    \[
+    \eta b_S+\sum_{k=1}^Nw_kV_S(x_k)-\lambda\rho_S=0
+    \tag{G1certS}
+    \]
+
+    on the four endpoint Schiffer columns, with
+
+    \[
+    \eta\ge0,\qquad w_k>0,\qquad x_k\in Z_0.
+    \]
+
+    The corresponding period lift value is
+
+    \[
+    \Theta_\Pi(\mathfrak c)
+    =
+    \eta b_\Pi+\sum_{k=1}^Nw_kV_\Pi(x_k)-\lambda\rho_\Pi.
+    \tag{G1certPi}
+    \]
+
+    In the first-order route one wanted to prove
+    \(\Theta_\Pi(\mathfrak c)<0\).  The interpolation audit above shows that
+    this sign is not a first-order column-orientation consequence.  Instead
+    form the endpoint interpolation row vector
+
+    \[
+    r_{\mathfrak c}
+    =
+    \eta p_b+\sum_{k=1}^Nw_kp(x_k)-\lambda p_\rho
+    \in V^\sharp,
+    \tag{G1rc}
+    \]
+
+    where \(p_b,p(x),p_\rho\) are the row images of the boundary, point
+    evaluation, and equality-anchor functionals in the endpoint interpolation
+    quotient.  Minimality of the certificate means \(r_{\mathfrak c}\ne0\)
+    unless the support reduces or one is already on a chart-rank / collision
+    boundary.
+
+    The replacement sign theorem is therefore:
+
+    \[
+    \boxed{\textbf{QeffNegativeCertificate.}}
+    \]
+
+    For every non-boundary minimal atomic certificate \(\mathfrak c\),
+
+    \[
+    \boxed{
+    Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})<0.
+    }
+    \tag{G1QeffCert}
+    \]
+
+    This finite matrix statement is enough to exclude the rank-defect chamber.
+    Indeed, assume the separated-chart minimal-lift theorem holds and let
+
+    \[
+    \xi_{\mathfrak c}=S r_{\mathfrak c}
+    \]
+
+    be the energy-minimal lift.  By construction,
+
+    \[
+    \rho^\sharp(\xi_{\mathfrak c})=r_{\mathfrak c},
+    \qquad
+    \xi_{\mathfrak c}\perp_{\mathcal E_{\log}}W^\sharp.
+    \]
+
+    The certificate equations (G1certS) make the first-order endpoint
+    Schiffer components vanish in the four repaired endpoint directions; the
+    boundary-neutral equality correction has already removed \(R_0,R_c\); and
+    the period row is fixed in the free-period quotient.  Thus
+    \(\xi_{\mathfrak c}\) is a two-sided feasible tangent direction after the
+    standard smooth approximation of the minimal lift.  The second variation
+    along this direction is
+
+    \[
+    G_{\rm br}(\xi_{\mathfrak c},\xi_{\mathfrak c})
+    =
+    Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c}).
+    \tag{G1QeffEqualsSecond}
+    \]
+
+    If (G1QeffCert) holds, the second variation is strictly negative.  This
+    contradicts the second-order necessary condition for a compact
+    non-pinched minimizer in the regular separated chart.  Hence:
+
+    \[
+    \boxed{
+    \text{QeffNegativeCertificate}
+    \Rightarrow
+    \text{the compact non-pinched }g=2\text{ rank-defect chamber cannot persist.}
+    }
+    \tag{G1QeffExcludes}
+    \]
+
+    This is a proof, not an additional route name: it is the precise
+    second-variation replacement for RawAugmentedCircuitSign.  The only
+    remaining Gate 1 computation is the finite sign audit of
+    \(Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})\) for the atomic
+    certificates.  Degenerate cases in which \(r_{\mathfrak c}=0\), support
+    points collide, or the row image leaves the separated chart are exactly
+    the Gate 3 boundary modes.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

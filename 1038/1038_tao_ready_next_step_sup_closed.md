@@ -3483,6 +3483,59 @@ h^TQ_{\rm eff}h<0.
 This is the current Gate 1 hard mouth.  The row-realization and moving-column
 interpolation audits are now explicit; the remaining sign is second-order.
 
+The exact second-order replacement is now the following finite statement.  For
+each minimal raw augmented atomic certificate
+
+\[
+\mathfrak c=(\eta;\,w_k,x_k;\lambda)
+\]
+
+with
+
+\[
+\eta b_S+\sum_kw_kV_S(x_k)-\lambda\rho_S=0
+\]
+
+on the four endpoint Schiffer columns, define the endpoint-row vector
+
+\[
+r_{\mathfrak c}
+=
+\eta p_b+\sum_kw_kp(x_k)-\lambda p_\rho
+\in V^\sharp.
+\]
+
+The first-order route wanted to prove the lifted scalar
+
+\[
+\eta b_\Pi+\sum_kw_kV_\Pi(x_k)-\lambda\rho_\Pi<0.
+\]
+
+After the moving-column interpolation audit, the proof-grade replacement is
+
+\[
+\boxed{\textbf{QeffNegativeCertificate:}\quad
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})<0
+\text{ for every non-boundary minimal certificate.}}
+\]
+
+This statement is sufficient.  The separated-chart minimal-lift theorem gives
+\(\xi_{\mathfrak c}=Sr_{\mathfrak c}\) with
+\(\rho^\sharp(\xi_{\mathfrak c})=r_{\mathfrak c}\) and with no row-kernel
+energy cross term.  Hence
+
+\[
+G_{\rm br}(\xi_{\mathfrak c},\xi_{\mathfrak c})
+=
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c}).
+\]
+
+If `QeffNegativeCertificate` holds, the rank-defect atomic fallback gives a
+two-sided feasible tangent with negative second variation, contradicting the
+second-order necessary condition for a compact non-pinched regular minimizer.
+Thus Gate 1 is now reduced to a finite \(Q_{\rm eff}\) sign computation, with
+zero-vector, support-collision, and chart-rank degeneracies routed to Gate 3.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
