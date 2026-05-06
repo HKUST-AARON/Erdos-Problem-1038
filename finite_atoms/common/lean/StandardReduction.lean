@@ -8953,6 +8953,28 @@ theorem endpointRemainder_logKernel_integrable_of_mem_atomized_component
   rw [hendpoint, hrestrict_unit]
   simpa [IntegrableOn] using hint
 
+theorem endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ))
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  intro x hx
+  rcases hx with ⟨hxBase, hxNotEndpointSet⟩
+  by_cases hx_left : x < -1
+  · exact endpointRemainder_logKernel_integrable_of_left_outside hx_left
+  · have hx_ne_endpoint : x ≠ -1 := by
+      simpa using hxNotEndpointSet
+    have hx_ge_endpoint : (-1 : ℝ) ≤ x := le_of_not_gt hx_left
+    have hx_gt_endpoint : (-1 : ℝ) < x :=
+      lt_of_le_of_ne hx_ge_endpoint (Ne.symm hx_ne_endpoint)
+    have hx_component : x ∈ C.interval :=
+      hbaseline ⟨hx_gt_endpoint, hxBase.2⟩
+    exact endpointRemainder_logKernel_integrable_of_mem_atomized_component
+      hdirac hx_component
+
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C)
@@ -9187,6 +9209,41 @@ def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization
     (unitInterval_endpoint_atom_toReal_nonneg μ)
     (unitInterval_endpoint_atom_remainderMass_nonneg μ)
     hkernel_integrable hnormalized_atomized
+
+/-- Fully mechanical endpoint-remainder version of the canonical constructor:
+once the component contains the baseline interval and normalized atomization has
+identified the component block with the endpoint atom, kernel integrability on
+`BaselinePunctured` is generated internally. -/
+def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_data
+    μ mean_choice reflected translation C R xMinus xPlus hcomponent_interval
+    hbaseline hright_endpoint_positive hboundary_average
+    (endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
+      (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+        R hnormalized_atomized)
+      hbaseline)
+    hnormalized_atomized
 
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
