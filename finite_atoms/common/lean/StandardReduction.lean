@@ -14631,6 +14631,71 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hsecondMoment_eq, hunique⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_replacement_rigidity_zero_neighborhood_data
+    (hComponentReplacementAutoTailReplacementRigidityZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_replacement_rigidity_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailReplacementRigidityZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hzero⟩
+  have hcomponent_open : IsOpen C.interval := by
+    rw [hcomponent_interval]
+    exact isOpen_Ioo
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hunique⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
