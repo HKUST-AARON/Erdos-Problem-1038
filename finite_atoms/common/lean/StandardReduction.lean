@@ -8191,6 +8191,22 @@ theorem componentReplacement_objective_le_of_outside_tailMass_offdiag_ae_jensen
     houtside_int hcomponent_int]
   exact add_le_add le_rfl hblock
 
+/--
+Stable public wrapper name for the null-exception tail-mass replacement
+objective theorem.
+-/
+theorem componentReplacement_objective_le_of_tailMass_null_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (N : Set ℝ) (hN : volume N = 0)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_outside_tailMass_offdiag_ae_jensen
+    R hε N hN htailFinite
+
 /-!
 ## Finite variance drop under barycenter replacement
 
