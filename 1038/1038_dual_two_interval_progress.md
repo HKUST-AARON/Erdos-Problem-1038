@@ -8130,6 +8130,122 @@ theorem queue.
     \tau=f_\Pi,\quad \tau_*=b_\Pi.
     \]
 
+    Matrix expansion of the endpoint rows.
+
+    Choose a basis \(B_1,\ldots,B_r\) of \(\mathcal H_{\rm norm}\), and write
+    the independent normalization functionals as
+    \(\mathcal N_1,\ldots,\mathcal N_r\).  Put
+
+    \[
+    A_{im}:=\mathcal N_i(B_m).
+    \]
+
+    By construction \(A\) is invertible.  For
+
+    \[
+    H_\gamma^{\rm raw}=-\frac12PQD_\gamma
+    \]
+
+    set
+
+    \[
+    n_\gamma:=
+    \bigl(\mathcal N_i(H_\gamma^{\rm raw})\bigr)_{i=1}^r,
+    \qquad
+    h_\gamma:=A^{-1}n_\gamma.
+    \]
+
+    Then
+
+    \[
+    \boxed{
+    H_\gamma
+    =
+    H_\gamma^{\rm raw}
+    -
+    \sum_{m=1}^r(h_\gamma)_mB_m.
+    }
+    \tag{MatrixSchiffer}
+    \]
+
+    Define, for any numerator \(H\),
+
+    \[
+    C_H(z)=\frac{H(z)}{Q(z)^2R(z)},
+    \qquad
+    E(H)=
+    \binom{[z^{-1}]_\infty C_H}{-C_H(c)},
+    \]
+
+    \[
+    V_H(s)=
+    \int_J\log\frac1{|s-x|}G_H(x)\omega(x)\,dx,
+    \qquad
+    C_H(z)=\int_J\frac{G_H(x)\omega(x)}{z-x}\,dx,
+    \]
+
+    and the reduced row maps
+
+    \[
+    b(H)=aV_H(u)+bV_H(v),
+    \]
+
+    \[
+    f_H(x)=
+    V_H(x)
+    -(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(H).
+    \]
+
+    These maps are linear in \(H\).  Therefore the endpoint seed table entries
+    have the explicit matrix form
+
+    \[
+    \boxed{
+    E_\gamma
+    =
+    E(H_\gamma^{\rm raw})
+    -
+    \sum_{m=1}^r(h_\gamma)_mE(B_m),
+    }
+    \tag{EndpointE}
+    \]
+
+    \[
+    \boxed{
+    b_\gamma
+    =
+    b(H_\gamma^{\rm raw})
+    -
+    \sum_{m=1}^r(h_\gamma)_mb(B_m),
+    }
+    \tag{EndpointB}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    f_\gamma(x)
+    =
+    f_{H_\gamma^{\rm raw}}(x)
+    -
+    \sum_{m=1}^r(h_\gamma)_mf_{B_m}(x).
+    }
+    \tag{EndpointF}
+    \]
+
+    Equivalently, the four endpoint columns are obtained by multiplying the raw
+    normalization matrix
+
+    \[
+    N_\Gamma=
+    \bigl[n_{\alpha_1}\ n_{\beta_1}\ n_{\alpha_2}\ n_{\beta_2}\bigr]
+    \]
+
+    by \(A^{-1}\), then subtracting the corresponding correction columns from
+    the raw rows.  This is the reduced Schiffer seed table in computable
+    finite-dimensional form.  No density-closure or PV step is used.
+
     The remaining, still unproved, part is not definitional: one must compute
     these entries and prove the positive-circuit inequalities (C4),(C5).
 

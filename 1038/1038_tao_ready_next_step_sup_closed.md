@@ -2715,6 +2715,55 @@ b=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T,
 \tau=f_\Pi,\quad \tau_*=b_\Pi.
 \]
 
+To compute the endpoint columns, choose a basis \(B_1,\ldots,B_r\) of
+\(\mathcal H_{\rm norm}\) and independent normalization rows
+\(\mathcal N_1,\ldots,\mathcal N_r\).  Let
+
+\[
+A_{im}=\mathcal N_i(B_m),\qquad
+n_\gamma=(\mathcal N_i(-\tfrac12PQD_\gamma))_{i=1}^r,
+\qquad
+h_\gamma=A^{-1}n_\gamma.
+\]
+
+Then
+
+\[
+H_\gamma=-\frac12PQD_\gamma-\sum_{m=1}^r(h_\gamma)_mB_m.
+\]
+
+For any numerator \(H\), define
+
+\[
+C_H=\frac{H}{Q^2R},\qquad
+E(H)=\binom{[z^{-1}]_\infty C_H}{-C_H(c)},
+\]
+
+\[
+b(H)=aV_H(u)+bV_H(v),
+\qquad
+f_H=V_H-(U_{\psi_1},U_{\psi_2})M^{-1}E(H).
+\]
+
+By linearity,
+
+\[
+E_\gamma=E(-\tfrac12PQD_\gamma)-\sum_m(h_\gamma)_mE(B_m),
+\]
+
+\[
+b_\gamma=b(-\tfrac12PQD_\gamma)-\sum_m(h_\gamma)_mb(B_m),
+\]
+
+\[
+f_\gamma=f_{-\frac12PQD_\gamma}-\sum_m(h_\gamma)_mf_{B_m}.
+\]
+
+Thus the table is reduced to one invertible normalization matrix \(A\), four
+raw normalization vectors \(n_\gamma\), and the basis rows
+\(E(B_m),b(B_m),f_{B_m}\).  This is the computable finite-dimensional form of
+the endpoint Schiffer table.
+
 What remains is the actual algebraic computation of these entries and the
 positive-circuit sign proof.
 
