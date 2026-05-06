@@ -10142,6 +10142,37 @@ theorem componentReplacementProbability_truncatedObjective_le_of_objective_compa
     _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
           horiginal_positive_le_truncated
 
+theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (htail_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        singularTailMass 1
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) x < ∞)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  refine
+    componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+      R (by positivity : (0 : ℝ) < 1) ?_ horiginal_positive_le_truncated
+  intro x hxdiag
+  simpa [abs_sub_comm] using
+    unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      (by positivity : (0 : ℝ) < 1)
+      hxdiag
+      (htail_replacement x hxdiag)
+
 /-!
 ## Finite variance drop under barycenter replacement
 
@@ -13428,6 +13459,95 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact ⟨mean_choice, reflected, translation, C, R,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+
+/--
+Tail-mass version of the component-replacement endpoint consequence.
+
+This removes the replacement off-diagonal log-integrability input.  It is
+derived from finite singular-tail mass for the replacement probability at every
+off-diagonal test point.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_mass_data
+    (hComponentReplacementTailMassDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            singularTailMass 1 (componentReplacementProbability C hmass_unit) x < ∞) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_small_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTailMassDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      htail_replacement, hsmall_original, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have hlog_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+        Integrable
+          (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+          ((componentReplacementProbability C hmass_unit :
+            Measure UnitInterval1038)) := by
+    intro x hxdiag
+    simpa [abs_sub_comm] using
+      unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+        (by positivity : (0 : ℝ) < 1)
+        hxdiag
+        (htail_replacement x hxdiag)
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hlog_replacement, hsmall_original, hunique⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
