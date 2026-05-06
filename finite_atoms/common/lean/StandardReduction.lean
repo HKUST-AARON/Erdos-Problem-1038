@@ -2770,6 +2770,24 @@ theorem PositiveComponent.endpoint_neighborhood_subset_of_augmentedIntervalMaxim
     · have hx_base_left : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
       exact hbaseline ⟨hx_base_left, hx.2⟩
 
+theorem PositiveComponent.endpoint_neighborhood_subset_component_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {component : Set ℝ} {ε : ℝ}
+    (hcomponent : component = C.interval)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) 0 ⊆ component := by
+  intro x hx
+  rw [hcomponent]
+  exact C.endpoint_neighborhood_subset_of_augmentedIntervalMaximal_endpointAtom
+    hε hmax hbaseline hleft_pos hendpoint_atom hx
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
