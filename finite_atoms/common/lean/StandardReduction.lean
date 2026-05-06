@@ -1953,6 +1953,17 @@ theorem unitIntervalLogPotential_measurableSet_threshold
 def realMeasure (μ : ProbabilityMeasure UnitInterval1038) : Measure ℝ :=
   Measure.map (fun t : UnitInterval1038 => (t : ℝ)) (μ : Measure UnitInterval1038)
 
+/-- The second-moment objective is the second moment of the pushed-forward real
+measure. -/
+theorem unitIntervalSecondMomentObjective_eq_realMeasure
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    unitIntervalSecondMomentObjective μ =
+      ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+  unfold unitIntervalSecondMomentObjective realMeasure
+  rw [integral_map]
+  · exact continuous_subtype_val.measurable.aemeasurable
+  · exact (continuous_pow 2).measurable.aestronglyMeasurable
+
 instance realMeasure.isProbabilityMeasure
     (μ : ProbabilityMeasure UnitInterval1038) :
     IsProbabilityMeasure (realMeasure μ) := by
@@ -3232,6 +3243,57 @@ theorem componentBlock_firstMoment_integrable
   filter_upwards [hsupp] with t ht
   have ht_abs : |t| ≤ 1 := abs_le.mpr ht
   simpa [Real.norm_eq_abs] using ht_abs
+
+/-- The component block has finite second moment, again by unit-interval
+support. -/
+theorem componentBlock_secondMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t ^ 2) (componentBlock C) := by
+  have hsupp : ∀ᵐ t : ℝ ∂componentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+    unfold componentBlock
+    refine (ae_restrict_iff' C.measurableSet_interval).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure (componentBlock C) := by
+    unfold componentBlock
+    infer_instance
+  have hconst : Integrable (fun _ : ℝ => (1 : ℝ)) (componentBlock C) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' (by fun_prop : AEStronglyMeasurable (fun t : ℝ => t ^ 2) (componentBlock C)) ?_
+  filter_upwards [hsupp] with t ht
+  have hsq_nonneg : 0 ≤ t ^ 2 := sq_nonneg t
+  have hsq_le : t ^ 2 ≤ 1 := by
+    nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1), ht.1, ht.2]
+  have hsq : |t ^ 2| ≤ 1 := by
+    simpa [abs_of_nonneg hsq_nonneg] using hsq_le
+  simpa [Real.norm_eq_abs] using hsq
+
+/-- The outside part also has finite second moment by unit-interval support. -/
+theorem outsideComponent_secondMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t ^ 2)
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  have hsupp :
+      ∀ᵐ t : ℝ ∂(realMeasure μ).restrict C.intervalᶜ,
+        t ∈ Icc (-1 : ℝ) 1 := by
+    refine (ae_restrict_iff' C.measurableSet_interval.compl).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure ((realMeasure μ).restrict C.intervalᶜ) := by
+    infer_instance
+  have hconst :
+      Integrable (fun _ : ℝ => (1 : ℝ))
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' (by fun_prop : AEStronglyMeasurable (fun t : ℝ => t ^ 2)
+    ((realMeasure μ).restrict C.intervalᶜ)) ?_
+  filter_upwards [hsupp] with t ht
+  have hsq_nonneg : 0 ≤ t ^ 2 := sq_nonneg t
+  have hsq_le : t ^ 2 ≤ 1 := by
+    nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1), ht.1, ht.2]
+  have hsq : |t ^ 2| ≤ 1 := by
+    simpa [abs_of_nonneg hsq_nonneg] using hsq_le
+  simpa [Real.norm_eq_abs] using hsq
 
 lemma normalizedComponentBlock_ae_mem_interval
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
@@ -8884,6 +8946,13 @@ theorem ComponentReplacement.normalizedComponentBlock_firstMoment_integrable_of_
     Integrable (fun t : ℝ => t) (normalizedComponentBlock C) := by
   exact R.normalizedComponentBlock_integrable_of_componentBlock hfirst
 
+theorem ComponentReplacement.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) (componentBlock C)) :
+    Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hsecond
+
 /--
 Component-block Jensen inequality in normalized form.
 
@@ -9579,6 +9648,119 @@ theorem measure_barycenter_second_moment_le_original
     (∫ t : ℝ, t ∂μ) ^ 2 ≤ ∫ t : ℝ, t ^ 2 ∂μ := by
   have h := measure_second_moment_sub_mean_sq_nonneg μ hfirst hsecond
   linarith
+
+/--
+Component-block second-moment drop under barycenter replacement, scaled back to
+the original component mass.
+-/
+theorem componentBlock_barycenter_secondMoment_le_original
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C)) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 ≤
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hle :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) ^ 2 ≤
+        ∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C :=
+    measure_barycenter_second_moment_le_original
+      (normalizedComponentBlock C) hfirst hsecond
+  rw [normalizedComponentBlock_integral_eq_barycenter R] at hle
+  have hnorm :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm] at hle
+  calc
+    (componentMass C).toReal * (componentBarycenter C) ^ 2
+        ≤ (componentMass C).toReal *
+            (((componentMass C)⁻¹).toReal *
+              ∫ t : ℝ, t ^ 2 ∂componentBlock C) := by
+          exact mul_le_mul_of_nonneg_left hle (le_of_lt hmass_toReal_pos)
+    _ = ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+          rw [ENNReal.toReal_inv]
+          field_simp [hmass_toReal_pos.ne']
+
+/-- Real-measure second-moment nonincrease for the component replacement. -/
+theorem componentReplacementMeasure_secondMoment_le_realMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) ≤
+      ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+  let f : ℝ → ℝ := fun t => t ^ 2
+  have houtside_int : Integrable f ((realMeasure μ).restrict C.intervalᶜ) :=
+    outsideComponent_secondMoment_integrable C
+  have hblock_int : Integrable f (componentBlock C) :=
+    componentBlock_secondMoment_integrable C
+  have hdirac_int :
+      Integrable f (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hreplacement :
+      (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 := by
+    rw [componentReplacementMeasure_def]
+    rw [integral_add_measure houtside_int hdirac_int]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    simp [f, smul_eq_mul]
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C =
+        realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  have horiginal :
+      (∫ t : ℝ, f t ∂realMeasure μ) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂realMeasure μ)
+          = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
+              componentBlock C) := by rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+            ∫ t : ℝ, f t ∂componentBlock C := by
+              rw [integral_add_measure houtside_int hblock_int]
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hsecond :
+      Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+      (componentBlock_secondMoment_integrable C)
+  have hblock_le :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 ≤
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C :=
+    componentBlock_barycenter_secondMoment_le_original R hfirst hsecond
+  rw [hreplacement, horiginal]
+  simpa [f, add_comm, add_left_comm, add_assoc] using
+    add_le_add_left hblock_le
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ)
+
+/-- Concrete secondary objective nonincrease for the subtype replacement
+probability. -/
+theorem unitIntervalSecondMomentObjective_componentReplacement_nonincrease
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    unitIntervalSecondMomentObjective (componentReplacementProbability C hmass_unit) ≤
+      unitIntervalSecondMomentObjective μ := by
+  rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+  rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+  rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    C hmass_unit hsupport]
+  exact componentReplacementMeasure_secondMoment_le_realMeasure R
 
 theorem measure_barycenter_second_moment_eq_imp_ae_eq_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
