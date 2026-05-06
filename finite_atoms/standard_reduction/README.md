@@ -128,6 +128,23 @@ theorem can be passed directly to the existing
 `CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential` constructor,
 without adding another public constructor.
 
+The component-order data now also gives the canonical-remainder support-order
+form
+
+```lean
+endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order
+```
+
+This feeds the boundary-average bridge
+
+```lean
+boundary_average_of_endpointRemainder_boundary_distance
+```
+
+which reduces the algebraic `boundary_average` field to the analytic boundary
+distance lower bound at the component right endpoint plus distance
+integrability of the canonical endpoint remainder.
+
 At the relaxed-minimizer interface, the same file defines
 
 ```lean

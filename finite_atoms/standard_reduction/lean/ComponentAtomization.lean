@@ -172,6 +172,50 @@ theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
   exact unique_support_in_component_of_componentBlock_eq_dirac
     C hSupport_subset hblock t htSupport htComp
 
+/-! ### Endpoint support shape and boundary average -/
+
+/--
+The full component-order information gives the sharper normalized support
+shape used in Tao's endpoint-mass boundary estimate: after normalization, every
+selected support point is either the endpoint atom `-1` or lies to the right of
+the component's right endpoint.
+-/
+private lemma support_subset_endpoint_union_rightEndpoint_of_order
+    {Support : Set ℝ} {xMinus xPlus : ℝ}
+    (hBounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (hInterval : Ioo (-1 : ℝ) 0 ⊆ Ioo xMinus xPlus)
+    (hUniqueInComponent :
+      ∀ t : ℝ, t ∈ Support → t ∈ Ioo xMinus xPlus → t = -1) :
+    Support ⊆ ({-1} : Set ℝ) ∪ Icc xPlus 1 := by
+  intro t ht
+  have htBound := hBounded ht
+  by_cases htEndpoint : t = -1
+  · exact Or.inl (by simp [htEndpoint])
+  · right
+    constructor
+    · by_contra hnot
+      have hlt : t < xPlus := lt_of_not_ge hnot
+      have ht_lower : -1 < t := lt_of_le_of_ne htBound.1 (Ne.symm htEndpoint)
+      by_cases htneg : t < 0
+      · let y : ℝ := (t - 1) / 2
+        have hybase : y ∈ Ioo (-1 : ℝ) 0 := by
+          constructor <;> dsimp [y] <;> linarith [ht_lower, htneg]
+        have hxMinus_lt_y : xMinus < y := (hInterval hybase).1
+        have hy_lt_t : y < t := by
+          dsimp [y]
+          linarith [ht_lower]
+        have htComp : t ∈ Ioo xMinus xPlus :=
+          ⟨lt_trans hxMinus_lt_y hy_lt_t, hlt⟩
+        exact htEndpoint (hUniqueInComponent t ht htComp)
+      · have ht_nonneg : 0 ≤ t := le_of_not_gt htneg
+        have hminus_lt_neg_half : xMinus < (-1 / 2 : ℝ) := by
+          have hbase : (-1 / 2 : ℝ) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+          exact (hInterval hbase).1
+        have htComp : t ∈ Ioo xMinus xPlus :=
+          ⟨lt_of_lt_of_le hminus_lt_neg_half (by linarith [ht_nonneg]), hlt⟩
+        exact htEndpoint (hUniqueInComponent t ht htComp)
+    · exact htBound.2
+
 /-! ### Canonical endpoint remainder -/
 
 /--
@@ -263,6 +307,112 @@ theorem endpointRemainder_ae_mem_Icc_zero_one
   · have htEq : t = -1 := by simpa using htEndpoint
     exact False.elim (htNe htEq)
   · exact htNonnegative
+
+/--
+The canonical endpoint remainder lies to the right of the selected positive
+component's right endpoint.  This is the support-order part of the boundary
+average argument: after removing the endpoint atom, no remaining support point
+can lie inside the component, and the normalized support is bounded by `1`.
+-/
+theorem endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order
+    (μ : ProbabilityMeasure UnitInterval1038)
+    {Support : Set ℝ} {xMinus xPlus : ℝ}
+    (hSupport : (realMeasure μ).support ⊆ Support)
+    (hBounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (hInterval : Ioo (-1 : ℝ) 0 ⊆ Ioo xMinus xPlus)
+    (hUnique :
+      ∀ t : ℝ, t ∈ Support → t ∈ Ioo xMinus xPlus → t = -1) :
+    ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1 := by
+  have hright :
+      Support ⊆ ({-1} : Set ℝ) ∪ Icc xPlus 1 :=
+    support_subset_endpoint_union_rightEndpoint_of_order
+      hBounded hInterval hUnique
+  filter_upwards
+    [endpointRemainder_ae_mem_support μ hSupport,
+      endpointRemainder_ae_ne_endpoint μ] with t htSupport htNe
+  have htRight := hright htSupport
+  rcases htRight with htEndpoint | htIcc
+  · have htEq : t = -1 := by simpa using htEndpoint
+    exact False.elim (htNe htEq)
+  · exact htIcc
+
+/--
+Distance-integral upper bound for the canonical endpoint remainder once its
+support is known to lie in `[xPlus, 1]`.
+-/
+theorem endpointRemainder_distance_integral_le_boundary_remainder
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus : ℝ}
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ) ≤
+      (1 - xPlus) *
+        (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  haveI : IsFiniteMeasure (endpointRemainder μ) := by
+    refine ⟨?_⟩
+    rw [endpointRemainder_mass μ]
+    exact ENNReal.ofReal_lt_top
+  have hupper_ae :
+      (fun t : ℝ => |xPlus - t|) ≤ᵐ[endpointRemainder μ]
+        fun _ : ℝ => 1 - xPlus := by
+    filter_upwards [hrem_support] with t ht
+    have hnonpos : xPlus - t ≤ 0 := by linarith [ht.1]
+    rw [abs_of_nonpos hnonpos]
+    linarith [ht.2]
+  have hconst_int : Integrable (fun _ : ℝ => 1 - xPlus) (endpointRemainder μ) :=
+    integrable_const (1 - xPlus)
+  have hle :
+      (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ) ≤
+        ∫ _ : ℝ, (1 - xPlus) ∂endpointRemainder μ :=
+    integral_mono_ae hdist_int hconst_int hupper_ae
+  have hconst :
+      (∫ _ : ℝ, (1 - xPlus) ∂endpointRemainder μ) =
+        (endpointRemainder μ Set.univ).toReal * (1 - xPlus) := by
+    rw [integral_const]
+    simp [Measure.real, smul_eq_mul]
+  calc
+    (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ)
+        ≤ (endpointRemainder μ Set.univ).toReal * (1 - xPlus) := by
+          simpa [hconst] using hle
+    _ = (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) *
+          (1 - xPlus) := by
+          rw [endpointRemainder_mass μ]
+          simp [ENNReal.toReal_ofReal (endpointRemainder_mass_nonneg μ)]
+    _ = (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+          ring
+
+/--
+Boundary-average constructor from the analytic boundary-distance input.
+
+The analytic input is the lower bound for the endpoint atom plus canonical
+remainder distance at `xPlus`.  The support input above turns the remainder
+distance integral into the algebraic `(1 - xPlus) * (1 - endpointMass)` term
+required by `CanonicalEndpointVariationPackageData.boundary_average` and
+`TaoComponentReductionData.boundary_average`.
+-/
+theorem boundary_average_of_endpointRemainder_boundary_distance
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus : ℝ}
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ))
+    (hboundary_distance :
+      1 ≤
+        ((realMeasure μ) (({-1} : Set ℝ))).toReal * (xPlus + 1) +
+          (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  have hrem_le :
+      (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ) ≤
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+    endpointRemainder_distance_integral_le_boundary_remainder μ
+      hrem_support hdist_int
+  nlinarith
 
 /--
 On the baseline punctured interval, the log kernel is integrable against the
