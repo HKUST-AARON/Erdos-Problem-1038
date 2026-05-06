@@ -4282,6 +4282,33 @@ The only remaining Gate 1 input is the explicit construction of those
 majorants, i.e. the \(P_\theta\)-sign tables on \(Z_0\) and the strict boundary
 / anchor residual checks.  This is not yet an unconditional Gate 1 PASS.
 
+Equivalently, define the dual majorant cone
+\[
+\mathcal D_Z=\{\theta:\theta\cdot V_S(x)-V_\Pi(x)\ge0\quad(x\in Z_0)\}.
+\]
+The affine atom branch is closed exactly by
+\[
+\sup_{\theta\in\mathcal D_Z}
+\left(G_\theta^{(b)}-\Lambda G_\theta^{(c)}\right)>0
+\qquad(\Lambda\in\mathbb R),
+\]
+and the homogeneous branch is closed exactly by
+\[
+\inf_{\theta\in\mathcal D_Z}G_\theta^{(c)}<0
+\quad(\lambda>0),
+\qquad
+\sup_{\theta\in\mathcal D_Z}G_\theta^{(c)}>0
+\quad(\lambda<0).
+\]
+Through \(Q^2R\,G_\theta'=P_\theta\), these are finite alternation/sign-table
+problems for
+\[
+P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}.
+\]
+This is the remaining hard mouth: prove those margins, give an explicit signed
+determinant/product formula implying them, or produce a genuine non-boundary
+counter-certificate.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

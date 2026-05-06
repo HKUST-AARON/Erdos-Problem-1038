@@ -11996,6 +11996,89 @@ theorem queue.
     closed assembly conditional on those checks, not an unconditional Gate 1
     pass.
 
+    Hard-mouth finite margin formulation.
+
+    The remaining \(P_\theta\)-majorant construction can be written as two
+    scalar margin problems over the closed dual majorant cone
+
+    \[
+    \mathcal D_Z
+    =
+    \{\theta\in\mathbb R^4:\ G_\theta(x)\ge0\ \text{for all }x\in Z_0\}.
+    \tag{G1DualCone}
+    \]
+
+    For the affine branch define
+
+    \[
+    \boxed{
+    M_\eta(\Lambda)
+    :=
+    \sup_{\theta\in\mathcal D_Z}
+    \left(
+    G_\theta^{(b)}-\Lambda G_\theta^{(c)}
+    \right).
+    }
+    \tag{G1AffineMargin}
+    \]
+
+    Then the \(\eta>0\) atomic branch is excluded for every \(\Lambda\) exactly
+    when
+
+    \[
+    \boxed{
+    M_\eta(\Lambda)>0
+    \qquad(\Lambda\in\mathbb R),
+    }
+    \tag{G1AffineMarginTarget}
+    \]
+
+    with equality routed to a contact/boundary degeneration only if the
+    maximizer has a boundary contact pattern.
+
+    For the homogeneous branch the target is:
+
+    \[
+    \boxed{
+    \begin{array}{ll}
+    \inf_{\theta\in\mathcal D_Z}G_\theta^{(c)}<0,
+    & \lambda>0,\\[0.3em]
+    \sup_{\theta\in\mathcal D_Z}G_\theta^{(c)}>0,
+    & \lambda<0.
+    \end{array}
+    }
+    \tag{G1HomMarginTarget}
+    \]
+
+    These two margin inequalities are precisely the remaining hard mouth.  The
+    derivative identity
+
+    \[
+    Q^2R\,G_\theta'=P_\theta
+    \]
+
+    converts each extremal \(\theta\) into an alternation/contact problem for
+    the polynomial numerator
+
+    \[
+    P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}.
+    \]
+
+    Thus a proof-grade completion of Gate 1 must now do one of the following,
+    and nothing weaker suffices:
+
+    - solve the extremal majorant problem on each component of \(Z_0\) and
+      prove (G1AffineMarginTarget), (G1HomMarginTarget);
+    - or give an explicit signed product/determinant formula for the
+      alternation system of \(P_\theta\) implying the same margins;
+    - or exhibit a concrete non-boundary \(\Lambda\) or \(\lambda\) for which
+      the margin target fails, which would be a genuine Gate 1 obstruction.
+
+    Rank, Schur-complement identities, and \(Q_{\rm eff}\) finite off-cut
+    tests do not by themselves imply these margins.  This is the exact point
+    at which the compact non-pinched \(g=2\) rank-defect proof still needs a
+    new sign calculation.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
@@ -12066,8 +12149,11 @@ theorem queue.
     }
     \]
 
-    Combined with Gate 1, the rank-defect compact non-pinched \(g=2\) interior
-    case is excluded.
+    Therefore Gate 2 is closed as an interface theorem.  The rank-defect
+    compact non-pinched \(g=2\) interior is excluded only after Gate 1 supplies
+    the reduced LP feasibility, equivalently after the remaining
+    \(P_\theta\)-majorant/sign-table checks in Gate1ConeEnvelopeAssembly are
+    proved.
 
     Gate 3: PinchingBoundaryReduction.
 
@@ -12194,7 +12280,8 @@ theorem queue.
     \text{corrected }g=1,\quad
     \text{one-cut},\quad
     \text{lower genus},\quad
-    \text{or an already excluded regular/rank-defect }g=2\text{ case.}
+    \text{an excluded regular }g=2\text{ case, or a rank-defect }g=2
+    \text{ case conditional on Gate 1.}
     }
     \tag{G3route}
     \]
@@ -12324,12 +12411,13 @@ theorem queue.
         nonnegative integrand.  This is impossible unless the normal is zero,
         contradicting nontriviality.
 
-    2.  The local block is rank-defect but non-pinched.  Then Gates 1 and 2
-        apply to the Schur-complement reduced LP, producing an admissible
-        local perturbation with negative neck length derivative.  The outside
-        bump correctors restore all frozen high-genus rows without changing
-        the strict local descent.  The high-genus candidate is therefore not
-        a minimizer.
+    2.  The local block is rank-defect but non-pinched.  This branch is
+        reduced to the Gate 1 cone-envelope/majorant checks and the Gate 2
+        first-variation interface.  Once Gate 1 supplies reduced LP
+        feasibility, the outside bump correctors restore all frozen
+        high-genus rows without changing the strict local descent, and the
+        high-genus candidate is not a minimizer.  Until then, this branch is
+        conditional on the same \(P_\theta\)-majorant hard mouth.
 
     3.  The local block degenerates: a branch endpoint collides, a pole-state
         row loses rank, a density sign is lost, \(Z_0\) collides with the
@@ -12665,9 +12753,11 @@ theorem queue.
     Lemma R (Gate 5) either regularizes \(\mu\) to regular finite-gap
     counterexamples with the same strict inequality, or routes \(\mu\) to a
     covered boundary/lower-genus branch.  In the regularized case, Gates 1--4
-    exclude every compact finite-gap chamber: regular and rank-defect
-    \(g=2\), compactified \(g=2\) boundary, and all \(g\ge3\) local-neck
-    reductions.  In the boundary case, Gate 3 routes to corrected \(g=1\),
+    would exclude every compact finite-gap chamber only after the remaining
+    Gate 1 \(P_\theta\)-majorant checks and the Gate 3--5 compactness
+    obligations are proved: regular \(g=2\), rank-defect \(g=2\),
+    compactified \(g=2\) boundary, and all \(g\ge3\) local-neck reductions.  In
+    the boundary case, Gate 3 routes to corrected \(g=1\),
     one-cut, lower genus, or an already excluded stratum.  The only remaining
     branch is the one-cut branch defining \(M_{\rm oc}\), and by definition of
     \(M_{\rm oc}\) no admissible one-cut element has length below
