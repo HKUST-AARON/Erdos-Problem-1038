@@ -8803,6 +8803,30 @@ theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
   rw [← hrestrict_eq]
   exact hdirac_zero
 
+theorem realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ C.interval = 0 := by
+  have hzero :=
+    component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  have hCopen : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  have hopen : IsOpen (C.interval ∩ ({-1} : Set ℝ)ᶜ) :=
+    hCopen.inter (isClosed_singleton.isOpen_compl)
+  have hsub : C.interval ∩ ({-1} : Set ℝ)ᶜ ⊆ C.interval := by
+    intro t ht
+    exact ht.1
+  have hnot : -1 ∉ C.interval ∩ ({-1} : Set ℝ)ᶜ := by
+    simp
+  have hzero_inter :
+      realMeasure μ (C.interval ∩ ({-1} : Set ℝ)ᶜ) = 0 :=
+    hzero (C.interval ∩ ({-1} : Set ℝ)ᶜ) hopen hsub hnot
+  rw [Measure.restrict_apply C.measurableSet_interval]
+  simpa [Set.inter_comm] using hzero_inter
+
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C)
