@@ -19,6 +19,11 @@ It proves:
 This is the first layer needed for the lower-semicontinuity and minimizer
 existence part of the standard reduction.
 
+`lean/TruncatedObjective.lean` packages the countable truncated-sup surrogate
+objective.  It proves measurability of the truncated-sup positive set and,
+from compact threshold cores, lower semicontinuity and minimizer existence for
+the surrogate objective.
+
 `lean/LowerSemicontinuity.lean` packages the true relaxed objective
 
 ```lean
