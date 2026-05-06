@@ -6654,7 +6654,6 @@ def unitIntervalTruncatedPositiveSet
   {x : ℝ | ∃ n : ℕ,
     0 < unitIntervalTruncatedPotential
       (unitIntervalPositiveTruncationScale n) μ x}
-
 theorem unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two
     (μ : ProbabilityMeasure UnitInterval1038) :
     unitIntervalTruncatedPositiveSet μ ⊆ Ioo (-2 : ℝ) 2 := by
@@ -7144,6 +7143,46 @@ theorem unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential
   · exact Or.inr
       (unitIntervalTruncatedPotential_le_logPotential_of_ae_ne
         hε (ae_ne_of_notMem_diagonalAtomSet hxdiag) (hlog_int hxdiag))
+
+theorem unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSet μ ⊆ unitIntervalAugmentedPositiveSet μ := by
+  intro x hx
+  rcases hx with ⟨n, hpos⟩
+  have hdiag_or_le :
+      x ∈ diagonalAtomSet μ ∨
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x ≤
+          unitIntervalLogPotential μ x :=
+    unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential
+      (unitIntervalPositiveTruncationScale_pos n) (hlog_int x)
+  rcases hdiag_or_le with hdiag | hle
+  · exact unitInterval_diagonalAtomSet_subset_augmented μ hdiag
+  · exact unitInterval_positiveSet_subset_augmented μ
+      (lt_of_lt_of_le hpos hle)
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective μ
+        = volume (unitIntervalTruncatedPositiveSet μ) := rfl
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) :=
+        measure_mono
+          (unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
+            μ hlog_int)
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) :=
+        unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ
+    _ = unitIntervalPositiveSetObjective μ := rfl
 
 theorem unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential_eventually_on_compact
     (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} {K : Set ℝ}
