@@ -3801,6 +3801,90 @@ Thus \(B_\mu=0\) for all Cauchy and split-log rows, while
 \(B_{\log c}=-1\).  The remaining \(A_\mu\)'s are one-dimensional period
 evaluations through the formula above.
 
+In particular, putting \(p_\mu=p(\widetilde C_\mu)\), the final normalized
+transforms are
+
+\[
+C_s=\widetilde C_s-\frac{p_s}{\pi_0R}\quad(s=u,c,v),
+\qquad
+C_\pm=\widetilde C_\pm-\frac{p_\pm}{\pi_0R},
+\]
+
+and
+
+\[
+C_{\log c}
+=
+\widetilde C_{\log c}
++
+\frac1R\left(\frac{-p_{\log c}+\pi_1}{\pi_0}-z\right).
+\]
+
+Equivalently \(C_\mu=N_\mu/R\), where
+
+\[
+N_s=
+\frac{R(z)-R(s)-R'(s)(z-s)}{(z-s)^2}
+-\frac{p_s}{\pi_0},
+\]
+
+\[
+N_-=
+-\frac{R(z)-R(u)}{z-u}
++\frac{R(z)-R(c)}{z-c}
+-\frac{p_-}{\pi_0},
+\]
+
+\[
+N_+=
+-\frac{R(z)-R(c)}{z-c}
++\frac{R(z)-R(v)}{z-v}
+-\frac{p_+}{\pi_0},
+\]
+
+and
+
+\[
+N_{\log c}
+=
+\frac{R(z)-R(c)}{z-c}
++\frac{-p_{\log c}+\pi_1}{\pi_0}
+-z.
+\]
+
+With
+
+\[
+d\Omega_R(x)=\frac{R_-(x)^{-1}-R_+(x)^{-1}}{2\pi i}\,dx,
+\]
+
+the Riesz density and Gram entries are
+
+\[
+dg_\mu(x)=N_\mu(x)d\Omega_R(x),
+\qquad
+C_{\nu\mu}=\int_J k_\nu(x)N_\mu(x)d\Omega_R(x).
+\]
+
+Thus the remaining Gate 1 sign is no longer an abstract PV or density-closure
+issue.  It is the finite matrix test
+
+\[
+\alpha^T(B_{\rm at}+C^{-1})\alpha<0
+\quad
+\text{for all nonzero }\alpha\in\mathcal C_{\rm at},
+\]
+
+or equivalently
+
+\[
+\begin{pmatrix}
+C&\alpha\\
+\alpha^T&-\alpha^TB_{\rm at}\alpha
+\end{pmatrix}\succ0
+\quad(\alpha\in\mathcal C_{\rm at}).
+\]
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

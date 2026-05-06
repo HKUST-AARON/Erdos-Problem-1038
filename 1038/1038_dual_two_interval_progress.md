@@ -10706,6 +10706,219 @@ theorem queue.
     \(p(\widetilde C_\mu)\).  Those are one-dimensional period integrals in
     the chosen separated chart.
 
+    Period-normalized transform table.
+
+    Let
+
+    \[
+    p_s=p(\widetilde C_s)\quad(s=u,c,v),\qquad
+    p_-=p(\widetilde C_-),\qquad
+    p_+=p(\widetilde C_+),\qquad
+    p_{\log c}=p(\widetilde C_{\log c}).
+    \]
+
+    In the nondegenerate period chart \(\pi_0\ne0\), the final normalized
+    Cauchy transforms are therefore
+
+    \[
+    \boxed{
+    C_s(z)=
+    \widetilde C_s(z)-\frac{p_s}{\pi_0R(z)}
+    \quad(s=u,c,v),
+    }
+    \tag{G1CfinalCauchy}
+    \]
+
+    \[
+    \boxed{
+    C_-(z)=\widetilde C_-(z)-\frac{p_-}{\pi_0R(z)},
+    \qquad
+    C_+(z)=\widetilde C_+(z)-\frac{p_+}{\pi_0R(z)},
+    }
+    \tag{G1CfinalSplit}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    C_{\log c}(z)
+    =
+    \widetilde C_{\log c}(z)
+    +
+    \frac{1}{R(z)}
+    \left(
+    \frac{-p_{\log c}+\pi_1}{\pi_0}-z
+    \right).
+    }
+    \tag{G1CfinalLogc}
+    \]
+
+    Equivalently, write
+
+    \[
+    C_\mu(z)=\frac{N_\mu(z)}{R(z)}.
+    \]
+
+    The numerators are the following explicit removable-singularity
+    expressions:
+
+    \[
+    \boxed{
+    N_s(z)
+    =
+    \frac{R(z)-R(s)-R'(s)(z-s)}{(z-s)^2}
+    -
+    \frac{p_s}{\pi_0},
+    \quad s=u,c,v,
+    }
+    \tag{G1Ns}
+    \]
+
+    \[
+    \boxed{
+    N_-(z)
+    =
+    -\frac{R(z)-R(u)}{z-u}
+    +
+    \frac{R(z)-R(c)}{z-c}
+    -
+    \frac{p_-}{\pi_0},
+    }
+    \tag{G1Nminus}
+    \]
+
+    \[
+    \boxed{
+    N_+(z)
+    =
+    -\frac{R(z)-R(c)}{z-c}
+    +
+    \frac{R(z)-R(v)}{z-v}
+    -
+    \frac{p_+}{\pi_0},
+    }
+    \tag{G1Nplus}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    N_{\log c}(z)
+    =
+    \frac{R(z)-R(c)}{z-c}
+    +
+    \frac{-p_{\log c}+\pi_1}{\pi_0}
+    -
+    z.
+    }
+    \tag{G1Nlogc}
+    \]
+
+    These formulae remove the apparent poles at \(u,c,v\).  They also show
+    exactly where the period normalization enters: only through the scalar
+    period data \(p_\mu,\pi_0,\pi_1\).
+
+    Closed Gram-entry formula.
+
+    Fix the branch convention \(R(z)\sim z^2\) at infinity and set, on the two
+    cuts,
+
+    \[
+    d\Omega_R(x)
+    =
+    \frac{R_-(x)^{-1}-R_+(x)^{-1}}{2\pi i}\,dx.
+    \tag{G1OmegaR}
+    \]
+
+    Since \(C_\mu=N_\mu/R\), the representing density is simply
+
+    \[
+    \boxed{
+    dg_\mu(x)=N_\mu(x)\,d\Omega_R(x).
+    }
+    \tag{G1DensityN}
+    \]
+
+    Hence for the actual Gate 1 row basis
+
+    \[
+    \mathcal K_{\rm G1}
+    =
+    \left\{
+    (x-u)^{-1},(x-c)^{-1},(x-v)^{-1},
+    L_-,L_+,\log\frac1{|c-x|}
+    \right\},
+    \]
+
+    with the constant row removed by zero mass, the capacity-load matrix is
+
+    \[
+    \boxed{
+    C_{\nu\mu}
+    =
+    \int_J k_\nu(x)\,N_\mu(x)\,d\Omega_R(x),
+    \qquad
+    k_\nu\in\mathcal K_{\rm G1}.
+    }
+    \tag{G1ClosedGramEntry}
+    \]
+
+    This is the promised finite sign object.  No density-closure assumption and
+    no principal-value equation is being invoked: \(C\) is computed by
+    one-dimensional cut integrals of the explicit functions \(N_\mu\).
+
+    The matrix is symmetric by the Riesz identity
+
+    \[
+    C_{\nu\mu}
+    =
+    \mathcal E_{\log}(g_\nu,g_\mu)
+    =
+    C_{\mu\nu},
+    \]
+
+    and it is positive definite on the quotient row span in the regular
+    non-pinched chart.  If a nonzero row combination has zero \(C\)-norm, its
+    minimal lift is zero and the corresponding row is redundant; that is a
+    chart-rank loss and is routed to the Gate 3 boundary stratum.
+
+    Thus the remaining Gate 1 inequality is now a finite, explicit matrix
+    assertion.  With \(C\) given by (G1ClosedGramEntry), \(N_{\log}=C^{-1}\),
+    and the local endpoint block \(B_{\rm at}\) from the endpoint second
+    variation,
+
+    \[
+    \boxed{
+    \alpha^T\left(B_{\rm at}+C^{-1}\right)\alpha<0
+    \quad
+    \text{for every nonzero }
+    \alpha\in\mathcal C_{\rm at}.
+    }
+    \tag{G1FinalFiniteInequality}
+    \]
+
+    Equivalently,
+
+    \[
+    \boxed{
+    \begin{pmatrix}
+    C&\alpha\\
+    \alpha^T&-\alpha^TB_{\rm at}\alpha
+    \end{pmatrix}\succ0
+    \quad
+    \text{for every projective }
+    \alpha\in\mathcal C_{\rm at}.
+    }
+    \tag{G1FinalSchurTest}
+    \]
+
+    This is the next exact finite certificate required to finish Gate 1.
+    Compared with the failed first-order determinant route, all arbitrary
+    bump-correction and moving-chart choices have disappeared; only the
+    two-cut period data and the endpoint Hessian remain.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
