@@ -3565,6 +3565,57 @@ theorem ComponentReplacement.normalizedComponentBlock_isProbabilityMeasure
     IsProbabilityMeasure (normalizedComponentBlock C) :=
   ⟨normalizedComponentBlock_univ R⟩
 
+theorem normalizedComponentBlock_ae_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ∀ᵐ t ∂normalizedComponentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hreal_zero :
+      realMeasure μ {t : ℝ | -1 ≤ t → 1 < t} = 0 := by
+    simpa using (ae_iff.mp (realMeasure_ae_mem_unitInterval μ))
+  have hblock_zero :
+      componentBlock C {t : ℝ | -1 ≤ t → 1 < t} = 0 := by
+    unfold componentBlock
+    exact bot_unique
+      ((Measure.restrict_apply_le C.interval
+          {t : ℝ | -1 ≤ t → 1 < t}).trans
+        (le_of_eq hreal_zero))
+  rw [normalizedComponentBlock]
+  rw [Measure.smul_apply]
+  simpa [hblock_zero]
+
+theorem integral_mem_Icc_of_probability_ae_mem_Icc
+    (ν : Measure ℝ) [IsProbabilityMeasure ν]
+    (hsupport : ∀ᵐ t ∂ν, t ∈ Icc (-1 : ℝ) 1)
+    (hfirst : Integrable (fun t : ℝ => t) ν) :
+    (∫ t : ℝ, t ∂ν) ∈ Icc (-1 : ℝ) 1 := by
+  have hconst_neg : Integrable (fun _ : ℝ => (-1 : ℝ)) ν :=
+    integrable_const (-1 : ℝ)
+  have hconst_pos : Integrable (fun _ : ℝ => (1 : ℝ)) ν :=
+    integrable_const (1 : ℝ)
+  have hneg_ae :
+      (fun _ : ℝ => (-1 : ℝ)) ≤ᵐ[ν] fun t : ℝ => t := by
+    filter_upwards [hsupport] with t ht
+    exact ht.1
+  have hpos_ae :
+      (fun t : ℝ => t) ≤ᵐ[ν] fun _ : ℝ => (1 : ℝ) := by
+    filter_upwards [hsupport] with t ht
+    exact ht.2
+  constructor
+  · have hle :
+        (∫ _ : ℝ, (-1 : ℝ) ∂ν) ≤ ∫ t : ℝ, t ∂ν :=
+      integral_mono_ae hconst_neg hfirst hneg_ae
+    have hconst : (∫ _ : ℝ, (-1 : ℝ) ∂ν) = -1 := by
+      rw [integral_const]
+      simp
+    simpa [hconst] using hle
+  · have hle :
+        (∫ t : ℝ, t ∂ν) ≤ ∫ _ : ℝ, (1 : ℝ) ∂ν :=
+      integral_mono_ae hfirst hconst_pos hpos_ae
+    have hconst : (∫ _ : ℝ, (1 : ℝ) ∂ν) = 1 := by
+      rw [integral_const]
+      simp
+    simpa [hconst] using hle
+
 lemma normalizedComponentBlock_integral_eq_barycenter
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C) :
@@ -3607,6 +3658,24 @@ theorem componentBlock_firstMoment_integrable
   filter_upwards [hsupp] with t ht
   have ht_abs : |t| ≤ 1 := abs_le.mpr ht
   simpa [Real.norm_eq_abs] using ht_abs
+
+theorem componentBarycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    componentBarycenter C ∈ Icc (-1 : ℝ) 1 := by
+  haveI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) := by
+    unfold normalizedComponentBlock
+    exact (componentBlock_firstMoment_integrable C).smul_measure
+      (ENNReal.inv_ne_top.mpr (ne_of_gt R.mass_pos))
+  have hmem :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) ∈ Icc (-1 : ℝ) 1 :=
+    integral_mem_Icc_of_probability_ae_mem_Icc
+      (normalizedComponentBlock C)
+      (normalizedComponentBlock_ae_mem_Icc C) hfirst
+  simpa [normalizedComponentBlock_integral_eq_barycenter R] using hmem
 
 /-- The component block has finite second moment, again by unit-interval
 support. -/
@@ -12920,6 +12989,75 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   let hmass_unit :=
     componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
   exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Component-replacement version of the endpoint consequence.
+
+This removes the explicit barycenter-in-`[-1,1]` input.  For every
+`ComponentReplacement`, the normalized component block is a probability measure
+supported a.e. on `[-1,1]`; hence its first moment, the component barycenter,
+lies in `[-1,1]`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+    (hComponentReplacementDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hbary := componentBarycenter_mem_Icc R
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_barycenter_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  let hbary := componentBarycenter_mem_Icc R
+  exact ⟨mean_choice, reflected, translation, C, R, hbary,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hprimary_replacement, hunique⟩
 
