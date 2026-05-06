@@ -2724,6 +2724,20 @@ lemma PositiveComponent.interval_subset_positiveSet
   C.interval_pos
 
 /--
+Endpoint criterion for the baseline placement field.  Once the selected
+component is known to start strictly left of `-1` and reach at least `0`, it
+contains the whole Tao baseline interval `(-1,0)`.
+-/
+theorem PositiveComponent.baseline_subset_interval_of_left_lt_endpoint_right_nonneg
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hleft : C.left < -1)
+    (hright : 0 ≤ C.right) :
+    Ioo (-1 : ℝ) 0 ⊆ C.interval := by
+  intro x hx
+  rw [C.interval_eq]
+  exact ⟨lt_trans hleft hx.1, lt_of_lt_of_le hx.2 hright⟩
+
+/--
 Maximal-open-interval formulation for the selected positive component.
 
 This is the topological interface needed by the Tao reduction: any open
