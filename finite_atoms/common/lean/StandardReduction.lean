@@ -8788,6 +8788,46 @@ theorem secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_stri
     hb_primary hb_secondary_le block hfirst hsecond
     hsecondary_eq_to_second_moment_eq
 
+theorem secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_smallException
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+    (hb_adm : P.Primary.Admissible b)
+    {μ0 : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ0)
+    (R : ComponentReplacement μ0 C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hobj_a :
+      P.Primary.objective a =
+        volume (PositiveSet (unitIntervalLogPotential μ0)))
+    (hobj_b :
+      P.Primary.objective b =
+        volume (PositiveSet (componentReplacementPotential C)))
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ0 → x ∉ N →
+            singularTailMass ε μ0 x < ∞)
+    (hb_secondary_le : P.secondaryObjective b ≤ P.secondaryObjective a)
+    (block : Measure ℝ) [IsProbabilityMeasure block]
+    (hfirst : Integrable (fun t : ℝ => t) block)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) block)
+    (hsecondary_eq_to_second_moment_eq :
+      P.secondaryObjective b = P.secondaryObjective a →
+        (∫ t : ℝ, t ^ 2 ∂block) = (∫ t : ℝ, t ∂block) ^ 2) :
+    block = Measure.dirac (∫ t : ℝ, t ∂block) := by
+  have hvol_le :
+      volume (PositiveSet (componentReplacementPotential C)) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ0)) :=
+    componentReplacement_objective_le_of_forall_small_tailMass_exception
+      R hε hsmall
+  have hb_primary : P.Primary.objective b ≤ P.Primary.objective a := by
+    rw [hobj_a, hobj_b]
+    exact hvol_le
+  exact secondary_minimizer_replacement_forces_block_dirac_ennreal ha hb_adm
+    hb_primary hb_secondary_le block hfirst hsecond
+    hsecondary_eq_to_second_moment_eq
+
 /-!
 ## Translation/reflection normalization layer
 
