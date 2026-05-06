@@ -2564,9 +2564,103 @@ linear correction
 
 with the chart specifying which corrections are allowed and which rows are
 held fixed.  Only after this normalization is fixed can one compute
-\(V_\gamma(u),V_\gamma(v),E(G_\gamma)\), and \(V_\gamma|_{Z_0}\).  Thus the
-next strict task is to define and solve this Schiffer seed normalization
-system; determinant signs cannot be checked before the seed table exists.
+\(V_\gamma(u),V_\gamma(v),E(G_\gamma)\), and \(V_\gamma|_{Z_0}\).  The
+convention below fixes this seed definition; determinant signs still cannot be
+checked before the resulting table is actually computed.
+
+We now fix the convention.  Write
+
+\[
+D_\gamma(z)=\frac{D(z)}{z-\gamma}.
+\]
+
+The raw endpoint motion has fixed-cut numerator
+
+\[
+H_\gamma^{\rm raw}(z)=-\frac12P(z)Q(z)D_\gamma(z),
+\qquad
+\delta_\gamma F_{\rm raw}(z)
+=\frac{H_\gamma^{\rm raw}(z)}{Q(z)^2R(z)}.
+\]
+
+Let \(\mathcal N\) be the finite list of normalization rows required in the
+chosen Schiffer chart: unwanted off-cut principal parts, forbidden Laurent
+terms at infinity, and the selected period/filling convention.  Do not include
+\(R_0\) or \(R_c\), because those rows are corrected later by the
+boundary-neutral bumps.  Choose a finite correction numerator space
+\(\mathcal H_{\rm norm}\) such that
+
+\[
+\mathcal N:\mathcal H_{\rm norm}\to\operatorname{im}\mathcal N
+\]
+
+is an isomorphism.  Define \(H_\gamma^{\rm corr}\in\mathcal H_{\rm norm}\) by
+
+\[
+\mathcal N(H_\gamma^{\rm corr})=\mathcal N(H_\gamma^{\rm raw}),
+\]
+
+and set
+
+\[
+\boxed{
+H_\gamma=H_\gamma^{\rm raw}-H_\gamma^{\rm corr},
+\qquad
+\delta_\gamma F(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}.
+}
+\]
+
+This proves existence and uniqueness of the normalized endpoint seed in the
+chosen chart by finite-dimensional linear algebra.  The Plemelj formula then
+defines \(G_\gamma\) through
+
+\[
+\delta_\gamma F(z)=
+\int_J\frac{G_\gamma(x)\omega(x)}{z-x}\,dx,
+\]
+
+and
+
+\[
+V_\gamma(s)=
+\int_J\log\frac1{|s-x|}G_\gamma(x)\omega(x)\,dx.
+\]
+
+The endpoint singularity is only \(O(|x-\gamma|^{-1/2})\), hence integrable.
+Cutting it off in a \(\rho\)-neighborhood changes all smooth rows and
+logarithmic potentials by \(O(\sqrt\rho|\log\rho|)\).  Thus
+\(V_\gamma^{(\rho)}(u),V_\gamma^{(\rho)}(v),E(G_{\gamma,\rho})\), and
+\(V_\gamma^{(\rho)}|_{Z_0}\) have the limits needed for the reduced Schiffer
+table.  The table entries are now well-defined as
+
+\[
+b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+\qquad
+f_\gamma=
+V_\gamma-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_\gamma).
+\]
+
+The equality rows are read from the normalized Cauchy transform:
+
+\[
+R_0(G_\gamma)=[z^{-1}]_\infty\,\delta_\gamma F(z),
+\qquad
+R_c(G_\gamma)=-\delta_\gamma F(c),
+\]
+
+and for \(s,t\notin J\),
+
+\[
+V_\gamma(t)-V_\gamma(s)
+=-\int_s^t\delta_\gamma F(y)\,dy.
+\]
+
+The absolute endpoint values \(V_\gamma(u),V_\gamma(v)\) are the logarithmic
+integrals defining \(V_\gamma\).  Hence the reduced table is computable from
+the normalized rational function \(\delta_\gamma F\).
+
+What remains is the actual algebraic computation of these entries and the
+positive-circuit sign proof.
 
 ### Priority 6: regularity interface
 

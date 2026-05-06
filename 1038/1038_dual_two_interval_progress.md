@@ -7864,10 +7864,187 @@ theorem queue.
     -(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_\gamma).
     \]
 
-    Thus the determinant test is reduced to a precise finite algebraic
-    computation, but it is not yet executed in this ledger.  Any proof of
-    rank-defect exclusion that skips the seed-normalization system above would
-    be using an undefined object.
+    The convention used below fixes this missing object.  The determinant test
+    is still not executed here, but the endpoint seeds are now defined.
+
+    Work in the fixed-cut density chart.  Put
+
+    \[
+    D_\gamma(z)=\frac{D(z)}{z-\gamma}.
+    \]
+
+    The raw endpoint motion can be rewritten as a fixed-cut Cauchy-transform
+    numerator:
+
+    \[
+    -\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+    =
+    \frac{H_\gamma^{\rm raw}(z)}{Q(z)^2R(z)},
+    \qquad
+    H_\gamma^{\rm raw}(z)=-\frac12P(z)Q(z)D_\gamma(z).
+    \tag{RawH}
+    \]
+
+    Let \(\mathcal N\) denote the finite list of normalization functionals
+    required in the chosen chart: unwanted principal parts at off-cut poles,
+    the forbidden part of the Laurent expansion at infinity, and the selected
+    fixed/free period convention.  The equality rows \(R_0\) and \(R_c\) are
+    deliberately not included in \(\mathcal N\), because the boundary-neutral
+    smooth bumps \(\psi_1,\psi_2\) correct them later.
+
+    Let \(\mathcal P_{\rm corr}\) be the real vector space of polynomial
+    numerators \(H\) for correction terms
+
+    \[
+    C_H(z)=\frac{H(z)}{Q(z)^2R(z)}.
+    \]
+
+    Remove redundant normalization rows and choose a finite-dimensional real
+    subspace \(\mathcal H_{\rm norm}\subset\mathcal P_{\rm corr}\) such that
+
+    \[
+    \mathcal N:\mathcal H_{\rm norm}\longrightarrow \operatorname{im}\mathcal N
+    \]
+
+    is an isomorphism.  This choice is always possible after restricting to
+    the image: pick correction numerators whose \(\mathcal N\)-values form a
+    basis of \(\operatorname{im}\mathcal N\).  If an intended normalization row
+    is not in this image, then that row is not controllable in the present
+    finite-gap chart and the point is not in the regular Schiffer chart being
+    treated here.
+
+    Define \(H_\gamma^{\rm corr}\in\mathcal H_{\rm norm}\) uniquely by
+
+    \[
+    \mathcal N(H_\gamma^{\rm corr})
+    =
+    \mathcal N(H_\gamma^{\rm raw}),
+    \]
+
+    and set
+
+    \[
+    \boxed{
+    H_\gamma=H_\gamma^{\rm raw}-H_\gamma^{\rm corr},
+    \qquad
+    \delta_\gamma F(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}.
+    }
+    \tag{NormSchiffer}
+    \]
+
+    Then \(\mathcal N(\delta_\gamma F)=0\), so \(\delta_\gamma F\) has exactly
+    the chart normalizations imposed above.
+
+    The proof of well-definedness is finite-dimensional linear algebra.  The
+    raw numerator \(H_\gamma^{\rm raw}\) is explicit by (RawH).  Since
+    \(\mathcal N|\mathcal H_{\rm norm}\) is an isomorphism onto its image,
+    there is a unique \(H_\gamma^{\rm corr}\) with the required normalization
+    data.  Subtracting it kills the forbidden normalization components and
+    leaves a real-symmetric meromorphic variation of the fixed-cut form
+    \(H/(Q^2R)\).
+
+    Because all forbidden off-cut principal parts and forbidden infinity terms
+    have been killed, \(\delta_\gamma F\) is analytic on
+    \(\mathbb C\setminus J\), has the prescribed \(O(1/z)\)-type Cauchy
+    behavior at infinity, and has only the square-root jump across \(J\).  By
+    the Plemelj formula it is the Cauchy transform of a finite signed density
+    on \(J\):
+
+    \[
+    \delta_\gamma F(z)
+    =
+    \int_J\frac{G_\gamma(x)\omega(x)}{z-x}\,dx,
+    \qquad z\notin J.
+    \tag{SeedCauchy}
+    \]
+
+    This equation defines \(G_\gamma\).  Near the moved endpoint
+    \(\gamma\), the density has at worst the integrable behavior
+    \(O(|x-\gamma|^{-1/2})\,dx\), because \(R(x)\) has a square-root zero.
+    Therefore the logarithmic potential
+
+    \[
+    V_\gamma(s)=
+    \int_J\log\frac1{|s-x|}G_\gamma(x)\omega(x)\,dx
+    \tag{SeedPotential}
+    \]
+
+    is finite at \(s=u,v\) and on \(Z_0\).
+
+    For the regularized Schiffer seed, choose a smooth cutoff
+    \(\chi_{\gamma,\rho}\) that vanishes on \(|x-\gamma|<\rho\), equals \(1\)
+    on \(|x-\gamma|>2\rho\), and is supported in the same cut component.  Let
+
+    \[
+    d\nu_{\gamma,\rho}(x)
+    =
+    \chi_{\gamma,\rho}(x)G_\gamma(x)\omega(x)\,dx,
+    \qquad
+    V_\gamma^{(\rho)}=U_{\nu_{\gamma,\rho}}.
+    \]
+
+    Since
+
+    \[
+    \int_0^{2\rho}t^{-1/2}|\log t|\,dt
+    =
+    O(\sqrt\rho\,|\log\rho|),
+    \]
+
+    the cutoff error tends to zero in all rows whose kernels are smooth at
+    \(\gamma\), and in the logarithmic potential uniformly on \(Z_0\).  In
+    particular
+
+    \[
+    V_\gamma^{(\rho)}(u)\to V_\gamma(u),\qquad
+    V_\gamma^{(\rho)}(v)\to V_\gamma(v),
+    \qquad
+    E(G_{\gamma,\rho})\to E(G_\gamma),
+    \]
+
+    and
+
+    \[
+    V_\gamma^{(\rho)}|_{Z_0}\to V_\gamma|_{Z_0}.
+    \]
+
+    Thus the reduced Schiffer table is now well-defined by
+
+    \[
+    b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+    \qquad
+    f_\gamma(x)=
+    V_\gamma(x)
+    -(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_\gamma).
+    \tag{SchifferTableEntry}
+    \]
+
+    The equality rows in \(E(G_\gamma)\) are read directly from
+    \(\delta_\gamma F\):
+
+    \[
+    R_0(G_\gamma)=[z^{-1}]_\infty\,\delta_\gamma F(z),
+    \qquad
+    R_c(G_\gamma)=-\delta_\gamma F(c),
+    \tag{SeedRows}
+    \]
+
+    using the existing convention \(\delta F(c)=-R_c(G)\).  Potential
+    differences off \(J\) are also determined by
+
+    \[
+    V_\gamma(t)-V_\gamma(s)
+    =
+    -\int_s^t\delta_\gamma F(y)\,dy,
+    \qquad s,t\notin J,
+    \]
+
+    while the absolute values \(V_\gamma(u),V_\gamma(v)\) are fixed by the
+    logarithmic integral in (SeedPotential).  Thus the table is computable from
+    the single normalized rational function \(\delta_\gamma F\).
+
+    The remaining, still unproved, part is not definitional: one must compute
+    these entries and prove the positive-circuit inequalities (C4),(C5).
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
