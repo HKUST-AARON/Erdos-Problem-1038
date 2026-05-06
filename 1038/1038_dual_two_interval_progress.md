@@ -8757,6 +8757,88 @@ theorem queue.
     \(\kappa Q^2\).  Consequently the rank-defect proof remains incomplete until
     `RawAugmentedCircuitSign` is proved.
 
+    Formal proof attempt for the missing sign.
+
+    The natural lemma one would need is:
+
+    \[
+    \boxed{\textbf{AugmentedSchifferChebyshevLemma}}
+    \]
+
+    In the free-period fixed-\(Q\) regular non-pinched chart, with
+
+    \[
+    C_\Pi=\frac{\kappa}{R},\qquad
+    C_\gamma=\frac{H_\gamma}{Q^2R},\qquad
+    \rho_j=-C_j(c),
+    \]
+
+    the raw augmented family
+
+    \[
+    (V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2},-\rho)
+    \]
+
+    has the oriented circuit property (RAS) with lift \(V_\Pi\) on \(Z_0\).
+
+    Differentiating any nondegenerate determinant in one moving point gives a
+    row whose variable entries are
+
+    \[
+    -C_{\alpha_1}(x),\quad
+    -C_{\beta_1}(x),\quad
+    -C_{\alpha_2}(x),\quad
+    -C_{\beta_2}(x),\quad 0,
+    \qquad
+    \text{lift derivative }-C_\Pi(x).
+    \]
+
+    After multiplying that row by the common denominator \(Q(x)^2R(x)\), the
+    endpoint entries become
+
+    \[
+    -H_{\alpha_1}(x),\quad
+    -H_{\beta_1}(x),\quad
+    -H_{\alpha_2}(x),\quad
+    -H_{\beta_2}(x),
+    \]
+
+    and the lifted derivative becomes
+
+    \[
+    -\kappa Q(x)^2.
+    \]
+
+    This is the exact Cauchy/rational determinant to sign.  The branch of
+    \(R\) only contributes the oriented sign already fixed by the convention
+    for \(G_\Pi=\sigma h_\Pi\), and \(Q\)-zeros do not cross
+    \(J\cup\{u,c,v\}\) in the regular non-pinched chart.  Thus no hidden
+    period-row or mass-row term remains: all seed columns have \(R_0=0\), and
+    \(f_j=V_j-\rho_jA_c\) has already been converted to the raw augmented
+    relation with arbitrary real \(\lambda\).
+
+    The obstruction is now sharp.  To finish the proof, one must prove that the
+    Hermite-normalized polynomial columns
+
+    \[
+    H_{\alpha_1},\ H_{\beta_1},\ H_{\alpha_2},\ H_{\beta_2},\ \kappa Q^2
+    \]
+
+    have the required two-cut oriented determinant sign after the fixed
+    \(Q^2R\) denominator is removed.  This does not follow from the six-kernel
+    Chebyshev determinant, because the six-kernel theorem signs the local jet
+    span, while the present columns contain global Hermite pole-cancellation
+    corrections
+
+    \[
+    \frac12\sum_kP(p_k)Q'(p_k)D_\gamma(p_k)B_{k,1}(z).
+    \]
+
+    Those correction terms are not a positive Cauchy average of the six local
+    kernels in the current documents.  Therefore the planned Chebyshev proof
+    stops exactly here: without a new determinant identity for these
+    Hermite-corrected columns, (RAS) is not proved.
+
     Therefore the current honest conclusion is:
 
     \[

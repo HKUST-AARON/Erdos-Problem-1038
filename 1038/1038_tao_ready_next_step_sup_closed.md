@@ -3029,6 +3029,46 @@ only applies to the local jet kernels
 
 so it does not by itself prove `RawAugmentedCircuitSign`.
 
+The formal proof attempt differentiates the determinant in a moving point.
+Using
+
+\[
+V_j'(x)=-C_j(x),
+\]
+
+and multiplying the differentiated row by \(Q(x)^2R(x)\), the endpoint columns
+become
+
+\[
+\begin{aligned}
+&-H_{\alpha_1}(x),\quad -H_{\beta_1}(x),\\
+&-H_{\alpha_2}(x),\quad -H_{\beta_2}(x),
+\end{aligned}
+\]
+
+while the lifted period derivative becomes
+
+\[
+-\kappa Q(x)^2.
+\]
+
+Thus the missing lemma is a two-cut oriented determinant statement for the
+Hermite-corrected columns
+
+\[
+H_{\alpha_1},H_{\beta_1},H_{\alpha_2},H_{\beta_2},\kappa Q^2.
+\]
+
+The current documents do not prove this sign identity.  The obstruction is the
+Hermite pole-cancellation correction
+
+\[
+\frac12\sum_kP(p_k)Q'(p_k)D_\gamma(p_k)B_{k,1},
+\]
+
+which is not shown to be a positive Cauchy average of the six local jet
+kernels.  Therefore the determinant-sign proof stops at this exact point.
+
 Hence the rank-defect conclusion currently has the precise conditional form:
 
 \[
