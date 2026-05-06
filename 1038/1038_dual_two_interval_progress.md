@@ -9600,6 +9600,123 @@ theorem queue.
     high-genus local-neck reduction, regularity removal, and the one-cut upper
     construction.
 
+    Gate 4: HighGenusLocalNeckReduction.
+
+    Let a regular compact finite-gap chamber have genus \(g\ge3\), with
+    ordered cuts
+
+    \[
+    J_i=[\alpha_i,\beta_i],\qquad i=1,\ldots,g,
+    \]
+
+    and non-pinched gaps \((\beta_i,\alpha_{i+1})\).  Choose any adjacent
+    two-cut block
+
+    \[
+    J_{i,i+1}=J_i\cup J_{i+1}
+    \]
+
+    with neck gap \((\beta_i,\alpha_{i+1})\).  If no such adjacent block is
+    available, then some gap or cut has already pinched, and Gate 3 routes the
+    sequence to boundary/lower genus.  Thus it suffices to treat a regular
+    non-pinched adjacent block.
+
+    Freeze all branch endpoints, pole-state rows, mass rows, and active-zero
+    rows outside a small neighborhood of \(J_{i,i+1}\).  As in the
+    \(R_0,R_c\) equality correction, choose smooth signed bump correctors
+    supported in the positive-density interiors of the frozen outside cuts.
+    Their row matrix is invertible on the outside constraints by the regular
+    chart hypothesis.  If that outside row matrix is not invertible, the
+    high-genus chart has dropped rank; this is a chart-rank degeneration and
+    is routed by Gate 3.
+
+    Taking the Schur complement of the frozen outside rows leaves a local
+    two-cut system on \(J_i\cup J_{i+1}\).  The local boundary rows are exactly
+    the same rows as in the \(g=2\) neck calculation: the local anchor row,
+    the two endpoint difference rows, the mass/equality rows removed by smooth
+    bumps, and the local Schiffer endpoint columns for the four endpoints
+    \[
+    \alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}.
+    \]
+    The outside correctors change these columns only by rows that vanish on
+    the local Schur complement, so the reduced local LP has the same form as
+    the \(g=2\) reduced LP:
+
+    \[
+    b_\Pi^{(i)}+\sum_{\gamma\in\{\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\}}
+    s_\gamma b_\gamma^{(i)}<0,
+    \]
+
+    \[
+    f_\Pi^{(i)}(x)+
+    \sum_{\gamma\in\{\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\}}
+    s_\gamma f_\gamma^{(i)}(x)<0
+    \quad (x\in Z_0\cap J_{i,i+1}).
+    \tag{G4LP}
+    \]
+
+    The free-period quotient does not introduce a new pointwise
+    sign-shifter.  In genus \(g\), the period rows are absorbed by the
+    corresponding filling variables \(\tau_1,\ldots,\tau_{g-1}\).  For any
+    extended left-cokernel \((\kappa,\kappa_\Pi)\), the \(\tau\)-columns force
+    the period multipliers to vanish, exactly as in the \(g=2\) quotient:
+
+    \[
+    \kappa^TA=0,\qquad \kappa_{\Pi,m}=0\quad(m=1,\ldots,g-1).
+    \]
+
+    Hence higher genus does not revive the forbidden free
+    \(\lambda\pi_0\)-type pointwise sign-shifter.
+
+    The local Schur-complement block has only three possible outcomes.
+
+    1.  The local block is regular.  Then the positive free-period local
+        lineality gives the same KKT normal/sign contradiction as the regular
+        \(g=2\) compact case: the actual normal must be orthogonal to a
+        positive lineality direction, while cone separation gives a
+        nonnegative integrand.  This is impossible unless the normal is zero,
+        contradicting nontriviality.
+
+    2.  The local block is rank-defect but non-pinched.  Then Gates 1 and 2
+        apply to the Schur-complement reduced LP, producing an admissible
+        local perturbation with negative neck length derivative.  The outside
+        bump correctors restore all frozen high-genus rows without changing
+        the strict local descent.  The high-genus candidate is therefore not
+        a minimizer.
+
+    3.  The local block degenerates: a branch endpoint collides, a pole-state
+        row loses rank, a density sign is lost, \(Z_0\) collides with the
+        local boundary, or the anchor row becomes singular.  This is exactly
+        one of the Gate 3 boundary modes, and it routes to lower genus,
+        corrected \(g=1\), the one-cut face, or an already excluded \(g=2\)
+        case.
+
+    Therefore every regular compact high-genus chamber contains a local
+    \(g=2\)-type neck obstruction or degenerates to a Gate 3 boundary stratum:
+
+    \[
+    \boxed{
+    g\ge3
+    \Rightarrow
+    \text{local }g=2\text{ obstruction or boundary/lower genus.}
+    }
+    \tag{G4route}
+    \]
+
+    Thus:
+
+    \[
+    \boxed{
+    \textbf{Gate 4 result: PASS.}\quad
+    \text{Regular compact high-genus chambers leave no new counterexample.}
+    }
+    \]
+
+    Combining Gates 1--4, all regular finite-gap compact chambers are reduced
+    to the one-cut/lower-genus branch or excluded by the local \(g=2\)
+    obstruction.  The remaining gates are regularity removal and the one-cut
+    upper construction.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly

@@ -3361,6 +3361,45 @@ Thus Gates 1--3 remove the regular interior, rank-defect interior, and boundary
 \(g=2\) compact cases.  The remaining global gates are high-genus local-neck
 reduction, Lemma R, and the one-cut upper construction.
 
+Gate 4 removes regular compact high-genus chambers.  For a regular non-pinched
+finite-gap chamber with \(g\ge3\), choose an adjacent two-cut block
+
+\[
+J_i\cup J_{i+1}
+= [\alpha_i,\beta_i]\cup[\alpha_{i+1},\beta_{i+1}].
+\]
+
+Freeze all rows outside this block and use smooth signed bump correctors on
+the outside cuts to restore the frozen rows.  Regularity makes the outside row
+matrix invertible; if it is not invertible, the chart has already degenerated
+and Gate 3 applies.  The Schur complement is the same local two-cut neck system
+as in the \(g=2\) proof, with endpoint columns
+\(\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\).
+
+The free-period quotient remains harmless in high genus: the filling variables
+\(\tau_1,\ldots,\tau_{g-1}\) force all period multipliers in an extended
+left-cokernel to vanish, so no independent pointwise sign-shifter is created.
+
+The local block has three outcomes:
+
+1. regular, giving the same positive-lineality/KKT-normal contradiction as the
+   regular \(g=2\) case;
+2. rank-defect non-pinched, giving the Gate 1 reduced LP and the Gate 2
+   first-variation descent;
+3. degenerate, routed by Gate 3 to lower genus, corrected \(g=1\), one-cut, or
+   an already excluded \(g=2\) case.
+
+\[
+\boxed{
+\textbf{Gate 4 result: PASS.}\quad
+g\ge3\text{ regular compact chambers contain a local }g=2
+\text{ obstruction or route to boundary/lower genus.}
+}
+\]
+
+Thus Gates 1--4 remove all regular finite-gap compact chambers except the
+one-cut/lower-genus branch still handled by the upper/lower assembly.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final
