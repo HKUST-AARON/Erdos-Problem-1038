@@ -3483,7 +3483,12 @@ d\mu_a
 \]
 
 The standard mass identity gives \(\mu_a(\mathbb R)=1\), and
-\(0\le A(a)\le\sqrt{(1+a)/2}\) gives positivity.  With
+\(0<A(a)<\sqrt{(1+a)/2}\) gives positivity.  The admissible set is nonempty;
+for instance \(a=1/2\) gives
+\[
+A(1/2)=\frac{\log8}{\log(7+4\sqrt3)}<\frac{\sqrt3}{2}.
+\]
+With
 
 \[
 R_a(z)=\sqrt{(z-a)(z-1)},\qquad R_a(z)\sim z,\quad R_a(z)<0\ (z<a),
@@ -3497,9 +3502,13 @@ U_a'(z)=
 \]
 
 This gives the monotonicity table on
-\((-\infty,-1)\), \((-1,A(a)s(a)-1)\), and \((A(a)s(a)-1,a)\).  On the
-admissible parameter set where the middle minimum is below zero, there are
-exactly two exterior zeros \(x_L(a)<-1<x_R(a)<a\), and
+\((-\infty,-1)\), \((-1,A(a)s(a)-1)\), and \((A(a)s(a)-1,a)\).  Since
+\(A(a)<\sqrt{(1+a)/2}\), the middle minimum is strictly below zero, so there
+are exactly two exterior zeros
+\[
+x_L(a)<-1<x_R(a)<A(a)s(a)-1<a,
+\]
+and
 
 \[
 E_{\mu_a}=(x_L(a),x_R(a))
@@ -3510,16 +3519,16 @@ Define
 
 \[
 M_{\rm oc}
-=\min_a \bigl(x_R(a)-x_L(a)\bigr)
+=\inf_a \bigl(x_R(a)-x_L(a)\bigr)
 \]
 
 over this exact admissible one-cut parameter set.  The decimal is only a
-numerical evaluation of these equations.  The minimizer \(a_{\rm oc}\) gives an
-admissible measure with \(|E_{\mu_{a_{\rm oc}}}|=M_{\rm oc}\), hence
+numerical evaluation of these equations.  Every admissible \(a\) gives
+\(|E_{\mu_a}|=x_R(a)-x_L(a)\), so an infimizing sequence gives
 
 \[
 \boxed{
-\textbf{Gate 6 result: PASS.}\quad
+\textbf{Gate 6 result: PROOF-GRADE PASS.}\quad
 L_-\le M_{\rm oc}.
 }
 \]
@@ -3530,7 +3539,7 @@ Gate 7 assembles the theorem.  Gates 1--5 imply the lower bound: any
 normalized minimizer with \(|E_\mu|<M_{\rm oc}\) either regularizes to a
 regular finite-gap counterexample, excluded by Gates 1--4, or collapses to a
 Gate 3 boundary/lower-genus branch.  The only surviving branch is the one-cut
-branch, and \(M_{\rm oc}\) is defined as its exact minimum.  Hence
+branch, and \(M_{\rm oc}\) is defined as its exact infimum.  Hence
 
 \[
 L_-\ge M_{\rm oc}.

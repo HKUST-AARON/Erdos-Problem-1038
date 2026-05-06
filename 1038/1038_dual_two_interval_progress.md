@@ -9885,7 +9885,9 @@ theorem queue.
 
     Gate 6: One-cut upper construction.
 
-    Define the one-cut branch by exact equations, not by the decimal value.
+    The proof-grade upper construction is an exact one-parameter family; it
+    does not require the infimum to be attained.  Define the branch by exact
+    equations, not by the decimal value.
     For \(a\in(-1,1)\), set
 
     \[
@@ -9950,7 +9952,20 @@ theorem queue.
     \]
 
     because \(x+1-c(a)\ge0\) on \([a,1]\) is equivalent to
-    \(c(a)\le a+1\).
+    \(c(a)\le a+1\).  The admissible parameter set
+
+    \[
+    \mathcal A_{\rm oc}=\{a\in(-1,1):0<A(a)<y(a)\}
+    \tag{G6Aset}
+    \]
+
+    is nonempty.  For example \(a=1/2\) gives
+
+    \[
+    A(1/2)=\frac{\log 8}{\log(7+4\sqrt3)}<\frac{\sqrt3}{2}=y(1/2),
+    \]
+
+    by elementary rational upper/lower bounds for the two logarithms.
 
     Fix the branch
 
@@ -9986,20 +10001,20 @@ theorem queue.
     \]
 
     Thus \(U_a\) is monotone on each exterior interval, tends to
-    \(-\infty\) at both infinities, has the logarithmic singularity
+    \(-\infty\) as \(z\to-\infty\), has the logarithmic singularity
     \(+\infty\) at the atom \(-1\) when \(A(a)>0\), and reaches level \(0\) on
-    the cut.  For the admissible one-cut parameter range
+    the cut.  Since \(0<A(a)<y(a)\) implies \(c(a)-1<a\), the last sign in
+    (G6sign) gives
 
     \[
-    \mathcal A_{\rm oc}
-    =
-    \{a\in(-1,1): 0<A(a)\le y(a),\ U_a(c(a)-1)<0\},
+    U_a(c(a)-1)=-\int_{c(a)-1}^{a}U_a'(t)\,dt<0.
     \]
 
-    there are exactly two exterior zeros:
+    It follows from the limits at \(-\infty\), \(-1\), \(c(a)-1\), and the
+    cut endpoint \(a\) that there are exactly two exterior zeros:
 
     \[
-    x_L(a)<-1<x_R(a)<a,
+    x_L(a)<-1<x_R(a)<c(a)-1<a,
     \qquad
     U_a(x_L(a))=U_a(x_R(a))=0.
     \tag{G6zeros}
@@ -10020,20 +10035,15 @@ theorem queue.
     \[
     M_{\rm oc}
     =
-    \min_{a\in\overline{\mathcal A_{\rm oc}}}
+    \inf_{a\in\mathcal A_{\rm oc}}
     \bigl(x_R(a)-x_L(a)\bigr),
     \tag{G6M}
     \]
 
-    with \(a_{\rm oc}\) any minimizer and
-
-    \[
-    x_L=x_L(a_{\rm oc}),\qquad x_R=x_R(a_{\rm oc}).
-    \]
-
     The displayed decimal is only a numerical evaluation of (G6M), not a
-    definition.  Since \(\mu_{a_{\rm oc}}\) is admissible and has
-    \(|E_{\mu_{a_{\rm oc}}}|=M_{\rm oc}\), it gives the upper bound
+    definition.  For every \(a\in\mathcal A_{\rm oc}\), \(\mu_a\) is
+    admissible and \(|E_{\mu_a}|=x_R(a)-x_L(a)\).  Taking an infimizing
+    sequence in \(\mathcal A_{\rm oc}\) gives the upper bound
 
     \[
     \boxed{
@@ -10046,7 +10056,7 @@ theorem queue.
 
     \[
     \boxed{
-    \textbf{Gate 6 result: PASS.}\quad
+    \textbf{Gate 6 result: PROOF-GRADE PASS.}\quad
     \text{The one-cut construction gives }L_-\le M_{\rm oc}\text{ with }
     M_{\rm oc}\text{ defined by exact equations.}
     }
