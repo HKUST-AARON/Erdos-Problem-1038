@@ -7655,6 +7655,56 @@ theorem componentReplacement_blockKernel_le_original_of_strictOutside
   exact componentBlock_logKernel_replacement_le_of_strictOutside
     R hx hfirst (hkernel_norm_int x hx)
 
+/--
+Concrete component-replacement objective wrapper.
+
+This combines the concrete outside/replacement decomposition, the concrete
+original-side decomposition, and the normalized component-block Jensen theorem
+into the abstract decomposition-plus-Jensen objective bridge.  The only
+remaining analytic assumptions are the two outside comparisons, the component
+replacement data, the first-moment integrability of the normalized block, and
+the kernel integrability obligations needed by those concrete bridge theorems.
+-/
+theorem componentReplacement_objective_le_of_concrete_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (outsidePart : ℝ → ℝ)
+    (houtside_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x ≤
+        outsidePart x)
+    (houtside_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x ≤
+        measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hnormalized_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C))
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  let replacementBlock : ℝ → ℝ :=
+    fun x => (componentMass C).toReal *
+      Real.log (1 / |x - componentBarycenter C|)
+  let originalBlock : ℝ → ℝ :=
+    fun x => ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C
+  refine componentReplacement_objective_le_of_decomposition_jensen
+    C outsidePart replacementBlock originalBlock ?_ ?_ ?_
+  · simpa [replacementBlock] using
+      componentReplacement_potential_le_outside_add_replacementAtom
+        C outsidePart houtside_replacement houtside_integrable
+  · refine unitIntervalLogPotential_original_potential_decomposition_lower
+      C outsidePart originalBlock houtside_original ?_
+      houtside_integrable hcomponent_block_integrable
+    intro x hx
+    simp [originalBlock]
+  · simpa [replacementBlock, originalBlock] using
+      componentReplacement_blockKernel_le_original_of_strictOutside
+        R hfirst hnormalized_block_integrable
+
 /-!
 ## Finite variance drop under barycenter replacement
 
