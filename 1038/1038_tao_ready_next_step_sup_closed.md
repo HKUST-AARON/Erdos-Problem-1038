@@ -1052,6 +1052,32 @@ The immediate theorem queue is therefore:
     must lie in the actual row image.  Full row surjectivity is optional; these
     three columns are the necessary target.
 
+    The theorem should be stated narrowly:
+
+    \[
+    \textbf{EndpointTransferRealization3:}\qquad
+    P e_j\in \rho^\sharp(\mathcal X_{\Pi,\mathrm{lin}})
+    \quad(j=u,v,\zeta).
+    \]
+
+    Equivalently, construct actual perturbations
+
+    \[
+    \xi_u,\xi_v,\xi_\zeta
+    \]
+
+    in the fixed-period, zero-mass or external-mass chart such that
+
+    \[
+    \rho^\sharp(\xi_j)=P e_j.
+    \]
+
+    The columns must satisfy \(r_{0j}=0\) in the zero-mass version, the period
+    row \(r_{\Pi j}=0\), all row-relation constraints
+    \(\lambda\cdot P e_j=0\) for \(\lambda\in\operatorname{Rel}\), and the
+    relevant critical-cone lineality condition.  A formal endpoint row in the
+    ambient coordinate space is not enough.
+
 3.  Prove or replace the effective endpoint identities for
     \(M=P^TQ_{\rm eff}P\).  The log-minimal term
     \(K_{\log}=\mathcal E_{\log}(S\cdot,S\cdot)\) can alter the old local
@@ -1122,6 +1148,42 @@ Equivalently, construct actual admissible perturbations
 
 in the regular separated compact \(g=2\) chart.  Only after those three
 directions are available does \(P^TQ_{\rm eff}P\) become a proof-grade object.
+
+If the three-column realization fails, the finite Hessian-clamp route must be
+downgraded immediately.  The two available fallbacks are:
+
+1.  an actual-density formulation, keeping \(G_{\rm br}\) on real density
+    perturbations and deriving the endpoint tests directly; or
+2.  a cone formulation, proving that the combinations
+
+    \[
+    Be_u+Ae_\zeta,\qquad Be_\zeta+Ae_v
+    \]
+
+    are two-sided feasible directions.  If only one-sided feasibility is
+    available, the ordinary PSD matrix clamp is not justified.
+
+Once three-column realization is proved, the next theorem becomes the true
+effective endpoint Hessian identity.  With
+
+\[
+p_j=P e_j,\qquad m_{ij}=Q_{\rm eff}(p_i,p_j),
+\]
+
+the target is
+
+\[
+m_{uu}=\lambda a,\quad m_{vv}=\lambda b,\quad
+m_{\zeta\zeta}=\lambda Q_c,
+\]
+
+\[
+m_{u\zeta}=-\frac{\lambda}{2}\Gamma(c-u),\qquad
+m_{v\zeta}=\frac{\lambda}{2}\Gamma(v-c),\qquad \lambda>0.
+\]
+
+If the log-minimal term changes these entries, replace the old clamp by the
+actual-entry clamp rather than forcing the old identities.
 
 ### Priority 6: regularity interface
 

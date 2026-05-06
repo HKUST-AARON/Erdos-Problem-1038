@@ -4570,6 +4570,140 @@ theorem queue.
     than needed.  It is enough to realize these three columns, with the period
     row fixed and inside \(\operatorname{Rel}^{\perp}\).
 
+    The proof target is the following narrow theorem.
+
+    \[
+    \boxed{
+    \textbf{EndpointTransferRealization3:}\quad
+    P e_u,\ P e_v,\ P e_\zeta
+    \in \rho^\sharp(\mathcal X_{\Pi,\mathrm{lin}}).
+    }
+    \]
+
+    Equivalently, in the regular separated compact \(g=2\) chart, construct
+    actual perturbations
+
+    \[
+    \xi_u,\xi_v,\xi_\zeta\in\mathcal X_{\Pi,\mathrm{lin}}
+    \]
+
+    such that
+
+    \[
+    \rho^\sharp(\xi_j)=P e_j,\qquad j\in\{u,v,\zeta\}.
+    \]
+
+    Here \(\mathcal X_{\Pi,\mathrm{lin}}\) means the two-sided linearized
+    critical tangent in the fixed-period chart.  If the admissible object is
+    only a cone, each direction used in \(P^TQ_{\rm eff}P\) must lie in the
+    lineality of that cone, or the PSD matrix argument must be replaced by a
+    second-order cone KKT argument.
+
+    The three geometric columns are:
+
+    \[
+    e_u:\text{ move the lower endpoint }u
+    \text{ of }L_-=\int_u^c\frac{ds}{x-s},
+    \]
+
+    \[
+    e_v:\text{ move the upper endpoint }v
+    \text{ of }L_+=\int_c^v\frac{ds}{x-s},
+    \]
+
+    and
+
+    \[
+    e_\zeta=-e_{c^-}+e_{c^+},
+    \]
+
+    the central split transfer across the neck.  This is not a free
+    \(F(c)\)-multiplier direction and not a translation of the whole chart.
+
+    For
+
+    \[
+    p_j=P e_j
+    =(r_{0j},r_{uj},r_{cj},r_{vj},r_{-j},r_{+j},r_{\log j},r_{\Pi j}),
+    \]
+
+    proof-grade realization requires
+
+    \[
+    r_{0j}=0,\qquad r_{\Pi j}=0
+    \]
+
+    in the zero-mass fixed-period formulation.  If an endpoint convention
+    produces \(\delta q_j\ne0\), then the proof is no longer on \(H_{0,\Pi}\)
+    and \(R_0\) must be split off as an external finite coordinate.
+
+    The branch-state row equations for each column are
+
+    \[
+    \ell_-\,\delta q_j-X\,\delta a_j+A\,\delta c_j
+    +r_{\log j}-r_{-j}=0,
+    \]
+
+    \[
+    \ell_+\,\delta q_j+Y\,\delta b_j+B\,\delta c_j
+    +r_{\log j}+r_{+j}=0,
+    \]
+
+    \[
+    \delta q_j+r_{0j}=0,\qquad
+    F_c\,\delta c_j-r_{cj}=0,
+    \]
+
+    where
+
+    \[
+    \ell_-=\log(1/a),\qquad \ell_+=\log(1/b),\qquad
+    A=W'(u),\qquad B=W'(v),\qquad F_c=F_\xi'(c).
+    \]
+
+    These equations do not solve the period row.  Period-zero is a separate
+    realizability condition:
+
+    \[
+    \Pi(\xi_j)=0.
+    \]
+
+    The relation constraints must also be checked.  For every
+
+    \[
+    \lambda\in\operatorname{Rel},
+    \qquad
+    \sum_i\lambda_i k_i=0\text{ on }J_{\rm reg},
+    \]
+
+    one needs
+
+    \[
+    \lambda\cdot p_j=0.
+    \]
+
+    Thus a formal endpoint column is not proof-grade unless it lies in
+    \(\operatorname{Rel}^{\perp}\cap\{r_\Pi=0\}\), with the correct
+    zero-mass or external-mass convention, and is represented by an actual
+    two-sided feasible density perturbation.
+
+    Stop conditions for this line:
+
+    - some \(P e_j\) is only an ambient endpoint row and not an actual row
+      image;
+    - some \(P e_j\notin\operatorname{Rel}^{\perp}\) or has nonzero period;
+    - the mass convention is inconsistent with the zero-mass Hilbert space;
+    - the minimal lift exists only in the completion and cannot be
+      approximated by positivity-preserving density perturbations;
+    - the realized directions are one-sided cone directions, not lineality
+      directions usable in a PSD matrix argument.
+
+    If this three-column theorem fails, the finite matrix route using
+    \(P^TQ_{\rm eff}P\) must stop.  The only replacements are an
+    actual-density proof using \(G_{\rm br}\) directly, or a cone formulation
+    that proves the specific combinations \(Be_u+Ae_\zeta\) and
+    \(Be_\zeta+Ae_v\) are two-sided feasible.
+
 3.  Effective endpoint Hessian identity.  Only after the previous two steps
     can one define
 
