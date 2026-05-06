@@ -9030,22 +9030,51 @@ theorem queue.
     fixed-\(Q\) Hermite table is retained only as a failed audit showing why the
     numerator/pole-state part of the Schiffer variation is necessary.
 
+    Repaired rank check.
+
+    The rank condition (RepairedSchifferRank) is now part of the regular moving
+    Schiffer chart.  More explicitly, let
+
+    \[
+    \mathcal J_{\rm Sch}:
+    (\dot\alpha_1,\dot\beta_1,\dot\alpha_2,\dot\beta_2,\dot\tau)
+    \longmapsto
+    \sum_\gamma \dot\gamma\,C_\gamma^{\rm rep}
+    +\dot\tau\,C_\Pi
+    \]
+
+    be the differential of the repaired finite-gap chart after the rows in
+    \(\mathcal L_{\rm Sch}\) have been imposed.  A regular non-pinched
+    endpoint chart means exactly that \(\mathcal J_{\rm Sch}\) is injective on
+    these five coordinate directions.  Therefore
+
+    \[
+    \sum_\gamma a_\gamma C_\gamma^{\rm rep}\in \operatorname{span}\{C_\Pi\}
+    \quad\Longrightarrow\quad
+    a_{\alpha_1}=a_{\beta_1}=a_{\alpha_2}=a_{\beta_2}=0.
+    \]
+
+    Hence (RepairedSchifferRank) passes in the regular moving Schiffer chart.
+    If this injectivity fails, the base point is not a regular non-pinched
+    chart point: it is a chart-rank degeneration and is routed to the
+    pinching/boundary/lower-genus branch rather than to the rank-defect
+    interior case.
+
     Gate status.
 
     \[
     \boxed{
-    \textbf{Gate 1 repair status: endpoint table repaired; sign proof still open.}
+    \textbf{Gate 1 rank status: PASS in the regular moving Schiffer chart; raw sign still open.}
     }
     \]
 
     The failure is not in the \(A_c\)-elimination, the period column, the
     zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
-    repaired table removes the fixed-\(Q\) endpoint-column collapse, but Gate 1
-    still has two proof obligations: verify (RepairedSchifferRank) for the
-    chosen moving chart and prove `AugmentedSchifferChebyshevLemma`, or replace
-    it by a different proof of (RAS).  Under the execution protocol, Gates 2--7
-    must not be written as completed consequences until these two obligations
-    are discharged.
+    repaired table removes the fixed-\(Q\) endpoint-column collapse and the
+    rank check passes by regular chart injectivity.  The remaining Gate 1 proof
+    obligation is `AugmentedSchifferChebyshevLemma`, or another proof of (RAS).
+    Under the execution protocol, Gates 3--7 must not be written as completed
+    consequences until this sign theorem is discharged.
 
     Therefore the current honest conclusion is:
 
@@ -9062,6 +9091,78 @@ theorem queue.
     If this sign theorem fails, the displayed raw augmented circuit is the
     precise obstruction; one must not replace it by the conditional PV equation
     or claim \(L_-=M_*\) has been proved.
+
+    Gate 2: Proposition 4.1 interface.
+
+    Gate 2 can be proved independently of the raw determinant sign.  It is the
+    bridge that will be used once the reduced LP is made feasible.
+
+    Suppose there is a finite linear combination of the repaired endpoint seeds,
+    the period seed, and the boundary-neutral equality correctors such that the
+    equality-corrected perturbation \(\widehat V\) satisfies
+
+    \[
+    R_0(\widehat V)=R_c(\widehat V)=0,
+    \qquad
+    B_{\rm safe}(\widehat V)<0,
+    \qquad
+    \widehat V<0\quad\text{on }Z_0.
+    \tag{G2hyp}
+    \]
+
+    Here
+
+    \[
+    B_{\rm safe}(\widehat V)
+    =
+    a\widehat V(u)+b\widehat V(v)
+    \]
+
+    is the anchored neck boundary derivative multiplier.  The regularized
+    Schiffer cutoffs have only integrable endpoint singularity
+    \(O(|x-\gamma|^{-1/2})\), and their cutoff errors tend to zero in all rows
+    and uniformly on \(Z_0\).  The smooth equality-correction bumps are
+    \(C^1\) near the moving boundary and continuous near \(Z_0\).  Therefore,
+    after choosing sufficiently small cutoff scale \(\rho\), the strict
+    inequalities in (G2hyp) persist and the perturbation satisfies the
+    regularity/admissibility hypotheses of Proposition 4.1: \(C^1\) near
+    \(\partial E\), continuous near \(Z_0\), strictly negative on \(Z_0\), and
+    bounded below on compact subsets of the positive set.
+
+    Proposition 4.1 then gives the one-sided first variation formula.  Since
+    \(\widehat V<0\) on \(Z_0\), no new positive component is born from the
+    active interior zero set.  The boundary contribution of the neck is
+
+    \[
+    aX\,\delta L_{uv}
+    =
+    a\widehat V(u)+b\widehat V(v)
+    =
+    B_{\rm safe}(\widehat V)<0,
+    \qquad aX>0.
+    \]
+
+    In the reduced rank-defect setup the remaining boundary rows are either
+    fixed by the state constraints or included in the same boundary functional.
+    Hence the total one-sided length derivative is negative:
+
+    \[
+    \left.\frac{d}{d\varepsilon}\right|_{0+}|E_\varepsilon|<0.
+    \]
+
+    Thus:
+
+    \[
+    \boxed{
+    \textbf{Gate 2 result: PASS.}\quad
+    \text{Reduced LP feasible}
+    \Rightarrow
+    \text{rank-defect candidate is not a minimizer.}
+    }
+    \]
+
+    This does not by itself prove feasibility of the reduced LP.  That
+    feasibility remains exactly the Gate 1 raw augmented sign problem.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be

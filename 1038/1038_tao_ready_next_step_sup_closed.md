@@ -3150,19 +3150,60 @@ C_{\alpha_2}^{\rm rep},C_{\beta_2}^{\rm rep}\}
 
 followed by the raw augmented determinant sign proof.
 
+In a regular moving Schiffer chart, this rank condition passes by chart
+injectivity.  Indeed, the differential
+
+\[
+(\dot\alpha_1,\dot\beta_1,\dot\alpha_2,\dot\beta_2,\dot\tau)
+\mapsto
+\sum_\gamma\dot\gamma\,C_\gamma^{\rm rep}+\dot\tau C_\Pi
+\]
+
+is injective by the definition of a regular non-pinched endpoint chart after
+the moving-chart rows have been imposed.  If it is not injective, the point is a
+chart-rank degeneration and is routed to boundary/lower genus, not to the
+rank-defect interior.
+
 Gate status:
 
 \[
 \boxed{
-\textbf{Gate 1 repair status: endpoint table repaired; sign proof still open.}
+\textbf{Gate 1 rank status: PASS in the regular moving Schiffer chart; raw sign still open.}
 }
 \]
 
 The algebraic reductions are usable, and the repaired moving-chart table
-removes the fixed-\(Q\) endpoint-column collapse.  The later gates--Proposition
-4.1 interface, pinching, high genus, Lemma R, and final assembly--remain
-conditional until the repaired rank condition and raw augmented determinant
-sign are proved.
+removes the fixed-\(Q\) endpoint-column collapse.  The raw augmented determinant
+sign is still open.
+
+Gate 2 is the first-variation interface.  If the reduced LP produces an
+equality-corrected perturbation with
+
+\[
+R_0=R_c=0,\qquad
+B_{\rm safe}<0,\qquad
+\widehat V<0\quad\text{on }Z_0,
+\]
+
+then the regularized Schiffer cutoffs and smooth bump correctors satisfy the
+regularity hypotheses of Proposition 4.1.  The \(Z_0\)-negativity prevents new
+positive components, and
+
+\[
+aX\,\delta L_{uv}=a\widehat V(u)+b\widehat V(v)=B_{\rm safe}<0.
+\]
+
+Thus the one-sided length derivative is negative and the candidate is not a
+minimizer.
+
+\[
+\boxed{
+\textbf{Gate 2 result: PASS conditional on reduced LP feasibility.}
+}
+\]
+
+The remaining obstruction is therefore not the first-variation interface; it is
+still the raw augmented determinant sign needed to make the reduced LP feasible.
 
 Hence the rank-defect conclusion currently has the precise conditional form:
 
