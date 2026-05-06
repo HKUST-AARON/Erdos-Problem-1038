@@ -8308,6 +8308,23 @@ theorem componentReplacement_objective_le_add_of_tailMass_exception
     houtside_int hcomponent_int]
   exact add_le_add le_rfl hblock
 
+theorem componentReplacement_objective_le_of_forall_small_tailMass_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _
+  rcases hsmall η hη with ⟨N, hN, htailFinite⟩
+  exact componentReplacement_objective_le_add_of_tailMass_exception
+    R hε N hN htailFinite
+
 /-!
 ## Finite variance drop under barycenter replacement
 
