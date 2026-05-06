@@ -2706,6 +2706,12 @@ lemma PositiveComponent.interval_eq
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     C.interval = Ioo C.left C.right := rfl
 
+/-- Every packaged positive component already supplies interval endpoints. -/
+theorem PositiveComponent.exists_interval_endpoints
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ∃ xMinus xPlus : ℝ, C.interval = Ioo xMinus xPlus ∧ xMinus < xPlus := by
+  exact ⟨C.left, C.right, rfl, C.left_lt_right⟩
+
 lemma PositiveComponent.measurableSet_interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     MeasurableSet C.interval := by
