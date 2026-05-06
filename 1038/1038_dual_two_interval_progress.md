@@ -7185,6 +7185,456 @@ theorem queue.
     or to force pinching/lower-genus degeneration.  This is now the concrete
     rank-defect hard mouth.
 
+    2026-05-07 review update: safe LP versus state-lifted LP.
+
+    The LP above is the conservative regularity-safe version.  It imposes
+
+    \[
+    R_0=0,\qquad R_c=0
+    \]
+
+    before measuring the length derivative.  This avoids formal atom-weight
+    and atom-center perturbations, whose first-order potentials may contain
+    singular terms at \(c\) and therefore cannot be inserted into Proposition
+    4.1 without a separate regularity check.
+
+    If one first applies the branch state-lift, the length derivative changes
+    by the local state response.  Using the current branch convention
+
+    \[
+    \delta M=R_0,\qquad \delta F=-R_c,
+    \]
+
+    and the state-lift rows
+
+    \[
+    \delta a=
+    \frac{R_{\ell c}-R_- -pR_0+\frac{A}{F_c}R_c}{X},
+    \]
+
+    \[
+    \delta b=
+    \frac{rR_0-(R_{\ell c}+R_+)-\frac{B}{F_c}R_c}{Y},
+    \]
+
+    where \(F_c=F_\xi'(c)\), \(X>0\), \(Y<0\), and \(Y=-aX/b\), one obtains
+
+    \[
+    aX(\delta a+\delta b)
+    =
+    (a+b)R_{\ell c}-aR_-+bR_+
+    -(ap+br)R_0
+    +\frac{aA+bB}{F_c}R_c.
+    \]
+
+    The stationarity relation \(aA+bB=0\) cancels the \(R_c\)-term, hence the
+    state-lifted neck derivative is
+
+    \[
+    \boxed{
+    aX\,\delta L_{uv}^{\rm lift}
+    =
+    (a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0.
+    }
+    \tag{SL-ND}
+    \]
+
+    Thus the documented LP is a sufficient slice of the weaker state-lifted
+    inequality
+
+    \[
+    (a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0<0.
+    \tag{SL-LP}
+    \]
+
+    The weaker version may be useful if the safe LP is infeasible, but it
+    requires a new atom-state regularity check: the finite-\(\varepsilon\)
+    variation of the atom weight and center must satisfy the regularity and
+    admissibility hypotheses behind Proposition 4.1.  Without that check,
+    (SL-LP) is only a formal state-lift calculation.
+
+    Farkas fallback must also be stated with two safeguards.  First, failure
+    of the safe LP can occur because the equality rows \(R_0=R_c=0\) are not
+    reachable inside the chosen regularized Schiffer/local class; that is an
+    equality-feasibility failure, not yet a boundary/\(Z_0\) descent
+    obstruction.  Second, the separation theorem must be applied in a fixed
+    topological vector space where endpoint evaluation, the anchor row, and
+    restriction to \(Z_0\) are continuous, and with the relevant cone closures
+    specified.  Only after these two points are fixed does LP infeasibility
+    produce a dual functional of the form
+
+    \[
+    \lambda_0R_0+\lambda_cR_c
+    +\eta\bigl((a+b)R_{\ell c}-aR_-+bR_+\bigr)
+    +\int_{Z_0}(\cdot)\,d\zeta,
+    \]
+
+    with \(\eta\ge0\) and \(\zeta\ge0\).  The next required computation is to
+    write the local-correction table, the regularized Schiffer endpoint table,
+    and the \(Z_0\)-pairing table for this dual fallback, then prove that the
+    fallback either returns to the already excluded regular KKT normal or
+    forces pinching/lower-genus degeneration.
+
+    2026-05-07 reduced anchored LP and conditional Hilbert fallback.
+
+    The equality-row reachability issue can be removed without using
+    atom-weight or atom-center state variations.  Choose two smooth signed
+    density bumps \(\psi_1,\psi_2\) supported in positive-density regular
+    interiors of \(J_1\cup J_2\), away from \(u,c,v\), branch endpoints, and
+    the \(Z_0\)-boundary.  Normalize them so that
+
+    \[
+    R_0(\psi_i)=\int_J\psi_i(x)\omega(x)\,dx=1.
+    \]
+
+    If the bump supports shrink to two distinct points \(x_1,x_2\ne c\), then
+
+    \[
+    R_c(\psi_i)=
+    \int_J\frac{\psi_i(x)\omega(x)}{x-c}\,dx
+    \longrightarrow \frac1{x_i-c}.
+    \]
+
+    Hence
+
+    \[
+    M=
+    \begin{pmatrix}
+    R_0(\psi_1)&R_0(\psi_2)\\
+    R_c(\psi_1)&R_c(\psi_2)
+    \end{pmatrix}
+    \]
+
+    is invertible for sufficiently small supports, since its limiting
+    determinant is
+
+    \[
+    \frac1{x_2-c}-\frac1{x_1-c}
+    =
+    \frac{x_1-x_2}{(x_1-c)(x_2-c)}\ne0.
+    \]
+
+    For a density seed \(G\), write
+
+    \[
+    E(G)=
+    \binom{R_0(G)}{R_c(G)},\qquad
+    t(G)=-M^{-1}E(G),
+    \]
+
+    and define the equality-corrected density and potential by
+
+    \[
+    \widehat G=G+\sum_{j=1}^2t_j(G)\psi_j,\qquad
+    \widehat V=V_G+\sum_{j=1}^2t_j(G)U_{\psi_j}.
+    \]
+
+    Then
+
+    \[
+    R_0(\widehat G)=R_c(\widehat G)=0.
+    \]
+
+    This is a genuine regularity-safe correction: the bumps are smooth and
+    supported where the background density is strictly positive, so for small
+    amplitudes they remain two-sided density corrections and their potentials
+    are \(C^1\) near the moving boundary and continuous near \(Z_0\).
+
+    Define
+
+    \[
+    B_{\rm safe}(G)
+    =(a+b)R_{\ell c}(G)-aR_-(G)+bR_+(G),
+    \]
+
+    and
+
+    \[
+    \beta=
+    \binom{B_{\rm safe}(\psi_1)}
+          {B_{\rm safe}(\psi_2)}.
+    \]
+
+    The reduced boundary functional is
+
+    \[
+    \boxed{
+    B_{\rm red}(G)
+    :=
+    B_{\rm safe}(\widehat G)
+    =
+    B_{\rm safe}(G)-\beta^TM^{-1}E(G).
+    }
+    \tag{Bred}
+    \]
+
+    Thus the safe anchored LP is equivalent to the reduced problem
+
+    \[
+    \boxed{
+    B_{\rm red}(G)<0,\qquad
+    \widehat V<0\quad\text{on }Z_0,
+    }
+    \tag{RLP}
+    \]
+
+    together with the already stated Proposition 4.1 regularity and
+    admissibility checks.  If (RLP) is feasible for a regularized
+    period/Schiffer seed, then rank-defect compact \(g=2\) is excluded by the
+    same one-sided length-decrease argument as before.
+
+    If the reduced LP is infeasible, the cleaner Farkas fallback has no
+    independent equality multipliers.  In a fixed topology where endpoint
+    values, \(R_{\ell c}\), \(R_0\), \(R_c\), and restriction to \(Z_0\) are
+    continuous, separation gives \(\eta\ge0\) and a positive measure
+    \(\zeta\) on \(Z_0\), not both zero, such that
+
+    \[
+    \eta B_{\rm red}(G)+\int_{Z_0}\widehat V\,d\zeta\ge0
+    \tag{FD}
+    \]
+
+    for every allowed regularized seed \(G\).  Expanding the equality
+    correction gives
+
+    \[
+    \mathcal D_{\eta,\zeta}(G)
+    =
+    \eta B_{\rm safe}(G)
+    +\int_{Z_0}V_G\,d\zeta
+    -
+    (\eta\beta+\gamma)^TM^{-1}E(G),
+    \tag{D}
+    \]
+
+    where
+
+    \[
+    \gamma=
+    \binom{\int_{Z_0}U_{\psi_1}\,d\zeta}
+          {\int_{Z_0}U_{\psi_2}\,d\zeta}.
+    \]
+
+    This is the precise reduced dual.  It is equivalent to the unreduced form
+    with equality multipliers
+
+    \[
+    \binom{\lambda_0}{\lambda_c}
+    =
+    -M^{-T}(\eta\beta+\gamma).
+    \]
+
+    The reduced Farkas statement must now be interpreted on the actual
+    allowed seed space.  If the allowed rank-defect seeds are only
+
+    \[
+    \mathcal I=\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \]
+
+    where \(\Pi\) is the period-transfer seed and the other four seeds are
+    regularized Schiffer endpoint seeds, then the seed space is finite
+    dimensional.  In that case the Farkas dual gives only finitely many
+    endpoint-seed equations.  It does not imply a pointwise kernel identity on
+    \(J\).
+
+    For each seed \(j\in\mathcal I\), define
+
+    \[
+    b_j=B_{\rm red}(G_j),\qquad
+    f_j=\widehat V_{G_j}|_{Z_0}.
+    \]
+
+    Fix the period-seed coefficient to be one and vary only the four endpoint
+    Schiffer coefficients:
+
+    \[
+    G=G_\Pi+\sum_{\gamma}s_\gamma G_\gamma^{(\rho)},
+    \qquad
+    \gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}.
+    \]
+
+    The reduced rank-defect LP is the affine semi-infinite system
+
+    \[
+    \boxed{
+    b_\Pi+\sum_\gamma s_\gamma b_\gamma<0,
+    }
+    \tag{L0}
+    \]
+
+    \[
+    \boxed{
+    f_\Pi(x)+\sum_\gamma s_\gamma f_\gamma(x)<0
+    \quad (x\in Z_0).
+    }
+    \tag{LZ}
+    \]
+
+    If this affine LP is infeasible, finite-dimensional Farkas gives
+    \(\eta\ge0\) and a positive measure \(\zeta\) on \(Z_0\), not both zero,
+    such that
+
+    \[
+    \boxed{
+    \eta b_\gamma+\int_{Z_0}f_\gamma\,d\zeta=0
+    \quad
+    \text{for each }
+    \gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    }
+    \tag{D1}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    \eta b_\Pi+\int_{Z_0}f_\Pi\,d\zeta\ge0.
+    }
+    \tag{D2}
+    \]
+
+    This is the correct fallback for the finite Schiffer seed span.  No
+    principal-value equation follows from (D1),(D2) alone.
+
+    Moreover, \(\zeta\) can be made finite atomic.  The measure enters only
+    through the five numbers
+
+    \[
+    \int_{Z_0}
+    \begin{pmatrix}
+    f_{\alpha_1}\\
+    f_{\beta_1}\\
+    f_{\alpha_2}\\
+    f_{\beta_2}\\
+    f_\Pi
+    \end{pmatrix}
+    d\zeta.
+    \]
+
+    By conic Carathéodory in \(\mathbb R^5\), the same five moments are
+    realized by an atomic measure
+
+    \[
+    \zeta_*=\sum_{k=1}^{N}w_k\delta_{x_k},
+    \qquad
+    1\le N\le5,\quad w_k>0,\quad x_k\in Z_0.
+    \]
+
+    Therefore infeasibility of the affine reduced LP yields the finite atomic
+    obstruction
+
+    \[
+    \boxed{
+    \eta b_\gamma+\sum_{k=1}^{N}w_k f_\gamma(x_k)=0
+    \quad
+    \text{for every endpoint seed }\gamma,
+    }
+    \tag{Egamma}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    \eta b_\Pi+\sum_{k=1}^{N}w_k f_\Pi(x_k)\ge0.
+    }
+    \tag{Epi}
+    \]
+
+    The remaining finite obstruction is:
+
+    \[
+    \boxed{\textbf{AtomicFallbackExclusion}.}
+    \]
+
+    Prove that no \(\eta\ge0\), \(1\le N\le5\), \(w_k>0\), and
+    \(x_k\in Z_0\) satisfy \((\mathrm{Egamma})\), \((\mathrm{Epi})\), unless
+    the candidate lies on a pinching, positivity-boundary, or lower-genus
+    degeneration.  If this atomic fallback is excluded, the affine reduced LP
+    is feasible and rank-defect compact non-pinched \(g=2\) is ruled out.
+
+    The entries needed for this finite problem are the reduced Schiffer table:
+
+    \[
+    b_j
+    =
+    B_{\rm safe}(G_j)-\beta^TM^{-1}E(G_j),
+    \]
+
+    \[
+    f_j(x)
+    =
+    V_{G_j}(x)-
+    (U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_j),
+    \qquad x\in Z_0.
+    \]
+
+    For an endpoint Schiffer seed \(\gamma\), this means
+
+    \[
+    b_\gamma=
+    (a+b)R_{\ell c}^\gamma-aR_-^\gamma+bR_+^\gamma
+    -\beta^TM^{-1}
+    \binom{R_0^\gamma}{R_c^\gamma},
+    \]
+
+    \[
+    f_\gamma(x)=
+    V_\gamma(x)-
+    (U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}
+    \binom{R_0^\gamma}{R_c^\gamma}.
+    \]
+
+    Thus the next mandatory computation is the reduced Schiffer endpoint
+    table
+
+    \[
+    R_0^\gamma,\quad R_c^\gamma,\quad R_{\ell c}^\gamma,\quad
+    R_-^\gamma,\quad R_+^\gamma,\quad V_\gamma|_{Z_0},
+    \]
+
+    for \(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2\), plus the corresponding
+    period-seed entries.
+
+    A further finite-Hilbert equation follows only under an additional
+    density/closure hypothesis: the allowed regularized seed class must be
+    large enough, after equality correction, to test all smooth compactly
+    supported density perturbations in \(J\).  If that density hypothesis is
+    established, then the dual kernel is
+
+    \[
+    H_{\eta,\zeta}(x)
+    =
+    \eta\left(
+    a\log\frac1{|x-u|}
+    +b\log\frac1{|x-v|}
+    \right)
+    +U_\zeta(x)
+    -
+    (\eta\beta+\gamma)^TM^{-1}
+    \binom{1}{(x-c)^{-1}},
+    \tag{H}
+    \]
+
+    and annihilation of all smooth density tests gives \(H_{\eta,\zeta}=0\)
+    on \(J\).  Differentiating this identity yields, up to the global sign
+    convention in the \(R_c\)-row,
+
+    \[
+    \operatorname{p.v.}\int_J\frac{d\zeta(s)}{x-s}
+    +
+    \eta\left(\frac a{x-u}+\frac b{x-v}\right)
+    =
+    \frac{\Lambda_c}{(x-c)^2}.
+    \tag{PV}
+    \]
+
+    This finite-Hilbert equation is a conditional fallback target, not yet a
+    proved consequence of LP failure.  It should not be the next default
+    route unless a density/closure theorem for the seed class is first proved.
+    The immediate route is the finite-dimensional reduced Schiffer table and
+    AtomicFallbackExclusion above.
+
     Caveats: this formula is only valid after the zero-mass/fixed-period
     convention is fixed, the period row is continuous in the separated chart,
     \(\operatorname{Rel}=0\) or the calculation is restricted to

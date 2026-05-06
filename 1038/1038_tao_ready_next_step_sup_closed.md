@@ -2241,6 +2241,185 @@ fails, the Farkas dual produces an additional boundary/\(Z_0\) multiplier that
 must be routed back to the excluded regular KKT normal or to pinching/lower
 genus.
 
+State-lift audit:
+
+The LP above is the regularity-safe slice because it imposes \(R_0=R_c=0\)
+before applying the boundary length formula.  If one instead applies the
+branch state-lift first, then under the current convention
+\(\delta M=R_0\), \(\delta F=-R_c\), \(Y=-aX/b\), and the stationarity relation
+\(aA+bB=0\), the neck derivative becomes
+
+\[
+\boxed{
+aX\,\delta L_{uv}^{\rm lift}
+=(a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0.
+}
+\tag{SL-ND}
+\]
+
+Thus the documented LP is a sufficient condition, while the weaker
+state-lifted inequality
+
+\[
+(a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0<0
+\]
+
+is only available after a separate atom-state regularity check.  The formal
+\(\delta q,\delta c\) corrections can create singular atom-weight or
+atom-motion terms near \(c\), so they cannot be fed into Proposition 4.1
+without proving admissibility of the finite-\(\varepsilon\) perturbation.
+
+Farkas fallback is the next target, but it also needs a clean formulation:
+LP failure may first be an equality-row reachability failure rather than a
+boundary/\(Z_0\) obstruction, and the separation argument must specify the
+topological vector space in which endpoint values, \(R_{\ell c}\), and
+restriction to \(Z_0\) are continuous.  After those safeguards, the fallback
+dual is governed by the local-correction table, the regularized Schiffer
+endpoint table, and the \(Z_0\)-pairing table.
+
+Reduced LP update:
+
+The equality rows can be eliminated without atom-state variations.  Pick two
+smooth density bumps \(\psi_1,\psi_2\) in positive-density regular interiors,
+away from \(u,c,v\), branch endpoints, and the \(Z_0\)-boundary, such that
+
+\[
+M=
+\begin{pmatrix}
+R_0(\psi_1)&R_0(\psi_2)\\
+R_c(\psi_1)&R_c(\psi_2)
+\end{pmatrix}
+\]
+
+is invertible.  This is achieved by shrinking the bumps to two distinct points
+\(x_1,x_2\ne c\), since the determinant tends to
+
+\[
+\frac1{x_2-c}-\frac1{x_1-c}\ne0.
+\]
+
+For a density seed \(G\), set
+
+\[
+E(G)=\binom{R_0(G)}{R_c(G)},\qquad
+\widehat G=G-\sum_{j=1}^2(M^{-1}E(G))_j\psi_j.
+\]
+
+Then \(R_0(\widehat G)=R_c(\widehat G)=0\).  With
+
+\[
+\beta=
+\binom{B_{\rm safe}(\psi_1)}
+      {B_{\rm safe}(\psi_2)},
+\]
+
+the reduced boundary functional is
+
+\[
+\boxed{
+B_{\rm red}(G)
+=B_{\rm safe}(G)-\beta^TM^{-1}E(G).
+}
+\tag{Bred}
+\]
+
+Thus the safe rank-defect target becomes
+
+\[
+\boxed{
+B_{\rm red}(G)<0,\qquad
+\widehat V<0\quad\text{on }Z_0.
+}
+\tag{RLP}
+\]
+
+If this reduced LP is feasible for a regularized Schiffer-period seed, the
+rank-defect chamber is excluded.  If it is infeasible, Farkas gives a reduced
+dual
+
+\[
+\eta B_{\rm red}(G)+\int_{Z_0}\widehat V\,d\zeta\ge0,
+\qquad \eta\ge0,\quad \zeta\ge0.
+\]
+
+For the actual finite seed class
+
+\[
+\mathcal I=\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\},
+\]
+
+this dual must remain finite-dimensional.  Define
+
+\[
+b_j=B_{\rm red}(G_j),\qquad
+f_j=\widehat V_{G_j}|_{Z_0}.
+\]
+
+With the period seed fixed and the four endpoint Schiffer coefficients varied,
+the affine reduced LP is
+
+\[
+b_\Pi+\sum_\gamma s_\gamma b_\gamma<0,
+\qquad
+f_\Pi+\sum_\gamma s_\gamma f_\gamma<0\quad\text{on }Z_0.
+\]
+
+If this affine system is infeasible, finite-dimensional Farkas gives
+\(\eta\ge0\) and \(\zeta\ge0\) on \(Z_0\) such that
+
+\[
+\eta b_\gamma+\int_{Z_0}f_\gamma\,d\zeta=0
+\quad(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2),
+\]
+
+\[
+\eta b_\Pi+\int_{Z_0}f_\Pi\,d\zeta\ge0.
+\]
+
+By conic Carathéodory in \(\mathbb R^5\), \(\zeta\) may be replaced by an
+atomic measure with at most five atoms:
+
+\[
+\zeta_*=\sum_{k=1}^{N}w_k\delta_{x_k},
+\qquad
+1\le N\le5,\quad w_k>0,\quad x_k\in Z_0.
+\]
+
+Thus the next obstruction is finite:
+
+\[
+\eta b_\gamma+\sum_{k=1}^{N}w_k f_\gamma(x_k)=0,
+\qquad
+\eta b_\Pi+\sum_{k=1}^{N}w_k f_\Pi(x_k)\ge0.
+\]
+
+The required next theorem is `AtomicFallbackExclusion`: show this finite atomic
+certificate is impossible unless the candidate is already on a pinching,
+positivity-boundary, or lower-genus degeneration.
+
+Converting this fallback into a finite-Hilbert equation is conditional: the
+allowed seed class must be dense enough, after equality correction, to test all
+smooth compactly supported density perturbations on \(J\).  Under that
+additional density/closure hypothesis, the fallback kernel satisfies
+
+\[
+\operatorname{p.v.}\int_J\frac{d\zeta(s)}{x-s}
++\eta\left(\frac a{x-u}+\frac b{x-v}\right)
+=\frac{\Lambda_c}{(x-c)^2}.
+\tag{PV}
+\]
+
+The PV route is therefore only an optional conditional fallback.  The immediate
+task is to compute the reduced Schiffer table
+
+\[
+b_j=B_{\rm safe}(G_j)-\beta^TM^{-1}E(G_j),
+\qquad
+f_j=V_{G_j}-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_j),
+\]
+
+and then prove `AtomicFallbackExclusion`.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final
