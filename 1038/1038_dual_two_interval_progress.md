@@ -11482,6 +11482,58 @@ theorem queue.
     \tag{G1NoAtomSign}
     \]
 
+    Equivalently, define the scalar collinearity minors
+
+    \[
+    \boxed{
+    \Delta_{\gamma\gamma'}
+    =
+    b_\gamma\rho_{\gamma'}-b_{\gamma'}\rho_\gamma,
+    \qquad
+    \gamma,\gamma'\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}.
+    }
+    \tag{G1NoAtomMinors}
+    \]
+
+    Then \(b_S\notin\mathbb R\rho_S\) iff at least one
+    \(\Delta_{\gamma\gamma'}\ne0\).  If all minors vanish and
+    \(\rho_S\ne0\), the ratio is unique:
+
+    \[
+    \Lambda=\frac{b_\gamma}{\rho_\gamma}
+    \quad\text{for any }\gamma\text{ with }\rho_\gamma\ne0.
+    \tag{G1NoAtomLambda}
+    \]
+
+    If all minors vanish and \(\rho_S=0\), then either \(b_S\ne0\), in which
+    case (G1NoAtomRelation) has no nonzero no-atom certificate, or \(b_S=0\),
+    in which case the four Schiffer endpoint columns lose both the boundary
+    and equality-anchor projections.  That is a repaired-column row-rank
+    degeneration and is routed to Gate 3.
+
+    We record the finite theorem needed for this branch:
+
+    \[
+    \boxed{\textbf{Gate1NoAtomCertificateExclusion}.}
+    }
+    \]
+
+    In the regular moving chart, the \(\zeta=0\) Farkas branch is absent if
+    some \(\Delta_{\gamma\gamma'}\ne0\).  If all minors vanish and
+    \(\rho_S\ne0\), it is excluded exactly by
+
+    \[
+    \boxed{
+    b_\Pi-\frac{b_\gamma}{\rho_\gamma}\rho_\Pi<0
+    \quad
+    (\rho_\gamma\ne0).
+    }
+    \tag{G1NoAtomFinalCheck}
+    \]
+
+    If all minors vanish and \(\rho_S=b_S=0\), the case is not an interior
+    no-atom certificate but a chart-rank boundary mode.
+
     This closes the \(\zeta=0\) subcase as an explicit finite algebraic test:
     either \(b_S\) is not collinear with \(\rho_S\), or the unique collinearity
     ratio gives a negative period lift.  No \(Q_{\rm eff}\) or point-row

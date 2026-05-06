@@ -4104,6 +4104,28 @@ Thus the no-atom subcase is excluded by the explicit finite test
 b_S=\Lambda\rho_S\Rightarrow b_\Pi-\Lambda\rho_\Pi<0.
 \]
 
+Equivalently, with
+
+\[
+\Delta_{\gamma\gamma'}=b_\gamma\rho_{\gamma'}-b_{\gamma'}\rho_\gamma,
+\]
+
+the no-atom branch is absent if some \(\Delta_{\gamma\gamma'}\ne0\).  If all
+minors vanish and \(\rho_S\ne0\), then
+
+\[
+\Lambda=b_\gamma/\rho_\gamma
+\]
+
+for any nonzero \(\rho_\gamma\), and the branch is excluded by
+
+\[
+b_\Pi-\frac{b_\gamma}{\rho_\gamma}\rho_\Pi<0.
+\]
+
+If all minors vanish and \(\rho_S=b_S=0\), this is a repaired-column row-rank
+boundary mode, not an interior no-atom certificate.
+
 The remaining Gate 1 branch is exactly the \(\zeta\ne0\) branch: it requires a
 no-\(Z_0\)-atom theorem for the reduced Farkas fallback, or a direct raw
 first-order sign proof with the \(Z_0\)-atoms included.
