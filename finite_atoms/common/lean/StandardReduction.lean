@@ -2677,6 +2677,27 @@ structure PositiveComponent (μ : ProbabilityMeasure UnitInterval1038) where
   left_lt_right : left < right
   interval_pos : Ioo left right ⊆ PositiveSet (unitIntervalLogPotential μ)
 
+/-- Build a positive component package from an open interval contained in the
+positive set.  This is the first component-selection bridge: the genuinely hard
+part is producing the interval witness from the variation argument. -/
+def PositiveComponent.of_interval_subset_positiveSet
+    {μ : ProbabilityMeasure UnitInterval1038} {l r : ℝ}
+    (hlr : l < r)
+    (hpos : Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    PositiveComponent μ where
+  left := l
+  right := r
+  left_lt_right := hlr
+  interval_pos := hpos
+
+/-- Existence form of `PositiveComponent.of_interval_subset_positiveSet`. -/
+theorem exists_positiveComponent_of_interval_subset_positiveSet
+    {μ : ProbabilityMeasure UnitInterval1038} {l r : ℝ}
+    (hlr : l < r)
+    (hpos : Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ, C.left = l ∧ C.right = r := by
+  refine ⟨PositiveComponent.of_interval_subset_positiveSet hlr hpos, rfl, rfl⟩
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
