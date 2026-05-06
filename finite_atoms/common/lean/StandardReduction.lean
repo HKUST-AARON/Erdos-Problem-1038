@@ -5154,6 +5154,26 @@ theorem singularTail_exists_small_finite_exception
       exact lt_of_not_ge hxN
     exact lt_trans hlt ENNReal.ofReal_lt_top
 
+/--
+Strict-outside/off-diagonal version of the small singular-tail exceptional-set
+provider.  The exceptional set itself comes from the global tail estimate; the
+extra strict-outside and off-diagonal hypotheses are preserved for the
+replacement objective interface.
+-/
+theorem singularTail_exists_small_strictOutside_exception
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (ε : ℝ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      ∀ x : ℝ, StrictOutsideComponent C x →
+        x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases singularTail_exists_small_finite_exception ε μ η hη with
+    ⟨N, hN, hfinite⟩
+  refine ⟨N, hN, ?_⟩
+  intro x _hxstrict _hxdiag hxN
+  exact hfinite x hxN
+
 theorem unitIntervalLogPotential_objective_lsc_from_tail_control
     {ι : Type*} {L : Filter ι}
     (μ : ProbabilityMeasure UnitInterval1038)
