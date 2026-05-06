@@ -3069,6 +3069,33 @@ Hermite pole-cancellation correction
 which is not shown to be a positive Cauchy average of the six local jet
 kernels.  Therefore the determinant-sign proof stops at this exact point.
 
+There is also a sharper fixed-\(Q\) audit.  In the \(g=2\) decay normalization
+\(\deg P=d-3\), while \(\deg D_\gamma=3\).  Hence
+\(\deg H_\gamma^{\rm raw}\le2d\), and the Hermite correction has degree at most
+\(2d-1\).  Since the normalization enforces
+
+\[
+H_\gamma(p_k)=H_\gamma'(p_k)=0
+\quad(k=1,\ldots,d),
+\]
+
+one has \(Q^2\mid H_\gamma\).  Therefore \(H_\gamma=q_\gamma Q^2\) with
+constant \(q_\gamma\).  Comparing leading coefficients gives
+
+\[
+\boxed{
+H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+=-\frac12\operatorname{lc}(P)\,Q^2
+}
+\]
+
+under the monic convention for \(Q\).  Thus the endpoint columns currently
+written in the fixed-\(Q\) Hermite table are all proportional to
+\(C_\Pi=\kappa/R\).  The endpoint Schiffer table is therefore degenerate, not
+just missing a sign proof.  The table must be repaired by adding the actual
+endpoint numerator variation, using a moving-\(Q\) chart, or otherwise defining
+four independent regularized Schiffer endpoint directions.
+
 Gate status:
 
 \[
@@ -3077,9 +3104,9 @@ Gate status:
 }
 \]
 
-The algebraic reductions are usable, but the Hermite-corrected Schiffer
-determinant sign is not proved.  Therefore the later gates--Proposition 4.1
-interface, pinching, high genus, Lemma R, and final assembly--must remain
+The algebraic reductions are usable, but the current fixed-\(Q\) endpoint
+columns collapse to the period column.  Therefore the later gates--Proposition
+4.1 interface, pinching, high genus, Lemma R, and final assembly--must remain
 conditional rather than completed.
 
 Hence the rank-defect conclusion currently has the precise conditional form:

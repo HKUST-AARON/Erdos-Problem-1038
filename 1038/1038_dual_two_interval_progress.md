@@ -8839,6 +8839,93 @@ theorem queue.
     stops exactly here: without a new determinant identity for these
     Hermite-corrected columns, (RAS) is not proved.
 
+    Collapse audit of the fixed-\(Q\) endpoint columns.
+
+    There is an even sharper obstruction in the current fixed-\(Q\) endpoint
+    table.  Let \(d=\deg Q\).  In the \(g=2\) Cauchy-transform normalization
+    used above,
+
+    \[
+    \deg P=d-3,\qquad \deg D_\gamma=3,
+    \]
+
+    hence
+
+    \[
+    \deg H_\gamma^{\rm raw}
+    =
+    \deg(PQD_\gamma)
+    \le 2d.
+    \]
+
+    The Hermite correction terms \(B_{k,1}\) have degree at most \(2d-1\), so
+    the normalized numerator also has
+
+    \[
+    \deg H_\gamma\le 2d.
+    \]
+
+    But the normalization imposes
+
+    \[
+    H_\gamma(p_k)=H_\gamma'(p_k)=0
+    \qquad(k=1,\ldots,d).
+    \]
+
+    Since the \(p_k\) are simple zeros of \(Q\), this gives
+
+    \[
+    Q^2\mid H_\gamma.
+    \]
+
+    Therefore
+
+    \[
+    H_\gamma=q_\gamma Q^2
+    \]
+
+    with \(q_\gamma\) constant.  The leading coefficient of \(H_\gamma\) is the
+    leading coefficient of \(H_\gamma^{\rm raw}\), because the Hermite
+    correction has lower degree.  Since \(D_\gamma\) is monic for every branch
+    endpoint \(\gamma\),
+
+    \[
+    q_\gamma=-\frac12\,\operatorname{lc}(P)\operatorname{lc}(Q)
+    \]
+
+    is independent of \(\gamma\).  With the monic convention
+    \(Q(z)=\prod_k(z-p_k)\), this is
+
+    \[
+    \boxed{
+    H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+    =
+    -\frac12\,\operatorname{lc}(P)\,Q^2.
+    }
+    \tag{EndpointCollapse}
+    \]
+
+    Thus the current fixed-\(Q\) Hermite-normalized endpoint columns satisfy
+
+    \[
+    C_{\alpha_1}=C_{\beta_1}=C_{\alpha_2}=C_{\beta_2}
+    =
+    -\frac12\,\operatorname{lc}(P)\frac1R,
+    \]
+
+    so they are all proportional to the period column \(C_\Pi=\kappa/R\).
+    Consequently the four endpoint Schiffer columns in the present table do not
+    form a four-dimensional correction space.  The raw augmented determinant
+    test is therefore not merely unproved; with these columns it is degenerate.
+
+    This identifies the required repair.  The endpoint Schiffer seed cannot be
+    just the fixed-\(P\), fixed-\(Q\) branch variation followed by Hermite
+    cancellation of \(Q\)-poles.  One must replace the endpoint table by an
+    actual non-collapsing Schiffer chart, for example by including the required
+    numerator variation \(\delta P_\gamma\), using a moving-\(Q\) chart, or
+    otherwise defining four independent regularized Schiffer endpoint
+    directions before returning to the circuit sign problem.
+
     Gate status.
 
     \[
@@ -8849,10 +8936,11 @@ theorem queue.
 
     The failure is not in the \(A_c\)-elimination, the period column, the
     zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
-    failure is exactly the missing determinant-sign theorem for the
-    Hermite-corrected Schiffer columns.  Under the execution protocol, this
-    means Gates 2--7 must not be written as completed consequences.  They remain
-    queued conditional bridges, activated only after
+    failure is exactly the endpoint-column collapse (EndpointCollapse), hence
+    the absence of a nondegenerate four-column Schiffer correction space.  Under
+    the execution protocol, this means Gates 2--7 must not be written as
+    completed consequences.  They remain queued conditional bridges, activated
+    only after the endpoint Schiffer table is repaired and
     `AugmentedSchifferChebyshevLemma` is proved or replaced by a different
     proof of (RAS).
 
