@@ -1667,6 +1667,25 @@ lemma positiveSet_measure_le_of_thresholds_le
   rw [positiveSet_measure_eq_iSup_thresholds U]
   exact iSup_le hB
 
+lemma exists_iSup_nat_le_add_of_ne_top
+    (f : ℕ → ℝ≥0∞) {η : NNReal}
+    (hη : 0 < η) (hfinite : (⨆ n : ℕ, f n) ≠ ∞) :
+    ∃ n : ℕ, (⨆ n : ℕ, f n) ≤ f n + (η : ℝ≥0∞) := by
+  let S : ℝ≥0∞ := ⨆ n : ℕ, f n
+  by_cases hSzero : S = 0
+  · exact ⟨0, by simp [S, hSzero]⟩
+  · have hη_ne : (η : ℝ≥0∞) ≠ 0 := by
+      exact_mod_cast (ne_of_gt hη)
+    have hsub_lt : S - (η : ℝ≥0∞) < S := by
+      exact ENNReal.sub_lt_self (by simpa [S] using hfinite) hSzero hη_ne
+    have hexists : ∃ n : ℕ, S - (η : ℝ≥0∞) < f n := by
+      simpa [S] using (lt_iSup_iff.mp hsub_lt)
+    rcases hexists with ⟨n, hn⟩
+    refine ⟨n, le_of_lt ?_⟩
+    have hlt : S < (η : ℝ≥0∞) + f n :=
+      ENNReal.lt_add_of_sub_lt_left (Or.inl (by simpa [S] using hfinite)) hn
+    simpa [add_comm] using hlt
+
 lemma probability_measure_open_liminf_of_tendsto
     {Ω ι : Type*} {L : Filter ι}
     [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
@@ -5840,6 +5859,31 @@ theorem unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels
     simp [unitIntervalTruncatedPositiveSet]]
   exact (unitIntervalTruncatedPositiveSet_level_mono μ).measure_iUnion
 
+theorem unitIntervalTruncatedPositiveSet_exists_level_volume_le_add
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ truncN : ℕ,
+      volume (unitIntervalTruncatedPositiveSet μ) ≤
+        volume {x : ℝ | 0 <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (η : ℝ≥0∞) := by
+  have hfinite :
+      (⨆ n : ℕ, volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x}) ≠ ∞ := by
+    simpa [← unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels μ]
+      using unitIntervalTruncatedPositiveSet_volume_ne_top μ
+  rcases exists_iSup_nat_le_add_of_ne_top
+      (fun n : ℕ => volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x})
+      hη hfinite with
+    ⟨truncN, htruncN⟩
+  exact ⟨truncN, by
+    simpa [unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels μ]
+      using htruncN⟩
+
 theorem unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
     (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ) :
     {x : ℝ |
@@ -5901,6 +5945,121 @@ theorem unitIntervalTruncatedPotential_threshold_exists_compact_core
   rcases hSmeas.exists_isCompact_diff_lt hfinite hη_ne with
     ⟨K, hKsub, hKcompact, hdiff_lt⟩
   exact ⟨K, hKsub, hKcompact, le_of_lt hdiff_lt⟩
+
+theorem unitIntervalTruncatedPotential_positiveSet_exists_threshold_volume_le_add
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ thresholdN : ℕ,
+      volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ≤
+        volume {x : ℝ |
+          unitIntervalPositiveTruncationScale thresholdN <
+            unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (η : ℝ≥0∞) := by
+  let U : ℝ → ℝ :=
+    fun x => unitIntervalTruncatedPotential
+      (unitIntervalPositiveTruncationScale truncN) μ x
+  have hfinite :
+      (⨆ thresholdN : ℕ,
+        volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x}) ≠ ∞ := by
+    have hle :
+        (⨆ thresholdN : ℕ,
+          volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x}) ≤
+          volume (Ioo (-2 : ℝ) 2) := by
+      refine iSup_le ?_
+      intro thresholdN
+      exact measure_mono (μ := volume)
+        (by
+          intro x hx
+          exact unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+            μ truncN thresholdN hx)
+    have hfinite_window : volume (Ioo (-2 : ℝ) 2) ≠ ∞ := by
+      rw [Real.volume_Ioo]
+      exact ENNReal.ofReal_ne_top
+    exact ne_top_of_le_ne_top hfinite_window hle
+  rcases exists_iSup_nat_le_add_of_ne_top
+      (fun thresholdN : ℕ =>
+        volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x})
+      hη hfinite with
+    ⟨thresholdN, hthresholdN⟩
+  refine ⟨thresholdN, ?_⟩
+  simpa [U, unitIntervalPositiveTruncationScale,
+    positiveSet_measure_eq_iSup_thresholds] using hthresholdN
+
+theorem unitIntervalTruncatedPositiveSetObjective_compact_threshold_core :
+    ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K := by
+  intro μ η hη
+  let ηPart : NNReal := η / 3
+  have hηPart : 0 < ηPart := by
+    positivity
+  rcases unitIntervalTruncatedPositiveSet_exists_level_volume_le_add
+      μ ηPart hηPart with
+    ⟨truncN, hlevel⟩
+  rcases unitIntervalTruncatedPotential_positiveSet_exists_threshold_volume_le_add
+      μ truncN ηPart hηPart with
+    ⟨thresholdN, hthreshold⟩
+  rcases unitIntervalTruncatedPotential_threshold_exists_compact_core
+      μ truncN thresholdN ηPart hηPart with
+    ⟨K, hKsub, hKcompact, hKmeasure⟩
+  refine ⟨truncN, thresholdN, K, ?_, hKsub, hKcompact⟩
+  let S : Set ℝ := {x : ℝ |
+    unitIntervalPositiveTruncationScale thresholdN <
+      unitIntervalTruncatedPotential
+        (unitIntervalPositiveTruncationScale truncN) μ x}
+  have hSmeasure : volume S ≤ volume K + (ηPart : ℝ≥0∞) := by
+    have hSsubset : S ⊆ K ∪ (S \ K) := by
+      intro x hx
+      by_cases hxK : x ∈ K
+      · exact Or.inl hxK
+      · exact Or.inr ⟨hx, hxK⟩
+    have hmono : volume S ≤ volume (K ∪ (S \ K)) :=
+      measure_mono hSsubset
+    have hunion : volume (K ∪ (S \ K)) ≤ volume K + volume (S \ K) :=
+      measure_union_le _ _
+    calc
+      volume S ≤ volume (K ∪ (S \ K)) := hmono
+      _ ≤ volume K + volume (S \ K) := hunion
+      _ ≤ volume K + (ηPart : ℝ≥0∞) := by
+            simpa [S, add_comm, add_left_comm, add_assoc] using
+              add_le_add_right hKmeasure (volume K)
+  have hη_cast :
+      (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) = (η : ℝ≥0∞) := by
+    simpa [ηPart] using ENNReal.add_thirds (η : ℝ≥0∞)
+  calc
+    volume (unitIntervalTruncatedPositiveSet μ)
+        ≤ volume {x : ℝ | 0 <
+            unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (ηPart : ℝ≥0∞) := hlevel
+    _ ≤ (volume {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞) := by
+            exact add_le_add hthreshold le_rfl
+    _ ≤ ((volume K + (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞)) +
+          (ηPart : ℝ≥0∞) := by
+            simpa [S, add_assoc] using
+              add_le_add_right (add_le_add hSmeasure le_rfl)
+                (ηPart : ℝ≥0∞)
+    _ = volume K + (η : ℝ≥0∞) := by
+            calc
+              ((volume K + (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞)) +
+                    (ηPart : ℝ≥0∞)
+                  = volume K + ((ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) +
+                    (ηPart : ℝ≥0∞)) := by ac_rfl
+              _ = volume K + (η : ℝ≥0∞) := by rw [hη_cast]
 
 /-- Truncated-sup positive-set length objective. -/
 def unitIntervalTruncatedPositiveSetObjective
@@ -7283,24 +7442,24 @@ theorem unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_stabili
   refine unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control ?_
   intro μ n ε hε
   let δ : ℝ := (1 / ((n : ℝ) + 1)) / 3
-  let ηHalf : NNReal := ε / 2
+  let ηPart : NNReal := ε / 2
   have hδ_pos : 0 < δ := by
     dsimp [δ]
     positivity
-  have hηHalf_pos : 0 < ηHalf := by
-    dsimp [ηHalf]
+  have hηPart_pos : 0 < ηPart := by
+    dsimp [ηPart]
     positivity
-  rcases exists_tailScale_for_target (δ := δ) (η := ηHalf)
-      hδ_pos hηHalf_pos with
+  rcases exists_tailScale_for_target (δ := δ) (η := ηPart)
+      hδ_pos hηPart_pos with
     ⟨truncε, htruncε_pos, hscale⟩
-  refine ⟨truncε, (ηHalf : ℝ≥0∞), (ηHalf : ℝ≥0∞),
+  refine ⟨truncε, (ηPart : ℝ≥0∞), (ηPart : ℝ≥0∞),
     htruncε_pos, ?_, ?_, ?_, ?_⟩
-  · exact ne_of_gt (ENNReal.coe_pos.mpr hηHalf_pos)
+  · exact ne_of_gt (ENNReal.coe_pos.mpr hηPart_pos)
   · simpa [δ] using
       singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
         truncε μ hδ_pos hscale
   · have hbudget_eq :
-        (ηHalf : ℝ≥0∞) + (ηHalf : ℝ≥0∞) = (ε : ℝ≥0∞) := by
+        (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) = (ε : ℝ≥0∞) := by
       rw [← ENNReal.coe_add]
       congr 1
       exact add_halves ε
