@@ -2259,6 +2259,42 @@ def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
   right_endpoint_positive := right_endpoint_positive
   right_endpoint_not_mem_support := right_endpoint_not_mem_support
 
+/--
+Endpoint-mass/endpoint-order variant of the countable-rigidity constructor.
+It removes the direct `componentBarycenter = -1` input by deriving it from
+component-block atomization, positive mass at the normalized endpoint, baseline
+containment, and the strict left-endpoint order.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_lt
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α}
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CountableSupportHitNormalizedBlockRigidityData P a b M.μ)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (right_region_eq :
+      D.replacement.component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩
+          Ioi D.replacement.component.left)
+    (baseline_inside_component :
+      Ioo (-1 : ℝ) 0 ⊆ D.replacement.component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (endpoint_mass_pos : 0 < (realMeasure M.μ) ({-1} : Set ℝ))
+    (left_endpoint_lt : D.replacement.component.left < (-1 : ℝ))
+    (right_endpoint_positive : 0 < D.replacement.component.right)
+    (right_endpoint_not_mem_support :
+      D.replacement.component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M :=
+  CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
+    D mean_choice reflected translation right_region_eq
+    baseline_inside_component real_support_bounded
+    (componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
+      D.replacement.component D.componentBlock_eq_dirac endpoint_mass_pos
+      baseline_inside_component left_endpoint_lt)
+    right_endpoint_positive right_endpoint_not_mem_support
+
 end
 end ComponentAtomization
 end StandardReduction

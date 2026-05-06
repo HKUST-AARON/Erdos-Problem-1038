@@ -276,12 +276,15 @@ The constructors
 
 ```lean
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
+CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_lt
 ```
 
 remove the direct component-block atomization input when the caller has
 the countable-support-hit normalized rigidity package.  It uses
 `CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac`
-internally.
+internally.  The endpoint-mass/left-endpoint-order variant also removes the
+direct `componentBarycenter = -1` input from the canonical atomized right-region
+package.
 
 The theorem
 
