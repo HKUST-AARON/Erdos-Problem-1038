@@ -8341,6 +8341,31 @@ theorem outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
       continuous_subtype_val.measurable.aemeasurable).2 hunit
   exact hreal.restrict
 
+theorem endpointRemainder_logKernel_integrable_of_left_outside
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ} (hx : x < -1) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  have hunit :
+      Integrable
+        ((fun t : ℝ => Real.log (1 / |x - t|)) ∘
+          (fun t : UnitInterval1038 => (t : ℝ)))
+        (μ : Measure UnitInterval1038) :=
+    unitInterval_logKernel_integrable_of_left_outside (μ := μ) hx
+  have hkernel_meas :
+      AEStronglyMeasurable
+        (fun t : ℝ => Real.log (1 / |x - t|))
+        (Measure.map (fun t : UnitInterval1038 => (t : ℝ))
+          (μ : Measure UnitInterval1038)) :=
+    (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+  have hreal :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (realMeasure μ) := by
+    dsimp [realMeasure]
+    exact (integrable_map_measure hkernel_meas
+      continuous_subtype_val.measurable.aemeasurable).2 hunit
+  exact hreal.restrict
+
 /--
 Off-diagonal component-replacement objective wrapper.
 
