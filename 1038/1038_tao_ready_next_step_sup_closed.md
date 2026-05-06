@@ -3752,6 +3752,55 @@ A_\mu=\frac{-p_\mu+m_\mu\pi_1}{\pi_0}
 provided \(\pi_0\ne0\).  If \(\pi_0=0\), the period normalization degenerates
 and the point must be treated as chart-rank boundary or reparametrized.
 
+The unnormalized transforms are explicit.  The constant row gives
+\(\widetilde C_0=0\), so it is removed from the zero-mass Gram basis.  For
+\(s\in\{u,c,v\}\),
+
+\[
+\widetilde C_s
+=
+\frac{R(z)-R(s)-R'(s)(z-s)}
+{(z-s)^2R(z)}.
+\]
+
+For the split log rows,
+
+\[
+\widetilde C_-
+=
+-\frac1{z-u}+\frac1{z-c}
+-
+\frac1R\left(-\frac{R(u)}{z-u}+\frac{R(c)}{z-c}\right),
+\]
+
+\[
+\widetilde C_+
+=
+-\frac1{z-c}+\frac1{z-v}
+-
+\frac1R\left(-\frac{R(c)}{z-c}+\frac{R(v)}{z-v}\right).
+\]
+
+For the anchor row,
+
+\[
+\widetilde C_{\log c}
+=
+\frac1{z-c}-\frac{R(c)}{(z-c)R(z)}.
+\]
+
+The mass coefficients are
+
+\[
+m(\widetilde C_s)=m(\widetilde C_-)=m(\widetilde C_+)=0,
+\qquad
+m(\widetilde C_{\log c})=1.
+\]
+
+Thus \(B_\mu=0\) for all Cauchy and split-log rows, while
+\(B_{\log c}=-1\).  The remaining \(A_\mu\)'s are one-dimensional period
+evaluations through the formula above.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

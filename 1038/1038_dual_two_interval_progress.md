@@ -10581,6 +10581,131 @@ theorem queue.
     \tag{G1CAlgorithm}
     \]
 
+    Explicit \(\widetilde C_\mu\) and mass coefficients.
+
+    From (G1RowKernelTable), the unnormalized transforms
+    \(\widetilde C_\mu=f_\mu-\operatorname{PP}_\mu/R\) are:
+
+    \[
+    \boxed{
+    \widetilde C_0=0.
+    }
+    \tag{G1CtildeConst}
+    \]
+
+    Thus the constant row is zero on the zero-mass Hilbert space and must be
+    removed from any Gram basis.  Keeping it would make \(C\) singular for a
+    purely formal reason.
+
+    For \(s\in\{u,c,v\}\),
+
+    \[
+    \boxed{
+    \widetilde C_s(z)
+    =
+    \frac{1}{(z-s)^2}
+    -
+    \frac{1}{R(z)}
+    \left(
+    \frac{R(s)}{(z-s)^2}
+    +
+    \frac{R'(s)}{z-s}
+    \right)
+    =
+    \frac{R(z)-R(s)-R'(s)(z-s)}
+    {(z-s)^2R(z)}.
+    }
+    \tag{G1CtildeCauchy}
+    \]
+
+    For the two split log rows,
+
+    \[
+    \boxed{
+    \widetilde C_-(z)
+    =
+    -\frac1{z-u}+\frac1{z-c}
+    -
+    \frac1{R(z)}
+    \left(
+    -\frac{R(u)}{z-u}
+    +
+    \frac{R(c)}{z-c}
+    \right),
+    }
+    \tag{G1CtildeMinus}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    \widetilde C_+(z)
+    =
+    -\frac1{z-c}+\frac1{z-v}
+    -
+    \frac1{R(z)}
+    \left(
+    -\frac{R(c)}{z-c}
+    +
+    \frac{R(v)}{z-v}
+    \right).
+    }
+    \tag{G1CtildePlus}
+    \]
+
+    For the anchor log row,
+
+    \[
+    \boxed{
+    \widetilde C_{\log c}(z)
+    =
+    \frac1{z-c}
+    -
+    \frac{R(c)}{(z-c)R(z)}.
+    }
+    \tag{G1CtildeLogc}
+    \]
+
+    Taking \(m(T)=[z^{-1}]_\infty T\), and using \(R(z)\sim z^2\), gives
+
+    \[
+    \boxed{
+    m(\widetilde C_s)=0\quad(s=u,c,v),\qquad
+    m(\widetilde C_-)=m(\widetilde C_+)=0,\qquad
+    m(\widetilde C_{\log c})=1.
+    }
+    \tag{G1MassCoefficients}
+    \]
+
+    Consequently the mass-normalizing coefficient \(B_\mu=-m_\mu\) is zero for
+    the Cauchy rows and split log rows, while
+
+    \[
+    \boxed{
+    B_{\log c}=-1.
+    }
+    \tag{G1Blogc}
+    \]
+
+    The remaining \(A_\mu\)'s are obtained from (G1NormSolution):
+
+    \[
+    A_s=-\frac{p(\widetilde C_s)}{\pi_0},
+    \quad
+    A_-=-\frac{p(\widetilde C_-)}{\pi_0},
+    \quad
+    A_+=-\frac{p(\widetilde C_+)}{\pi_0},
+    \quad
+    A_{\log c}=\frac{-p(\widetilde C_{\log c})+\pi_1}{\pi_0}.
+    \tag{G1Acoefficients}
+    \]
+
+    Thus every \(C_\mu\) used in the capacity-load matrix is now explicit up
+    to the two period constants \(\pi_0,\pi_1\) and the period evaluations
+    \(p(\widetilde C_\mu)\).  Those are one-dimensional period integrals in
+    the chosen separated chart.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
