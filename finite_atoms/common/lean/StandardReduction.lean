@@ -5095,6 +5095,65 @@ lemma exists_tailScale_for_target {δ : ℝ} {η : NNReal}
     · nlinarith [η.2]
     · positivity
 
+lemma exists_tailThreshold_for_target (ε : ℝ) {η : NNReal}
+    (hη : 0 < η) :
+    ∃ δ : ℝ,
+      0 < δ ∧
+      ENNReal.ofReal (2 * ε) / (ENNReal.ofReal δ / 2) ≤
+        (η : ℝ≥0∞) := by
+  let A : ℝ := max (2 * ε) 0 + 1
+  have hApos : 0 < A := by
+    dsimp [A]
+    nlinarith [le_max_right (2 * ε) (0 : ℝ)]
+  refine ⟨4 * A / (η : ℝ), ?_, ?_⟩
+  · positivity
+  · have hδpos : 0 < 4 * A / (η : ℝ) := by positivity
+    have hden_eq :
+        ENNReal.ofReal (4 * A / (η : ℝ)) / 2 =
+          ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) := by
+      simpa using
+        (ENNReal.ofReal_div_of_pos (x := 4 * A / (η : ℝ)) (y := 2)
+          (by norm_num : (0 : ℝ) < 2)).symm
+    rw [hden_eq]
+    have hden0 : ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) ≠ 0 := by
+      exact ne_of_gt (ENNReal.ofReal_pos.mpr (by positivity))
+    have hdentop : ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) ≠ ∞ :=
+      ENNReal.ofReal_ne_top
+    rw [ENNReal.div_le_iff hden0 hdentop]
+    have hright :
+        (η : ℝ≥0∞) * ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) =
+          ENNReal.ofReal ((η : ℝ) * ((4 * A / (η : ℝ)) / 2)) := by
+      rw [ENNReal.coe_nnreal_eq]
+      rw [← ENNReal.ofReal_mul (show 0 ≤ (η : ℝ) by exact η.2)]
+    rw [hright]
+    apply ENNReal.ofReal_le_ofReal
+    have hleA : 2 * ε ≤ A := by
+      dsimp [A]
+      nlinarith [le_max_left (2 * ε) (0 : ℝ)]
+    have heta_pos : 0 < (η : ℝ) := by exact_mod_cast hη
+    field_simp [ne_of_gt heta_pos]
+    nlinarith
+
+/--
+Arbitrarily small closed singular-tail exceptional set.  Outside this set, the
+fixed-scale singular tail mass is finite.
+-/
+theorem singularTail_exists_small_finite_exception
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      ∀ x : ℝ, x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases exists_tailThreshold_for_target ε hη with
+    ⟨δ, hδ, hscale⟩
+  refine ⟨{x : ℝ | ENNReal.ofReal δ ≤ singularTailMass ε μ x}, ?_, ?_⟩
+  · exact singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
+      ε μ hδ hscale
+  · intro x hxN
+    have hlt : singularTailMass ε μ x < ENNReal.ofReal δ := by
+      exact lt_of_not_ge hxN
+    exact lt_trans hlt ENNReal.ofReal_lt_top
+
 theorem unitIntervalLogPotential_objective_lsc_from_tail_control
     {ι : Type*} {L : Filter ι}
     (μ : ProbabilityMeasure UnitInterval1038)
