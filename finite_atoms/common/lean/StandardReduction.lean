@@ -12456,6 +12456,74 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
     D.baseline_length_le_positiveSet⟩
 
+/--
+Concrete-data version of the assembled standard-reduction endpoint consequence.
+
+Compared with
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_package`,
+the remaining provider no longer supplies a full
+`TaoVariationComponentPackage`.  It only supplies the genuine variational data:
+the selected component, its interval/baseline placement, right endpoint
+positivity, the boundary-average inequality, and normalized atomization.  The
+support facts, endpoint atom bookkeeping, endpoint-remainder mass/decomposition,
+and kernel integrability are assembled internally by the canonical constructor.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_concrete_component_data
+    (hConcreteFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer with
+    ⟨μ, hPrimary, hSecondary⟩
+  rcases hConcreteFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
+      hcomponent_interval, hbaseline, hright, hboundary, hnormalized_atomized⟩
+  let Pack : TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+    taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+      μ mean_choice reflected translation C R xMinus xPlus hcomponent_interval
+      hbaseline hright hboundary hnormalized_atomized
+  let D : TaoEndpointNormalizationData (unitIntervalLogPotential μ) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
