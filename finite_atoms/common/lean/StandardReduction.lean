@@ -7705,6 +7705,36 @@ theorem componentReplacement_objective_le_of_concrete_decomposition_jensen
       componentReplacement_blockKernel_le_original_of_strictOutside
         R hfirst hnormalized_block_integrable
 
+/--
+Concrete component-replacement objective wrapper with the outside part fixed to
+the concrete outside restricted potential.
+
+This removes the auxiliary `outsidePart` and its two comparison assumptions
+from `componentReplacement_objective_le_of_concrete_decomposition_jensen`.
+-/
+theorem componentReplacement_objective_le_of_concrete_outside_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hnormalized_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C))
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_concrete_decomposition_jensen
+    R (fun x => measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    ?_ ?_ houtside_integrable hcomponent_block_integrable
+    hnormalized_block_integrable hfirst
+  · intro x hx
+    exact le_rfl
+  · intro x hx
+    exact le_rfl
+
 /-!
 ## Finite variance drop under barycenter replacement
 
