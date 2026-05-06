@@ -8839,6 +8839,23 @@ theorem queue.
     stops exactly here: without a new determinant identity for these
     Hermite-corrected columns, (RAS) is not proved.
 
+    Gate status.
+
+    \[
+    \boxed{
+    \textbf{Gate 1 result: FAIL under the current documents.}
+    }
+    \]
+
+    The failure is not in the \(A_c\)-elimination, the period column, the
+    zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
+    failure is exactly the missing determinant-sign theorem for the
+    Hermite-corrected Schiffer columns.  Under the execution protocol, this
+    means Gates 2--7 must not be written as completed consequences.  They remain
+    queued conditional bridges, activated only after
+    `AugmentedSchifferChebyshevLemma` is proved or replaced by a different
+    proof of (RAS).
+
     Therefore the current honest conclusion is:
 
     \[

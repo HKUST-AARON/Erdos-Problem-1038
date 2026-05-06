@@ -3069,6 +3069,19 @@ Hermite pole-cancellation correction
 which is not shown to be a positive Cauchy average of the six local jet
 kernels.  Therefore the determinant-sign proof stops at this exact point.
 
+Gate status:
+
+\[
+\boxed{
+\textbf{Gate 1 result: FAIL under the current documents.}
+}
+\]
+
+The algebraic reductions are usable, but the Hermite-corrected Schiffer
+determinant sign is not proved.  Therefore the later gates--Proposition 4.1
+interface, pinching, high genus, Lemma R, and final assembly--must remain
+conditional rather than completed.
+
 Hence the rank-defect conclusion currently has the precise conditional form:
 
 \[
