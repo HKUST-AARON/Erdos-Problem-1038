@@ -7570,6 +7570,35 @@ theorem measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
       hrx hmem hfirst hkernel_int
 
 /--
+Integrability transfers from the component block to its normalized probability
+rescaling.  This is only the scalar-measure bridge; the caller still supplies
+the original component-block integrability.
+-/
+theorem ComponentReplacement.normalizedComponentBlock_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {f : ℝ → ℝ}
+    (hf : Integrable f (componentBlock C)) :
+    Integrable f (normalizedComponentBlock C) := by
+  unfold normalizedComponentBlock
+  exact hf.smul_measure (ENNReal.inv_ne_top.mpr (ne_of_gt R.mass_pos))
+
+theorem ComponentReplacement.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hkernel_int
+
+theorem ComponentReplacement.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (componentBlock C)) :
+    Integrable (fun t : ℝ => t) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hfirst
+
+/--
 Component-block Jensen inequality in normalized form.
 
 After normalizing the restricted component block to a probability measure, the
@@ -7734,6 +7763,33 @@ theorem componentReplacement_objective_le_of_concrete_outside_jensen
     exact le_rfl
   · intro x hx
     exact le_rfl
+
+/--
+Concrete component-replacement objective wrapper with normalized-block
+integrability discharged from component-block integrability.
+
+Remaining assumptions are the component-replacement data, outside kernel
+integrability, component-block kernel integrability, and component-block
+first-moment integrability.
+-/
+theorem componentReplacement_objective_le_of_componentBlock_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hcomponent_first : Integrable (fun t : ℝ => t) (componentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_concrete_outside_jensen
+    R houtside_integrable hcomponent_block_integrable ?_ ?_
+  · intro x hx
+    exact R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      (hcomponent_block_integrable x hx)
+  · exact R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      hcomponent_first
 
 /-!
 ## Finite variance drop under barycenter replacement
