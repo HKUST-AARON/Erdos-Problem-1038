@@ -3094,6 +3094,38 @@ def componentReplacementMeasure
   (realMeasure μ).restrict C.intervalᶜ +
     componentMass C • Measure.dirac (componentBarycenter C)
 
+/--
+Subtype probability measure obtained from the real replacement measure once its
+mass on the normalized interval is known to be one.
+
+This is the measure-construction part of the barycenter replacement.  The
+remaining analytic obligations are exactly the hypotheses that the replacement
+measure stays on `[-1,1]` with total mass one.
+-/
+noncomputable def componentReplacementProbability
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    ProbabilityMeasure UnitInterval1038 :=
+  ⟨Measure.comap (fun t : UnitInterval1038 => (t : ℝ))
+      (componentReplacementMeasure C), by
+    refine ⟨?_⟩
+    rw [Measure.comap_apply (fun t : UnitInterval1038 => (t : ℝ))
+      Subtype.coe_injective
+      (fun s hs => MeasurableSet.subtype_image measurableSet_Icc hs)
+      (componentReplacementMeasure C) MeasurableSet.univ]
+    simpa [UnitInterval1038] using hmass_unit⟩
+
+/-- The underlying measure of `componentReplacementProbability` is the subtype
+comap of the real replacement measure. -/
+theorem componentReplacementProbability_toMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    (componentReplacementProbability C hmass_unit : Measure UnitInterval1038) =
+      Measure.comap (fun t : UnitInterval1038 => (t : ℝ))
+        (componentReplacementMeasure C) := rfl
+
 structure ComponentReplacement
     (μ : ProbabilityMeasure UnitInterval1038) (C : PositiveComponent μ) where
   mass_pos : 0 < componentMass C
