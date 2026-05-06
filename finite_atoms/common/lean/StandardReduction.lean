@@ -2841,6 +2841,30 @@ lemma componentBlock_ae_mem_interval
   unfold componentBlock
   exact ae_restrict_mem₀ C.measurableSet_interval.nullMeasurableSet
 
+/--
+The component block has finite first moment automatically.  It is the
+restriction of the pushed-forward unit-interval probability measure, whose
+support is a.e. contained in `[-1,1]`, so the identity is bounded by `1` on the
+block.
+-/
+theorem componentBlock_firstMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t) (componentBlock C) := by
+  have hsupp : ∀ᵐ t : ℝ ∂componentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+    unfold componentBlock
+    refine (ae_restrict_iff' C.measurableSet_interval).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure (componentBlock C) := by
+    unfold componentBlock
+    infer_instance
+  have hconst : Integrable (fun _ : ℝ => (1 : ℝ)) (componentBlock C) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' measurable_id.aestronglyMeasurable ?_
+  filter_upwards [hsupp] with t ht
+  have ht_abs : |t| ≤ 1 := abs_le.mpr ht
+  simpa [Real.norm_eq_abs] using ht_abs
+
 lemma normalizedComponentBlock_ae_mem_interval
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (_R : ComponentReplacement μ C) :
@@ -7790,6 +7814,25 @@ theorem componentReplacement_objective_le_of_componentBlock_integrability_jensen
       (hcomponent_block_integrable x hx)
   · exact R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
       hcomponent_first
+
+/--
+Cleaner concrete component-replacement objective wrapper: first-moment
+integrability of the component block is discharged from the unit-interval
+support of `realMeasure μ`.
+-/
+theorem componentReplacement_objective_le_of_kernel_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_componentBlock_integrability_jensen
+    R houtside_integrable hcomponent_block_integrable
+    (componentBlock_firstMoment_integrable C)
 
 /-!
 ## Finite variance drop under barycenter replacement
