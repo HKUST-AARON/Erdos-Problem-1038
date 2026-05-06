@@ -6634,6 +6634,41 @@ theorem unitIntervalTruncatedPotential_mono_index
       (unitIntervalPositiveTruncationScale_antitone hnm)
   exact integral_mono_ae hfn_int hfm_int hle_ae
 
+theorem unitIntervalTruncatedPotential_mono_scale
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ)
+    {ε₁ ε₂ : ℝ} (hε₂ : 0 < ε₂) (hε₂_le : ε₂ ≤ ε₁) :
+    unitIntervalTruncatedPotential ε₁ μ x ≤
+      unitIntervalTruncatedPotential ε₂ μ x := by
+  unfold unitIntervalTruncatedPotential
+  have hε₁ : 0 < ε₁ := lt_of_lt_of_le hε₂ hε₂_le
+  have hfn_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel ε₁ x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ hε₁
+  have hfm_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel ε₂ x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ hε₂
+  have hle_ae :
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel ε₁ x (t : ℝ))
+        ≤ᵐ[(μ : Measure UnitInterval1038)]
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel ε₂ x (t : ℝ)) := by
+    filter_upwards with t
+    exact truncatedLogKernel_mono_of_scale_le hε₂ hε₂_le
+  exact integral_mono_ae hfn_int hfm_int hle_ae
+
+theorem exists_unitIntervalPositiveTruncationScale_le {ε : ℝ}
+    (hε : 0 < ε) :
+    ∃ n : ℕ, unitIntervalPositiveTruncationScale n ≤ ε := by
+  rcases exists_nat_one_div_lt hε with ⟨n, hn⟩
+  exact ⟨n, le_of_lt hn⟩
+
 theorem unitIntervalTruncatedPositiveSet_level_mono
     (μ : ProbabilityMeasure UnitInterval1038) :
     Monotone (fun n : ℕ =>
@@ -6654,6 +6689,16 @@ def unitIntervalTruncatedPositiveSet
   {x : ℝ | ∃ n : ℕ,
     0 < unitIntervalTruncatedPotential
       (unitIntervalPositiveTruncationScale n) μ x}
+
+theorem mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
+    {μ : ProbabilityMeasure UnitInterval1038} {ε x : ℝ}
+    (hε : 0 < ε) (hpos : 0 < unitIntervalTruncatedPotential ε μ x) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  rcases exists_unitIntervalPositiveTruncationScale_le hε with ⟨n, hn⟩
+  refine ⟨n, lt_of_lt_of_le hpos ?_⟩
+  exact unitIntervalTruncatedPotential_mono_scale μ x
+    (unitIntervalPositiveTruncationScale_pos n) hn
+
 theorem unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two
     (μ : ProbabilityMeasure UnitInterval1038) :
     unitIntervalTruncatedPositiveSet μ ⊆ Ioo (-2 : ℝ) 2 := by
@@ -7981,6 +8026,125 @@ theorem mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
     (abs_lt.mp herror).1
   refine ⟨n, ?_⟩
   linarith
+
+theorem mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {x truncε threshold : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hpos : threshold < unitIntervalLogPotential μ x)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htail : singularTailMass truncε μ x <
+      ENNReal.ofReal (threshold / 2)) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  have hhalf_pos : 0 < threshold / 2 := by positivity
+  have herror :
+      |unitIntervalTruncatedPotential truncε μ x -
+        unitIntervalLogPotential μ x| < threshold / 2 :=
+    unitInterval_log_error_lt_of_tailMass_and_ae_ne
+      htruncε hhalf_pos htail (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+  have hlower :
+      -(threshold / 2) <
+        unitIntervalTruncatedPotential truncε μ x -
+          unitIntervalLogPotential μ x :=
+    (abs_lt.mp herror).1
+  have htrunc_pos : 0 < unitIntervalTruncatedPotential truncε μ x := by
+    nlinarith
+  exact mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
+    htruncε htrunc_pos
+
+theorem unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    {truncε : ℝ} (htruncε : 0 < truncε) :
+    {x : ℝ | 1 / ((level : ℝ) + 1) < unitIntervalLogPotential μ x} ⊆
+      unitIntervalTruncatedPositiveSet μ ∪
+        (diagonalAtomSet μ ∪
+          {x : ℝ |
+            ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+              singularTailMass truncε μ x}) := by
+  intro x hx
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inr (Or.inl hxdiag)
+  · by_cases htail :
+        singularTailMass truncε μ x <
+          ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2)
+    · exact Or.inl
+        (mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+          htruncε (by positivity) hx hxdiag htail)
+    · exact Or.inr (Or.inr (le_of_not_gt htail))
+
+theorem unitInterval_threshold_volume_le_truncatedObjective_add_of_tailBad
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    {truncε : ℝ} (htruncε : 0 < truncε) {η : ℝ≥0∞}
+    (hbad :
+      volume {x : ℝ |
+        ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+          singularTailMass truncε μ x} ≤ η) :
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x} ≤
+      unitIntervalTruncatedPositiveSetObjective μ + η := by
+  let Bad : Set ℝ :=
+    {x : ℝ |
+      ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+        singularTailMass truncε μ x}
+  calc
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x}
+        ≤ volume (unitIntervalTruncatedPositiveSet μ ∪
+            (diagonalAtomSet μ ∪ Bad)) :=
+          measure_mono
+            (unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
+              μ level htruncε)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          volume (diagonalAtomSet μ ∪ Bad) :=
+        measure_union_le _ _
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          (volume (diagonalAtomSet μ) + volume Bad) :=
+        add_le_add le_rfl (measure_union_le _ _)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) + (0 + η) := by
+        exact add_le_add le_rfl
+          (add_le_add (le_of_eq (diagonalAtomSet_volume_zero μ)) hbad)
+    _ = unitIntervalTruncatedPositiveSetObjective μ + η := by
+        simp [unitIntervalTruncatedPositiveSetObjective]
+
+theorem unitInterval_threshold_volume_le_truncatedObjective_add
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x} ≤
+      unitIntervalTruncatedPositiveSetObjective μ + (η : ℝ≥0∞) := by
+  let threshold : ℝ := (1 / ((level : ℝ) + 1)) / 2
+  have hthreshold : 0 < threshold := by
+    dsimp [threshold]
+    positivity
+  rcases exists_tailScale_for_target hthreshold hη with
+    ⟨truncε, htruncε, hscale⟩
+  have hbad :
+      volume {x : ℝ |
+        ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+          singularTailMass truncε μ x} ≤ (η : ℝ≥0∞) := by
+    simpa [threshold] using
+      singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
+        truncε μ hthreshold hscale
+  exact unitInterval_threshold_volume_le_truncatedObjective_add_of_tailBad
+    μ level htruncε hbad
+
+theorem unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    unitIntervalPositiveSetObjective μ ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _
+  calc
+    unitIntervalPositiveSetObjective μ
+        = ⨆ level : ℕ,
+            volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+              unitIntervalLogPotential μ x} := by
+          rw [unitIntervalPositiveSetObjective]
+          exact positiveSet_measure_eq_iSup_thresholds
+            (unitIntervalLogPotential μ)
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ + (η : ℝ≥0∞) := by
+          exact iSup_le (fun level =>
+            unitInterval_threshold_volume_le_truncatedObjective_add
+              μ level η hη)
 
 theorem positiveSet_subset_truncatedPositiveSet_union_diagonal_of_tailMass_small
     (μ : ProbabilityMeasure UnitInterval1038)
@@ -14062,6 +14226,82 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         unitIntervalTruncatedPositiveSetObjective μ :=
     unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
       μ Norig hNorig hsmall_original_off_N
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+      R horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Automatic-tail endpoint consequence.
+
+Both ordinary/truncated comparisons are now discharged from the singular-tail
+small-exception machinery.  The variation provider no longer supplies any
+tail-small or exceptional-set data; it only supplies the actual component
+replacement package, boundary-average inequality, and component-support
+uniqueness.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data
+    (hComponentReplacementAutoTailDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hunique⟩
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+      μ
   have hprimary_replacement :
       unitIntervalTruncatedPositiveSetObjective
           (componentReplacementProbability C
