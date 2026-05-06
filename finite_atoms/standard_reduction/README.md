@@ -113,6 +113,21 @@ which only keeps the support-containment and endpoint-remainder kernel
 integrability inputs, because the potential decomposition is already proved by
 the canonical endpoint-remainder equality.
 
+The reusable theorem
+
+```lean
+endpointRemainder_kernel_integrable_of_normalized_support
+```
+
+derives endpoint-remainder kernel integrability from the normalized support
+shape.  After the endpoint atom `-1` is removed, the canonical remainder is
+a.e. supported on `[0,1]`, while every point in `BaselinePunctured` lies
+strictly to the left of `0`.  Hence the logarithmic kernel is continuous on the
+compact support region and is integrable against the endpoint remainder.  This
+theorem can be passed directly to the existing
+`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential` constructor,
+without adding another public constructor.
+
 At the relaxed-minimizer interface, the same file defines
 
 ```lean
@@ -123,7 +138,9 @@ and converts it to the existing
 `VariationEndpoint.ComponentPackageFromVariation`.  This keeps the dependency
 direction acyclic: `VariationEndpoint.lean` stays independent of component
 atomization, while `ComponentAtomization.lean` provides the narrower canonical
-provider and the baseline-length consequence built from it.
+provider and the baseline-length consequence built from it.  The diagonal-safe
+path continues to use `OneSidedCompactCore`; it does not go through the older
+compact tail-mass stability interface.
 
 ## Check command
 

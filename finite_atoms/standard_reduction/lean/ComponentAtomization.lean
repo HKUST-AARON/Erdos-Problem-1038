@@ -247,6 +247,61 @@ theorem endpointRemainder_mass_nonneg
     ENNReal.toReal_nonneg
   linarith
 
+/--
+If the original pushed-forward support is contained in `{-1} ∪ [0,1]`, then
+the canonical endpoint remainder is a.e. supported in `[0,1]`.
+-/
+theorem endpointRemainder_ae_mem_Icc_zero_one
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsupport :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1) :
+    ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc (0 : ℝ) 1 := by
+  filter_upwards
+    [endpointRemainder_ae_mem_support μ hsupport,
+      endpointRemainder_ae_ne_endpoint μ] with t htSupport htNe
+  rcases htSupport with htEndpoint | htNonnegative
+  · have htEq : t = -1 := by simpa using htEndpoint
+    exact False.elim (htNe htEq)
+  · exact htNonnegative
+
+/--
+On the baseline punctured interval, the log kernel is integrable against the
+canonical endpoint remainder once the normalized support shape
+`support ⊆ {-1} ∪ [0,1]` is known.
+-/
+theorem endpointRemainder_kernel_integrable_of_normalized_support
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsupport :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (endpointRemainder μ) := by
+  intro x hx
+  have hxBase : x ∈ BaselineInterval := hx.1
+  have hxneg : x < 0 := hxBase.2
+  let K : Set ℝ := Icc (0 : ℝ) 1
+  have hmemK : ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ K :=
+    endpointRemainder_ae_mem_Icc_zero_one μ hsupport
+  have hcompact : IsCompact K := isCompact_Icc
+  have hsep : K ⊆ {t : ℝ | -x ≤ |x - t|} := by
+    intro t ht
+    change -x ≤ |x - t|
+    have ht0 : 0 ≤ t := ht.1
+    have hnonpos : x - t ≤ 0 := by linarith
+    rw [abs_of_nonpos hnonpos]
+    linarith
+  have hcont :
+      ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+    exact logKernel_continuousOn_of_dist_ge (by linarith : 0 < -x) hsep
+  haveI : IsFiniteMeasure (endpointRemainder μ) := by
+    refine ⟨?_⟩
+    rw [endpointRemainder_mass μ]
+    exact ENNReal.ofReal_lt_top
+  exact integrable_of_ae_mem_compact_of_continuousOn
+    (endpointRemainder μ) K
+    (fun t : ℝ => Real.log (1 / |x - t|))
+    hmemK hcompact hcont
+
 /-- The endpoint atom log-kernel is integrable for every test point. -/
 lemma endpointAtom_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
