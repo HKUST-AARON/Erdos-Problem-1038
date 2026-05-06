@@ -1922,6 +1922,12 @@ theorem realMeasure_support_open_neighborhood_pos
     Measure.subset_compl_support_of_isOpen (μ := realMeasure μ) hU hzero
   exact hsubset htU ht
 
+theorem realMeasure_support_subset_unitInterval
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (realMeasure μ).support ⊆ Icc (-1 : ℝ) 1 :=
+  Measure.support_subset_of_isClosed isClosed_Icc
+    (realMeasure_ae_mem_unitInterval μ)
+
 theorem realMeasure_endpointRemainder_support_in_support
     (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
     (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
@@ -8861,6 +8867,43 @@ def taoVariationComponentPackage_of_realSupport_component_atomization_data
     (realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
       μ hunit_endpoint_mass)
     hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+
+/-- Variant of `taoVariationComponentPackage_of_realSupport_component_atomization_data`
+where the support bound is filled automatically from the real pushforward of the
+unit-interval measure.  The remaining explicit inputs are the genuinely
+variational ones: component placement, boundary average, endpoint mass
+normalization, kernel integrability, and component atomization. -/
+def taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_realSupport_component_atomization_data
+    μ mean_choice reflected translation C endpointMass xMinus xPlus
+    hcomponent_interval hbaseline (realMeasure_support_subset_unitInterval μ)
+    hright_endpoint_positive hboundary_average hunit_endpoint_mass
+    hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+    hcomponent_atomized
 
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
