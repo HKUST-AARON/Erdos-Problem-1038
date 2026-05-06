@@ -1950,6 +1950,45 @@ def CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
   right_endpoint_not_mem_support := right_endpoint_not_mem_support
 
 /--
+Open-left-cover variant of the atomized right-region constructor.  This
+replaces the explicit endpoint nondegeneracy input `component.left ≠ -1` by
+the local maximal-component condition: the selected component covers all
+positive points in a left neighborhood of `-1`.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_open_left_cover
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (component : PositiveComponent M.μ)
+    (right_region_eq :
+      component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩ Ioi component.left)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (component_block_atomized :
+      componentBlock component =
+        componentMass component • Measure.dirac (componentBarycenter component))
+    (endpoint_mass_pos : 0 < (realMeasure M.μ) ({-1} : Set ℝ))
+    {S : Set ℝ} {ε : ℝ}
+    (hOpen : IsOpen S)
+    (hendpoint : (-1 : ℝ) ∈ S)
+    (hε : 0 < ε)
+    (hleftCover : ∀ y : ℝ, y ∈ S → y ∈ Ioo ((-1 : ℝ) - ε) 0 →
+      y ∈ component.interval)
+    (right_endpoint_positive : 0 < component.right)
+    (right_endpoint_not_mem_support :
+      component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M :=
+  CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
+    mean_choice reflected translation component right_region_eq
+    baseline_inside_component real_support_bounded component_block_atomized
+    endpoint_mass_pos
+    (component_left_ne_endpoint_of_open_left_cover
+      component hOpen hendpoint hε hleftCover)
+    right_endpoint_positive right_endpoint_not_mem_support
+
+/--
 Atomized right-region variation input for every relaxed minimizer.  This is
 the provider-level form of the current normalized route: it packages the
 atomized component data and then reuses the ordinary right-region provider.

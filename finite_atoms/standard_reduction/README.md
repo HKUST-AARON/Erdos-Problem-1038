@@ -276,12 +276,17 @@ The constructor
 
 ```lean
 CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
+CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_open_left_cover
 ```
 
 is now the preferred direct constructor for this layer.  It keeps the
 component-block atomization input, but replaces the direct
 `componentBarycenter = -1` field by endpoint positive mass and the
-nondegenerate left-endpoint condition `component.left ≠ -1`.
+nondegenerate left-endpoint condition `component.left ≠ -1`.  The
+open-left-cover variant pushes this one step further: instead of asking for
+`component.left ≠ -1`, it asks for a set `S` that is open at `-1` and whose
+local left-neighborhood points are covered by the selected component.  In the
+intended maximal-component application, `S` is the positive set.
 
 At provider level, the file now exposes
 
@@ -369,10 +374,11 @@ component_left_lt_endpoint_of_open_left_cover
 component_left_ne_endpoint_of_open_left_cover
 ```
 
-It says that if the positive set is open, `-1` is positive, and the selected
-component covers all positive points in a left neighborhood of `-1`, then the
-component's left endpoint is strictly less than `-1`.  This is the precise
-maximal-component input still needed upstream.
+It says that if a set `S` is open, contains `-1`, and the selected component
+covers all points of `S` in a left neighborhood of `-1`, then the component's
+left endpoint is strictly less than `-1`.  In the intended use, `S` is the
+positive set; this is the precise maximal-component input still needed
+upstream.
 
 ## Check command
 
