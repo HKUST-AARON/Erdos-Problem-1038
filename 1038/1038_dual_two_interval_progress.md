@@ -3278,6 +3278,42 @@ toward the true value near \(-0.43\) instead of the current artificial
 \([-1.74,1.74]\)-scale interval.  This is the most direct route to a
 continuum-grade small-\(\eta\) branch certificate.
 
+The first diagnostic after this reformulation separates numerical evidence
+from proof-grade interval evidence.  At the smallest row,
+
+```text
+diagnose_k2_tau_derivative.py --grid 5 --eta-values 5e-5 --h 1e-4
+
+worst_derivative = 3.153712e-05
+worst_curvature  = 7.783704e-05
+PASS-DIAGNOSTIC
+```
+
+so the sampled Taylor mechanism is small.  But the direct interval curvature
+box remains unusable:
+
+```text
+--interval-curvature-box-test --interval-subboxes 2
+worst_bound = 1.556219e+10
+FAIL-DIAGNOSTIC
+```
+
+and the eta-uniform secant wrapper on \([5\cdot10^{-5},10^{-4}]\) is still far
+too wide:
+
+```text
+--grid 9 --eta-values 5e-5,1e-4 --secant-certificate
+worst_secant_bound = 3.530171e-02
+candidate_lipschitz = 2.000000e-04
+FAIL-DIAGNOSTIC
+```
+
+This confirms the diagnosis.  The small-\(\eta\) singular gap is not a sampled
+failure; it is an interval-dependency failure.  The proof-grade closure must
+differentiate the paired residue-log terms analytically on the shared
+\(s=t\eta\) variable, rather than relying on finite-difference or secant
+enclosures.
+
 ## 16. Mathematical proof ledger for the exact-value route
 
 This section records the current paper-level proof chain for the conjectural

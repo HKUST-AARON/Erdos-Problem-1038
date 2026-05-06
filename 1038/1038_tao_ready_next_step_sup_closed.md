@@ -2931,6 +2931,48 @@ terms on }s\in[0,\eta_{\max}].
 Once this is done, the bad \(DK[1,1]\) radius should reflect the true value near
 \(-0.43\), not the artificial \([-1.74,1.74]\) interval.
 
+Diagnostic status after installing the local Python dependencies:
+
+```text
+diagnose_k2_tau_derivative.py --grid 5 --eta-values 5e-5 --h 1e-4
+
+B=+0.01 eta=5.0e-05 max_abs_derivative=3.153712e-05
+                         max_abs_curvature=7.783704e-05
+B=-0.01 eta=5.0e-05 max_abs_derivative=3.151623e-05
+                         max_abs_curvature=7.764067e-05
+PASS-DIAGNOSTIC
+```
+
+So the sampled Taylor direction is numerically consistent at the smallest eta
+row.  But the interval curvature box is still useless:
+
+```text
+--interval-curvature-box-test --interval-subboxes 2
+worst_bound=1.556219e+10
+FAIL-DIAGNOSTIC
+```
+
+and a slightly wider eta diagnostic shows the current eta-uniform secant
+enclosure is still not proof-grade:
+
+```text
+--grid 9 --eta-values 5e-5,1e-4 --secant-certificate
+worst_secant_bound=3.530171e-02
+candidate_lipschitz=2.000000e-04
+FAIL-DIAGNOSTIC
+```
+
+Thus the new Taylor-model target is confirmed: direct second-difference boxes
+and endpoint secants still lose the eta dependency.  The next implementation
+must enclose the analytic derivative
+
+\[
+S'(s)\log|x-\rho(s)|-S(s)\rho'(s)/(x-\rho(s))
+\]
+
+on the shared \(s=t\eta\) variable.  Sampling suggests the mechanism is small;
+the existing interval wrappers do not yet prove it.
+
 ### J. Tao note calibration and the first hard number after reading it
 
 The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with
