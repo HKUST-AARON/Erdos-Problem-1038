@@ -4207,6 +4207,34 @@ The homogeneous case is the same with
 \theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi.
 \]
 
+For any \(\theta\), set
+
+\[
+G_\theta(x)=\theta\cdot V_S(x)-V_\Pi(x).
+\]
+
+Then \(G_\theta\ge0\) on \(Z_0\) is the required dual majorant, and
+
+\[
+G_\theta'(x)=-\theta\cdot C_S(x)+C_\Pi(x).
+\]
+
+Using the repaired columns,
+
+\[
+Q(x)^2R(x)G_\theta'(x)
+=
+P_\theta(x),
+\qquad
+P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}.
+\]
+
+Thus the remaining proof is a one-dimensional sign problem for \(P_\theta\)
+plus endpoint/contact values of \(G_\theta\).  If the required alternation
+system for \(P_\theta\) degenerates, the case routes to Gate 3; if it has no
+sign table, the \(Z_0\)-atomic branch is a concrete obstruction rather than a
+closed case.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

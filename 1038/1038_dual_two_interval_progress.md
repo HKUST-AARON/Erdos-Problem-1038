@@ -11714,6 +11714,81 @@ theorem queue.
     This is now the exact Step 3 target: the atom branch is a family of scalar
     potential majorants on \(Z_0\), not an unstructured measure problem.
 
+    Dual majorant reduction.
+
+    For \(\theta\in\mathbb R^4\), define
+
+    \[
+    \boxed{
+    G_\theta(x)=\theta\cdot V_S(x)-V_\Pi(x).
+    }
+    \tag{G1Gtheta}
+    \]
+
+    The majorant condition in (G1ThetaMajorantEta) is simply
+
+    \[
+    G_\theta(x)\ge0\qquad(x\in Z_0).
+    \tag{G1GthetaMajorant}
+    \]
+
+    Since \(V_j'=-C_j\), the derivative is
+
+    \[
+    \boxed{
+    G_\theta'(x)
+    =
+    -\theta\cdot C_S(x)+C_\Pi(x).
+    }
+    \tag{G1GthetaDerivative}
+    \]
+
+    Substituting the repaired moving-chart columns gives
+
+    \[
+    \boxed{
+    Q(x)^2R(x)G_\theta'(x)
+    =
+    P_\theta(x),
+    \qquad
+    P_\theta(z)=
+    \kappa Q(z)^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}(z).
+    }
+    \tag{G1Ptheta}
+    \]
+
+    Therefore the \(Z_0\)-majorant problem is equivalent to a one-dimensional
+    sign problem for the real numerator \(P_\theta\), together with the
+    endpoint/contact values of \(G_\theta\).
+
+    We record the exact lemma needed:
+
+    \[
+    \boxed{\textbf{Gate1ZAtomDualMajorant}.}
+    }
+    \]
+
+    Suppose that for the parameter \(\Lambda\) under consideration one can
+    choose \(\theta_\Lambda\) such that:
+
+    1.  \(P_{\theta_\Lambda}\) has the prescribed alternating sign on the
+        components of \(Z_0\), after division by the fixed sign of
+        \(Q^2R\);
+    2.  every contact point of \(G_{\theta_\Lambda}\) with zero is simple only
+        in the alternating pattern forced by that sign table;
+    3.  \(G_{\theta_\Lambda}\ge0\) at one reference endpoint of each component
+        of \(Z_0\).
+
+    Then \(G_{\theta_\Lambda}\ge0\) on all of \(Z_0\).  The same statement
+    applies to \(\theta_\lambda\) in the homogeneous case.
+
+    If the alternation system has no solution, or if a contact point collides
+    with a branch endpoint, a pole, another contact point, or a density sign
+    boundary, the point is not in the compact non-pinched regular interior and
+    is routed to Gate 3.  If the alternation system has a solution but the
+    sign table above fails, then the \(Z_0\)-atomic branch remains a concrete
+    obstruction; one must not declare Gate 1 closed.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
