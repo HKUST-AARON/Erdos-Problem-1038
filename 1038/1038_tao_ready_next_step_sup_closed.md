@@ -696,25 +696,105 @@ endpoint values.  Therefore the Schur complement must first be defined on
 actual density perturbations and only later pushed down to the finite row
 image.
 
-Let
+The fixed-chart Euler part is now clean.  With
 
 \[
-R=(E_-,E_+,M,\Pi)^T.
+p=\log(1/a),\quad r=\log(1/b),\quad A=W'(u),\quad B=W'(v),
 \]
 
-In a regular compact chart,
-
 \[
-R_y\,\delta y+R_\xi\xi=0,\qquad
-\delta y=-R_y^{-1}R_\xi\xi.
+X=q/a+A,\qquad Y=B-q/b,
 \]
 
-The branch tangent is therefore
+one has
 
 \[
-\boxed{
-\beta(\xi):=\delta F_\xi(c)-F_\xi'(c)e_c^TR_y^{-1}R_\xi\xi=0.
-}
+d_y\Phi_{\rm br}
+=(0,1,1,0)+\lambda_M(1,0,0,0)
++\lambda_-(p,-X,0,A)+\lambda_+(r,0,Y,B).
+\]
+
+Thus \(d_y\Phi_{\rm br}=0\) gives
+
+\[
+\lambda_-=\frac1X,\qquad \lambda_+=-\frac1Y,
+\]
+
+and the \(c\)-row gives
+
+\[
+\frac{A}{X}-\frac{B}{Y}=0.
+\]
+
+Since
+
+\[
+\frac{A}{X}-\frac{B}{Y}
+=-\frac{q(aA+bB)}{abXY},
+\]
+
+this is exactly \(S=0\) under \(q,a,b,X,Y\ne0\).  The \(q\)-row only fixes
+\(\lambda_M\); it is not an extra scalar equation.
+
+The next correction is that period cannot be used as a \(y\)-state row in the
+fixed chart.  Since \(\Pi_y=0\), the matrix
+
+\[
+(E_-,E_+,M,\Pi)_y
+\]
+
+is singular.  Period is only an admissibility condition
+
+\[
+\delta\Pi(\xi)=0.
+\]
+
+The state lift should instead use
+
+\[
+\boxed{A_{\rm st}=(E_-,E_+,M,F_\xi(c)).}
+\]
+
+Its \(y\)-Jacobian is
+
+\[
+(A_{\rm st})_y=
+\begin{pmatrix}
+p&-X&0&A\\
+r&0&Y&B\\
+1&0&0&0\\
+0&0&0&F_\xi'(c)
+\end{pmatrix},
+\]
+
+with
+
+\[
+\det (A_{\rm st})_y=-XYF_\xi'(c).
+\]
+
+Thus the state lift is regular if
+
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0.
+\]
+
+For perturbation rows \(\delta E_-,\delta E_+,\delta M,\delta F\), it gives
+
+\[
+\delta q=-\delta M,\qquad
+\delta c=-\frac{\delta F}{F_\xi'(c)},
+\]
+
+\[
+\delta a=
+\frac{\delta E_- -p\,\delta M-\frac{A}{F_\xi'(c)}\delta F}{X},
+\]
+
+\[
+\delta b=
+\frac{r\,\delta M-\delta E_+
++\frac{B}{F_\xi'(c)}\delta F}{Y}.
 \]
 
 The bordered Schur complement should be
@@ -724,14 +804,14 @@ The bordered Schur complement should be
 G_0
 =H_{\xi\xi}
 -
-\begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}^{-1}
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix}.
 }
 \]
@@ -741,7 +821,7 @@ The second-variation theorem must prove
 \[
 \boxed{
 \xi^TG_0\xi\ge0
-\quad\text{for admissible }\xi\in\ker\beta.
+\quad\text{for actual admissible }\xi\text{ satisfying }\delta\Pi(\xi)=0.
 }
 \]
 

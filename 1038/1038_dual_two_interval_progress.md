@@ -978,7 +978,8 @@ The next mathematical deliverables, in order, are:
 2. write the corrected \(g=1\) endpoint-atom branch as a proposition;
 3. prove the pinching / degeneration lemma before further slab work;
 4. prove the branch-parametrized \(F(c)\) repair:
-   \(F(c)=0\) is a branch equation and the tangent space is \(\ker\beta\);
+   \(F(c)=0\) is a branch equation and the state lift uses
+   \(A=(E_-,E_+,M,F)\), while \(\Pi\) restricts density directions;
 5. derive the compact \(g=2\) KKT row ledger with the period row accounted
    for explicitly;
 6. compute the bordered reduced Hessian Schur complement
@@ -987,17 +988,17 @@ The next mathematical deliverables, in order, are:
    =
    H_{\xi\xi}
    -
-   \begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+   \begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
    \begin{pmatrix}
-   H_{yy}&R_y^T\\
-   R_y&0
+   H_{yy}&A_y^T\\
+   A_y&0
    \end{pmatrix}^{-1}
    \begin{pmatrix}
    H_{y\xi}\\
-   R_\xi
+   A_\xi
    \end{pmatrix}
    \]
-   restricted to \(\ker\beta\);
+   on actual density perturbations satisfying \(\delta\Pi=0\);
 7. prove the five scalar identities
    \[
    e_u^TMe_u=\lambda a,\quad
@@ -1963,20 +1964,21 @@ The Schur term comes from eliminating \(y=(q,a,b,c)\).  In block form,
 G_0
 =H_{\xi\xi}
 -
-\begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}^{-1}
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix}
 }
 \]
 
-restricted to the branch tangent \(\ker\beta\).  The older unbordered formula
-is kept only as a shorthand for a nonconstrained toy chart.
+on actual density perturbations satisfying \(\delta\Pi=0\), where
+\(A=(E_-,E_+,M,F)\).  The older unbordered formula is kept only as a
+shorthand for a nonconstrained toy chart.
 
 The immediate calculation is:
 
@@ -2415,10 +2417,11 @@ The Schur complement target is no longer the unbordered expression
 G=H_{\xi\xi}-H_{\xi y}H_{yy}^{-1}H_{y\xi}.
 \]
 
-The active target is the bordered branch Schur complement in §10.17c,
-restricted to \(\ker\beta\).  The current ledger is still under-specified for
-a literal computation of \(H_{yy}\) and \(H_{\xi y}\).  To compute them, the
-proof must first choose the actual second-variation functional:
+The active target is the fixed-chart state-lift Schur complement in §10.17c,
+using \(A=(E_-,E_+,M,F)\) for the \(y\)-lift and \(\delta\Pi=0\) as a separate
+density admissibility condition.  The current ledger is still under-specified
+for a literal computation of \(H_{yy}\) and \(H_{\xi y}\).  To compute them,
+the proof must first choose the actual second-variation functional:
 
 \[
 \mathcal L
@@ -2493,9 +2496,8 @@ Therefore the immediate next mathematical task is sharper than before:
 
 \[
 \boxed{
-\text{write the exact local Lagrangian }\mathcal L(q,a,b,c,\xi)
-\text{ whose Euler equations are }
-E_-=E_+=F(c)=S=0.
+\text{write the exact branch-parametrized Lagrangian }\Phi_{\rm br}
+\text{ whose }y\text{-Euler equations imply }E_-=E_+=S=0.
 }
 \]
 
@@ -2519,8 +2521,8 @@ The more precise hard mouth is:
 
 \[
 \boxed{
-\text{first prove the branch-parametrized formulation, then compute the
-bordered Schur complement on }\ker\beta.
+\text{first prove the state-lift/period-splitting lemma, then compute the
+bordered Schur complement using }A=(E_-,E_+,M,F).
 }
 \]
 
@@ -2534,9 +2536,9 @@ Smallest missing definitions:
    and endpoint terms, but excluding free \(S\) and \(F(c)\) multiplier rows;
 2. exact residual equations with density-jet entry;
 3. treatment of the period row in the Hessian calculation;
-4. exact branch tangent row
+4. exact branch state-lift rows
    \[
-   \beta(\xi)=\delta F(c)-F'(c)e_c^TR_y^{-1}R_\xi\xi;
+   A=(E_-,E_+,M,F),\qquad \det A_y=-XYF'(c);
    \]
 5. edge term and endpoint-transfer tangent lift \(T(h)=Ph\);
 6. endpoint diagonal identities needed for the curvature clamp.
@@ -3075,10 +3077,32 @@ The branch equation is imposed outside the multiplier system:
 F_\xi(c)=0,\qquad F_\xi'(c)<0,
 \]
 
-with tangent condition
+and supplies the fourth state-lift row together with the endpoint and mass
+rows.  In the fixed period chart, period is not included in this lift because
+\(\Pi_y=0\).  The state rows are
 
 \[
-\beta(\xi)=\delta F_\xi(c)-F_\xi'(c)e_c^TR_y^{-1}R_\xi\xi=0.
+A=(E_-,E_+,M,F_\xi(c)).
+\]
+
+The tangent equations are
+
+\[
+A_y\delta y+A_\xi\xi=0,\qquad \delta\Pi(\xi)=0.
+\]
+
+Explicitly,
+
+\[
+A_y=
+\begin{pmatrix}
+p&-X&0&A\\
+r&0&Y&B\\
+1&0&0&0\\
+0&0&0&F_\xi'(c)
+\end{pmatrix},
+\qquad
+\det A_y=-XYF_\xi'(c).
 \]
 
 At such a point the Hessian blocks
@@ -3095,18 +3119,18 @@ perturbations:
 G_0
 =H_{\xi\xi}
 -
-\begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}^{-1}
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix},
 \]
 
-restricted to \(\ker\beta\).
+on actual perturbations satisfying \(\delta\Pi=0\).
 
 The six-jet matrix is defined only after proving a realization/projection
 lemma for the row map
@@ -3494,31 +3518,37 @@ At first order they restrict the tangent space by
 }
 \]
 
-Equivalently, if
+Important correction:
+
+In the fixed period chart one must not set
 
 \[
-R=(E_-,E_+,M,\Pi)^T,
+R=(E_-,E_+,M,\Pi)
 \]
 
-then
+and invert \(R_y\).  Since \(\Pi_y=0\), the fourth row of this matrix is zero,
+so \(R_y^{-1}\) does not exist.  Period is an admissibility condition on
+density perturbations:
 
 \[
-R_y\,\delta y+R_\xi\xi=0,
+\delta\Pi(\xi)=0,
+\]
+
+not a local state row for solving \(y=(q,a,b,c)\).
+
+The correct state-lift rows are
+
+\[
+\boxed{A=(E_-,E_+,M,F_\xi(c)).}
+\]
+
+Then a branch-compatible tangent lift solves
+
+\[
+A_y\,\delta y+A_\xi\xi=0,
 \qquad
-\delta y=-R_y^{-1}R_\xi\xi
+\delta\Pi(\xi)=0.
 \]
-
-in a regular compact chart, and the branch tangent condition becomes
-
-\[
-\boxed{
-\beta(\xi):=\delta F_\xi(c)-F_\xi'(c)\,
-e_c^TR_y^{-1}R_\xi\xi=0.
-}
-\]
-
-Here \(e_c=(0,0,0,1)^T\).  This is the branch constraint that replaces the
-false multiplier contribution \(\lambda_FF_\xi'(c)\) in the \(c\)-Euler row.
 
 For reference, with
 
@@ -3537,20 +3567,73 @@ X=U'(u)=q/a+A,\qquad Y=U'(v)=B-q/b,
 the local row matrix is
 
 \[
-R_y=
+A_y=
 \begin{pmatrix}
 p&-X&0&A\\
 r&0&Y&B\\
 1&0&0&0\\
-\Pi_q&\Pi_a&\Pi_b&\Pi_c
+0&0&0&F_\xi'(c)
 \end{pmatrix}.
 \]
 
-In the fixed period chart currently used later,
+Thus
+
+\[
+\det A_y=-XYF_\xi'(c).
+\]
+
+The branch state-lift is regular under the nondegeneracy assumptions
+
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0.
+\]
+
+For a density perturbation, write
+
+\[
+\delta E_-=\delta W_\xi(u),\qquad
+\delta E_+=\delta W_\xi(v),
+\]
+
+\[
+\delta M=\delta m_{\rm ext},\qquad
+\delta F=\delta F_\xi(c).
+\]
+
+Solving \(A_y\delta y+A_\xi\xi=0\) gives
+
+\[
+\delta q=-\delta M,
+\]
+
+\[
+\delta c=-\frac{\delta F}{F_\xi'(c)},
+\]
+
+\[
+\delta a=
+\frac{\delta E_- -p\,\delta M-\frac{A}{F_\xi'(c)}\delta F}{X},
+\]
+
+\[
+\delta b=
+\frac{r\,\delta M-\delta E_+
++\frac{B}{F_\xi'(c)}\delta F}{Y}.
+\]
+
+The period row remains separate.  In the fixed period chart,
 
 \[
 \Pi_q=\Pi_a=\Pi_b=\Pi_c=0.
 \]
+
+Therefore the admissible density directions are exactly those satisfying
+
+\[
+\delta\Pi(\xi)=0,
+\]
+
+plus the sign-linearized admissibility constraints.
 
 The next lemma is therefore:
 
@@ -3558,8 +3641,8 @@ The next lemma is therefore:
 \boxed{\textbf{Lemma Branch-Parametrized Phi-Euler-Hessian.}}
 \]
 
-After solving \(F_\xi(c)=0\) as a branch equation and restricting to
-\(\ker\beta\), the functional \(\Phi_{\rm br}\) satisfies
+In the fixed chart, the \(y\)-Euler part is now proved under
+\(q,a,b,X,Y\ne0\):
 
 \[
 d_y\Phi_{\rm br}=0
@@ -3567,8 +3650,51 @@ d_y\Phi_{\rm br}=0
 E_-=E_+=S=0
 \]
 
-together with the mass, period, and branch rows.  Its second variation has no
-\(\lambda_F\nabla^2F(c)\) and no \(\lambda_S\nabla^2S\) term.
+together with the mass, period, and branch rows.
+
+Indeed,
+
+\[
+d_y\Phi_{\rm br}
+=(0,1,1,0)+\lambda_M(1,0,0,0)
++\lambda_-(p,-X,0,A)+\lambda_+(r,0,Y,B).
+\]
+
+The \(a,b\)-rows give
+
+\[
+\lambda_-=\frac1X,\qquad \lambda_+=-\frac1Y.
+\]
+
+The \(c\)-row gives
+
+\[
+\frac{A}{X}-\frac{B}{Y}=0.
+\]
+
+Since
+
+\[
+\frac{A}{X}-\frac{B}{Y}
+=-\frac{q(aA+bB)}{abXY},
+\]
+
+this is equivalent to
+
+\[
+S=aW'(u)+bW'(v)=0.
+\]
+
+The \(q\)-row only fixes
+
+\[
+\lambda_M=-\frac{p}{X}+\frac{r}{Y};
+\]
+
+it does not impose an extra scalar condition.
+
+Its second variation has no \(\lambda_F\nabla^2F(c)\) and no
+\(\lambda_S\nabla^2S\) term.
 
 ### 10.17c Bordered Schur complement on the branch tangent
 
@@ -3583,12 +3709,35 @@ H_{\xi y}&H_{\xi\xi}
 \end{pmatrix}.
 \]
 
-The constrained state response is computed from the bordered system
+The constrained state response is computed from the branch state-lift system
+
+\[
+A_y\delta y+A_\xi\xi=0,\qquad \delta\Pi(\xi)=0,
+\]
+
+not from an inverse containing the period row.
+
+Equivalently, \(\delta y=T\xi=-A_y^{-1}A_\xi\xi\), and the reduced Hessian on
+actual density perturbations is
+
+\[
+\boxed{
+G_{\rm br}(\xi,\zeta)
+=
+D^2_{(y,\xi)}\Phi_{\rm br}
+\big((T\xi,\xi),(T\zeta,\zeta)\big),
+\qquad
+\delta\Pi(\xi)=\delta\Pi(\zeta)=0.
+}
+\]
+
+If one wants a bordered matrix expression, use the state rows
+\(A=(E_-,E_+,M,F)\):
 
 \[
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}
 \begin{pmatrix}
 \delta y\\
@@ -3597,7 +3746,7 @@ R_y&0
 =-
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix}\xi.
 \]
 
@@ -3608,14 +3757,14 @@ Thus the raw reduced Hessian is
 G_0
 =H_{\xi\xi}
 -
-\begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}^{-1}
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix}.
 }
 \]
@@ -3626,14 +3775,15 @@ density directions.  It is
 \[
 \boxed{
 \xi^TG_0\xi\ge0
-\quad\text{for all admissible }\xi\in\ker\beta
-\text{ satisfying the period and sign-linearized constraints.}
+\quad\text{for all actual admissible }\xi
+\text{ satisfying }\delta\Pi(\xi)=0
+\text{ and the sign-linearized constraints.}
 }
 \]
 
-Only after this branch restriction is in place can the finite six-row
-cokernel, endpoint-transfer lift, and curvature-clamp matrix \(M\) be defined
-without overcounting.
+Only after this state-lift and period-splitting lemma is in place can the
+finite six-row cokernel, endpoint-transfer lift, and curvature-clamp matrix
+\(M\) be defined without overcounting.
 
 ### 10.17d Curvature-clamp Hessian identity package
 
@@ -3718,9 +3868,9 @@ This is the right-side curvature-clamp inequality.
 Status:
 
 These five identities are target identities for the true reduced Hessian after
-the branch-parametrized Phi-Euler-Hessian lemma and the restriction
-\(\xi\in\ker\beta\).  They must not be asserted for an arbitrary formal
-matrix.
+the branch-parametrized Phi-Euler-Hessian lemma and the fixed-chart
+state-lift/period-splitting lemma.  They must not be asserted for an
+arbitrary formal matrix.
 
 ### 10.17e Retired free-\(F(c)\) derivative convention
 
@@ -3857,8 +4007,8 @@ The hard mouth is now:
 
 \[
 \boxed{
-\text{prove the branch-parametrized Phi-Euler-Hessian lemma and compute the
-bordered Schur complement on }\ker\beta.
+\text{prove the fixed-chart state-lift/period-splitting lemma and compute the
+bordered Schur complement using }A=(E_-,E_+,M,F).
 }
 \]
 
@@ -3878,8 +4028,8 @@ correct target is:
 d_y\Phi_{\rm br}=0
 \Longleftrightarrow
 E_-=E_+=S=0
-\text{ plus mass and period rows, while }F(c)=0\text{ is imposed by }
-\beta=0.
+\text{ plus mass and period rows, while }F(c)=0\text{ supplies the branch
+state-lift row.}
 }
 \]
 
@@ -3895,15 +4045,15 @@ Until this lemma is proved, the expression
 G_0
 =H_{\xi\xi}
 -
-\begin{pmatrix}H_{\xi y}&R_\xi^T\end{pmatrix}
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
 \begin{pmatrix}
-H_{yy}&R_y^T\\
-R_y&0
+H_{yy}&A_y^T\\
+A_y&0
 \end{pmatrix}^{-1}
 \begin{pmatrix}
 H_{y\xi}\\
-R_\xi
+A_\xi
 \end{pmatrix}
 \]
 
-restricted to \(\ker\beta\) is only a formal target, not a theorem.
+on \(\delta\Pi=0\) is only a formal target, not a theorem.
