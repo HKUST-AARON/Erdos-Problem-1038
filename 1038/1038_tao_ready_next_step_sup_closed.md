@@ -1258,6 +1258,31 @@ the rows as signed smooth density perturbations.  That still does not prove
 two-sided critical-cone feasibility; positivity and lineality remain separate
 conditions before using \(P^{0T}Q_{\rm eff}P^0\).
 
+Rel audit:
+
+The seven kernels
+
+\[
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,\log\frac1{|c-x|}
+\]
+
+are independent on any nonempty regular interval separated from \(u,c,v\).
+The period kernel is the obstruction.  If \(\pi_0\) is constant on the chosen
+regular support, then \(k_\Pi\) is proportional to \(k_0\) and
+\(\operatorname{Rel}\ne0\).  If the chosen support sees two different period
+values, then \(\operatorname{Rel}=0\) and the \(P^0\) row checks are automatic.
+
+Direct singularity comparison does not naturally prove the three nontrivial
+annihilation identities unless it proves the stronger \(\operatorname{Rel}=0\)
+statement.  In a nonzero-\(\operatorname{Rel}\) case, those identities would
+be extra branch-parameter constraints, not consequences of the row relation.
+
+Stop/go: do one bounded \(P^0\) audit.  Either choose support with two period
+values and prove \(\operatorname{Rel}=0\), or verify the three displayed
+annihilation identities directly.  If neither closes, stop the finite-row
+\(P^{0T}Q_{\rm eff}P^0\) route and switch to the actual-density/cone endpoint
+test formulation.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final

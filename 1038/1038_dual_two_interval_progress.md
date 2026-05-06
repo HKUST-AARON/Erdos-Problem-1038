@@ -4940,6 +4940,73 @@ theorem queue.
     while preserving positivity.  If only one-sided feasibility is available,
     the proof must switch to the actual-density cone formulation.
 
+    Rel audit.  The seven non-period kernels
+
+    \[
+    1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},
+    \quad L_-,\quad L_+,\quad \log\frac1{|c-x|}
+    \]
+
+    are linearly independent on any nonempty regular interval separated from
+    \(u,c,v\).  Indeed, writing
+
+    \[
+    L_-=\log|x-u|-\log|x-c|,\qquad
+    L_+=\log|x-c|-\log|x-v|,
+    \]
+
+    differentiating a putative relation gives a rational function.  Comparing
+    the singular parts at \(u,c,v\) first kills the logarithmic coefficients,
+    then the simple-pole coefficients, and finally the constant coefficient.
+
+    The eighth kernel \(k_\Pi=\pi_0\) is the only obstruction to automatic
+    \(\operatorname{Rel}=0\).  If \(J_{\rm reg}\) lies entirely in one period
+    region, then \(\pi_0\) is constant on \(J_{\rm reg}\), so \(k_\Pi\) is
+    proportional to \(k_0\) there and \(\operatorname{Rel}\ne0\).  If
+    \(J_{\rm reg}\) contains regular pieces on which \(\pi_0\) takes two
+    distinct values, for example \(1\) and \(-\theta_{\rm per}\), then the
+    remaining relation
+
+    \[
+    \lambda_0+\lambda_\Pi\pi_0=0
+    \]
+
+    forces \(\lambda_0=\lambda_\Pi=0\).  In that multi-piece case
+    \(\operatorname{Rel}=0\), and the three \(P^0\) row-level checks are
+    automatic.
+
+    Thus the determinant shortcut is not a single-interval theorem.  It is
+    available only if the chosen realization support sees at least two
+    different period values.  Otherwise the \(\pi_0\)-constant relation must
+    remain in \(\operatorname{Rel}\).
+
+    Direct singularity comparison does not prove the three annihilation
+    conditions in a nontrivial \(\operatorname{Rel}\) case.  It either proves
+    the stronger independence statement above, or leaves a relation in which
+    the desired identities
+
+    \[
+    \lambda_u=X\lambda_-,\qquad
+    \lambda_v=Y\lambda_+,\qquad
+    F_c\lambda_c=\frac qa\,\lambda_-+\frac qb\,\lambda_+
+    \]
+
+    become extra branch-parameter constraints.  The constants
+    \(X,Y,F_c,q/a,q/b\) are branch-state data, not singular coefficients of
+    \(K_\lambda(x)\).  Therefore these identities should not be treated as
+    automatic consequences of \(\lambda\in\operatorname{Rel}\).
+
+    Stop/go for this subroute:
+
+    - Do not make the eight-kernel determinant the primary route.  It is a
+      useful shortcut only when the realization support crosses two period
+      values.
+    - Do one bounded \(P^0\) audit: either show \(\operatorname{Rel}=0\) in the
+      chosen support, or verify the three annihilation identities directly.
+    - If that audit fails, stop the finite-row \(P^{0T}Q_{\rm eff}P^0\) route
+      and switch to the actual-density/cone formulation for the endpoint test
+      combinations \(Be_u+Ae_\zeta\) and \(Be_\zeta+Ae_v\).
+
 3.  Effective endpoint Hessian identity.  Only after the previous two steps
     can one define
 
