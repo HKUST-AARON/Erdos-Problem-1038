@@ -6,7 +6,7 @@ used by the finite-atom route.
 The intent is to separate the analytic reduction into small, checkable layers
 instead of hiding it behind a single external hypothesis.
 
-## Current layer
+## Current layers
 
 `lean/LogPotentialTruncation.lean` packages the truncated logarithmic potential
 objects already defined in `finite_atoms/common/lean/StandardReduction.lean`.
@@ -18,6 +18,30 @@ It proves:
 
 This is the first layer needed for the lower-semicontinuity and minimizer
 existence part of the standard reduction.
+
+`lean/LowerSemicontinuity.lean` packages the true relaxed objective
+
+```lean
+unitIntervalPositiveSetObjective
+```
+
+and proves that compact off-diagonal singular-tail stability implies:
+
+- lower semicontinuity of the true objective;
+- existence of a relaxed objective minimizer.
+
+The remaining analytic input at this layer is named explicitly as
+`CompactTailMassStability`.
+
+`lean/MinimizerExistence.lean` packages the minimizer consequence as a named
+`RelaxedMinimizer` object.  This is the object that the later variation and
+normalization layers should consume.
+
+`lean/VariationEndpoint.lean` isolates the hard endpoint input as
+`EndpointFromVariation`.  Given endpoint-normalized data for the potential
+presented to the finite-atom route, it proves the normalized endpoint-potential
+consequences for any `RelaxedMinimizer`.  Reflection/translation normalization
+and its objective invariance remain upstream work.
 
 ## Check command
 

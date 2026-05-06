@@ -29,6 +29,9 @@ run_lean() {
 run_lean "$REPO_ROOT/finite_atoms/common/lean/FiniteAtomFramework.lean"
 run_lean "$REPO_ROOT/finite_atoms/common/lean/StandardReduction.lean"
 run_lean "$REPO_ROOT/finite_atoms/standard_reduction/lean/LogPotentialTruncation.lean"
+run_lean "$REPO_ROOT/finite_atoms/standard_reduction/lean/LowerSemicontinuity.lean"
+run_lean "$REPO_ROOT/finite_atoms/standard_reduction/lean/MinimizerExistence.lean"
+run_lean "$REPO_ROOT/finite_atoms/standard_reduction/lean/VariationEndpoint.lean"
 run_lean "$REPO_ROOT/finite_atoms/route_1807100/lean/Route1807100Closure.lean"
 
 check_piecewise_181460_route() {
