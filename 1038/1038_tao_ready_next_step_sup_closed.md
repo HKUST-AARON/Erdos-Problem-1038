@@ -3956,6 +3956,72 @@ The positive \(e_\zeta^0\) diagonal explains why the diagonal shortcut did
 not work.  Gate 1 now depends on the coupled Schur test using both this local
 block and the Riesz Gram matrix \(C\).
 
+For an actual atomic Farkas certificate one must also include the point rows
+\(x_k\in Z_0\).  The raw certificate kernel is
+
+\[
+k_{\mathfrak c}(t)
+=
+\eta\left(a\log\frac1{|u-t|}+b\log\frac1{|v-t|}\right)
++\sum_k w_k\log\frac1{|x_k-t|}
+-\lambda\frac1{t-c},
+\]
+
+so
+
+\[
+f_{\mathfrak c}(z)
+=
+\eta\left(\frac a{z-u}+\frac b{z-v}\right)
++\sum_k\frac{w_k}{z-x_k}
+-\frac{\lambda}{(z-c)^2}.
+\]
+
+The off-cut principal parts at \(u,v,c\) are explicit:
+
+\[
+\eta a\frac{R(u)}{z-u}
++\eta b\frac{R(v)}{z-v}
+-\lambda\left(
+\frac{R(c)}{(z-c)^2}+\frac{R'(c)}{z-c}
+\right).
+\]
+
+The \(x_k\)-terms are on-cut singularities, so they must be handled by
+symmetric regularized rows
+
+\[
+k_{x,\varepsilon}(t)
+=
+\frac12\log\frac1{|x+i\varepsilon-t|}
++\frac12\log\frac1{|x-i\varepsilon-t|}
+\]
+
+and the limit \(\varepsilon\downarrow0\).  For \(\varepsilon>0\) the point
+principal part is
+
+\[
+\frac{w_k}{2}
+\left(
+\frac{R(x_k+i\varepsilon)}{z-(x_k+i\varepsilon)}
++\frac{R(x_k-i\varepsilon)}{z-(x_k-i\varepsilon)}
+\right).
+\]
+
+Thus the final Gate 1 sign check is the regularized atomic Schur limit:
+
+\[
+\liminf_{\varepsilon\downarrow0}
+\left[
+B_{\rm at}(r_{\mathfrak c,\varepsilon},r_{\mathfrak c,\varepsilon})
++N_{\log,\varepsilon}(r_{\mathfrak c,\varepsilon},r_{\mathfrak c,\varepsilon})
+\right]<0
+\]
+
+for every normalized non-boundary atomic certificate.  The fixed \(C\)-matrix
+above is the off-cut subblock; the point rows enter through this regularized
+limit.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

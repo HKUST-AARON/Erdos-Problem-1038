@@ -11105,6 +11105,152 @@ theorem queue.
     to prove the Schur positivity (G1FinalSchurTest) on the atomic certificate
     cone.
 
+    Atomic certificate rows.
+
+    There is one more domain issue that must be kept explicit.  The fixed row
+    table \(\mathcal K_{\rm G1}\) above covers the off-cut endpoint, split-log,
+    anchor, and equality rows.  A genuine atomic Farkas certificate also
+    contains point-potential rows at the support points \(x_k\in Z_0\).  These
+    rows are not equal to any fixed finite subset of \(\mathcal K_{\rm G1}\).
+
+    For a certificate
+
+    \[
+    \mathfrak c=(\eta;\,w_k,x_k;\lambda),
+    \]
+
+    the raw row kernel is
+
+    \[
+    \boxed{
+    k_{\mathfrak c}(t)
+    =
+    \eta\left(
+    a\log\frac1{|u-t|}
+    +
+    b\log\frac1{|v-t|}
+    \right)
+    +
+    \sum_k w_k\log\frac1{|x_k-t|}
+    -
+    \lambda\,\frac1{t-c}.
+    }
+    \tag{G1CertKernel}
+    \]
+
+    With the convention \(f=-k'\), its formal derivative is
+
+    \[
+    \boxed{
+    f_{\mathfrak c}(z)
+    =
+    \eta\left(
+    \frac{a}{z-u}
+    +
+    \frac{b}{z-v}
+    \right)
+    +
+    \sum_k\frac{w_k}{z-x_k}
+    -
+    \frac{\lambda}{(z-c)^2}.
+    }
+    \tag{G1CertDerivative}
+    \]
+
+    The off-cut principal parts are explicit:
+
+    \[
+    \operatorname{PP}_{u,v,c}(Rf_{\mathfrak c})
+    =
+    \eta a\frac{R(u)}{z-u}
+    +
+    \eta b\frac{R(v)}{z-v}
+    -
+    \lambda
+    \left(
+    \frac{R(c)}{(z-c)^2}
+    +
+    \frac{R'(c)}{z-c}
+    \right).
+    \tag{G1CertOffcutPP}
+    \]
+
+    The terms \(w_k/(z-x_k)\) are on-cut singularities.  They cannot be hidden
+    inside the off-cut row table.  The proof-grade way to keep the calculation
+    finite is to use symmetric regularized point rows
+
+    \[
+    k_{x,\varepsilon}(t)
+    =
+    \frac12\log\frac1{|x+i\varepsilon-t|}
+    +
+    \frac12\log\frac1{|x-i\varepsilon-t|},
+    \qquad \varepsilon>0,
+    \tag{G1PointRegKernel}
+    \]
+
+    compute their Riesz transforms by the same formula (G1RieszCauchy), and
+    only then take the limit \(\varepsilon\downarrow0\).  For fixed
+    \(\varepsilon>0\), the added principal parts are
+
+    \[
+    \frac{w_k}{2}
+    \left(
+    \frac{R(x_k+i\varepsilon)}{z-(x_k+i\varepsilon)}
+    +
+    \frac{R(x_k-i\varepsilon)}{z-(x_k-i\varepsilon)}
+    \right),
+    \tag{G1PointRegPP}
+    \]
+
+    together with the corresponding period-normalizing
+    \((A_{\mathfrak c,\varepsilon},B_{\mathfrak c,\varepsilon})\).
+
+    Thus the actual certificate-capacity object is not a fixed \(6\times6\)
+    matrix alone, but the regularized finite family
+
+    \[
+    \boxed{
+    C_{\mathfrak c,\varepsilon}
+    =
+    \mathcal E_{\log}(g_{\mathfrak c,\varepsilon},
+    g_{\mathfrak c,\varepsilon}),
+    \qquad
+    g_{\mathfrak c,\varepsilon}=S k_{\mathfrak c,\varepsilon}.
+    }
+    \tag{G1CertCapacity}
+    \]
+
+    The Gate 1 Schur test for an atomic certificate must therefore be read as
+
+    \[
+    \boxed{
+    \liminf_{\varepsilon\downarrow0}
+    \left[
+    B_{\rm at}(r_{\mathfrak c,\varepsilon},
+    r_{\mathfrak c,\varepsilon})
+    +
+    N_{\log,\varepsilon}(r_{\mathfrak c,\varepsilon},
+    r_{\mathfrak c,\varepsilon})
+    \right]
+    <0,
+    }
+    \tag{G1AtomicLimitSchur}
+    \]
+
+    or, equivalently, by the projective Schur positivity of the corresponding
+    regularized finite Gram block before taking the limit.  If this limit
+    exists and is negative uniformly on normalized non-boundary certificates,
+    then \(Q_{\rm eff}<0\) for every atomic fallback.  If the limit diverges,
+    the sign of the divergent part must be computed from (G1PointRegPP); if a
+    support point collides with a branch endpoint or with another support
+    point, the certificate is no longer in the non-boundary interior and is
+    routed to Gate 3.
+
+    This is the corrected final form of the Gate 1 hard calculation.  The
+    previously recorded fixed-row \(C\)-matrix is the off-cut subblock; the
+    atomic point rows are supplied by the regularized limit above.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
