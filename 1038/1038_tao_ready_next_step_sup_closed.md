@@ -4051,6 +4051,36 @@ while \(B_{\rm at}\) remains finite.  Gate 1 therefore splits into:
 \zeta\ne0:\ \text{prove a no-}Z_0\text{-atom theorem or return to raw sign}.
 \]
 
+The no-atom branch is finite.  If \(\zeta=0\), the certificate equations reduce
+to
+
+\[
+\eta b_S-\lambda\rho_S=0.
+\]
+
+In the nondegenerate interior, \(\eta>0\), so after normalization
+
+\[
+b_S=\Lambda\rho_S.
+\]
+
+Hence no-atom fallback exists only on the collinearity locus
+\(b_S\in\mathbb R\rho_S\).  When it exists, the lifted value is
+
+\[
+\Theta_\Pi^0=\eta(b_\Pi-\Lambda\rho_\Pi).
+\]
+
+Thus the no-atom subcase is excluded by the explicit finite test
+
+\[
+b_S=\Lambda\rho_S\Rightarrow b_\Pi-\Lambda\rho_\Pi<0.
+\]
+
+The remaining Gate 1 branch is exactly the \(\zeta\ne0\) branch: it requires a
+no-\(Z_0\)-atom theorem for the reduced Farkas fallback, or a direct raw
+first-order sign proof with the \(Z_0\)-atoms included.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

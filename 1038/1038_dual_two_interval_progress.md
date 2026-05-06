@@ -11337,6 +11337,82 @@ theorem queue.
     This is not a new route.  It is the compatibility condition forced by the
     actual Hilbert topology of the \(Z_0\)-restriction row.
 
+    No-atom subcase.
+
+    The first line of (G1PointDichotomy) is now completely finite.  If
+    \(\zeta=0\), the raw augmented certificate has no point rows, so its
+    Schiffer equations reduce to
+
+    \[
+    \boxed{
+    \eta b_S-\lambda\rho_S=0,
+    \qquad
+    \eta\ge0.
+    }
+    \tag{G1NoAtomRelation}
+    \]
+
+    A nontrivial certificate cannot have \(\eta=\lambda=0\).  If \(\eta=0\),
+    then \(\lambda\rho_S=0\).  Thus either \(\lambda=0\), which is the zero
+    certificate and is discarded, or
+
+    \[
+    \rho_S=0.
+    \tag{G1RhoDegenerate}
+    \]
+
+    The latter is a row-rank degeneracy of the equality-correction anchor:
+    the four endpoint Schiffer columns have no \(R_c\)-projection.  In the
+    regular moving chart this is routed to the same chart-rank boundary used
+    above; otherwise the equality correction loses its separating row.
+
+    Hence in the interior no-atom case one must have \(\eta>0\).  Normalize
+    \(\eta=1\).  Then (G1NoAtomRelation) says exactly that
+
+    \[
+    \boxed{
+    b_S=\Lambda\rho_S,\qquad \Lambda:=\lambda/\eta.
+    }
+    \tag{G1NoAtomCollinearity}
+    \]
+
+    Therefore the no-atom Farkas fallback exists only on the codimension-three
+    collinearity locus \(b_S\in\mathbb R\rho_S\).  If this collinearity fails,
+    the no-atom branch is impossible.
+
+    If the collinearity holds, the period lift is
+
+    \[
+    \Theta_\Pi^{0}
+    =
+    \eta b_\Pi-\lambda\rho_\Pi
+    =
+    \eta\left(b_\Pi-\Lambda\rho_\Pi\right).
+    \tag{G1NoAtomLift}
+    \]
+
+    Thus the no-atom fallback is excluded precisely when
+
+    \[
+    \boxed{
+    b_S=\Lambda\rho_S
+    \quad\Longrightarrow\quad
+    b_\Pi-\Lambda\rho_\Pi<0.
+    }
+    \tag{G1NoAtomSign}
+    \]
+
+    This closes the \(\zeta=0\) subcase as an explicit finite algebraic test:
+    either \(b_S\) is not collinear with \(\rho_S\), or the unique collinearity
+    ratio gives a negative period lift.  No \(Q_{\rm eff}\) or point-row
+    regularization remains in this subcase.
+
+    Consequently the only genuinely infinite-dimensional Gate 1 branch left is
+    the \(\zeta\ne0\) branch.  By (G1PointAtomNoQeff), that branch cannot be
+    closed by a finite negative \(Q_{\rm eff}\) lift; it requires either a
+    no-\(Z_0\)-atom theorem for the reduced Farkas fallback or a direct proof
+    of the raw first-order sign with \(Z_0\)-atoms included.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
