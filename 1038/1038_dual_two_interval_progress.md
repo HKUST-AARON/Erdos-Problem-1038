@@ -3218,6 +3218,66 @@ G_\varepsilon(A,\alpha)=0.}
 Until this is done, §15 is a strong exact-route program and a working parameter
 generator, not a proof of the exact infimum.
 
+### 15.7 Eta-divided Taylor model for the singular DK entry
+
+The current interval obstruction in the small-\(\eta\) branch is the
+\((K_2,\tau)\) derivative entry.  The bad enclosure comes from forming
+
+\[
+\frac{f(\eta)-f(0)}{\eta}
+\]
+
+by evaluating \(f(\eta)\) and \(f(0)\) as two unrelated interval balls.  This
+destroys the first-order cancellation.  The proof-grade replacement is the
+integral Taylor identity
+
+\[
+\boxed{
+\frac{f(\eta)-f(0)}{\eta}
+=
+\int_0^1 f'(t\eta)\,dt.
+}
+\]
+
+For a paired residue-log contribution of the form
+
+\[
+f(\eta)=S(\eta)\log|x-\rho(\eta)|,
+\]
+
+where \(S\) is the paired residue sum and \(\rho\) is the paired pole location,
+the divided term should be enclosed as
+
+\[
+\boxed{
+\int_0^1
+\left[
+S'(s)\log|x-\rho(s)|
+-S(s)\frac{\rho'(s)}{x-\rho(s)}
+\right]_{s=t\eta}
+dt.
+}
+\]
+
+This keeps \(S,\rho,\log|x-\rho|\) on the same \(s=t\eta\) dependency track and
+should remove the artificial radius seen in
+\(((a_\ell+a_r)-(a_{\ell0}+a_{r0}))/\eta\).
+
+Thus the small-\(\eta\) singular gap has a precise next theorem:
+
+\[
+\boxed{
+\text{For each paired residue-log term, derive rational formulas for }
+S'(s)\text{ and }\rho'(s),\text{ and enclose the above }t\text{-integral on
+the first eta slab.}
+}
+\]
+
+If this theorem is established, the \(DK[1,1]\) enclosure should contract
+toward the true value near \(-0.43\) instead of the current artificial
+\([-1.74,1.74]\)-scale interval.  This is the most direct route to a
+continuum-grade small-\(\eta\) branch certificate.
+
 ## 16. Mathematical proof ledger for the exact-value route
 
 This section records the current paper-level proof chain for the conjectural

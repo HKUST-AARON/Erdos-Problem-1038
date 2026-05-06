@@ -2864,7 +2864,74 @@ first slab eta-interval, 7,7:
 The paired residue-log prototype is useful as a localization tool, but it is
 not yet a better verifier.
 
-### I. Tao note calibration and the first hard number after reading it
+### I. Eta-divided Taylor model target
+
+The next small-eta proof step is now precise.  For every residue-log component
+that appears in the bad \((K_2,\tau)\) entry, do not enclose
+
+\[
+\frac{f(\eta)-f(0)}{\eta}
+\]
+
+by evaluating \(f(\eta)\) and \(f(0)\) separately.  Use the identity
+
+\[
+\boxed{
+\frac{f(\eta)-f(0)}{\eta}
+=
+\int_0^1 f'(t\eta)\,dt.
+}
+\]
+
+This is the correct continuum-grade divided enclosure.  It preserves the
+first-order cancellation because the interval variable is \(t\eta\), not two
+unrelated copies of \(\eta\).
+
+For the paired smooth-pole residue sum, write the problematic term as
+
+\[
+S(\eta)\log|x-\rho(\eta)|,
+\]
+
+where \(S=a_\ell+a_r\) after common-denominator pairing.  The eta-divided
+version should be enclosed as
+
+\[
+\frac{S(\eta)\log|x-\rho(\eta)|-S(0)\log|x-\rho(0)|}{\eta}
+=
+\int_0^1
+\frac{d}{ds}
+\left[
+S(s)\log|x-\rho(s)|
+\right]_{s=t\eta}
+dt.
+\]
+
+The derivative is
+
+\[
+S'(s)\log|x-\rho(s)|
+-S(s)\frac{\rho'(s)}{x-\rho(s)}.
+\]
+
+This is the formula that should replace the current paired prototype.  It
+keeps \(S,\rho,\log|x-\rho|\) on the same \(s=t\eta\) dependency track and
+therefore should remove the artificial radius from
+\(((a_\ell+a_r)-(a_{\ell0}+a_{r0}))/\eta\).
+
+The small-eta hard mouth is now:
+
+\[
+\boxed{
+\text{derive and enclose the }s\text{-derivatives of all paired residue-log
+terms on }s\in[0,\eta_{\max}].
+}
+\]
+
+Once this is done, the bad \(DK[1,1]\) radius should reflect the true value near
+\(-0.43\), not the artificial \([-1.74,1.74]\) interval.
+
+### J. Tao note calibration and the first hard number after reading it
 
 The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with
 this exact-infimum line.  Its Section 4 writes the Hilbert-transform/Cauchy
