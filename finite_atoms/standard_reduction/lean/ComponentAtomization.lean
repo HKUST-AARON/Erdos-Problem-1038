@@ -1568,6 +1568,63 @@ def CanonicalComponentPackageFromVariation.toComponentPackageFromVariation
     (H.canonicalPackage M).toTaoVariationComponentPackage
 
 /--
+Right-region form of the canonical variation data for one relaxed minimizer.
+
+This is the concrete maximal-component-facing data consumed by
+`of_unitIntervalLogPotential_right_region`.
+-/
+structure CanonicalRightRegionPackageData
+    (M : MinimizerExistence.RelaxedMinimizer) where
+  mean_choice : TaoVariationMeanChoice
+  reflected : Bool
+  translation : ℝ
+  component : Set ℝ
+  Support : Set ℝ
+  xMinus : ℝ
+  xPlus : ℝ
+  right_region_eq :
+    component = PositiveSet (VariationEndpoint.RelaxedPotential M) ∩ Ioi xMinus
+  component_interval : component = Ioo xMinus xPlus
+  baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component
+  support_bounded : Support ⊆ Icc (-1 : ℝ) 1
+  unique_support_in_component :
+    ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1
+  right_endpoint_positive : 0 < xPlus
+  support_contains_real_support :
+    (realMeasure M.μ).support ⊆ Support
+  right_endpoint_not_mem_support :
+    xPlus ∉ (realMeasure M.μ).support
+
+/-- Right-region data produces the canonical endpoint package. -/
+def CanonicalRightRegionPackageData.toCanonicalEndpointVariationPackageData
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CanonicalRightRegionPackageData M) :
+    CanonicalEndpointVariationPackageData M.μ
+      (VariationEndpoint.RelaxedPotential M) :=
+  CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region
+    M.μ D.mean_choice D.reflected D.translation D.component D.Support
+    D.xMinus D.xPlus D.right_region_eq D.component_interval
+    D.baseline_inside_component D.support_bounded
+    D.unique_support_in_component D.right_endpoint_positive
+    D.support_contains_real_support D.right_endpoint_not_mem_support
+
+/--
+Right-region variation input for every relaxed minimizer.  This is narrower
+than `CanonicalComponentPackageFromVariation`: it asks for the maximal
+right-region data, then constructs the canonical package internally.
+-/
+structure CanonicalRightRegionPackageFromVariation where
+  right_region_data : ∀ M : MinimizerExistence.RelaxedMinimizer,
+    CanonicalRightRegionPackageData M
+
+/-- Right-region variation data supplies canonical component packages. -/
+def CanonicalRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+    (H : CanonicalRightRegionPackageFromVariation) :
+    CanonicalComponentPackageFromVariation where
+  canonicalPackage := fun M =>
+    (H.right_region_data M).toCanonicalEndpointVariationPackageData
+
+/--
 Canonical component-package variation data directly gives the normalized
 endpoint-potential interface for each relaxed minimizer.
 -/

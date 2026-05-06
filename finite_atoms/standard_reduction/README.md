@@ -248,6 +248,20 @@ exists_baseline_length_from_canonical_componentPackage
 The diagonal-safe path continues to use `OneSidedCompactCore`; it does not go
 through the older compact tail-mass stability interface.
 
+The same layer now exposes the still narrower right-region interface:
+
+```lean
+CanonicalRightRegionPackageData
+CanonicalRightRegionPackageFromVariation
+CanonicalRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+```
+
+This is the current closest formal entry point to the Tao maximal-component
+argument.  It asks for the selected right-region equality, interval endpoints,
+support order, and endpoint support gap; the canonical endpoint package and
+baseline consequences are then built internally through the canonical
+component-package bridge.
+
 ## Check command
 
 From the repository root:
