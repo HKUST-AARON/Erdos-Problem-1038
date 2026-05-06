@@ -3321,6 +3321,46 @@ Hence the rank-defect conclusion for the regular non-pinched interior is:
 }
 \]
 
+Gate 3 closes the compactified \(g=2\) boundary.  Work in the coefficient
+topology for \(D,Q\), the real pole/residue and endpoint-atom data, and the
+Hausdorff topology for \(Z_0\).  Any compact sequence has a subsequential
+potential limit off the limiting support.  The possible boundary modes are
+exhaustive:
+
+\[
+\begin{array}{c|c}
+\text{mode} & \text{route} \\ \hline
+\text{branch pinching} & \text{lower genus or endpoint atom} \\
+Q\text{-pole collision / multiple pole} & \text{merged atom or lower pole stratum} \\
+\text{density sign loss / residue zero} & \text{positivity boundary or atom deletion} \\
+\text{endpoint atom creation} & \text{corrected }g=1\text{ / one-cut face} \\
+Z_0\text{-collision or closure} & \text{active-set boundary / lower genus} \\
+c\text{ hitting a forbidden set} & \text{anchor singular boundary}
+\end{array}
+\]
+
+Branch pinching cancels a pair of branch factors or leaves a nonnegative
+endpoint atom, hence gives lower genus or the corrected \(g=1\) boundary.
+Colliding \(Q\)-poles merge real Stieltjes atoms; zero residue deletes an atom;
+leaving the real interlacing class is density-sign loss.  Endpoint atom
+creation is therefore already one of those two mechanisms.  If \(Z_0\) collides
+with a boundary, Gate 2 either remains stable after regularization or the
+component pinches.  If \(c\) hits an endpoint, pole, atom, or active zero, the
+anchor rows become singular, which is a boundary/state-lift stratum rather than
+a new regular \(g=2\) chamber.
+
+\[
+\boxed{
+\textbf{Gate 3 result: PASS.}\quad
+\text{The compactified }g=2\text{ boundary routes to corrected }g=1,
+\text{ one-cut, lower genus, or already excluded }g=2\text{ cases.}
+}
+\]
+
+Thus Gates 1--3 remove the regular interior, rank-defect interior, and boundary
+\(g=2\) compact cases.  The remaining global gates are high-genus local-neck
+reduction, Lemma R, and the one-cut upper construction.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final

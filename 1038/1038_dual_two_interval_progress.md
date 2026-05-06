@@ -9492,6 +9492,114 @@ theorem queue.
     Combined with Gate 1, the rank-defect compact non-pinched \(g=2\) interior
     case is excluded.
 
+    Gate 3: PinchingBoundaryReduction.
+
+    Gate 3 treats limits of the same \(g=2\) finite-gap chamber when one of
+    the regular non-pinched chart hypotheses fails.  The topology is the
+    coefficient topology for the branch polynomial \(D\), the pole polynomial
+    \(Q\), the real pole/residue data, the endpoint atom data, and the
+    Hausdorff topology for the active zero set \(Z_0\), with logarithmic
+    potentials taken in the local uniform topology off the limiting support.
+    Along any compact sequence the normalized potentials have a subsequential
+    limit in this topology, because the total mass and the logarithmic energy
+    rows are fixed and the pole/branch data remain in a compactified real
+    finite-dimensional chart.
+
+    We claim that every boundary point of this compactified \(g=2\) chamber
+    routes to a lower-dimensional branch already covered by the \(g=2\)
+    interior exclusion, the corrected \(g=1\) analysis, the one-cut branch, or
+    the regular-case lineality contradiction.
+
+    The boundary modes are exhaustive:
+
+    \[
+    \begin{array}{c|c}
+    \text{boundary mode} & \text{route} \\ \hline
+    \text{branch pinching} & \text{lower genus or endpoint atom} \\
+    Q\text{-pole collision} & \text{merged real atom / lower pole stratum} \\
+    \text{multiple pole} & \text{lower pole stratum or residue-zero face} \\
+    \text{density sign loss} & \text{positivity boundary / lower support} \\
+    \text{residue zero} & \text{atom deletion / lower pole stratum} \\
+    \text{endpoint atom creation} & \text{corrected }g=1\text{ or one-cut face} \\
+    Z_0\text{-collision or closure} & \text{active-set boundary / lower genus} \\
+    c\text{ hitting a forbidden set} & \text{anchor singular boundary}
+    \end{array}
+    \tag{G3modes}
+    \]
+
+    Branch pinching means that two neighboring branch endpoints collide.  In
+    the hyperelliptic representation \(R^2=D\), the factor
+    \((z-\alpha)(z-\beta)\) either cancels from the density numerator in the
+    limit, giving a genuine lower-genus finite-gap object, or leaves a
+    nonnegative endpoint atom as the collapsed interval carries positive
+    residue.  The first case is a lower-genus chamber.  The second is exactly
+    the corrected endpoint-atom \(g=1\) boundary already separated from the
+    non-pinched \(g=2\) interior.  No new two-cut compact interior object
+    remains after the collision.
+
+    A \(Q\)-pole collision or multiple pole is a boundary of the pole-state
+    chart.  Since the pole weights are nonnegative in the admissible
+    Stieltjes representation, colliding real poles combine into a single real
+    atom with summed residue.  If the limiting residue is zero, the pole is
+    deleted and the state moves to a lower pole stratum.  If the pole reaches
+    a branch endpoint, the limit is an endpoint atom and is routed as above.
+    If the limiting pole would leave the real separated interlacing class,
+    the density sign condition has already failed, so the sequence lies on
+    the positivity boundary rather than in a new regular chamber.
+
+    Density sign loss and residue-zero limits are also boundary faces.  A
+    zero residue deletes an atom.  A vanishing density factor on one cut
+    either cancels a branch factor, lowering genus, or creates a positivity
+    boundary where the regular Schiffer chart rank drops.  A dropped chart
+    rank is not a new interior case: it is precisely the degeneration routed
+    to the lower-dimensional compactified strata.
+
+    Endpoint atom creation is harmless for the \(g=2\) compact exclusion.  If
+    the atom is created by a collapsing cut, it is the branch-pinching case.
+    If it is created by a pole reaching an endpoint, it is the pole-collision
+    case.  In both descriptions the limiting variational problem is a
+    corrected \(g=1\) or one-cut problem with an endpoint atom; it is not an
+    unhandled rank-defect \(g=2\) interior.
+
+    Finally, \(Z_0\)-collision and \(c\)-collision cannot produce a new
+    counterexample.  If \(Z_0\) collides with a moving boundary, the limiting
+    inequality is an active-set boundary; either the strict negativity needed
+    in Gate 2 persists after a small regularization, or a component is
+    pinched and the support genus drops.  If the anchor point \(c\) hits a
+    branch endpoint, a pole, an atom, or \(Z_0\), then the rows \(R_c\) and
+    \(R_{\ell c}\) become singular and the fixed regular chart is no longer
+    valid.  This is exactly an anchor singular boundary, routed to the
+    state-lift/pinching strata, not to a new non-pinched compact \(g=2\)
+    chamber.
+
+    Therefore every compactified boundary limit of a \(g=2\) chamber has one
+    of the following outcomes:
+
+    \[
+    \boxed{
+    \text{corrected }g=1,\quad
+    \text{one-cut},\quad
+    \text{lower genus},\quad
+    \text{or an already excluded regular/rank-defect }g=2\text{ case.}
+    }
+    \tag{G3route}
+    \]
+
+    Thus:
+
+    \[
+    \boxed{
+    \textbf{Gate 3 result: PASS.}\quad
+    \text{The compactified }g=2\text{ boundary leaves no new counterexample.}
+    }
+    \]
+
+    Combining Gates 1--3, regular compact \(g=2\), rank-defect compact
+    non-pinched \(g=2\), and boundary \(g=2\) are all routed out of the
+    lower-bound obstruction.  The remaining global gates are the
+    high-genus local-neck reduction, regularity removal, and the one-cut upper
+    construction.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly
