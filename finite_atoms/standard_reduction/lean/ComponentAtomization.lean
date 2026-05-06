@@ -1625,6 +1625,57 @@ def CanonicalRightRegionPackageFromVariation.toCanonicalComponentPackageFromVari
     (H.right_region_data M).toCanonicalEndpointVariationPackageData
 
 /--
+Atomized right-region data for one relaxed minimizer.
+
+Compared with `CanonicalRightRegionPackageData`, this no longer asks for
+`unique_support_in_component` directly.  Instead it asks for the component-block
+atomization conclusion and the endpoint barycenter normalization, then derives
+support uniqueness internally.
+-/
+structure CanonicalAtomizedRightRegionPackageData
+    (M : MinimizerExistence.RelaxedMinimizer) where
+  mean_choice : TaoVariationMeanChoice
+  reflected : Bool
+  translation : ℝ
+  component : PositiveComponent M.μ
+  right_region_eq :
+    component.interval =
+      PositiveSet (VariationEndpoint.RelaxedPotential M) ∩ Ioi component.left
+  baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component.interval
+  real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1
+  component_block_atomized :
+    componentBlock component =
+      componentMass component • Measure.dirac (componentBarycenter component)
+  barycenter_eq_endpoint : componentBarycenter component = -1
+  right_endpoint_positive : 0 < component.right
+  right_endpoint_not_mem_support :
+    component.right ∉ (realMeasure M.μ).support
+
+/-- Atomized right-region data produces ordinary right-region data. -/
+def CanonicalAtomizedRightRegionPackageData.toCanonicalRightRegionPackageData
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CanonicalAtomizedRightRegionPackageData M) :
+    CanonicalRightRegionPackageData M where
+  mean_choice := D.mean_choice
+  reflected := D.reflected
+  translation := D.translation
+  component := D.component.interval
+  Support := (realMeasure M.μ).support
+  xMinus := D.component.left
+  xPlus := D.component.right
+  right_region_eq := D.right_region_eq
+  component_interval := PositiveComponent.interval_eq D.component
+  baseline_inside_component := D.baseline_inside_component
+  support_bounded := D.real_support_bounded
+  unique_support_in_component :=
+    unique_support_in_component_endpoint_of_componentBlock_eq_dirac
+      D.component (fun _ ht => ht) D.component_block_atomized
+      D.barycenter_eq_endpoint
+  right_endpoint_positive := D.right_endpoint_positive
+  support_contains_real_support := fun _ ht => ht
+  right_endpoint_not_mem_support := D.right_endpoint_not_mem_support
+
+/--
 Canonical component-package variation data directly gives the normalized
 endpoint-potential interface for each relaxed minimizer.
 -/

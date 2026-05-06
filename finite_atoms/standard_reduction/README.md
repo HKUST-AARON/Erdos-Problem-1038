@@ -254,6 +254,7 @@ The same layer now exposes the still narrower right-region interface:
 CanonicalRightRegionPackageData
 CanonicalRightRegionPackageFromVariation
 CanonicalRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
+CanonicalAtomizedRightRegionPackageData
 ```
 
 This is the current closest formal entry point to the Tao maximal-component
@@ -261,6 +262,15 @@ argument.  It asks for the selected right-region equality, interval endpoints,
 support order, and endpoint support gap; the canonical endpoint package and
 baseline consequences are then built internally through the canonical
 component-package bridge.
+
+The atomized right-region variant removes the direct
+`unique_support_in_component` input.  It takes the already-formal component
+block atomization conclusion together with `componentBarycenter = -1`, and uses
+`unique_support_in_component_endpoint_of_componentBlock_eq_dirac` to produce
+the uniqueness field internally.  In this narrower interface the selected
+support is fixed to `(realMeasure μ).support`, so the caller only proves the
+boundedness of the actual topological support rather than two opposite support
+containments.
 
 ## Check command
 
