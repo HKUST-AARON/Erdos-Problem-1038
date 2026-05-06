@@ -999,7 +999,13 @@ The next mathematical deliverables, in order, are:
    \end{pmatrix}
    \]
    on actual density perturbations satisfying \(\delta\Pi=0\);
-7. prove the five scalar identities
+7. prove the density-to-row quotient / realization lemma
+   \[
+   \ker(\rho|_{\mathcal X_\Pi})\subset\operatorname{Rad}(G_{\rm br}),
+   \]
+   or keep the compact obstruction directly on the row-map image
+   \(V=\rho(\mathcal X_\Pi)\);
+8. prove the five scalar identities
    \[
    e_u^TMe_u=\lambda a,\quad
    e_v^TMe_v=\lambda b,\quad
@@ -1009,10 +1015,10 @@ The next mathematical deliverables, in order, are:
    e_u^TMe_\zeta=-\frac{\lambda}{2}\Gamma(c-u),\quad
    e_v^TMe_\zeta=\frac{\lambda}{2}\Gamma(v-c);
    \]
-8. use them to prove the curvature clamp and Wronskian/sign-pattern
+9. use them to prove the curvature clamp and Wronskian/sign-pattern
    contradiction for compact non-pinched \(g=2\);
-9. formulate high-genus induction as a local \(g=2\)-type neck obstruction;
-10. only then attack the regularity-removal layer.
+10. formulate high-genus induction as a local \(g=2\)-type neck obstruction;
+11. only then attack the regularity-removal layer.
 
 ### Priority B: preserve finite certificate records accurately
 
@@ -2398,7 +2404,7 @@ Current status:
 
 This \(\lambda_SS\) version is not the proof-grade convention.  The later
 calculation also shows that a free \(\lambda_FF(c)\) row is not proof-grade.
-The active convention is recorded in §§10.17b-10.17f:
+The active convention is recorded in §§10.17b-10.17g:
 
 \[
 S=0\text{ is derived from endpoint stationarity, and }F(c)=0
@@ -3769,6 +3775,24 @@ A_\xi
 }
 \]
 
+Under the regularity assumptions
+
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0,
+\]
+
+the bordered matrix is invertible.  Hence \(G_{\rm br}\) is a well-defined
+symmetric bilinear form on the actual density tangent space
+
+\[
+\mathcal X_\Pi=\{\xi:\delta\Pi(\xi)=0\}.
+\]
+
+Symmetry follows from the symmetry of the second Frechet derivative
+\(D^2\Phi_{\rm br}\), and the formula above agrees with the bordered Schur
+expression because \(T\xi=-A_y^{-1}A_\xi\xi\) is the unique solution of the
+linearized branch state equations.
+
 The compact \(g=2\) second-variation condition is not \(G_0\succeq0\) on all
 density directions.  It is
 
@@ -3785,7 +3809,84 @@ Only after this state-lift and period-splitting lemma is in place can the
 finite six-row cokernel, endpoint-transfer lift, and curvature-clamp matrix
 \(M\) be defined without overcounting.
 
-### 10.17d Curvature-clamp Hessian identity package
+### 10.17d Density-to-row projection obstruction
+
+The reduced Hessian \(G_{\rm br}\) is now defined on actual density
+perturbations, not on six free formal row coordinates.  Let
+
+\[
+\rho(\xi)=
+(R_0,R_u,R_c,R_v,R_-,R_+,\Pi)(\xi),
+\]
+
+and
+
+\[
+\mathcal X_\Pi=\{\xi:\Pi(\xi)=0\}.
+\]
+
+The finite row matrix used in the compact \(g=2\) cokernel argument is
+proof-grade only if
+
+\[
+\boxed{
+\ker(\rho|_{\mathcal X_\Pi})\subset \operatorname{Rad}(G_{\rm br}).
+}
+\]
+
+Equivalently, whenever two actual perturbations have the same listed rows,
+
+\[
+\rho(\xi)=\rho(\xi'),
+\]
+
+one must have
+
+\[
+G_{\rm br}(\xi,\zeta)=G_{\rm br}(\xi',\zeta)
+\qquad
+\forall \zeta\in\mathcal X_\Pi.
+\]
+
+Then \(G_{\rm br}\) descends to a unique bilinear form
+
+\[
+\bar G_{\rm br}:V\times V\to\mathbb R,
+\qquad
+V=\rho(\mathcal X_\Pi)\subset\mathbb R^7,
+\]
+
+such that
+
+\[
+G_{\rm br}(\xi,\zeta)=
+\bar G_{\rm br}(\rho\xi,\rho\zeta).
+\]
+
+If this quotient lemma is not proved, the compact proof must keep
+\(G_{\rm br}\) on actual densities and make every cokernel vector act through
+the functional
+
+\[
+\xi\mapsto \lambda\cdot\rho(\xi)
+=\int K_\lambda(x)\,d\xi(x).
+\]
+
+In that formulation \(\lambda\) is meaningful only modulo \(V^\perp\).  A
+nonzero ambient row vector that vanishes on \(V\) is not a real obstruction.
+
+This is the next hard mouth.  One may not treat
+
+\[
+(R_0,R_u,R_c,R_v,R_-,R_+)
+\]
+
+as arbitrary free coordinates until a realization theorem proves the needed
+directions are actually in \(V\).  The hidden constraints include period,
+Cauchy boundary relations, endpoint-difference anchoring, and the fact that
+\(R_-,R_+\) are differences rather than absolute endpoint values.
+
+### 10.17e Curvature-clamp Hessian identity package
 
 Once the no-overcount Schur complement has been constructed, the curvature
 clamp does not require every entry of the reduced Hessian \(M\).  It requires
@@ -3869,10 +3970,11 @@ Status:
 
 These five identities are target identities for the true reduced Hessian after
 the branch-parametrized Phi-Euler-Hessian lemma and the fixed-chart
-state-lift/period-splitting lemma.  They must not be asserted for an
-arbitrary formal matrix.
+state-lift/period-splitting lemma, and only after the density-to-row quotient
+or realization lemma.  They must not be asserted for an arbitrary formal
+matrix.
 
-### 10.17e Retired free-\(F(c)\) derivative convention
+### 10.17f Retired free-\(F(c)\) derivative convention
 
 If \(F\) is held as a fixed dual Cauchy transform
 
@@ -4001,14 +4103,14 @@ H_{\xi_i\xi_j}^{(F)}=0
 
 for the \(F\)-row contribution.
 
-### 10.17f Updated blocker for Schur complement
+### 10.17g Updated blocker for Schur complement
 
 The hard mouth is now:
 
 \[
 \boxed{
-\text{prove the fixed-chart state-lift/period-splitting lemma and compute the
-bordered Schur complement using }A=(E_-,E_+,M,F).
+\text{prove the density-to-row quotient or realization lemma for }
+G_{\rm br}.
 }
 \]
 
@@ -4057,3 +4159,8 @@ A_\xi
 \]
 
 on \(\delta\Pi=0\) is only a formal target, not a theorem.
+
+After this turn, the state-lift and fixed-chart Hessian well-definedness
+statements are recorded.  The remaining obstruction is the quotient step:
+prove that \(G_{\rm br}\) descends to the finite row image \(V\), or keep the
+entire compact \(g=2\) obstruction on actual density perturbations.

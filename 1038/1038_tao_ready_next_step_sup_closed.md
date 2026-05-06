@@ -816,6 +816,28 @@ A_\xi
 }
 \]
 
+Equivalently, with the state lift
+
+\[
+T\xi=-A_y^{-1}A_\xi\xi,
+\]
+
+the density-level reduced Hessian is the symmetric bilinear form
+
+\[
+\boxed{
+G_{\rm br}(\xi,\zeta)=
+D^2\Phi_{\rm br}\big((T\xi,\xi),(T\zeta,\zeta)\big),
+\qquad
+\delta\Pi(\xi)=\delta\Pi(\zeta)=0.
+}
+\]
+
+The bordered formula agrees with this expression under
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0.
+\]
+
 The second-variation theorem must prove
 
 \[
@@ -824,6 +846,33 @@ The second-variation theorem must prove
 \quad\text{for actual admissible }\xi\text{ satisfying }\delta\Pi(\xi)=0.
 }
 \]
+
+The next hard mouth is not yet the curvature clamp.  Since \(G_{\rm br}\) is
+defined on actual density perturbations, the finite-row reduction first needs
+
+\[
+\boxed{
+\ker(\rho|_{\mathcal X_\Pi})\subset\operatorname{Rad}(G_{\rm br}),
+}
+\]
+
+where
+
+\[
+\rho(\xi)=(R_0,R_u,R_c,R_v,R_-,R_+,\Pi)(\xi),
+\qquad
+\mathcal X_\Pi=\{\xi:\Pi(\xi)=0\}.
+\]
+
+Equivalently, \(G_{\rm br}\) must descend to
+
+\[
+V=\rho(\mathcal X_\Pi)\subset\mathbb R^7.
+\]
+
+Until this quotient/realization lemma is proved, the six local rows cannot be
+treated as arbitrary free coordinates.  Any cokernel vector is meaningful only
+through its action on the actual row image \(V\).
 
 After that, the curvature clamp needs exactly five reduced-Hessian identities:
 
