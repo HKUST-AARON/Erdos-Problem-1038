@@ -174,6 +174,28 @@ theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
 
 /-! ### Endpoint support shape and boundary average -/
 
+/-- Neighborhood form of the one-sided boundary exclusion argument. -/
+private theorem not_mem_of_mem_nhds_no_right_points
+    {S : Set ℝ} {r : ℝ}
+    (hnhds : S ∈ 𝓝 r)
+    (hNoRight : ∀ y : ℝ, r < y → y ∉ S) :
+    r ∉ S := by
+  intro hr
+  rcases Metric.mem_nhds_iff.mp hnhds with ⟨ε, hε, hball⟩
+  let y : ℝ := r + ε / 2
+  have hry : r < y := by
+    dsimp [y]
+    linarith
+  have hydist : dist y r < ε := by
+    dsimp [y]
+    rw [Real.dist_eq]
+    have hsub : r + ε / 2 - r = ε / 2 := by ring
+    rw [hsub]
+    have hhalf_nonneg : 0 ≤ ε / 2 := by linarith
+    rw [abs_of_nonneg hhalf_nonneg]
+    linarith
+  exact hNoRight y hry (hball hydist)
+
 /--
 Open-set right-boundary lemma.
 
@@ -189,20 +211,25 @@ theorem not_mem_of_isOpen_no_right_points
     (hNoRight : ∀ y : ℝ, r < y → y ∉ S) :
     r ∉ S := by
   intro hr
-  rcases Metric.isOpen_iff.mp hOpen r hr with ⟨ε, hε, hball⟩
-  let y : ℝ := r + ε / 2
-  have hry : r < y := by
-    dsimp [y]
-    linarith
-  have hydist : dist y r < ε := by
-    dsimp [y]
-    rw [Real.dist_eq]
-    have hsub : r + ε / 2 - r = ε / 2 := by ring
-    rw [hsub]
-    have hhalf_nonneg : 0 ≤ ε / 2 := by linarith
-    rw [abs_of_nonneg hhalf_nonneg]
-    linarith
-  exact hNoRight y hry (hball hydist)
+  exact not_mem_of_mem_nhds_no_right_points
+    (hOpen.mem_nhds hr) hNoRight hr
+
+/--
+Continuous right-boundary lemma for a strict positivity set.
+
+This local version avoids requiring global openness of the real-valued
+logarithmic positive set.  It is enough to know continuity at the selected
+right endpoint and that no strictly right point is positive.
+-/
+theorem not_mem_positiveSet_of_continuousAt_no_right_points
+    {U : ℝ → ℝ} {r : ℝ}
+    (hcont : ContinuousAt U r)
+    (hNoRight : ∀ y : ℝ, r < y → y ∉ PositiveSet U) :
+    r ∉ PositiveSet U := by
+  intro hr
+  have hpre : PositiveSet U ∈ 𝓝 r := by
+    simpa [PositiveSet] using hcont (isOpen_Ioi.mem_nhds hr)
+  exact not_mem_of_mem_nhds_no_right_points hpre hNoRight hr
 
 /--
 The full component-order information gives the sharper normalized support
@@ -958,6 +985,52 @@ theorem boundary_average_of_component_right_endpoint_not_positive
         exact unique_support_in_component t htSupport
           (by simpa [component_interval] using htComp)))
     right_endpoint_not_positive hε hdist_lower hdist_int hlog_int
+    hrem_dist_int
+
+/--
+Boundary-average constructor from local endpoint continuity and one-sided
+maximality.
+
+This is the form consumed by the future maximal-component argument: endpoint
+separation supplies `ContinuousAt`, maximality supplies no strictly-right
+positive points, and the theorem above supplies the algebraic boundary average.
+-/
+theorem boundary_average_of_component_continuousAt_no_right_positive
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
+    (hNoRight :
+      ∀ y : ℝ, xPlus < y →
+        y ∉ PositiveSet (unitIntervalLogPotential μ))
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+  boundary_average_of_component_right_endpoint_not_positive μ
+    component Support xMinus xPlus ε component_interval
+    baseline_inside_component support_bounded unique_support_in_component
+    right_endpoint_positive
+    (not_mem_positiveSet_of_continuousAt_no_right_points hcont hNoRight)
+    support_contains_real_support hε hdist_lower hdist_int hlog_int
     hrem_dist_int
 
 /--

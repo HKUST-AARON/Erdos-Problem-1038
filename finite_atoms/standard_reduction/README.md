@@ -139,11 +139,16 @@ The same section records the small open-set boundary lemma
 
 ```lean
 not_mem_of_isOpen_no_right_points
+not_mem_positiveSet_of_continuousAt_no_right_points
 ```
 
 which is the topological core for the later maximal-component step: if the
 positive set is open and the selected right endpoint has no positive points
-strictly to its right, then the endpoint is not itself positive.
+strictly to its right, then the endpoint is not itself positive.  The local
+continuous-at version is the preferred interface for the real-valued
+logarithmic potential, because global openness at diagonal atom points is not
+the right target; endpoint separation can instead supply continuity at the
+selected boundary point.
 
 This feeds the boundary-average bridge
 
@@ -163,6 +168,7 @@ endpointRemainder_boundary_distance_of_potential_nonpos
 boundary_average_of_boundary_potential_nonpos
 boundary_average_of_right_endpoint_not_positive
 boundary_average_of_component_right_endpoint_not_positive
+boundary_average_of_component_continuousAt_no_right_positive
 ```
 
 Thus the `boundary_average` field can be obtained from a nonpositive boundary
@@ -172,11 +178,10 @@ For a genuine maximal positive component, the latest bridge replaces the
 nonpositive boundary-potential input by the more natural topological statement
 that the right endpoint is not in the positive set.
 
-The component-order version derives the `boundary_average` field from the
-right-endpoint non-positivity statement, the component support-order data, and
-the required distance/log integrability hypotheses.  The remaining upstream
-topological task is to prove the right-endpoint non-positivity statement for
-the selected maximal positive component.
+The component-order versions derive the `boundary_average` field either from
+right-endpoint non-positivity directly, or from the more primitive pair of
+inputs expected from the maximal-component argument: local endpoint continuity
+and absence of positive points strictly to the right.
 
 At the relaxed-minimizer interface, the same file defines
 
