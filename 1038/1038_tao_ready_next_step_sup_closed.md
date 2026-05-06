@@ -4081,6 +4081,46 @@ The remaining Gate 1 branch is exactly the \(\zeta\ne0\) branch: it requires a
 no-\(Z_0\)-atom theorem for the reduced Farkas fallback, or a direct raw
 first-order sign proof with the \(Z_0\)-atoms included.
 
+The atom branch has an exact cone-envelope formulation.  Define
+
+\[
+\mathcal V_Z(x)=\binom{V_S(x)}{V_\Pi(x)}
+\]
+
+and
+
+\[
+\Phi_Z(y)=
+\sup\left\{
+\sum_kw_kV_\Pi(x_k):
+\sum_kw_kV_S(x_k)=y,\quad w_k>0,\ x_k\in Z_0
+\right\}.
+\]
+
+By conic Carathéodory, at most five points are needed.  For \(\eta>0\), after
+normalizing \(\eta=1\), the \(Z_0\)-atomic obstruction exists exactly when
+
+\[
+\Phi_Z(-b_S+\Lambda\rho_S)\ge -b_\Pi+\Lambda\rho_\Pi
+\]
+
+for some real \(\Lambda\).  Therefore the atom branch is excluded exactly by
+
+\[
+\Phi_Z(-b_S+\Lambda\rho_S)<-b_\Pi+\Lambda\rho_\Pi
+\qquad(\Lambda\in\mathbb R).
+\]
+
+The homogeneous case \(\eta=0\) is the analogous condition
+
+\[
+\Phi_Z(\lambda\rho_S)<\lambda\rho_\Pi
+\qquad(\lambda\ne0).
+\]
+
+So the remaining hard statement is not a vague no-atom claim; it is this
+lifted cone-envelope inequality for the explicit \(Z_0\)-columns.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

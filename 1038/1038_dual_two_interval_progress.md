@@ -11413,6 +11413,104 @@ theorem queue.
     no-\(Z_0\)-atom theorem for the reduced Farkas fallback or a direct proof
     of the raw first-order sign with \(Z_0\)-atoms included.
 
+    \(Z_0\)-atomic cone criterion.
+
+    The remaining branch can nevertheless be written as an exact finite conic
+    envelope problem.  Define the augmented \(Z_0\)-column
+
+    \[
+    \mathcal V_Z(x)=
+    \binom{V_S(x)}{V_\Pi(x)}
+    \in\mathbb R^5,
+    \qquad x\in Z_0.
+    \tag{G1VZ}
+    \]
+
+    For \(y\in\mathbb R^4\), define the upper lifted cone envelope
+
+    \[
+    \boxed{
+    \Phi_Z(y)
+    =
+    \sup
+    \left\{
+    \sum_k w_kV_\Pi(x_k):
+    \sum_kw_kV_S(x_k)=y,\quad
+    w_k>0,\quad x_k\in Z_0
+    \right\},
+    }
+    \tag{G1PhiZ}
+    \]
+
+    with \(\Phi_Z(y)=-\infty\) if \(y\) is outside
+    \(\operatorname{cone}\{V_S(x):x\in Z_0\}\).  By conic Carathéodory the
+    supremum may be tested with at most five \(Z_0\)-points.
+
+    If \(\eta>0\), normalize \(\eta=1\) and put
+
+    \[
+    y(\Lambda)=-b_S+\Lambda\rho_S.
+    \tag{G1yLambda}
+    \]
+
+    The raw \(Z_0\)-atomic obstruction exists exactly when
+
+    \[
+    \boxed{
+    \Phi_Z(y(\Lambda))
+    \ge
+    -b_\Pi+\Lambda\rho_\Pi
+    \quad\text{for some }\Lambda\in\mathbb R.
+    }
+    \tag{G1ZAtomObstructionEta}
+    \]
+
+    Therefore the \(\eta>0\) \(Z_0\)-atomic branch is excluded exactly by
+
+    \[
+    \boxed{
+    \Phi_Z(-b_S+\Lambda\rho_S)
+    <
+    -b_\Pi+\Lambda\rho_\Pi
+    \qquad(\Lambda\in\mathbb R).
+    }
+    \tag{G1ZAtomSignEta}
+    \]
+
+    If \(\eta=0\), the relation is homogeneous:
+
+    \[
+    \sum_kw_kV_S(x_k)=\lambda\rho_S.
+    \]
+
+    The corresponding obstruction exists exactly when
+
+    \[
+    \boxed{
+    \Phi_Z(\lambda\rho_S)\ge \lambda\rho_\Pi
+    \quad\text{for some }\lambda\in\mathbb R\setminus\{0\}.
+    }
+    \tag{G1ZAtomObstructionHom}
+    \]
+
+    Hence the homogeneous atomic branch is excluded exactly by the strict
+    reverse inequality for every nonzero \(\lambda\).
+
+    This gives the sharp replacement for a vague no-atom theorem:
+
+    \[
+    \boxed{
+    \text{\(Z_0\)-atomic Gate 1 is equivalent to the lifted cone-envelope
+    inequalities (G1ZAtomSignEta) and (G1ZAtomObstructionHom).}
+    }
+    \tag{G1ZAtomConeCriterion}
+    \]
+
+    A literal no-\(Z_0\)-atom theorem would be the stronger claim that
+    \(y(\Lambda)\) and \(\lambda\rho_S\) never enter the projected cone at all.
+    That is not a formal consequence of finite-dimensional Farkas.  The
+    correct proof target is the lifted strict inequality above.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
