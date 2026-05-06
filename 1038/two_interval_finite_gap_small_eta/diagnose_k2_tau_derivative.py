@@ -56,6 +56,14 @@ def main() -> int:
         help="try direct Arb second-difference boxes on the four K2 edge cells",
     )
     parser.add_argument("--interval-subboxes", type=int, default=8)
+    parser.add_argument(
+        "--joint-layer-dependency-report",
+        action="store_true",
+        help=(
+            "print the regularized joint-limit-layer K2 term at the midpoint "
+            "eta and on the full eta interval"
+        ),
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -156,6 +164,35 @@ def main() -> int:
                 regularize_joint_limit_layer=True,
             )
         )
+
+    def joint_layer_terms(B: float, tau: float, eta_value: Any) -> tuple[Any, list[tuple[str, str]]]:
+        base_delta_A = arb(repr(float(null_slope * tau + B)))
+        base_delta_alpha = arb(repr(float(tau)))
+        A = arb(repr(float(limit.A))) + eta_value * base_delta_A
+        alpha = arb(repr(float(limit.alpha))) + eta_value * base_delta_alpha
+        debug_terms: list[tuple[str, str]] = []
+        value = arb(
+            solver._combined_residue_log_value_second_divided_from_arb(
+                A,
+                alpha,
+                eta_value,
+                arb(repr(float(left_weight))),
+                arb(repr(float(limit.A))),
+                arb(repr(float(limit.alpha))),
+                192,
+                base_delta_A,
+                base_delta_alpha,
+                debug_terms=debug_terms,
+                regularize_joint_limit_layer=True,
+            )
+        )
+        return value, debug_terms
+
+    def find_debug_term(debug_terms: list[tuple[str, str]], label: str) -> str:
+        for term_label, term_value in debug_terms:
+            if term_label == label:
+                return term_value
+        return "missing"
 
     def k0_2_box(B: float, tau_box: Any) -> Any:
         qB = arb(repr(float(B)))
@@ -375,6 +412,30 @@ def main() -> int:
             f"worst_bound={interval_worst:.6e} candidate_curvature={args.candidate_curvature:.6e} "
             f"failures={failures:d} worst_source={interval_source!r}"
         )
+    if args.joint_layer_dependency_report:
+        eta_low = min(eta_values)
+        eta_high = max(eta_values)
+        eta_mid = 0.5 * (eta_low + eta_high)
+        eta_point = arb(repr(float(eta_mid)))
+        eta_box = solver._arb_interval_from_bounds(eta_low, eta_high)
+        for B in (0.01, -0.01):
+            tau = tau0 + 0.05
+            point_value, point_terms = joint_layer_terms(B, tau, eta_point)
+            box_value, box_terms = joint_layer_terms(B, tau, eta_box)
+            point_joint = find_debug_term(point_terms, "limit_layer_joint_regularized_second:combined")
+            box_joint = find_debug_term(box_terms, "limit_layer_joint_regularized_second:combined")
+            print(
+                "K2_JOINT_LAYER_DEPENDENCY "
+                f"B={B:+.2f} tau={tau:.12e} eta_mid={eta_mid:.12e} "
+                f"point_value={point_value} point_radius={point_value.rad()} "
+                f"point_joint={point_joint}"
+            )
+            print(
+                "K2_JOINT_LAYER_DEPENDENCY "
+                f"B={B:+.2f} tau={tau:.12e} eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
+                f"box_value={box_value} box_radius={box_value.rad()} "
+                f"box_joint={box_joint}"
+            )
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 

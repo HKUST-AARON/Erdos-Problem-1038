@@ -2994,6 +2994,25 @@ The point formula is therefore fine; the interval dependency is not.  The
 remaining proof step is to replace the current whole-slab `Div2` enclosure by a
 true \(s=t\eta\) derivative enclosure for the regularized joint layer.
 
+This diagnostic is now reproducible from the small-eta folder:
+
+```text
+python diagnose_k2_tau_derivative.py \
+  --grid 5 \
+  --eta-values 0.007071067811865475,0.01 \
+  --h 1e-4 \
+  --joint-layer-dependency-report
+```
+
+The derivative status printed by that command is not the proof gate for this
+report, because the eta values are the first epsilon-slab square roots.  The
+relevant lines are the `K2_JOINT_LAYER_DEPENDENCY` lines:
+
+```text
+point_joint=[-0.03615736939462919145... +/- 4.32e-53]
+box_joint=[+/- 39.1]
+```
+
 The derivative formula must be written with the observation point included.  A
 paired smooth-pole block has the form
 
