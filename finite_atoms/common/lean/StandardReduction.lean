@@ -6280,6 +6280,26 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_
       hcore)
     hsecondary_lsc
 
+/--
+Concrete secondary minimizer selector for the truncated-sup surrogate: among
+primary minimizers, choose one minimizing the second moment on `[-1,1]`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν := by
+  exact admissible_probability_lsc_exists_secondary_minimizer_ennreal_primary
+    unitIntervalTruncatedPositiveSetObjective unitIntervalSecondMomentObjective
+    unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous
+    unitIntervalSecondMomentObjective_lowerSemicontinuous
+
 lemma truncatedLogKernel_le_logKernel {ε x t : ℝ}
     (hε : 0 < ε) (hne : x ≠ t) :
     truncatedLogKernel ε x t ≤ Real.log (1 / |x - t|) := by
