@@ -3167,6 +3167,52 @@ theorem replacement_objective_le_of_strictOutside_potential_le_offdiag_null
     _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
           simp [hexception_zero]
 
+theorem replacement_objective_le_add_of_strictOutside_potential_le_offdiag_exception
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ} {N : Set ℝ} {η : ℝ≥0∞}
+    (hN : volume N ≤ η)
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → U' x ≤ unitIntervalLogPotential μ x) :
+    volume (PositiveSet U') ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+  have hsub :=
+    replacement_positiveSet_subset_original_union_endpoints_diagonal_null_of_strictOutside_le_offdiag
+      C houtside
+  have hmono :
+      volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) :=
+    measure_mono (μ := volume) hsub
+  have hendpoint_zero : volume ({C.left, C.right} : Set ℝ) = 0 := by
+    exact Set.Countable.measure_zero (by simp : ({C.left, C.right} : Set ℝ).Countable) volume
+  have hexception_le :
+      volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) ≤ η := by
+    calc
+      volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) ≤
+          volume ({C.left, C.right} : Set ℝ) +
+            volume (diagonalAtomSet μ ∪ N) := measure_union_le (μ := volume) _ _
+      _ ≤ volume ({C.left, C.right} : Set ℝ) +
+            (volume (diagonalAtomSet μ) + volume N) := by
+              exact add_le_add_right
+                (measure_union_le (μ := volume) (diagonalAtomSet μ) N) _
+      _ = volume N := by
+            simp [hendpoint_zero, diagonalAtomSet_volume_zero μ]
+      _ ≤ η := hN
+  have hunion :
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) :=
+    measure_union_le (μ := volume) _ _
+  calc
+    volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) := hmono
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) := hunion
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+          exact add_le_add_right hexception_le _
+
 theorem replacement_objective_le_of_strictOutside_potential_le_offdiag
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {U' : ℝ → ℝ}
@@ -8220,6 +8266,47 @@ theorem componentReplacement_objective_le_of_tailMass_null_exception
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   exact componentReplacement_objective_le_of_outside_tailMass_offdiag_ae_jensen
     R hε N hN htailFinite
+
+theorem componentReplacement_objective_le_add_of_tailMass_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (N : Set ℝ) {η : ℝ≥0∞} (hN : volume N ≤ η)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+  refine replacement_objective_le_add_of_strictOutside_potential_le_offdiag_exception
+    C hN ?_
+  intro x hxstrict hxdiag hxN
+  have houtside_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      C hε hxdiag (htailFinite x hxstrict hxdiag hxN)
+  have hcomponent_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) :=
+    componentBlock_logKernel_integrable_of_strictOutside C hxstrict
+  have hnormalized_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      hcomponent_int
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hblock :
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
+    componentBlock_logKernel_replacement_le_of_strictOutside
+      R hxstrict hfirst hnormalized_int
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    houtside_int]
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    houtside_int hcomponent_int]
+  exact add_le_add le_rfl hblock
 
 /-!
 ## Finite variance drop under barycenter replacement
