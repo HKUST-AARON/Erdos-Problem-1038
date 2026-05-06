@@ -8479,11 +8479,55 @@ theorem queue.
     \tag{EndpointReducedColumn}
     \]
 
-    The period column remains
+    The period column in the same free-period fixed-\(Q\) chart is chosen as
 
     \[
-    C_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)},\qquad
-    E_\Pi=\binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)},
+    \boxed{
+    H_\Pi(z)=\kappa Q(z)^2,\qquad
+    C_\Pi(z)=\frac{\kappa}{R(z)}.
+    }
+    \tag{PeriodTransferColumn}
+    \]
+
+    The real scalar \(\kappa\ne0\) is chosen with the sign convention that the
+    associated boundary density has the oriented positive period-transfer form
+
+    \[
+    G_\Pi=\sigma h_\Pi,\qquad h_\Pi>0.
+    \]
+
+    If the branch convention reverses \(\sigma\), replace \(\kappa\) by
+    \(-\kappa\).  Since \(R(z)\sim z^2\),
+
+    \[
+    C_\Pi(z)=O(z^{-2}),
+    \]
+
+    and hence
+
+    \[
+    \boxed{
+    R_0(G_\Pi)=0,\qquad
+    R_c(G_\Pi)=-C_\Pi(c)=-\frac{\kappa}{R(c)}.
+    }
+    \tag{PeriodRows}
+    \]
+
+    Normalize \(V_\Pi(\infty)=0\).  Then
+
+    \[
+    \boxed{
+    V_\Pi(s)=\int_s^\infty C_\Pi(y)\,dy
+    =
+    \kappa\int_s^\infty\frac{dy}{R(y)}.
+    }
+    \tag{PeriodPotential}
+    \]
+
+    Therefore
+
+    \[
+    E_\Pi=\binom{0}{-C_\Pi(c)},
     \]
 
     \[
@@ -8494,13 +8538,96 @@ theorem queue.
     \tag{PeriodReducedColumn}
     \]
 
-    Thus the endpoint columns are explicit in terms of \(H_\gamma\) and
-    \(A_c\).  The period column still depends on the chosen period-transfer
-    numerator \(H_\Pi\).
+    Thus both endpoint and period columns are explicit up to the single
+    orientation scale \(\kappa\).  Multiplying \(\kappa\) by a positive scalar
+    only rescales the fixed period-transfer seed column and does not change the
+    sign test.
 
-    The remaining, still unproved, part is not definitional: one must specify
-    the period-transfer numerator \(H_\Pi\) in the same chart and prove the
-    positive-circuit inequalities (C4),(C5).
+    Removing the bump potential from the circuit test.
+
+    Define, for every seed \(j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\}\),
+
+    \[
+    \rho_j:=R_c(G_j)=-C_j(c).
+    \]
+
+    Since all five seed columns above have zero mass row, the equality
+    correction has the uniform form
+
+    \[
+    \boxed{
+    f_j(x)=V_j(x)-\rho_jA_c(x).
+    }
+    \tag{UniformCorrectedColumn}
+    \]
+
+    Let
+
+    \[
+    V_S(x)=
+    \begin{pmatrix}
+    V_{\alpha_1}(x)\\
+    V_{\beta_1}(x)\\
+    V_{\alpha_2}(x)\\
+    V_{\beta_2}(x)
+    \end{pmatrix},
+    \qquad
+    \rho_S=
+    \begin{pmatrix}
+    \rho_{\alpha_1}\\
+    \rho_{\beta_1}\\
+    \rho_{\alpha_2}\\
+    \rho_{\beta_2}
+    \end{pmatrix}.
+    \]
+
+    If a corrected positive circuit exists, then for some
+    \(\eta\ge0\), \(w_k>0\), and \(x_k\in Z_0\),
+
+    \[
+    \eta b+\sum_k w_k\bigl(V_S(x_k)-\rho_SA_c(x_k)\bigr)=0.
+    \]
+
+    With
+
+    \[
+    \lambda:=\sum_k w_kA_c(x_k),
+    \]
+
+    this is equivalent to the raw augmented relation
+
+    \[
+    \boxed{
+    \eta b+\sum_k w_kV_S(x_k)-\lambda\rho_S=0.
+    }
+    \tag{RawCircuit}
+    \]
+
+    The corresponding lifted value is
+
+    \[
+    \boxed{
+    \eta b_\Pi+\sum_k w_kV_\Pi(x_k)-\lambda\rho_\Pi.
+    }
+    \tag{RawLift}
+    \]
+
+    Hence it is sufficient, and independent of the auxiliary bumps
+    \(\psi_1,\psi_2\), to prove the stronger raw test: every relation
+    (RawCircuit), for arbitrary real \(\lambda\) and positive circuit weights,
+    has raw lifted value (RawLift) strictly negative.  This stronger statement
+    implies the corrected positive-circuit negativity because every corrected
+    circuit supplies such a real \(\lambda\).
+
+    In determinant form, the four-point case uses the \(4\times4\) matrix with
+    columns \(V_S(x_i)-\rho_SA_c(x_i)\), or equivalently the augmented raw
+    relation (RawCircuit).  The five-point case is the same with
+    \(\eta=0\).  Degenerate determinants again reduce to smaller support
+    circuits or to the pinching/positivity-boundary routing.
+
+    The remaining, still unproved, part is not definitional: one must prove the
+    raw augmented positive-circuit signs, equivalently (C4),(C5) for the
+    corrected columns.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be

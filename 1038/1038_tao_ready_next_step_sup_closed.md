@@ -2882,11 +2882,43 @@ f_\gamma(x)=V_\gamma(x)+C_\gamma(c)A_c(x).
 }
 \]
 
-The period column is still
+The period-transfer column in the same chart is
 
 \[
-C_\Pi=\frac{H_\Pi}{Q^2R},\quad
-E_\Pi=\binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)},\quad
+\boxed{
+H_\Pi=\kappa Q^2,\qquad C_\Pi=\frac{\kappa}{R}.
+}
+\]
+
+Choose the sign of \(\kappa\) so that the boundary density has the oriented
+positive period-transfer form
+
+\[
+G_\Pi=\sigma h_\Pi,\qquad h_\Pi>0.
+\]
+
+Since \(R(z)\sim z^2\),
+
+\[
+R_0(G_\Pi)=0,\qquad R_c(G_\Pi)=-C_\Pi(c)=-\frac{\kappa}{R(c)}.
+\]
+
+Thus
+
+\[
+E_\Pi=\binom{0}{-C_\Pi(c)}.
+\]
+
+With \(V_\Pi(\infty)=0\),
+
+\[
+V_\Pi(s)=\int_s^\infty C_\Pi(y)\,dy
+=\kappa\int_s^\infty\frac{dy}{R(y)}.
+\]
+
+Thus
+
+\[
 b_\Pi=aV_\Pi(u)+bV_\Pi(v),
 \]
 
@@ -2894,9 +2926,60 @@ b_\Pi=aV_\Pi(u)+bV_\Pi(v),
 f_\Pi=V_\Pi-(U_{\psi_1},U_{\psi_2})M^{-1}E_\Pi.
 \]
 
-So the endpoint columns are now explicit in terms of \(H_\gamma\) and \(A_c\);
-the remaining missing input is the period-transfer numerator \(H_\Pi\) and the
-positive-circuit sign proof.
+Now remove the auxiliary bump potential from the circuit test.  Define
+
+\[
+\rho_j:=R_c(G_j)=-C_j(c).
+\]
+
+All seed columns have zero mass row, so
+
+\[
+f_j=V_j-\rho_jA_c.
+\]
+
+Let
+
+\[
+V_S=(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2})^T,
+\qquad
+\rho_S=(\rho_{\alpha_1},\rho_{\beta_1},\rho_{\alpha_2},\rho_{\beta_2})^T.
+\]
+
+A corrected positive circuit gives
+
+\[
+\eta b+\sum_k w_k(V_S(x_k)-\rho_SA_c(x_k))=0.
+\]
+
+With
+
+\[
+\lambda=\sum_k w_kA_c(x_k),
+\]
+
+this becomes the raw augmented relation
+
+\[
+\boxed{
+\eta b+\sum_k w_kV_S(x_k)-\lambda\rho_S=0.
+}
+\]
+
+The lifted value becomes
+
+\[
+\boxed{
+\eta b_\Pi+\sum_k w_kV_\Pi(x_k)-\lambda\rho_\Pi.
+}
+\]
+
+Therefore it is enough to prove the stronger raw test: every such relation,
+for arbitrary real \(\lambda\), has strictly negative lifted value.  This
+criterion is independent of the chosen equality-correction bumps.
+
+What remains is the raw augmented positive-circuit sign proof, equivalently
+(C4),(C5) for the corrected columns.
 
 ### Priority 6: regularity interface
 
