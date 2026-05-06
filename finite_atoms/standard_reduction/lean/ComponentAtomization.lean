@@ -274,6 +274,41 @@ theorem component_endpoint_order_of_baseline_inside
       linarith
     linarith [hy_comp.2, hright_lt_y]
 
+/--
+If the selected component contains the baseline interval and its left endpoint
+is strictly to the left of `-1`, then the normalized endpoint lies in the
+selected component.
+-/
+theorem endpoint_mem_component_of_baseline_inside_left_lt
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft : C.left < (-1 : ℝ)) :
+    (-1 : ℝ) ∈ C.interval := by
+  rw [PositiveComponent.interval_eq]
+  constructor
+  · exact hleft
+  · have hright_nonneg : (0 : ℝ) ≤ C.right :=
+      (component_endpoint_order_of_baseline_inside C hbaseline).2
+    linarith
+
+/--
+Endpoint-mass and endpoint-order form of the barycenter bridge.  Once
+atomization has been proved, positive mass at `-1`, baseline containment, and a
+strictly left normalized component endpoint imply that the barycenter is `-1`.
+-/
+theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C))
+    (hmass : 0 < (realMeasure μ) ({-1} : Set ℝ))
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft : C.left < (-1 : ℝ)) :
+    componentBarycenter C = -1 := by
+  exact componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
+    C hblock hmass
+    (endpoint_mem_component_of_baseline_inside_left_lt C hbaseline hleft)
+
 /-! ### Endpoint support shape and boundary average -/
 
 /-- Neighborhood form of the one-sided boundary exclusion argument. -/

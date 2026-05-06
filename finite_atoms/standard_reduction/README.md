@@ -316,6 +316,20 @@ left of `-1`, and its right endpoint is at or to the right of `0`.  It does not
 claim `(-1) ∈ component.interval`, which would be false for an open interval
 with left endpoint exactly `-1`.
 
+The next bridge records the exact extra condition needed to make this endpoint
+membership true:
+
+```lean
+endpoint_mem_component_of_baseline_inside_left_lt
+componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
+```
+
+Thus the barycenter endpoint step can now be driven by atomization, positive
+mass at `{-1}`, baseline containment, and the strict endpoint order
+`component.left < -1`.  The remaining analytic normalization work is to derive
+that strict endpoint order from the genuine maximal-component/translation
+argument, not to re-supply topological support membership by hand.
+
 ## Check command
 
 From the repository root:

@@ -52,6 +52,9 @@ $$
 $$
 
 into the positive set, except for the atom point where a real-valued logarithmic potential would be infinite.  The remaining external part is the variational theorem that an arbitrary minimizer can be put into this normalized support/mass form.
+The component-atomization bridges in `finite_atoms/standard_reduction` use the
+narrower component input `(-1,0)`, which is the interval needed for the
+endpoint-normalized maximal-component step.
 
 The 1.814600 branch uses a required-domain interpretation of positivity:
 
