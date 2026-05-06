@@ -916,6 +916,19 @@ The energy-minimal lift exists uniquely in the \(\mathcal E_{\log}\)-Hilbert
 completion under continuity and feasibility of \(\rho^\sharp\); it should not
 be claimed to be a smooth density without a separate regularity theorem.
 
+The Hilbert-space statement must be made on zero-mass directions.  The
+logarithmic energy is positive definite only after the mass/constant mode is
+removed.  Thus either work on
+
+\[
+H_{0,\Pi}=\{h\in H_\Pi:R_0(h)=0\},
+\]
+
+so feasible row data have \(R_0=0\), or split \(R_0\) off as a separate
+finite-dimensional coordinate before applying the minimal-lift theorem.
+Without this convention, the phrase "every \(r\in V^\sharp\) has a minimal
+log-energy lift" is too strong.
+
 The row-continuity assumption is a separated fixed-chart statement.  With
 
 \[
@@ -991,6 +1004,45 @@ The immediate theorem queue is therefore:
     \(Q_{\rm eff}\) as the finite effective Hessian on feasible row data; it
     does not compute the endpoint entries.
 
+    Abstract content: for a real Hilbert space \(H\), a continuous finite-rank
+    row map \(\rho^\sharp:H\to\mathbb R^m\), and
+    \(W=\ker\rho^\sharp\), one has
+
+    \[
+    H=W\oplus W^{\perp_{\mathcal E}}.
+    \]
+
+    Each feasible \(r\in V=\rho^\sharp(H)\) has a unique lift
+
+    \[
+    Sr\in W^{\perp_{\mathcal E}}\cap(\rho^\sharp)^{-1}(r),
+    \]
+
+    and any \(\xi\in H\) decomposes as
+
+    \[
+    \xi=S\rho^\sharp(\xi)+w,\qquad w\in W.
+    \]
+
+    If
+
+    \[
+    G_{\rm br}=\mathcal E_{\log}+b\circ(\rho^\sharp,\rho^\sharp),
+    \]
+
+    then
+
+    \[
+    G_{\rm br}(Sr+w,Ss+w')
+    =
+    Q_{\rm eff}(r,s)+\mathcal E_{\log}(w,w').
+    \]
+
+    Therefore \(G_{\rm br}\ge0\) on a closed feasible tangent space implies
+    \(Q_{\rm eff}\ge0\) only on the corresponding feasible row image.  If the
+    tangent object is merely a cone, the later endpoint directions must be
+    checked to lie in its lineality or in two-sided feasible directions.
+
 2.  Prove endpoint-transfer realization.  The three columns of
 
     \[
@@ -1053,6 +1105,23 @@ the compact non-pinched \(g=2\) chamber.  It does not close by itself the
 one-cut upper construction, corrected \(g=1\) branch, pinching/degeneration,
 high-genus local-neck reduction, regularity removal, or standard normalized
 minimizer reduction.
+
+After the minimal-lift theorem, the next proof target is a three-column
+endpoint-transfer realization theorem, not full row surjectivity:
+
+\[
+P e_u,\ P e_v,\ P e_\zeta\in V^\sharp.
+\]
+
+Equivalently, construct actual admissible perturbations
+\(\xi_u,\xi_v,\xi_\zeta\) with
+
+\[
+\rho^\sharp(\xi_j)=P e_j,\qquad j\in\{u,v,\zeta\},
+\]
+
+in the regular separated compact \(g=2\) chart.  Only after those three
+directions are available does \(P^TQ_{\rm eff}P\) become a proof-grade object.
 
 ### Priority 6: regularity interface
 

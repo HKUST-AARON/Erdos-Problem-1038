@@ -3992,6 +3992,21 @@ H_\Pi=\overline{\mathcal T_\Pi}^{\|\cdot\|_E},
 \|h\|_E^2=\mathcal E_{\log}(h,h).
 \]
 
+There is one important normalization caveat.  The logarithmic energy is a
+positive Hilbert norm only on zero-mass directions, or after quotienting the
+constant/mass radical.  Therefore the minimal-lift theorem must be formulated
+on
+
+\[
+H_{0,\Pi}=\{h\in H_\Pi:R_0(h)=0\},
+\]
+
+or else \(R_0\) must be split off as a separate finite-dimensional external
+coordinate.  In the first formulation the active row map is the restriction of
+\(\rho^\sharp\) to the slice \(R_0=0\); its image contains only row vectors
+with \(R_0=0\).  Statements about arbitrary \(r\in V^\sharp\) are valid only
+after this zero-mass restriction or external-mass split has been made.
+
 Assume the admissible tangent is closed in \(H_\Pi\), \(\rho^\sharp\) extends
 continuously to \(H_\Pi\), the target row vector is feasible, and the
 functional \(h\mapsto\mathcal E_{\log}(S_0,h)\) is continuous.  Then
@@ -4450,7 +4465,8 @@ row kernel still has positive log energy.  The replacement is the following
 theorem queue.
 
 1.  Separated-chart Feshbach minimal lift.  In the Hilbert completion
-    \(H_\Pi\), with continuous \(\rho^\sharp\) and closed
+    \(H_{0,\Pi}\), or after splitting the mass coordinate away from the
+    energy space, with continuous \(\rho^\sharp\) and closed
     \(W^\sharp=\ker\rho^\sharp\), every feasible row vector
     \(r\in V^\sharp\) has a unique lift
 
@@ -4481,6 +4497,67 @@ theorem queue.
 
     This is the first theorem to prove.  It legitimizes \(Q_{\rm eff}\); it
     does not compute the endpoint Hessian entries.
+
+    Abstract proof.  Let \(H\) be a real Hilbert space with inner product
+    \(E\), and let
+
+    \[
+    \rho^\sharp:H\to\mathbb R^m
+    \]
+
+    be continuous linear.  Put
+
+    \[
+    W=\ker\rho^\sharp,\qquad V=\rho^\sharp(H).
+    \]
+
+    Then \(W\) is closed and
+
+    \[
+    H=W\oplus W^{\perp_E}.
+    \]
+
+    For \(r\in V\), choose any \(\xi_0\) with \(\rho^\sharp(\xi_0)=r\), write
+    \(\xi_0=w_0+u_0\) in the above decomposition, and define
+
+    \[
+    Sr=u_0.
+    \]
+
+    Since \(w_0\in W\), \(\rho^\sharp(Sr)=r\).  If two such lifts existed,
+    their difference would lie in \(W\cap W^{\perp_E}=\{0\}\), so the lift is
+    unique.  Hence every \(\xi\in H\) has the unique decomposition
+
+    \[
+    \xi=S\rho^\sharp(\xi)+w,\qquad w\in W.
+    \]
+
+    If
+
+    \[
+    G(\xi,\eta)=E(\xi,\eta)+b(\rho^\sharp\xi,\rho^\sharp\eta),
+    \]
+
+    then for \(\xi=Sr+w\) and \(\eta=Ss+w'\),
+
+    \[
+    G(\xi,\eta)
+    =
+    E(Sr,Ss)+E(w,w')+b(r,s)
+    =
+    Q_{\rm eff}(r,s)+E(w,w').
+    \]
+
+    Thus, if \(G\ge0\) on the relevant closed feasible tangent space, then
+    \(Q_{\rm eff}\ge0\) on its feasible row image by testing \(\xi=Sr\).
+
+    Failure modes.  This abstract proof fails if the log energy has not been
+    turned into a positive Hilbert norm, if \(\rho^\sharp\) is not continuous
+    in the energy topology, if \(r\) is a formal row vector outside
+    \(\rho^\sharp(H)\), if the non-log Hessian does not factor through
+    \(\rho^\sharp\), or if second-variation nonnegativity is known only on a
+    cone that does not contain the minimal lifts as two-sided feasible
+    directions.
 
 2.  Endpoint-transfer realization.  One must prove that the three columns of
     the endpoint-transfer map
