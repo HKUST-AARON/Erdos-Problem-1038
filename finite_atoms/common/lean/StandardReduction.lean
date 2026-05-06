@@ -2884,6 +2884,41 @@ theorem componentReplacement_potential_eq_outside_add_replacementAtom
   · rw [integral_smul_measure]
     simp [smul_eq_mul]
 
+/--
+Original-potential decomposition into the unchanged outside contribution and
+the selected component block.
+
+This is the original-side analogue of
+`componentReplacement_potential_eq_outside_add_replacementAtom`: the real
+measure splits as its restriction to `C.intervalᶜ` plus its restriction to
+`C.interval`, namely `componentBlock C`.
+-/
+theorem unitIntervalLogPotential_eq_outside_add_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (x : ℝ)
+    (houtside_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    unitIntervalLogPotential μ x =
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C = realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  calc
+    unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
+      exact unitIntervalLogPotential_eq_realMeasure μ x
+    _ = measureLogPotential
+        ((realMeasure μ).restrict C.intervalᶜ + componentBlock C) x := by
+      rw [hsplit]
+    _ = measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+      unfold measureLogPotential
+      rw [integral_add_measure houtside_integrable hblock_integrable]
+
 lemma replacement_positiveSet_subset_original_of_outside_le
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {U' : ℝ → ℝ}
@@ -2898,6 +2933,37 @@ lemma replacement_positiveSet_subset_original_of_outside_le
 def StrictOutsideComponent
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ) : Prop :=
   x < C.left ∨ C.right < x
+
+/--
+Function-level original-side decomposition lower bound for the
+decomposition-plus-Jensen objective bridge.
+
+If `outsidePart` is bounded by the concrete outside restricted potential and
+`originalBlock` is bounded by the concrete component-block integral, then their
+sum is bounded by the actual original potential.  This packages the
+`hdecomp_original` input expected by
+`componentReplacement_objective_le_of_decomposition_jensen`.
+-/
+theorem unitIntervalLogPotential_original_potential_decomposition_lower
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart originalBlock : ℝ → ℝ)
+    (houtside_le : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x ≤
+        measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    (hblock_le : ∀ x : ℝ, StrictOutsideComponent C x →
+      originalBlock x ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x := by
+  intro x hx
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    (houtside_integrable x hx) (hblock_integrable x hx)]
+  exact add_le_add (houtside_le x hx) (hblock_le x hx)
 
 theorem componentReplacement_potential_le_outside_add_replacementAtom
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
