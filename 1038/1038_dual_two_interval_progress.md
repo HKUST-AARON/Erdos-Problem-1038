@@ -924,16 +924,25 @@ energy after imposing the KKT constraints.
 
 ### 6.6 Current compact hard mouth
 
-The compact \(g=2\) branch should now be attacked through:
+The compact \(g=2\) hard mouth is now narrower than the earlier KKT/Hessian
+ledger suggested.  The regular free-period chamber is excluded, and the
+rank-defect chamber has been reduced to the raw augmented circuit obstruction.
+The active Gate 1 target is therefore:
 
-1. exact KKT row ledger;
-2. period row accounted for explicitly;
-3. two-dimensional cokernel basis;
-4. reduced Hessian \(G\);
-5. curvature clamp / Wronskian sign contradiction.
+1. use the repaired moving Schiffer columns
+   \(H_\gamma^{\rm rep}=QD\,\Delta_\gamma P-PD\,\Delta_\gamma Q
+   -\frac12PQD_\gamma\);
+2. solve the finite cone-envelope problem on \(Z_0\) through majorants
+   \(G_\theta=\theta\cdot V_S-V_\Pi\);
+3. prove the strict affine and homogeneous margin inequalities for
+   \(P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}\);
+4. or replace the first-order route with genuine second-variation data.
 
-This is the most serious mathematical route after the finite certificate
-work.
+The endpoint-period quotient obstruction below shows that rank,
+Schur-complement form, or endpoint interpolation quotient data alone cannot
+produce the required strict lifted margin.  The next live first-order route
+must use the actual \(Z_0\) contact/alternation structure, not only quotient
+linear algebra.
 
 ## 7. Retired or Deprioritized Lines
 
@@ -2252,7 +2261,10 @@ G\succeq0
 \Rightarrow\text{compact }g=2\text{ branch excluded.}
 \]
 
-This is the current smallest honest hard mouth.
+This was an earlier conditional Hessian hard mouth.  It is not the current
+Gate 1 closure criterion.  The present rank-defect hard mouth is the raw
+augmented circuit obstruction and the MovingSchifferMajorantSignTheorem
+recorded in the later Gate 1 ledger.
 
 ### 9.14 Decomposition of the Hessian
 
@@ -12245,6 +12257,16 @@ theorem queue.
     full \(Z_0\)-alternation/contact structure, or a second-variation theorem
     that handles the rank-defect fallback without relying on strict
     first-order lift orientation.
+
+    Review audit.  The quotient identity (G1PeriodInEndpointQuotient) is an
+    accepted obstruction to quotient/rank/Schur-only closures.  It does not
+    by itself refute the non-quotient \(P_\theta\)-alternation route, because
+    that route uses actual values and contacts on \(Z_0\), not only endpoint
+    classes in \(\mathcal Q_{\rm ep}\).  Any numerical probe of this route
+    must therefore use the repaired moving-chart columns
+    \(H_\gamma^{\rm rep}\) and the actual \(AX_\gamma=-r_\gamma\) rows; the
+    collapsed fixed-\(Q\) endpoint table is audit-only and cannot be used as a
+    proof-grade test bed.
 
     The conditional PV equation is not used in this reduction.
 

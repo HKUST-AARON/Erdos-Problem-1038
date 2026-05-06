@@ -237,16 +237,25 @@ Current compact \(g=2\) status is now sharper:
    branches, with nonnegative endpoint atoms allowed.  This is a routing
    target, not a substitute for the global lower-genus classification proof.
 3. Rank-defect non-pinched interior chambers remain open.  The current hard
-   target is an anchored Schiffer first-variation construction: add the anchor
-   row
+   target is no longer a bare rank or Schur-complement check.  The anchored
+   Schiffer reduction adds the anchor row
    \[
    R_{\ell c}(G)=\delta W(c)
    =
    \int_J\log\frac1{|c-x|}G(x)\omega(x)\,dx,
    \]
-   then construct a regularized Schiffer perturbation satisfying Proposition
-   4.1, \(V<0\) on \(Z_0\), negative boundary length derivative, and the
-   required cokernel projection.
+   and reduces the problem to the raw augmented circuit sign on \(Z_0\).
+   The quotient identity
+   \[
+   [Q^2]=
+   \sum_\gamma
+   \frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}[PQD_\gamma]
+   \]
+   shows that the period lift is already in the endpoint span modulo moving
+   corrections.  Therefore quotient rank, Schur form, and endpoint
+   interpolation alone cannot produce the strict lifted margin; the remaining
+   theorem must use the actual \(P_\theta\)-contact/alternation structure on
+   \(Z_0\), or switch to genuine second-variation data.
 
 Current exact-route audit:
 
@@ -255,7 +264,9 @@ Current exact-route audit:
   \(L_-\le M_{\rm oc}\).
 - The lower bound is still open.  The first hard mouth is the compact
   non-pinched \(g=2\) rank-defect chamber, now reduced to
-  `SchurBlockTotalPositivityLemma` / raw augmented circuit signs.
+  `MovingSchifferMajorantSignTheorem` / raw augmented circuit signs.  The
+  endpoint-period quotient no-go rules out any proof that uses only rank or
+  Schur-complement bookkeeping.
 - Boundary \(g=2\) routing still needs a compactness lemma.
 - High genus still needs a proof that outside-row freezing gives a legitimate
   Schur complement with all global logarithmic-capacity tails accounted for.
@@ -277,6 +288,9 @@ Useful corrections already recorded:
   lineality/sign contradiction;
 - rank-defect compact \(g=2\) is reduced to the raw augmented circuit
   obstruction, not yet closed.
+- the first-order endpoint-period quotient cannot close Gate 1, because the
+  period lift \([Q^2]\) is already in the span of the endpoint classes
+  \([PQD_\gamma]\) modulo the moving correction image.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
@@ -1573,7 +1587,7 @@ b(p_\zeta^0,p_\zeta^0)
 If this fails, the diagonal shortcut is dead and the route must move to the
 actual-entry Wronskian or direct density/cone KKT formulation.
 
-Capacity reduction:
+Historical conditional capacity reduction:
 
 Under the separated regular compact \(g=2\) assumptions, plus the corrected
 branch Euler/state-lift, Feshbach minimal lift, and two-sided realization of
@@ -1582,6 +1596,10 @@ branch Euler/state-lift, Feshbach minimal lift, and two-sided realization of
 \[
 Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0.
 \]
+
+This paragraph is a historical conditional route, not the current Gate 1
+closure.  The active rank-defect hard mouth is the raw augmented circuit
+obstruction and the MovingSchifferMajorantSignTheorem described below.
 
 Equivalently, with
 
@@ -4351,6 +4369,13 @@ Any strict first-order margin must therefore use the actual \(Z_0\)
 contact/alternation structure of \(P_\theta\), not merely rank,
 Schur-complement algebra, or the endpoint quotient.  If that sign theorem is
 not proved, the route must switch to genuinely second-order data.
+
+This is the current review position: the quotient obstruction is accepted, but
+its scope is limited.  It kills quotient/rank/Schur-only closures; it does not
+settle the non-quotient \(P_\theta\)-alternation route.  Any numerical or
+symbolic probe of that route must use the repaired moving-chart columns and
+the actual \(AX_\gamma=-r_\gamma\) rows, not the collapsed fixed-\(Q\)
+endpoint table.
 
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
