@@ -3314,6 +3314,30 @@ differentiate the paired residue-log terms analytically on the shared
 \(s=t\eta\) variable, rather than relying on finite-difference or secant
 enclosures.
 
+The same conclusion appears from the regularized joint-limit-layer branch.  At
+a first-slab point,
+
+```text
+eta=sqrt(5e-5), B=0.01, tau=1.103891261372
+limit_layer_joint_identity:combined_limit ≈ -6.872077647e-9
+limit_layer_joint_regularized_second:combined
+  = -0.03365209117925416539...  with radius about 8e-53
+```
+
+The contact and minus-one constants cancel to about \(7\cdot10^{-9}\), and the
+regularized second term is sharply enclosed.  But on the first eta slab the
+same code gives
+
+```text
+eta in [sqrt(5e-5),sqrt(1e-4)]
+limit_layer_joint_regularized_second:combined = [+/- 39.1]
+```
+
+So the analytic identity is good at points, but the whole-slab `Div2` interval
+model is still too coarse.  The next closure attempt must use a true
+\(s=t\eta\) derivative enclosure for the regularized joint layer, not a
+whole-slab second-divided algebra with repeated eta dependencies.
+
 ## 16. Mathematical proof ledger for the exact-value route
 
 This section records the current paper-level proof chain for the conjectural

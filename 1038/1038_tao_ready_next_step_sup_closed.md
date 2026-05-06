@@ -2973,6 +2973,27 @@ S'(s)\log|x-\rho(s)|-S(s)\rho'(s)/(x-\rho(s))
 on the shared \(s=t\eta\) variable.  Sampling suggests the mechanism is small;
 the existing interval wrappers do not yet prove it.
 
+The local `regularize_joint_limit_layer=True` branch confirms the same
+diagnosis.  At a first-slab point, the regularized joint layer is narrow:
+
+```text
+eta=sqrt(5e-5), B=0.01, tau=1.103891261372
+limit_layer_joint_identity:combined_limit ≈ -6.872077647e-9
+limit_layer_joint_regularized_second:combined
+  = -0.03365209117925416539...  with radius about 8e-53
+```
+
+But when eta is enclosed over the first slab, the same branch becomes huge:
+
+```text
+eta in [sqrt(5e-5),sqrt(1e-4)]
+limit_layer_joint_regularized_second:combined = [+/- 39.1]
+```
+
+The point formula is therefore fine; the interval dependency is not.  The
+remaining proof step is to replace the current whole-slab `Div2` enclosure by a
+true \(s=t\eta\) derivative enclosure for the regularized joint layer.
+
 ### J. Tao note calibration and the first hard number after reading it
 
 The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with
