@@ -8877,6 +8877,19 @@ theorem realMeasure_ae_endpointCompl_iff_endpointCompl_componentCompl_of_compone
       · simp [ht_endpoint, ht_component]
   simpa [hbad, Set.inter_comm] using hzero
 
+theorem realMeasure_endpointRemainder_eq_restrict_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ =
+      (realMeasure μ).restrict (({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ) := by
+  apply Measure.restrict_congr_set
+  filter_upwards [
+    realMeasure_ae_endpointCompl_iff_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  ] with t ht
+  exact propext ht
+
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C)
