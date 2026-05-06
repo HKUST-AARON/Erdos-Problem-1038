@@ -2584,6 +2584,105 @@ theorem PositiveComponent.left_open_cover_of_intervalMaximal
     hmax l (-(1 : ℝ) / 2) (by linarith [hl_y, hy_mhalf]) hJ_pos hJ_inter
   exact hJ_subset ⟨hl_y, hy_mhalf⟩
 
+/--
+Augmented maximal-open-interval formulation for the selected component.
+
+This is the version that matches the real-valued logarithmic potential used in
+this file.  Diagonal atoms are carried by `unitIntervalAugmentedPositiveSet`,
+because `Real.log` does not model the endpoint singularity as `+∞`.
+-/
+def PositiveComponent.AugmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Prop :=
+  ∀ l r : ℝ, l < r →
+    Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+    (Ioo l r ∩ C.interval).Nonempty →
+      Ioo l r ⊆ C.interval
+
+/--
+Augmented open-left-cover bridge.
+
+This is the usable component-selection bridge when the endpoint `-1` is carried
+as a diagonal atom rather than as a real-valued positive-potential point.  If a
+maximal augmented interval containing the right baseline also has an augmented
+left neighbourhood of `-1`, then that left neighbourhood belongs to the same
+selected component.
+-/
+theorem PositiveComponent.left_open_cover_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_aug : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  intro y hy
+  have hleft_endpoint_lt : -(1 : ℝ) - ε < -1 := by
+    linarith
+  let l : ℝ := ((-(1 : ℝ) - ε) + y) / 2
+  have hl_lower : -(1 : ℝ) - ε < l := by
+    dsimp [l]
+    linarith [hy.1]
+  have hl_y : l < y := by
+    dsimp [l]
+    linarith [hy.1]
+  have hy_mhalf : y < (-(1 : ℝ) / 2) := by
+    linarith [hy.2]
+  have hl_mthreequarter : l < (-(3 : ℝ) / 4) := by
+    have hl_lt_neg_one : l < -1 := by
+      dsimp [l]
+      linarith [hy.2, hleft_endpoint_lt]
+    linarith
+  have hJ_aug :
+      Ioo l (-(1 : ℝ) / 2) ⊆ unitIntervalAugmentedPositiveSet μ := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_aug ⟨lt_trans hl_lower hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_aug
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet
+            (hbaseline ⟨hq_base_left, hq_base_right⟩))
+  have hJ_inter : (Ioo l (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · exact ⟨hl_mthreequarter, by norm_num⟩
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo l (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax l (-(1 : ℝ) / 2) (by linarith [hl_y, hy_mhalf]) hJ_aug hJ_inter
+  exact hJ_subset ⟨hl_y, hy_mhalf⟩
+
+/--
+Endpoint-atom version of the augmented open-left-cover bridge.
+
+This is the form closest to the normalized endpoint reduction: if `-1` has
+positive mass, then it is in `diagonalAtomSet μ`, hence in the augmented
+positive set.  A real-valued positive left neighbourhood is also an augmented
+left neighbourhood, so augmented maximality selects the same component.
+-/
+theorem PositiveComponent.left_open_cover_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  refine C.left_open_cover_of_augmentedIntervalMaximal hε hmax hbaseline ?_ ?_
+  · intro x hx
+    exact unitInterval_positiveSet_subset_augmented μ (hleft_pos hx)
+  · exact unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_atom)
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
