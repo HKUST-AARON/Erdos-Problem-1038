@@ -78,26 +78,31 @@ conditional on the standard Tao/natso normalized minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The exact equality proved by the gate chain below is
+The gate chain below gives a closed proof skeleton whose target conclusion is
 
 \[
 L_-=M_{\rm oc}
 \]
 
-in the normalization used throughout this ledger.
+in the normalization used throughout this ledger.  It is not yet a
+proof-grade final theorem until the high-level bridge lemmas in Gates 3--6 are
+expanded into full stand-alone proofs.
 
 Thus the current exact-route status is:
 
 \[
-\boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}
+\boxed{
+\text{conditional closed skeleton: }L_-=M_{\rm oc}
+\text{ if Gates 3--6 are accepted as proof-grade.}
+}
 \]
 
 where the decimal is only the numerical evaluation of the one-cut equations.
 
 ### 0.1 Frozen Exact-Route Statements
 
-These are the statements closed by the gate chain below.  They should not be
-blurred with the older finite-atom progress bound.
+These are the statements targeted by the gate chain below.  They should not
+be blurred with the older finite-atom progress bound.
 
 **Theorem U: one-cut upper construction.**
 
@@ -153,11 +158,15 @@ more local slab tuning.
 
 **Final exact statement.**
 
-Theorem U and Theorem L are proved in the same normalization by Gates 1--7, so
+If Theorem U and Theorem L are proved in the same normalization, then
 
 \[
 \boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
 \]
+
+Current audit: the ledger contains a complete route skeleton, but Gates 3--6
+still need expansion into stand-alone proof-grade lemmas before this final
+boxed equality can be treated as an unconditional proof.
 
 ### 0.2 Current Review Decision
 
@@ -9989,11 +9998,11 @@ theorem queue.
     \tag{G7upper}
     \]
 
-    Therefore
+    Therefore, conditional on the proof-grade forms of Gates 3--6,
 
     \[
     \boxed{
-    \textbf{Gate 7 result: PASS.}\quad
+    \textbf{Gate 7 assembly: CONDITIONAL.}\quad
     L_-=M_{\rm oc}.
     }
     \tag{G7final}
@@ -10001,6 +10010,10 @@ theorem queue.
 
     Here \(M_{\rm oc}\) is the exact one-cut value defined by (G6A)--(G6M);
     the decimal \(1.8344304757626617\ldots\) is only its numerical evaluation.
+    The unconditional proof is not complete until the boundary compactness,
+    high-genus local-neck reduction, regularity removal, and one-cut
+    existence/sign-table arguments are written as independent proof-grade
+    lemmas rather than route-level closures.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
