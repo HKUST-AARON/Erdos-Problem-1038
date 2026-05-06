@@ -2864,6 +2864,26 @@ def componentReplacementPotential
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : ℝ → ℝ :=
   measureLogPotential (componentReplacementMeasure C)
 
+theorem componentReplacement_potential_eq_outside_add_replacementAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (x : ℝ)
+    (houtside_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ)) :
+    componentReplacementPotential C x =
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
+        (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) := by
+  have hdirac_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp)).smul_measure (componentMass_ne_top C)
+  unfold componentReplacementPotential measureLogPotential
+  rw [componentReplacementMeasure_def]
+  rw [integral_add_measure houtside_integrable hdirac_integrable]
+  · rw [integral_smul_measure]
+    simp [smul_eq_mul]
+
 lemma replacement_positiveSet_subset_original_of_outside_le
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {U' : ℝ → ℝ}
@@ -2878,6 +2898,23 @@ lemma replacement_positiveSet_subset_original_of_outside_le
 def StrictOutsideComponent
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ) : Prop :=
   x < C.left ∨ C.right < x
+
+theorem componentReplacement_potential_le_outside_add_replacementAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart : ℝ → ℝ)
+    (houtside_decomp : ∀ x : ℝ, StrictOutsideComponent C x →
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x ≤ outsidePart x)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤
+        outsidePart x + (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) := by
+  intro x hx
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    (houtside_integrable x hx)]
+  exact add_le_add (houtside_decomp x hx) le_rfl
 
 lemma PositiveComponent.not_interval_imp_strictOutside_or_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
