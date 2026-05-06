@@ -4704,6 +4704,141 @@ theorem queue.
     that proves the specific combinations \(Be_u+Ae_\zeta\) and
     \(Be_\zeta+Ae_v\) are two-sided feasible.
 
+    Audit after trying to determine the three columns:
+
+    The branch-state equations do not by themselves define \(P\).  They only
+    give compatibility equations for a chosen endpoint convention and a chosen
+    actual density perturbation.  Therefore the next missing definition is the
+    explicit endpoint-transfer map
+
+    \[
+    P:\operatorname{span}\{e_u,e_v,e_\zeta\}\to\mathbb R^8.
+    \]
+
+    Until \(P\) is fixed, \(P e_j\in V^\sharp\) cannot be proved or refuted.
+
+    For any column \(j\), write
+
+    \[
+    p_j=(r_{0j},r_{uj},r_{cj},r_{vj},r_{-j},r_{+j},
+    r_{\log j},r_{\Pi j}).
+    \]
+
+    Given a state displacement
+    \((\delta q_j,\delta a_j,\delta b_j,\delta c_j)\), the branch-state rows
+    only force
+
+    \[
+    r_{0j}=-\delta q_j,\qquad r_{cj}=F_c\delta c_j,
+    \]
+
+    \[
+    r_{-j}=\ell_-\,\delta q_j-X\,\delta a_j
+    +A\,\delta c_j+r_{\log j},
+    \]
+
+    and
+
+    \[
+    r_{+j}=-\ell_+\,\delta q_j-Y\,\delta b_j
+    -B\,\delta c_j-r_{\log j}.
+    \]
+
+    They do not determine \(r_{uj}\), \(r_{vj}\), \(r_{\log j}\), period
+    realization, or the actual density perturbation.
+
+    Natural formal conventions give useful candidates, but not proofs.
+
+    For \(e_u\), if it means \(\delta u=1\) with \(c,v,q\) fixed, then
+
+    \[
+    \delta q_u=0,\qquad \delta a_u=-1,\qquad
+    \delta b_u=0,\qquad \delta c_u=0,
+    \]
+
+    and the candidate family is
+
+    \[
+    p_u=(0,r_{uu},0,r_{vu},r_{\log u}+X,-r_{\log u},r_{\log u},0).
+    \]
+
+    If instead \(e_u\) means increasing the length \(a\), the \(X\)-term
+    changes sign:
+
+    \[
+    p_u=(0,r_{uu},0,r_{vu},r_{\log u}-X,-r_{\log u},r_{\log u},0).
+    \]
+
+    For \(e_v\), if it means \(\delta v=1\) with \(c,u,q\) fixed, then
+
+    \[
+    \delta q_v=0,\qquad \delta a_v=0,\qquad
+    \delta b_v=1,\qquad \delta c_v=0,
+    \]
+
+    and the candidate family is
+
+    \[
+    p_v=(0,r_{uv},0,r_{vv},r_{\log v},-Y-r_{\log v},r_{\log v},0).
+    \]
+
+    With the extra normalization \(\partial_vL_+=k_v\) and
+    \(r_{\log v}=0\), this becomes the simple formal candidate
+
+    \[
+    p_v^0=(0,0,0,1,0,-Y,0,0).
+    \]
+
+    For \(e_\zeta\), if it means moving the center \(c\) while \(u,v,q\) are
+    fixed, then
+
+    \[
+    \delta q_\zeta=0,\qquad \delta a_\zeta=1,\qquad
+    \delta b_\zeta=-1,\qquad \delta c_\zeta=1,
+    \]
+
+    and
+
+    \[
+    r_{c\zeta}=F_c.
+    \]
+
+    The candidate family is
+
+    \[
+    p_\zeta(\eta,r_u,r_v)
+    =
+    \left(0,r_u,F_c,r_v,\eta-\frac qa,
+    -\eta-\frac qb,\eta,0\right).
+    \]
+
+    The normalized formal candidate \(\eta=r_u=r_v=0\) is
+
+    \[
+    p_\zeta^0=
+    \left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right).
+    \]
+
+    These candidates are only branch-compatible ambient row vectors.  To become
+    proof-grade columns they must satisfy
+
+    \[
+    p_j\in\operatorname{Rel}^{\perp},\qquad r_{\Pi j}=0,
+    \]
+
+    with the correct zero-mass or external-mass convention, and must be
+    realized by actual two-sided feasible perturbations
+
+    \[
+    \xi_j\in\mathcal X_{\Pi,\mathrm{lin}},
+    \qquad \rho^\sharp(\xi_j)=p_j.
+    \]
+
+    The immediate next task is therefore not yet to compute
+    \(P^TQ_{\rm eff}P\), but to define the endpoint convention for \(P\) and
+    then test the three candidate columns against \(\operatorname{Rel}\),
+    period-zero, and actual-density realizability.
+
 3.  Effective endpoint Hessian identity.  Only after the previous two steps
     can one define
 

@@ -1185,6 +1185,42 @@ m_{v\zeta}=\frac{\lambda}{2}\Gamma(v-c),\qquad \lambda>0.
 If the log-minimal term changes these entries, replace the old clamp by the
 actual-entry clamp rather than forcing the old identities.
 
+Current audit of the three columns:
+
+The existing branch-state equations do not yet determine \(P e_u\),
+\(P e_v\), or \(P e_\zeta\).  They give only compatibility constraints after a
+specific endpoint convention has been chosen.  Thus the next missing object is
+the explicit endpoint-transfer map \(P\).
+
+Natural formal candidates are available:
+
+\[
+p_u=(0,r_{uu},0,r_{vu},r_{\log u}+X,-r_{\log u},r_{\log u},0)
+\]
+
+if \(e_u\) means \(\delta u=1\) with \(c,v,q\) fixed;
+
+\[
+p_v^0=(0,0,0,1,0,-Y,0,0)
+\]
+
+if \(e_v\) means \(\delta v=1\) with \(c,u,q\) fixed, with
+\(\partial_vL_+=k_v\) and \(R_{\log c}=0\);
+
+and
+
+\[
+p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right)
+\]
+
+if \(e_\zeta\) means moving \(c\) with \(u,v,q\) fixed, so
+\((\delta q,\delta a,\delta b,\delta c)=(0,1,-1,1)\).
+
+These are not yet proof-grade columns.  Each must still be checked against
+\(\operatorname{Rel}^{\perp}\), period-zero, the zero-mass/external-mass
+convention, and actual two-sided density realization.  Until that is done,
+\(P^TQ_{\rm eff}P\) remains a formal target.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final
