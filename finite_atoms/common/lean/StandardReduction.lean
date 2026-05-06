@@ -6160,6 +6160,15 @@ theorem unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact
   exact le_trans hKmeasure hsum
 
 /--
+Lower semicontinuity of the truncated-sup objective with its compact
+threshold-core provider generated internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous :
+    LowerSemicontinuous unitIntervalTruncatedPositiveSetObjective := by
+  exact unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
+    unitIntervalTruncatedPositiveSetObjective_compact_threshold_core
+
+/--
 Compact-threshold-core minimizer existence for the truncated-sup surrogate.
 This uses only the lower-semicontinuity assembled above from compact
 threshold-core hypotheses.
