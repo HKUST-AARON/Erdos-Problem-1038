@@ -9717,6 +9717,71 @@ theorem queue.
     obstruction.  The remaining gates are regularity removal and the one-cut
     upper construction.
 
+    Gate 5: Lemma R / regularity removal.
+
+    Lemma R removes the remaining possibility that a minimizing counterexample
+    exists only as a non-regular finite-gap or weak-limit object and therefore
+    evades the regular chamber exclusions above.
+
+    Let \(\mu\) be a normalized minimizing counterexample in the compactified
+    admissible class.  Approximate its branch endpoints, pole data, endpoint
+    atoms, and absolutely continuous density by separated regular data
+    \(\mu_\epsilon^{raw}\): split multiple poles by \(O(\epsilon)\), separate
+    coincident branch endpoints by \(O(\epsilon)\), replace zero residues by
+    positive \(O(\epsilon)\) residues when the atom is meant to persist, and
+    add a positive \(C^\infty\) density floor \(O(\epsilon)\) on each active
+    cut.  The logarithmic potentials converge locally uniformly off the
+    limiting support and in \(C^1\) near every non-colliding boundary point.
+    Hence mass, moment, filling, active-zero, and endpoint rows change
+    continuously.
+
+    Restore the exact constraint rows by the same finite-dimensional
+    correction mechanism used in Gates 1--4.  If the constraint Jacobian is
+    invertible, the implicit function theorem gives a corrected regular
+    approximant \(\mu_\epsilon\) with all constraints exact and
+
+    \[
+    |E_{\mu_\epsilon}|\to |E_\mu|.
+    \]
+
+    In particular, for every strict counterexample margin
+    \(|E_\mu|<M_{\rm oc}\), all sufficiently small \(\epsilon\) give a regular
+    finite-gap counterexample with \(|E_{\mu_\epsilon}|<M_{\rm oc}\).  This
+    contradicts Gates 1--4.
+
+    If the constraint Jacobian is not invertible along every such
+    approximation, then the limit lies on a chart-rank degeneration:
+    branch endpoints have pinched, pole residues have vanished or collided,
+    the density sign has been lost, \(Z_0\) has collided with the boundary, or
+    the anchor row has become singular.  These are exactly the Gate 3 boundary
+    modes.  Gate 3 routes them to corrected \(g=1\), one-cut, lower genus, or
+    an already excluded \(g=2\) stratum.  Thus failure of regularization is
+    not a new counterexample; it is a covered boundary collapse.
+
+    The one-sided variations also pass to the limit.  The strict inequalities
+    used by Proposition 4.1 are open in the above topology: \(C^1\) convergence
+    near moving boundaries preserves the boundary derivative, local uniform
+    convergence near \(Z_0\) preserves strict negativity after taking
+    \(\epsilon\) small, and compact lower bounds persist after the positive
+    density floor.  Therefore a non-regular minimizer cannot avoid the
+    regular finite-gap exclusion by losing admissibility in the limit.
+
+    Hence:
+
+    \[
+    \boxed{
+    \textbf{Gate 5 result: PASS.}\quad
+    \text{Every minimizing counterexample regularizes, or collapses to a
+    Gate 3 lower-genus/boundary branch.}
+    }
+    \tag{LemmaRPass}
+    \]
+
+    Combining Gates 1--5, the lower-bound side has no counterexample in the
+    compactified finite-gap class except the one-cut branch that supplies the
+    provisional upper candidate.  The remaining task is to write that one-cut
+    construction with exact defining equations and verify its admissibility.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly

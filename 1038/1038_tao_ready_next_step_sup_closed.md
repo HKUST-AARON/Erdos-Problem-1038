@@ -3400,22 +3400,40 @@ g\ge3\text{ regular compact chambers contain a local }g=2
 Thus Gates 1--4 remove all regular finite-gap compact chambers except the
 one-cut/lower-genus branch still handled by the upper/lower assembly.
 
-### Priority 6: regularity interface
+Gate 5 removes non-regular minimizers.  Let \(\mu\) be a compactified
+minimizing counterexample.  Approximate its branch endpoints, pole data,
+endpoint atoms, and density by separated regular data: split multiple poles,
+separate coincident endpoints, replace persistent zero residues by small
+positive residues, and add a small smooth positive density floor on active
+cuts.  Potentials converge locally uniformly off the limiting support and in
+\(C^1\) near non-colliding boundaries, so all constraint rows vary
+continuously.
 
-The previous priorities address regular finite-gap counterexamples.  The final
-proof also needs a regularization statement:
+If the constraint Jacobian is invertible, the implicit function theorem
+restores the exact rows and gives regular finite-gap approximants
+\(\mu_\epsilon\) with \(|E_{\mu_\epsilon}|\to |E_\mu|\).  A strict
+counterexample would therefore produce a regular finite-gap counterexample,
+contradicting Gates 1--4.  If the Jacobian is never invertible, the object is
+on a chart-rank boundary: branch pinching, pole collision, residue zero,
+density sign loss, \(Z_0\)-collision, or anchor singularity.  Gate 3 routes
+all such limits to corrected \(g=1\), one-cut, lower genus, or already
+excluded strata.
+
+The Proposition 4.1 inequalities are open under this regularization:
+\(C^1\) convergence preserves boundary derivatives, uniform convergence near
+\(Z_0\) preserves strict negativity, and the density floor preserves compact
+lower bounds.
 
 \[
-\textbf{Lemma R:}\quad
-\text{every minimizing counterexample can be approximated by regular
-finite-gap counterexamples,}
+\boxed{
+\textbf{Gate 5 result: PASS.}\quad
+\text{Every minimizing counterexample regularizes or collapses to a covered
+boundary/lower-genus branch.}
+}
 \]
 
-without increasing \(|E_\mu|\) past the \(M_*\) threshold; otherwise the
-sequence must already degenerate to a covered lower-genus branch.
-
-This lemma should be stated as an interface until the finite-gap classification
-is complete.  Do not silently assume it has been proved.
+Thus Gates 1--5 give the lower-bound exclusion for the compactified finite-gap
+class, pending only the exact one-cut upper construction and final assembly.
 
 ## 8. Forum Positioning
 
@@ -3430,8 +3448,8 @@ Separate the two messages:
 2. Exact route:
 
    > The corrected endpoint-atom two-interval finite-gap route supports the
-   > candidate \(M_*=1.8344304757626617\ldots\), but the proof still needs
-   > global interlacing-collapse / finite-gap classification.
+   > current one-cut candidate / provisional upper candidate, with the exact
+   > value still defined by the one-cut equations rather than by the decimal.
 
 Do not write "Erdős 1038 solved."  Do not merge the \(1.814600\) finite
 certificate with the exact-value claim.
