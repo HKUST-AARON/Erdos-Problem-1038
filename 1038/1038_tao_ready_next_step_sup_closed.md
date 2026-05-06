@@ -3683,6 +3683,44 @@ work is to plug the actual endpoint-certificate row kernels into this formula,
 evaluate \(C\), and compare it against \(B_{\rm at}\) on
 \(\mathcal C_{\rm at}\).
 
+The actual separated-chart row kernels are
+
+\[
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},
+\quad
+L_-,\quad L_+,\quad \log\frac1{|c-x|}.
+\]
+
+With \(f=-k'\), their principal parts for \(R f\) are:
+
+\[
+\operatorname{PP}_{(x-s)^{-1}}
+=
+\frac{R(s)}{(z-s)^2}+\frac{R'(s)}{z-s},
+\quad s\in\{u,c,v\},
+\]
+
+\[
+\operatorname{PP}_{L_-}
+=
+-\frac{R(u)}{z-u}+\frac{R(c)}{z-c},
+\qquad
+\operatorname{PP}_{L_+}
+=
+-\frac{R(c)}{z-c}+\frac{R(v)}{z-v},
+\]
+
+\[
+\operatorname{PP}_{\log(1/|c-x|)}
+=
+\frac{R(c)}{z-c}.
+\]
+
+The constant row has zero principal part.  The period coordinate is not an
+arbitrary interior step kernel; it is handled by \(\Pi(C_\mu)=0\), or by a
+gap-supported \(H^{1/2}\) kernel.  If the period jump enters the active support,
+this separated Riesz-Gram chart is invalid and the case is routed to boundary.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
