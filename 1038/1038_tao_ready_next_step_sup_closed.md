@@ -1221,6 +1221,43 @@ These are not yet proof-grade columns.  Each must still be checked against
 convention, and actual two-sided density realization.  Until that is done,
 \(P^TQ_{\rm eff}P\) remains a formal target.
 
+Adopt the formal convention \(P^0\) using endpoint-length orientation:
+
+\[
+e_u^0=\partial_a=-\partial_u,\qquad
+e_v^0=\partial_b=\partial_v,\qquad
+e_\zeta^0=\partial_c\text{ with }u,v,q\text{ fixed}.
+\]
+
+Then
+
+\[
+p_u^0=(0,1,0,0,-X,0,0,0),\qquad
+p_v^0=(0,0,0,1,0,-Y,0,0),
+\]
+
+\[
+p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right).
+\]
+
+This is only a formal branch-compatible convention.  Since \(\operatorname{Rel}\)
+is not yet known to vanish, the row-level checks are
+
+\[
+\lambda_u-X\lambda_-=0,\qquad
+\lambda_v-Y\lambda_+=0,
+\]
+
+\[
+F_c\lambda_c-\frac qa\,\lambda_- -\frac qb\,\lambda_+=0
+\qquad(\lambda\in\operatorname{Rel}).
+\]
+
+If these hold, an explicit bump construction in the regular support realizes
+the rows as signed smooth density perturbations.  That still does not prove
+two-sided critical-cone feasibility; positivity and lineality remain separate
+conditions before using \(P^{0T}Q_{\rm eff}P^0\).
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final

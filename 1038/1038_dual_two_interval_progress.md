@@ -4839,6 +4839,107 @@ theorem queue.
     then test the three candidate columns against \(\operatorname{Rel}\),
     period-zero, and actual-density realizability.
 
+    Formal \(P^0\) convention.  Use endpoint-length orientation, not raw
+    left-endpoint position orientation:
+
+    \[
+    e_u^0=\partial_a=-\partial_u,\qquad
+    e_v^0=\partial_b=\partial_v,
+    \qquad
+    e_\zeta^0=\partial_c\text{ with }u,v,q\text{ fixed}.
+    \]
+
+    Thus
+
+    \[
+    (\delta q_u,\delta a_u,\delta b_u,\delta c_u)=(0,1,0,0),
+    \]
+
+    \[
+    (\delta q_v,\delta a_v,\delta b_v,\delta c_v)=(0,0,1,0),
+    \]
+
+    and
+
+    \[
+    (\delta q_\zeta,\delta a_\zeta,\delta b_\zeta,\delta c_\zeta)
+    =(0,1,-1,1).
+    \]
+
+    Normalize the endpoint-kernel rows by
+
+    \[
+    \partial_aL_-=k_u,\qquad \partial_bL_+=k_v,
+    \]
+
+    and set the free ambient anchor choices
+
+    \[
+    r_{\log u}=r_{\log v}=\eta=0,\qquad
+    r_{vu}=r_{uv}=r_u=r_v=0.
+    \]
+
+    This gives the formal branch-compatible convention
+
+    \[
+    p_u^0=(0,1,0,0,-X,0,0,0),
+    \]
+
+    \[
+    p_v^0=(0,0,0,1,0,-Y,0,0),
+    \]
+
+    and
+
+    \[
+    p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right).
+    \]
+
+    These columns have period coordinate \(0\).  They are still not known to
+    be actual row images.  With
+
+    \[
+    \lambda=(\lambda_0,\lambda_u,\lambda_c,\lambda_v,
+    \lambda_-,\lambda_+,\lambda_{\log},\lambda_\Pi)
+    \in\operatorname{Rel},
+    \]
+
+    the necessary and sufficient row-level annihilation conditions for the
+    three columns are
+
+    \[
+    \lambda_u-X\lambda_-=0,
+    \]
+
+    \[
+    \lambda_v-Y\lambda_+=0,
+    \]
+
+    and
+
+    \[
+    F_c\lambda_c-\frac qa\,\lambda_- -\frac qb\,\lambda_+=0.
+    \]
+
+    If the stronger determinant condition
+
+    \[
+    \det(k_i(x_j))_{i,j=1}^8\ne0
+    \]
+
+    is proved for some regular points \(x_1,\ldots,x_8\in J_{\rm reg}\), then
+    \(\operatorname{Rel}=0\) and these annihilation checks are automatic.
+    Without that determinant, the three displayed identities must be proved for
+    all \(\lambda\in\operatorname{Rel}\).
+
+    If those identities hold, the existing bump realization lemma gives
+    signed smooth density perturbations with these rows, supported in the
+    regular interior.  This is only row-level realization.  To use the PSD
+    matrix \(P^{0T}Q_{\rm eff}P^0\), one still has to prove the bumps are
+    two-sided feasible critical directions, or approximate such directions
+    while preserving positivity.  If only one-sided feasibility is available,
+    the proof must switch to the actual-density cone formulation.
+
 3.  Effective endpoint Hessian identity.  Only after the previous two steps
     can one define
 
