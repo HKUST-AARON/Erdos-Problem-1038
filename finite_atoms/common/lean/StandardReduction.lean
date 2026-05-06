@@ -12408,6 +12408,54 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_bas
   exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
     D.baseline_length_le_positiveSet⟩
 
+/--
+Final assembled standard-reduction endpoint consequence for the current concrete
+formalization layer.
+
+This theorem removes the already-closed external providers `hcore`,
+`hsecondary_lsc`, and `hEndpointFromVariation`: the compact-threshold core,
+primary lower semicontinuity, second-moment lower semicontinuity, and secondary
+minimizer existence are all generated internally.  The remaining input is the
+true Tao component/variation provider, stated at the lowest package level.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_package
+    {Normalized : Type}
+    {normalize : ProbabilityMeasure UnitInterval1038 → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackageFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        TaoVariationComponentPackage (Potential (normalize μ))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (Potential (normalize μ)),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize μ))) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer with
+    ⟨μ, hPrimary, hSecondary⟩
+  let Pack : TaoVariationComponentPackage (Potential (normalize μ)) :=
+    hPackageFromVariation μ hPrimary hSecondary
+  let D : TaoEndpointNormalizationData (Potential (normalize μ)) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
