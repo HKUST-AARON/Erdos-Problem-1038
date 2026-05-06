@@ -1318,6 +1318,40 @@ lemma measureLogPotential_eq_neg_log_abs_integral
   rw [integral_congr_ae hcongr]
   rw [integral_neg]
 
+/--
+Boundary form of Jensen's logarithmic step.  If the logarithmic potential at a
+test point is nonpositive, then the average distance from that point is at
+least one.
+-/
+lemma one_le_abs_integral_of_measureLogPotential_nonpos
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (hpotential_nonpos : measureLogPotential μ x ≤ 0) :
+    1 ≤ ∫ t, |x - t| ∂μ := by
+  have hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t| :=
+    hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
+  have hlog_nonneg : 0 ≤ ∫ t, Real.log |x - t| ∂μ := by
+    rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos] at hpotential_nonpos
+    linarith
+  have hlog_le :
+      (∫ t, Real.log |x - t| ∂μ) ≤
+        Real.log (∫ t, |x - t| ∂μ) :=
+    measure_log_abs_integral_le_log_abs_integral μ
+      hε hdist_lower hdist_int hlog_int
+  have hlog_avg_nonneg : 0 ≤ Real.log (∫ t, |x - t| ∂μ) :=
+    le_trans hlog_nonneg hlog_le
+  have hε_le_avg : ε ≤ ∫ t, |x - t| ∂μ := by
+    have hle :
+        (∫ _ : ℝ, ε ∂μ) ≤ ∫ t, |x - t| ∂μ :=
+      integral_mono_ae (integrable_const ε) hdist_int hdist_lower
+    simpa using hle
+  have havg_pos : 0 < ∫ t, |x - t| ∂μ :=
+    lt_of_lt_of_le hε hε_le_avg
+  exact (Real.log_nonneg_iff havg_pos).1 hlog_avg_nonneg
+
 theorem measureLogPotential_nonneg_of_nonnegative_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
     (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
@@ -2212,6 +2246,39 @@ lemma unitIntervalLogPotential_eq_realMeasure
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
   simpa [realMeasure] using unitIntervalLogPotential_eq_map_subtypeVal μ x
+
+/-- Unit-interval version of the boundary Jensen step. -/
+theorem one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ x ≤ 0) :
+    1 ≤ ∫ t, |x - t| ∂realMeasure μ := by
+  rw [unitIntervalLogPotential_eq_realMeasure] at hpotential_nonpos
+  exact one_le_abs_integral_of_measureLogPotential_nonpos
+    (realMeasure μ) hε hdist_lower hdist_int hlog_int hpotential_nonpos
+
+/--
+Tao boundary-average inequality once the boundary Jensen lower bound and the
+endpoint/remainder distance upper bound have been supplied.
+-/
+theorem tao_boundary_average_of_boundary_distance_upper
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus endpointMass ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int : Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hdistance_upper :
+      (∫ t, |xPlus - t| ∂realMeasure μ) ≤
+        (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)) :
+    1 ≤ (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass) := by
+  exact le_trans
+    (one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
+      μ hε hdist_lower hdist_int hlog_int hpotential_nonpos)
+    hdistance_upper
 
 /-!
 ## Finite atomic dual-potential selector
