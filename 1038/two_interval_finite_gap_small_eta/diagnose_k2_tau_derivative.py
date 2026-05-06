@@ -75,6 +75,15 @@ def main() -> int:
         default=0,
         help="when reporting joint-layer dependency, also sample this many eta points in the slab",
     )
+    parser.add_argument(
+        "--joint-layer-derivative-sample-grid",
+        type=int,
+        default=0,
+        help=(
+            "when reporting joint-layer dependency, also finite-difference the "
+            "regularized joint layer on this many eta sample points"
+        ),
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -205,12 +214,26 @@ def main() -> int:
                 return term_value
         return "missing"
 
-    def print_joint_layer_dependency_report(eta_low: float, eta_high: float, sample_grid: int = 0) -> None:
+    def print_joint_layer_dependency_report(
+        eta_low: float,
+        eta_high: float,
+        sample_grid: int = 0,
+        derivative_sample_grid: int = 0,
+    ) -> None:
         eta_mid = 0.5 * (eta_low + eta_high)
         eta_point = arb(repr(float(eta_mid)))
         eta_box = solver._arb_interval_from_bounds(eta_low, eta_high)
         for B in (0.01, -0.01):
             tau = tau0 + 0.05
+
+            def joint_mid(eta_sample: float) -> float:
+                sample_value, sample_terms = joint_layer_terms(B, tau, arb(repr(float(eta_sample))))
+                del sample_value
+                sample_joint = arb(
+                    find_debug_term(sample_terms, "limit_layer_joint_regularized_second:combined")
+                )
+                return float(sample_joint.mid())
+
             point_value, point_terms = joint_layer_terms(B, tau, eta_point)
             box_value, box_terms = joint_layer_terms(B, tau, eta_box)
             point_joint = find_debug_term(point_terms, "limit_layer_joint_regularized_second:combined")
@@ -255,6 +278,36 @@ def main() -> int:
                     f"width={sample_max - sample_min:.12e} "
                     f"max_adjacent_secant={max_adjacent_secant:.12e}"
                 )
+            if derivative_sample_grid > 0:
+                if derivative_sample_grid < 3:
+                    raise SystemExit("joint-layer-derivative-sample-grid must be 0 or at least 3")
+                derivative_values = []
+                derivative_etas = []
+                step = (eta_high - eta_low) / (derivative_sample_grid - 1)
+                for index in range(derivative_sample_grid):
+                    eta_sample = eta_low + step * index
+                    if index == 0:
+                        derivative = (joint_mid(eta_sample + step) - joint_mid(eta_sample)) / step
+                    elif index == derivative_sample_grid - 1:
+                        derivative = (joint_mid(eta_sample) - joint_mid(eta_sample - step)) / step
+                    else:
+                        derivative = (joint_mid(eta_sample + step) - joint_mid(eta_sample - step)) / (2 * step)
+                    derivative_etas.append(eta_sample)
+                    derivative_values.append(derivative)
+                max_abs_derivative = max(abs(value) for value in derivative_values)
+                min_derivative = min(derivative_values)
+                max_derivative = max(derivative_values)
+                source_index = max(range(len(derivative_values)), key=lambda idx: abs(derivative_values[idx]))
+                integral_width_bound = max_abs_derivative * (eta_high - eta_low)
+                print(
+                    "K2_JOINT_LAYER_DERIVATIVE_SAMPLE "
+                    f"B={B:+.2f} tau={tau:.12e} samples={derivative_sample_grid:d} "
+                    f"eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
+                    f"min_derivative={min_derivative:.12e} max_derivative={max_derivative:.12e} "
+                    f"max_abs_derivative={max_abs_derivative:.12e} "
+                    f"max_source_eta={derivative_etas[source_index]:.12e} "
+                    f"integral_width_bound={integral_width_bound:.12e}"
+                )
 
     def k0_2_box(B: float, tau_box: Any) -> Any:
         qB = arb(repr(float(B)))
@@ -282,6 +335,7 @@ def main() -> int:
             min(eta_values),
             max(eta_values),
             args.joint_layer_sample_grid,
+            args.joint_layer_derivative_sample_grid,
         )
         return 0
 
@@ -487,7 +541,12 @@ def main() -> int:
     if args.joint_layer_dependency_report:
         eta_low = min(eta_values)
         eta_high = max(eta_values)
-        print_joint_layer_dependency_report(eta_low, eta_high, args.joint_layer_sample_grid)
+        print_joint_layer_dependency_report(
+            eta_low,
+            eta_high,
+            args.joint_layer_sample_grid,
+            args.joint_layer_derivative_sample_grid,
+        )
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 

@@ -3238,6 +3238,29 @@ For this reason the production default remains the older `acb` kernel; the
 `residue-log` kernel is kept as a checked diagnostic path, not as a claimed
 tightening.
 
+The sharper next target is the shared-variable derivative of the regularized
+joint layer.  A new diagnostic sampler in
+`1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py` measures
+this derivative directly, without using the old whole-slab `Div2` subtraction.
+On
+
+\[
+\eta\in[0.007071067811865475,0.01]
+\]
+
+it reports
+
+```text
+B=+0.01: max_abs_derivative=1.712468090857, integral_width_bound=0.005015702912464
+B=-0.01: max_abs_derivative=1.694222774641, integral_width_bound=0.004962263618518
+```
+
+This confirms the mathematical direction: prove a direct bound for the
+explicit \(s\)-derivative of the paired residue-log block, rather than
+subdividing the old eta box.  A clean lemma with \(|B'(s)|\le 2\) on the
+corresponding edge boxes would replace the current sampled-center correction by
+a continuum-grade estimate.
+
 ## K. Remote Slab Matrix After Eta Refinement
 
 The remote 24-core machine was used as a parallel diagnostic runner for the

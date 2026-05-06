@@ -3478,6 +3478,58 @@ forms two independent copies of the same residue-log term.  It also handles the
 contact and minus-one contexts uniformly, with the only difference being
 \(x'=0\) versus \(x'=w_{-1}'(s)\).
 
+### 15.9 Direct derivative scale on the joint layer
+
+I added a diagnostic-only derivative sampler for the regularized joint-layer
+block.  It still does not constitute a proof; it is a numerical guide for the
+next paper lemma.  On the first nontrivial eta slab
+
+\[
+\eta\in[0.007071067811865475,0.01],
+\]
+
+the command
+
+```bash
+/tmp/erdos1038-sympy-venv/bin/python \
+  1038/two_interval_finite_gap_small_eta/diagnose_k2_tau_derivative.py \
+  --eta-values 0.007071067811865475,0.01 \
+  --joint-layer-dependency-report-only \
+  --joint-layer-sample-grid 9 \
+  --joint-layer-derivative-sample-grid 9
+```
+
+gives
+
+```text
+B=+0.01: max_abs_derivative=1.712468090857, integral_width_bound=0.005015702912464
+B=-0.01: max_abs_derivative=1.694222774641, integral_width_bound=0.004962263618518
+```
+
+This is the important mathematical information.  The whole-slab `Div2` model
+still encloses the same joint term by a useless ball of radius about \(39.1\),
+but the actual derivative in the shared variable is about \(1.7\).  Therefore
+the next proof obligation is not to tune precision; it is to prove, from the
+explicit formula in Section 15.8, a bound of the form
+
+\[
+\left|B'(s)\right|\le 2
+\quad
+\text{for all }s\in[0,0.01]
+\]
+
+on the corresponding \((B,\tau)\)-edge boxes, with the contact and minus-one
+contexts both included.  Such a lemma would imply the required continuum
+variation bound by
+
+\[
+|B(\eta_2)-B(\eta_1)|
+\le 2|\eta_2-\eta_1|,
+\]
+
+which is already at the observed \(5\times10^{-3}\) scale on this slab.  This
+is the precise replacement for the failed sampled-center correction.
+
 ## 16. Mathematical proof ledger for the exact-value route
 
 This section records the current paper-level proof chain for the conjectural
