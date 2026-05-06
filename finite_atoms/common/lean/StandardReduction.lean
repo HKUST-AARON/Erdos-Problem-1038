@@ -9745,6 +9745,65 @@ theorem componentReplacementMeasure_secondMoment_le_realMeasure
     add_le_add_left hblock_le
       (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ)
 
+/--
+If the real replacement has the same second moment as the original measure,
+then the component-block barycenter inequality is an equality.
+-/
+theorem componentBlock_secondMoment_eq_of_replacement_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (heq :
+      (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) =
+        ∫ t : ℝ, t ^ 2 ∂realMeasure μ) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  let f : ℝ → ℝ := fun t => t ^ 2
+  have houtside_int : Integrable f ((realMeasure μ).restrict C.intervalᶜ) :=
+    outsideComponent_secondMoment_integrable C
+  have hblock_int : Integrable f (componentBlock C) :=
+    componentBlock_secondMoment_integrable C
+  have hdirac_int :
+      Integrable f (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hreplacement :
+      (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 := by
+    rw [componentReplacementMeasure_def]
+    rw [integral_add_measure houtside_int hdirac_int]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    simp [f, smul_eq_mul]
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C =
+        realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  have horiginal :
+      (∫ t : ℝ, f t ∂realMeasure μ) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂realMeasure μ)
+          = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
+              componentBlock C) := by rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+            ∫ t : ℝ, f t ∂componentBlock C := by
+              rw [integral_add_measure houtside_int hblock_int]
+  have hsum :
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2
+          = ∫ t : ℝ, f t ∂componentReplacementMeasure C := by
+              rw [hreplacement]
+      _ = ∫ t : ℝ, f t ∂realMeasure μ := heq
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := horiginal
+  exact add_left_cancel hsum
+
 /-- Concrete secondary objective nonincrease for the subtype replacement
 probability. -/
 theorem unitIntervalSecondMomentObjective_componentReplacement_nonincrease
@@ -9761,6 +9820,31 @@ theorem unitIntervalSecondMomentObjective_componentReplacement_nonincrease
   rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
     C hmass_unit hsupport]
   exact componentReplacementMeasure_secondMoment_le_realMeasure R
+
+/--
+Concrete secondary equality implies equality in the component-block
+second-moment inequality.
+-/
+theorem componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (heq :
+      unitIntervalSecondMomentObjective (componentReplacementProbability C hmass_unit) =
+        unitIntervalSecondMomentObjective μ) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  have hreal :
+      (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) =
+        ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+    rw [← unitIntervalSecondMomentObjective_eq_realMeasure μ]
+    rw [← heq]
+    rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+    rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+      C hmass_unit hsupport]
+  exact componentBlock_secondMoment_eq_of_replacement_secondMoment_eq hreal
 
 theorem measure_barycenter_second_moment_eq_imp_ae_eq_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
