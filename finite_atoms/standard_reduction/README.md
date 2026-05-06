@@ -51,6 +51,13 @@ presented to the finite-atom route, it proves the normalized endpoint-potential
 consequences for any `RelaxedMinimizer`.  Reflection/translation normalization
 and its objective invariance remain upstream work.
 
+`lean/ComponentAtomization.lean` packages the barycenter-replacement part of
+the variation argument.  It exposes objective non-increase from countable or
+finite support-hit certificates and the secondary-minimizer consequence that a
+caller-supplied tested block must already be a Dirac mass.  Identifying that
+tested block with the actual component block remains an explicit upstream
+input.
+
 ## Check command
 
 From the repository root:
