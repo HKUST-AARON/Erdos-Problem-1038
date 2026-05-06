@@ -9563,6 +9563,88 @@ theorem queue.
     is proved by (Gate1Sylvester); only the realization of the actual
     moving-chart rows as such a total-positive block remains.
 
+    TP row toolbox.
+
+    The row-realization step can now be attacked row by row.  The following
+    elementary facts are the permitted primitives.
+
+    1.  Ordered Cauchy rows.  If the target nodes \(t_i\) and source nodes
+        \(s_j\) are strictly ordered and separated, then
+
+        \[
+        \det\left(\frac1{t_i-s_j}\right)
+        =
+        \frac{
+        \prod_{i<i'}(t_{i'}-t_i)
+        \prod_{j<j'}(s_j-s_{j'})
+        }{
+        \prod_{i,j}(t_i-s_j)
+        }
+        \tag{Gate1CauchyProduct}
+        \]
+
+        has a fixed nonzero sign after the row and column order is fixed.
+
+    2.  Confluent rows.  Evaluation-derivative rows at a real pole are obtained
+        by differentiating (Gate1CauchyProduct) and taking a limit as source
+        nodes coalesce.  The extra factors are fixed powers of ordered
+        spacings and factorials, hence have fixed sign once the confluent row
+        order is fixed.
+
+    3.  Positive-average rows.  If a row is
+
+        \[
+        R_\mu(H)=\int R_t(H)\,d\mu(t),
+        \qquad \mu\ge0,
+        \]
+
+        where each \(R_t\) is an ordered Cauchy row from a source interval that
+        does not cross the other source nodes, then multilinearity and
+        Fubini/Cauchy-Binet write any determinant containing \(R_\mu\) as an
+        integral of determinants with the same oriented sign.  It is strict
+        unless the averaged row is dependent on the other rows.
+
+    Therefore the following rows are already compatible with the total-positive
+    block, up to fixed positive row factors and fixed orientation signs:
+
+    - moving point evaluation rows \(H\mapsto H(x_i)\);
+    - the equality row \(H\mapsto-H(c)/(Q(c)^2R(c))\), since \(c\) is a fixed
+      ordered real evaluation node away from \(J\) and the poles;
+    - pole-state rows \(H\mapsto H(p_k)\) and
+      \(H\mapsto H'(p_k)\), provided the \(Q\)-poles are real, simple,
+      separated, and ordered;
+    - the zero-mass row, interpreted as the evaluation row at infinity after
+      the \(w=1/z\) change of variables;
+    - any retained period/filling row that is explicitly written as a positive
+      average of ordered real Cauchy rows.
+
+    This proves the row-realization lemma for the canonical subchart whose
+    normalization rows consist only of the rows in the list above.  The
+    remaining possible obstruction is no longer algebraic; it is whether the
+    actual moving Schiffer chart uses any additional "regular chart rows" or
+    sign-changing period rows outside this canonical TP row class.
+
+    Thus the next and final Gate 1 checklist is:
+
+    \[
+    \boxed{
+    \begin{array}{c|c}
+    \text{row type} & \text{Gate 1 status}\\ \hline
+    \text{zero mass} & \text{TP row: proved}\\
+    \text{pole / residue state} & \text{TP confluent row if poles are real simple}\\
+    \text{equality row } \rho & \text{TP evaluation row: proved}\\
+    \text{moving point rows} & \text{TP evaluation rows: proved}\\
+    \text{period / filling row} & \text{needs positive-average formula}\\
+    \text{regular chart rows} & \text{must be replaced by canonical TP gauge or proved TP}
+    \end{array}
+    }
+    \tag{Gate1RowChecklist}
+    \]
+
+    Once the period/filling row and any remaining regular chart rows are shown
+    to be in the canonical TP class, TPRowRealizationLemma follows from the
+    three primitives above, and Gate 1 passes by (Gate1Sylvester).
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

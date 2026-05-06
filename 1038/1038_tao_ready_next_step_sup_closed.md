@@ -3346,6 +3346,17 @@ prove that, after positive row/column factors, they form the ordered
 sign-regular block required above.  Once that lemma is proved, Schur-block
 total positivity and RawAugmentedCircuitSign follow formally.
 
+The row-realization toolbox is now fixed.  Ordered Cauchy rows have signed
+determinants by the Cauchy product formula; confluent pole rows inherit the
+same sign by differentiating and taking coalescing-node limits; positive
+averages of ordered Cauchy rows preserve the sign by multilinearity and
+Fubini/Cauchy-Binet.  Therefore the zero-mass row, real pole evaluation and
+derivative rows, moving point evaluation rows, and equality row \(\rho\) are
+already compatible with the TP block.  The only remaining Gate 1 row audit is
+to prove that the period/filling row is a positive Cauchy average and that any
+additional regular chart rows are replaced by, or proved equivalent to, this
+canonical TP gauge.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
