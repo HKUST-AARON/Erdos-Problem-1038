@@ -206,8 +206,15 @@ right-region identity
 component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus
 ```
 
-and derives both component positivity and right-cover from it.  The lower-level
-constructor
+and the endpoint support gap
+
+```lean
+xPlus ∉ (realMeasure μ).support
+```
+
+It derives component positivity, right-cover, the fact that `xPlus` is not in
+the positive set, and the required `∃ ε > 0` a.e. distance lower bound.  The
+lower-level constructor
 `CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover`
 remains available when a proof already has the cover statement directly.  These
 constructors no longer ask callers to separately provide
@@ -215,9 +222,6 @@ integrability of `|xPlus - t|`, `Real.log |xPlus - t|`, the endpoint-remainder
 distance integral, the boundary-average inequality, or the baseline kernel
 integrability.  In the right-region constructor, no endpoint-continuity input is
 needed: the identity above directly implies `xPlus` is not in the positive set.
-The remaining analytic input at this point is the genuine separation statement
-`∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|`, together with the right-region
-component identity.
 
 At the relaxed-minimizer interface, the same file defines
 

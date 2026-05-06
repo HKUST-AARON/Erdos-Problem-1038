@@ -331,6 +331,27 @@ private theorem not_mem_positiveSet_of_component_eq_positiveSet_inter_Ioi
   exact (lt_irrefl xPlus) hx_interval.2
 
 /--
+If a point is outside the topological support of the real measure, then it is
+separated by a positive distance from almost every point of the measure.
+-/
+private theorem exists_ae_dist_ge_of_not_mem_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ∃ ε : ℝ, 0 < ε ∧ ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |x - t| := by
+  rcases Measure.notMem_support_iff_exists.mp hx with ⟨U, hU_nhds, hU_zero⟩
+  rcases Metric.mem_nhds_iff.mp hU_nhds with ⟨δ, hδ, hball_sub⟩
+  refine ⟨δ, hδ, ?_⟩
+  have hball_zero :
+      (realMeasure μ) (Metric.ball x δ) = 0 :=
+    measure_mono_null hball_sub hU_zero
+  have h_ae_not_ball :
+      ∀ᵐ t : ℝ ∂realMeasure μ, t ∉ Metric.ball x δ := by
+    exact ae_iff.mpr (by simpa using hball_zero)
+  filter_upwards [h_ae_not_ball] with t ht
+  rw [Metric.mem_ball, dist_comm, Real.dist_eq] at ht
+  exact le_of_not_gt ht
+
+/--
 The full component-order information gives the sharper normalized support
 shape used in Tao's endpoint-mass boundary estimate: after normalization, every
 selected support point is either the endpoint atom `-1` or lies to the right of
@@ -1420,7 +1441,7 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cove
     (translation : ℝ)
     (component : Set ℝ)
     (Support : Set ℝ)
-    (xMinus xPlus ε : ℝ)
+    (xMinus xPlus : ℝ)
     (component_positive :
       component ⊆ PositiveSet (unitIntervalLogPotential μ))
     (component_interval : component = Ioo xMinus xPlus)
@@ -1478,7 +1499,7 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_regi
     (translation : ℝ)
     (component : Set ℝ)
     (Support : Set ℝ)
-    (xMinus xPlus ε : ℝ)
+    (xMinus xPlus : ℝ)
     (right_region_eq :
       component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus)
     (component_interval : component = Ioo xMinus xPlus)
@@ -1489,10 +1510,17 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_regi
     (right_endpoint_positive : 0 < xPlus)
     (support_contains_real_support :
       (realMeasure μ).support ⊆ Support)
-    (hε : 0 < ε)
-    (hdist_lower :
-      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    (right_endpoint_not_mem_support :
+      xPlus ∉ (realMeasure μ).support) :
     CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) := by
+  let hsep : ∃ ε : ℝ, 0 < ε ∧
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t| :=
+    exists_ae_dist_ge_of_not_mem_realMeasure_support μ
+      right_endpoint_not_mem_support
+  let ε : ℝ := Classical.choose hsep
+  have hε : 0 < ε := (Classical.choose_spec hsep).1
+  have hdist_lower : ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t| :=
+    (Classical.choose_spec hsep).2
   have hboundary :
       1 ≤
         (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
