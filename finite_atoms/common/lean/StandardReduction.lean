@@ -1922,6 +1922,35 @@ theorem realMeasure_endpointRemainder_no_endpoint
   filter_upwards [hmem] with t ht
   simpa using ht
 
+theorem realMeasure_endpointRemainder_univ_add_endpoint
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ +
+        realMeasure μ ({-1} : Set ℝ) = 1 := by
+  have h :=
+    measure_add_measure_compl₀
+      (μ := realMeasure μ)
+      ((measurableSet_singleton (-1 : ℝ)).nullMeasurableSet)
+  simpa [add_comm] using h
+
+theorem realMeasure_endpointRemainder_mass
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p)
+    (hp_nonneg_left : 0 ≤ p) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ =
+      ENNReal.ofReal (1 - p) := by
+  have hadd :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ +
+        ENNReal.ofReal p = 1 := by
+    simpa [hp] using realMeasure_endpointRemainder_univ_add_endpoint μ
+  have hsub :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ =
+        (1 : ℝ≥0∞) - ENNReal.ofReal p :=
+    ENNReal.eq_sub_of_add_eq ENNReal.ofReal_ne_top hadd
+  have hofReal :
+      ENNReal.ofReal (1 - p) = (1 : ℝ≥0∞) - ENNReal.ofReal p := by
+    simpa using (ENNReal.ofReal_sub (1 : ℝ) hp_nonneg_left)
+  rw [hsub, ← hofReal]
+
 /-- Real points carrying positive mass for the pushed-forward unit-interval measure. -/
 def diagonalAtomSet (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
   {x : ℝ | 0 < (μ : Measure UnitInterval1038) {t : UnitInterval1038 | (t : ℝ) = x}}
