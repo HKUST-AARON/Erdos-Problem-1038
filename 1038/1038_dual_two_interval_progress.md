@@ -10164,6 +10164,107 @@ theorem queue.
     must compute \(\mathcal H\) and prove \(\Lambda_{\rm at}<0\), or exhibit an
     optimizer with \(\Lambda_{\rm at}\ge0\) as a concrete obstruction.
 
+    Local-margin versus capacity-load criterion.
+
+    Write
+
+    \[
+    \mathcal H=B_{\rm at}+N_{\log},
+    \qquad
+    N_{\log}=C^{-1},
+    \tag{G1HNsplit}
+    \]
+
+    in the certificate basis.  Here \(B_{\rm at}\) is the finite non-log
+    branch/state Hessian transported to the endpoint-row image, and
+    \(N_{\log}\) is the positive Riesz/Feshbach load.  On the normalized
+    certificate cone define
+
+    \[
+    \boxed{
+    \mu_{\rm loc}
+    =
+    \min_{\alpha\in\mathcal C_{\rm at}^{1}}
+    \left(-\alpha^TB_{\rm at}\alpha\right),
+    \qquad
+    \nu_{\log}
+    =
+    \max_{\alpha\in\mathcal C_{\rm at}^{1}}
+    \alpha^TN_{\log}\alpha.
+    }
+    \tag{G1Margins}
+    \]
+
+    These extrema exist by compactness of \(\mathcal C_{\rm at}^{1}\).  For
+    every normalized certificate,
+
+    \[
+    \alpha^T\mathcal H\alpha
+    =
+    \alpha^TB_{\rm at}\alpha+\alpha^TN_{\log}\alpha
+    \le
+    -\mu_{\rm loc}+\nu_{\log}.
+    \]
+
+    Therefore we have the proof-grade sufficient criterion
+
+    \[
+    \boxed{
+    \mu_{\rm loc}>\nu_{\log}
+    \Longrightarrow
+    \Lambda_{\rm at}<0.
+    }
+    \tag{G1DominanceCriterion}
+    \]
+
+    Conversely, if \(\mu_{\rm loc}\le\nu_{\log}\), this dominance test gives no
+    sign; one must either evaluate the coupled maximum
+    \(\Lambda_{\rm at}\) directly or find a sharper correlation estimate
+    between \(B_{\rm at}\) and \(N_{\log}\) on \(\mathcal C_{\rm at}^{1}\).
+
+    There is also a pointwise Schur version that avoids explicitly writing
+    \(C^{-1}\).  For a nonzero certificate vector \(\alpha\), set
+
+    \[
+    T_{\rm loc}(\alpha)=-\alpha^TB_{\rm at}\alpha.
+    \]
+
+    If \(T_{\rm loc}(\alpha)>0\), then
+
+    \[
+    \alpha^T(B_{\rm at}+C^{-1})\alpha<0
+    \]
+
+    is equivalent to
+
+    \[
+    \boxed{
+    \begin{pmatrix}
+    C&\alpha\\
+    \alpha^T&T_{\rm loc}(\alpha)
+    \end{pmatrix}
+    \succ0
+    }
+    \tag{G1PointSchur}
+    \]
+
+    by the Schur complement.  Thus Gate 1 can be closed by either of two fully
+    finite checks:
+
+    \[
+    \boxed{
+    \Lambda_{\rm at}<0
+    \quad\text{or}\quad
+    \text{(G1PointSchur) for every }\alpha\in\mathcal C_{\rm at}^{1}.
+    }
+    \tag{G1FiniteCloseOptions}
+    \]
+
+    This is the exact next computation.  It requires explicit formulas or
+    certified estimates for \(B_{\rm at}\), the row Gram \(C\), and the
+    certificate cone \(\mathcal C_{\rm at}\).  It does not require the retired
+    first-order determinant sign.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

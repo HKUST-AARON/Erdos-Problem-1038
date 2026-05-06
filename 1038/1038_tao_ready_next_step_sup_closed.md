@@ -3581,6 +3581,55 @@ chart-rank boundary, the normalized certificate set is compact.  Hence
 This is now the precise remaining Gate 1 computation: calculate the matrix
 \(\mathcal H\) and prove the cone maximum is strictly negative.
 
+Equivalently, split
+
+\[
+\mathcal H=B_{\rm at}+N_{\log},\qquad N_{\log}=C^{-1}.
+\]
+
+On the normalized certificate cone define
+
+\[
+\mu_{\rm loc}
+=
+\min_{\alpha\in\mathcal C_{\rm at}\cap S^{m-1}}
+\left(-\alpha^TB_{\rm at}\alpha\right),
+\qquad
+\nu_{\log}
+=
+\max_{\alpha\in\mathcal C_{\rm at}\cap S^{m-1}}
+\alpha^TN_{\log}\alpha.
+\]
+
+Then
+
+\[
+\mu_{\rm loc}>\nu_{\log}
+\Longrightarrow
+\Lambda_{\rm at}<0.
+\]
+
+For pointwise verification one may avoid \(C^{-1}\): for each certificate
+vector \(\alpha\), with \(T_{\rm loc}(\alpha)=-\alpha^TB_{\rm at}\alpha\),
+
+\[
+\alpha^T(B_{\rm at}+C^{-1})\alpha<0
+\]
+
+is equivalent to the Schur condition
+
+\[
+\begin{pmatrix}
+C&\alpha\\
+\alpha^T&T_{\rm loc}(\alpha)
+\end{pmatrix}\succ0.
+\]
+
+So the next concrete Gate 1 calculation is to compute or certify
+\(B_{\rm at}\), \(C\), and \(\mathcal C_{\rm at}\), then prove either
+\(\Lambda_{\rm at}<0\) directly or the stronger local-margin versus
+capacity-load inequality above.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
