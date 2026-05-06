@@ -7594,6 +7594,66 @@ theorem measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
       hrx hmem hfirst hkernel_int
 
 /--
+The component-block log kernel is integrable for test points strictly outside
+the component.  The restricted block is a.e. supported on
+`C.interval ∩ [-1,1]`; on this compact set it lies in the closed half-line away
+from `x`, where the log kernel is continuous.
+-/
+theorem componentBlock_logKernel_integrable_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {x : ℝ} (hx : StrictOutsideComponent C x) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) := by
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  have hrestrict :
+      (realMeasure μ).restrict C.interval =
+        (realMeasure μ).restrict (C.interval ∩ Icc (-1 : ℝ) 1) := by
+    apply Measure.restrict_congr_set
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht
+    exact propext ⟨fun htC => ⟨htC, ht⟩, fun htC => htC.1⟩
+  have hs_meas : MeasurableSet (C.interval ∩ Icc (-1 : ℝ) 1) :=
+    C.measurableSet_interval.inter measurableSet_Icc
+  haveI : IsFiniteMeasure (realMeasure μ) := by infer_instance
+  rcases hx with hx_left | hx_right
+  · let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ Ici C.left
+    have hK : IsCompact K := by
+      exact isCompact_Icc.inter_right isClosed_Ici
+    have hsub : C.interval ∩ Icc (-1 : ℝ) 1 ⊆ K := by
+      intro t ht
+      have htC : t ∈ Ioo C.left C.right := by
+        simpa [C.interval_eq] using ht.1
+      exact ⟨ht.2, le_of_lt htC.1⟩
+    have hcont : ContinuousOn f K := by
+      exact (logKernel_continuousOn_Ici_right hx_left).mono
+        (by intro t ht; exact ht.2)
+    have hint : IntegrableOn f (C.interval ∩ Icc (-1 : ℝ) 1)
+        (realMeasure μ) :=
+      hcont.integrableOn_of_subset_isCompact hK hs_meas hsub
+        (measure_ne_top (realMeasure μ) _)
+    change Integrable f (componentBlock C)
+    unfold componentBlock
+    rw [hrestrict]
+    simpa [IntegrableOn] using hint
+  · let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ Iic C.right
+    have hK : IsCompact K := by
+      exact isCompact_Icc.inter_right isClosed_Iic
+    have hsub : C.interval ∩ Icc (-1 : ℝ) 1 ⊆ K := by
+      intro t ht
+      have htC : t ∈ Ioo C.left C.right := by
+        simpa [C.interval_eq] using ht.1
+      exact ⟨ht.2, le_of_lt htC.2⟩
+    have hcont : ContinuousOn f K := by
+      exact (logKernel_continuousOn_Iic_left hx_right).mono
+        (by intro t ht; exact ht.2)
+    have hint : IntegrableOn f (C.interval ∩ Icc (-1 : ℝ) 1)
+        (realMeasure μ) :=
+      hcont.integrableOn_of_subset_isCompact hK hs_meas hsub
+        (measure_ne_top (realMeasure μ) _)
+    change Integrable f (componentBlock C)
+    unfold componentBlock
+    rw [hrestrict]
+    simpa [IntegrableOn] using hint
+
+/--
 Integrability transfers from the component block to its normalized probability
 rescaling.  This is only the scalar-measure bridge; the caller still supplies
 the original component-block integrability.
@@ -7833,6 +7893,23 @@ theorem componentReplacement_objective_le_of_kernel_integrability_jensen
   exact componentReplacement_objective_le_of_componentBlock_integrability_jensen
     R houtside_integrable hcomponent_block_integrable
     (componentBlock_firstMoment_integrable C)
+
+/--
+Cleaner component-replacement objective wrapper: the only remaining analytic
+input is outside log-kernel integrability; component-block integrability is
+automatic for strict outside test points.
+-/
+theorem componentReplacement_objective_le_of_outside_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_kernel_integrability_jensen
+    R houtside_integrable
+    (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
 
 /-!
 ## Finite variance drop under barycenter replacement
