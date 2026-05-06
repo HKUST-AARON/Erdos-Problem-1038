@@ -1984,6 +1984,62 @@ theorem realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
     (measurableSet_singleton (-1 : ℝ))]
   simpa [Set.preimage, Set.mem_singleton_iff] using hp
 
+theorem unitInterval_endpoint_atom_ne_top
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} ≠ ⊤ := by
+  have hle :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+        (μ : Measure UnitInterval1038) Set.univ :=
+    measure_mono (Set.subset_univ _)
+  have hlt :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} < ⊤ := by
+    refine lt_of_le_of_lt hle ?_
+    simp
+  exact ne_of_lt hlt
+
+theorem unitInterval_endpoint_atom_eq_ofReal_toReal
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} =
+        ENNReal.ofReal
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) := by
+  rw [ENNReal.ofReal_toReal (unitInterval_endpoint_atom_ne_top μ)]
+
+theorem unitInterval_endpoint_atom_toReal_nonneg
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    0 ≤
+      (((μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) :=
+  ENNReal.toReal_nonneg
+
+theorem unitInterval_endpoint_atom_toReal_le_one
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) ≤ 1 := by
+  have hle :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+        (1 : ℝ≥0∞) := by
+    have hle_univ :
+        (μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+          (μ : Measure UnitInterval1038) Set.univ :=
+      measure_mono (Set.subset_univ _)
+    simpa using hle_univ
+  simpa using (ENNReal.toReal_mono ENNReal.one_ne_top hle)
+
+theorem unitInterval_endpoint_atom_remainderMass_nonneg
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    0 ≤ 1 -
+      (((μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) := by
+  have hle := unitInterval_endpoint_atom_toReal_le_one μ
+  linarith
+
 /-- Real points carrying positive mass for the pushed-forward unit-interval measure. -/
 def diagonalAtomSet (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
   {x : ℝ | 0 < (μ : Measure UnitInterval1038) {t : UnitInterval1038 | (t : ℝ) = x}}
@@ -8941,6 +8997,46 @@ def taoVariationComponentPackage_of_unitIntervalSupport_normalized_atomization_d
     hkernel_integrable
     (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
       R hnormalized_atomized)
+
+/-- Canonical-endpoint-mass version of the package constructor.  The endpoint
+mass is no longer an arbitrary real parameter: it is the real value of the
+endpoint atom of the subtype measure, so its endpoint equality, nonnegativity,
+and remainder nonnegativity are filled automatically. -/
+def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_normalized_atomization_data
+    μ mean_choice reflected translation C R
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)
+    xMinus xPlus hcomponent_interval hbaseline hright_endpoint_positive
+    hboundary_average
+    (unitInterval_endpoint_atom_eq_ofReal_toReal μ)
+    (unitInterval_endpoint_atom_toReal_nonneg μ)
+    (unitInterval_endpoint_atom_remainderMass_nonneg μ)
+    hkernel_integrable hnormalized_atomized
 
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
