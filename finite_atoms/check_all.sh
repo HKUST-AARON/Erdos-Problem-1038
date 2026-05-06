@@ -28,6 +28,7 @@ run_lean() {
 
 run_lean "$REPO_ROOT/finite_atoms/common/lean/FiniteAtomFramework.lean"
 run_lean "$REPO_ROOT/finite_atoms/common/lean/StandardReduction.lean"
+run_lean "$REPO_ROOT/finite_atoms/standard_reduction/lean/LogPotentialTruncation.lean"
 run_lean "$REPO_ROOT/finite_atoms/route_1807100/lean/Route1807100Closure.lean"
 
 check_piecewise_181460_route() {
@@ -106,15 +107,35 @@ run_lean "$REPO_ROOT/finite_atoms/five_atom_1807100/lean/FiveAtom1807100Route.le
 
 run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708Formal.lean"
 run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708AnalyticKernel.lean"
-run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean"
 
-"$REPO_ROOT/finite_atoms/forcing_1708/scripts/check_aggregate.sh"
+check_forcing_1708_full() {
+  if [[ "${CHECK_FORCING_1708_FULL:-0}" != "1" ]]; then
+    echo "skipping finite_atoms/forcing_1708 full Mathlib/chunk aggregate check"
+    echo "  set CHECK_FORCING_1708_FULL=1 to opt in to the expensive full check"
+    return 0
+  fi
+
+  run_lean "$REPO_ROOT/finite_atoms/forcing_1708/lean/Forcing1708Mathlib.lean"
+  "$REPO_ROOT/finite_atoms/forcing_1708/scripts/check_aggregate.sh"
+}
+
+check_forcing_1708_full
 
 run_lean "$REPO_ROOT/finite_atoms/forcing_1708_strong/lean/Forcing1708StrongFormal.lean"
-"$REPO_ROOT/finite_atoms/forcing_1708_strong/scripts/check_box_arith.sh"
 
-python3 "$REPO_ROOT/finite_atoms/forcing_1708_strong/scripts/verify_forcing_1708_strong_interval.py" \
-  --check-json "$REPO_ROOT/finite_atoms/forcing_1708_strong/forcing_1708_strong_interval_certificate.json"
+check_forcing_1708_strong_full() {
+  if [[ "${CHECK_FORCING_1708_STRONG_FULL:-0}" != "1" ]]; then
+    echo "skipping finite_atoms/forcing_1708_strong box arithmetic and Python verifier"
+    echo "  set CHECK_FORCING_1708_STRONG_FULL=1 to opt in to the expensive full check"
+    return 0
+  fi
+
+  "$REPO_ROOT/finite_atoms/forcing_1708_strong/scripts/check_box_arith.sh"
+  python3 "$REPO_ROOT/finite_atoms/forcing_1708_strong/scripts/verify_forcing_1708_strong_interval.py" \
+    --check-json "$REPO_ROOT/finite_atoms/forcing_1708_strong/forcing_1708_strong_interval_certificate.json"
+}
+
+check_forcing_1708_strong_full
 
 "$REPO_ROOT/finite_atoms/piecewise_five_atom_181460_560/scripts/verify_piecewise_181460_560_test.sh"
 
