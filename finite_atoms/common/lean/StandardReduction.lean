@@ -8852,6 +8852,31 @@ theorem realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_d
   rw [Measure.restrict_apply C.measurableSet_interval]
   simpa [Set.inter_comm] using hzero_inter
 
+theorem realMeasure_ae_endpointCompl_iff_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ᵐ t ∂realMeasure μ,
+      (t ∈ ({-1} : Set ℝ)ᶜ) ↔
+        t ∈ ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ := by
+  have hzero :=
+    realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  rw [Measure.restrict_apply C.measurableSet_interval] at hzero
+  rw [ae_iff]
+  have hbad :
+      {t : ℝ |
+        ¬ (t ∈ ({-1} : Set ℝ)ᶜ ↔
+          t ∈ ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ)} =
+        C.interval ∩ ({-1} : Set ℝ)ᶜ := by
+    ext t
+    by_cases ht_endpoint : t = -1
+    · simp [ht_endpoint]
+    · by_cases ht_component : t ∈ C.interval
+      · simp [ht_endpoint, ht_component]
+      · simp [ht_endpoint, ht_component]
+  simpa [hbad, Set.inter_comm] using hzero
+
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C)
