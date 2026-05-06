@@ -3137,6 +3137,24 @@ theorem componentReplacementProbability_admissibleProbability
     (componentReplacementProbability C hmass_unit : AdmissibleProbability1038) =
       componentReplacementProbability C hmass_unit := rfl
 
+/--
+If the real replacement measure is supported on the normalized interval, then
+the real pushforward of its subtype probability representative is exactly the
+real replacement measure.
+-/
+theorem realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    realMeasure (componentReplacementProbability C hmass_unit) =
+      componentReplacementMeasure C := by
+  unfold realMeasure
+  rw [componentReplacementProbability_toMeasure]
+  rw [map_comap_subtype_coe measurableSet_Icc]
+  exact Measure.restrict_eq_self_of_ae_mem hsupport
+
 structure ComponentReplacement
     (μ : ProbabilityMeasure UnitInterval1038) (C : PositiveComponent μ) where
   mass_pos : 0 < componentMass C
@@ -3237,6 +3255,25 @@ lemma componentReplacementMeasure_def
 def componentReplacementPotential
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : ℝ → ℝ :=
   measureLogPotential (componentReplacementMeasure C)
+
+/--
+Potential equality for the subtype replacement probability.  The only remaining
+side condition is the natural support statement that the real replacement
+measure stays inside `[-1,1]`.
+-/
+theorem unitIntervalLogPotential_componentReplacementProbability_eq
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    unitIntervalLogPotential (componentReplacementProbability C hmass_unit) =
+      componentReplacementPotential C := by
+  funext x
+  rw [unitIntervalLogPotential_eq_realMeasure]
+  rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    C hmass_unit hsupport]
+  rfl
 
 theorem componentReplacement_potential_eq_outside_add_replacementAtom
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
