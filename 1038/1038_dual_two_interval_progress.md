@@ -1187,6 +1187,77 @@ This gives the monotonicity needed to prove that the only exterior zeros are
 \(x_L,x_R\), once those zeros are defined by exact equations or certified
 intervals.
 
+2026-05-06 one-cut audit.
+
+The candidate shape and the mass computation are solid.  With
+
+\[
+s=\sqrt{2(1+a)},\qquad c=A(a)s,
+\]
+
+the identity
+
+\[
+\frac1\pi\int_a^1
+\frac{dx}{(x+1)\sqrt{(1-x)(x-a)}}=\frac1s
+\]
+
+gives continuous mass \(1-A(a)\), so the total mass is one after adding
+\(A(a)\delta_{-1}\).  The displayed derivative has the correct probability
+normalization at infinity:
+
+\[
+U'_a(z)\sim-\frac1z.
+\]
+
+The upper construction is nevertheless not yet a proof-grade theorem.  The
+next write-up must define \(a_*,x_L,x_R\) by exact equations, not by decimal
+values.  A minimal acceptable definition is:
+
+\[
+A(a)=
+\frac{\log(4/(1-a))}
+{\log 2+sJ(a)},
+\]
+
+with \(J(a)\) as above, or equivalently after proving the closed form
+
+\[
+\log 2+sJ(a)=\log\frac{1+y}{1-y},
+\qquad y=\sqrt{\frac{1+a}{2}}.
+\]
+
+Then \(a_*,x_L,x_R\) should be defined by the exterior zero equations
+
+\[
+U_{a_*}(x_L)=0,\qquad U_{a_*}(x_R)=0,
+\]
+
+together with the extremality or normalization equation that selects the
+candidate branch.  The proof must also give an exterior potential formula, for
+example by integrating \(U'_a\) with the convention \(U_a(z)+\log|z|\to0\) at
+infinity, and then prove a sign/monotonicity table on
+
+\[
+(-\infty,-1),\qquad (-1,c-1),\qquad (c-1,a),\qquad [a,1].
+\]
+
+Only after that table is written can one conclude that
+
+\[
+E_{\mu_{a_*}}=(x_L,x_R)
+\]
+
+up to endpoints and hence \(|E_{\mu_{a_*}}|=x_R-x_L=M_*\).  The branch
+convention should be fixed explicitly:
+
+\[
+R_a(z)\sim z,\qquad R_a(z)<0\quad(z<a),
+\]
+
+with the boundary value on \((a,1)\) chosen so that \(U_a\) is constant on the
+cut.
+
 ### 9.2 Corrected \(g=1\) finite-gap branch
 
 Target local theorem:
@@ -1820,7 +1891,241 @@ C_-,C_+,C_0\text{ needed for }W_{12}\text{ to have one sign?}
 }
 \]
 
+2026-05-06 first-order cokernel audit.
+
+There is a second compact \(g=2\) exit besides
+EffectiveNeckSchurPositive: use the first-order KKT cokernel directly.  The
+calculation above is valid, but it is only a reduction, not a closure of the
+compact chamber.
+
+In the compact neck notation
+
+\[
+a=c-u,\qquad b=v-c,\qquad
+p=\log(1/a),\qquad r=\log(1/b),
+\]
+
+write
+
+\[
+X=U'(u)>0,\qquad Y=U'(v)<0,\qquad F_c=F'(c)<0,
+\]
+
+and
+
+\[
+A=W'(u),\qquad B=W'(v),\qquad A_2=W''(u),\qquad B_2=W''(v).
+\]
+
+With rows ordered as
+
+\[
+(\mathcal L,M,F_c,\widetilde E_-,\widetilde E_+,S)
+\]
+
+and variables ordered as \((q,a,b,c)\), the local block is
+
+\[
+A_{\rm loc}=
+\begin{pmatrix}
+0&1&1&0\\
+1&0&0&0\\
+0&0&0&F_c\\
+p&-X&0&A\\
+r&0&Y&B\\
+0&A-aA_2&B+bB_2&aA_2+bB_2
+\end{pmatrix}.
+\]
+
+For density jets
+
+\[
+(\xi_0,\xi_u,\xi_c,\xi_v,\xi_-,\xi_+),
+\]
+
+the corresponding block is
+
+\[
+B_{\rm dens}=
+\begin{pmatrix}
+0&0&0&0&0&0\\
+1&0&0&0&0&0\\
+0&0&-1&0&0&0\\
+0&0&0&0&-1&0\\
+0&0&0&0&0&1\\
+0&a&0&b&0&0
+\end{pmatrix}.
+\]
+
+Direct multiplication gives a left-null basis
+
+\[
+\nu_1=
+\left(
+-Y,\
+-r+\frac{Yp}{X},\
+\frac{AY}{F_cX}-\frac BF_c,\
+-\frac YX,\
+1,\
+0
+\right),
+\]
+
+\[
+\nu_2=
+\left(
+-B-bB_2,\
+\frac{p(-A+aA_2+B+bB_2)}{X},\
+-\frac{
+A^2-AaA_2-AB-AbB_2+aA_2X+bB_2X
+}{F_cX},\
+\frac{A-aA_2-B-bB_2}{X},\
+0,\
+1
+\right).
+\]
+
+Pushing this basis through \(B_{\rm dens}\) recovers the two explicit
+cokernel rows already recorded in 9.9.  Under the stationarity equation
+
+\[
+aA+bB=0
+\]
+
+one has
+
+\[
+B=-\frac abA,\qquad Y=-\frac abX,\qquad AY-BX=0.
+\]
+
+Thus the two adjoint kernels simplify to
+
+\[
+\boxed{
+K_1(x)=
+-r-\frac abp-\frac ab L_-(x)+L_+(x).
+}
+\]
+
+Define
+
+\[
+\Gamma=\frac{-A+aA_2+B+bB_2}{X},
+\qquad
+Q_c=
+\frac{
+A^2-AaA_2-AB-AbB_2+aA_2X+bB_2X
+}{F_cX}.
+\]
+
+Then
+
+\[
+\boxed{
+K_2(x)=
+p\Gamma+\frac a{x-u}+\frac{Q_c}{x-c}
++\frac b{x-v}+\Gamma L_-(x).
+}
+\]
+
+The local sign lemma gives \(\Gamma>0\) and \(Q_c<0\), but these signs alone
+do not prove that \(\operatorname{span}\{K_1,K_2\}\) contains no admissible
+oriented compact sign-pattern kernel.  The first-order route therefore has
+the following honest target:
+
+\[
+\boxed{
+\text{prove no nonzero }\theta_1K_1+\theta_2K_2
+\text{ has the admissible oriented compact sign pattern.}
+}
+\]
+
+This is sharper than the old six-moment wording.  The six-kernel Chebyshev
+determinant remains useful, but by itself it only controls zeros in the
+ambient six-dimensional span; it does not automatically rule out the above
+two-dimensional subspace.
+
+The naked Wronskian closure also does not follow from \(Q_c<0\) and
+\(\Gamma>0\).  Put \(y=x-c\).  Then
+
+\[
+x-u=y+a,\qquad x-c=y,\qquad x-v=y-b,
+\]
+
+\[
+L_-'(x)=-\frac{a}{y(y+a)},\qquad
+L_+'(x)=-\frac{b}{y(y-b)}.
+\]
+
+Writing
+
+\[
+K_1=R_1-\frac abL_-+L_+,\qquad
+R_1=-r-\frac abp,
+\]
+
+and
+
+\[
+K_2=R_2+\Gamma L_-,
+\qquad
+R_2=p\Gamma+\frac a{y+a}+\frac{Q_c}{y}+\frac b{y-b},
+\]
+
+the Wronskian \(W=K_1K_2'-K_1'K_2\) has
+
+\[
+\boxed{
+C_+(y)=
+-\frac a{(y+a)^2}
+-\frac{Q_c}{y^2}
+-\frac b{(y-b)^2}
+-\frac{\Gamma a}{y(y+a)}.
+}
+\]
+
+and
+
+\[
+\boxed{
+C_-(y)=
+\frac ab
+\left(
+\frac a{(y+a)^2}
++\frac{Q_c}{y^2}
++\frac b{(y-b)^2}
+\right)
++\frac{\Gamma b}{y(y-b)}.
+}
+\]
+
+Since \(Q_c<0\), the term \(-Q_c/y^2\) in \(C_+\) is positive while the other
+terms can oppose it; in \(C_-\), the term \(Q_c/y^2\) is negative while the
+other terms can oppose it.  Varying the allowed relative size of \(|Q_c|\)
+already changes the sign balance in these coefficients.  Hence
+
+\[
+\boxed{
+Q_c<0,\ \Gamma>0
+\not\Rightarrow
+W\text{ has a fixed oriented sign.}
+}
+\]
+
+The first-order Wronskian route is therefore downgraded to a conditional
+route.  It needs an additional global oval inequality controlling the active
+ovals, coefficient sizes, and endpoint signs.  Without such a theorem, the
+main compact \(g=2\) route remains EffectiveNeckSchurPositive; if that fails,
+the fallback is an actual-entry Wronskian theorem or direct density/cone KKT,
+not a revival of the naked local-sign Wronskian argument.
+
 ### 9.12 Curvature clamp
+
+Status note, 2026-05-06: this is the historical clamp formulation.  It should
+not be read as a proved consequence of the current local \(Q_c<0\) sign lemma.
+Under the Feshbach correction, any clamp must be rederived from the actual
+entries of \(P^{0T}(B+C^{-1})P^0\), or replaced by
+EffectiveNeckSchurPositive / cone KKT.
 
 The one-oval inequalities reduce to an elementary sharp condition.
 
@@ -4975,6 +5280,53 @@ theorem queue.
     \(\operatorname{Rel}=0\), and the three \(P^0\) row-level checks are
     automatic.
 
+    Proof detail for the two-period \(\operatorname{Rel}=0\) shortcut.
+    Suppose a relation holds on a regular support
+
+    \[
+    J_{\rm reg}=J_1\cup J_2,
+    \]
+
+    where \(J_1,J_2\) contain genuine open regular intervals, are separated
+    from \(u,c,v\), have fixed real log branches, and the period row takes two
+    different constant values, say
+
+    \[
+    \pi_0|_{J_1}=1,\qquad \pi_0|_{J_2}=-\theta_{\rm per},\qquad
+    \theta_{\rm per}>0.
+    \]
+
+    Write
+
+    \[
+    H(x)=
+    \lambda_u k_u(x)+\lambda_c k_c(x)+\lambda_v k_v(x)
+    +\lambda_-L_-(x)+\lambda_+L_+(x)
+    +\lambda_{\log}\log\frac1{|c-x|}.
+    \]
+
+    The relation says
+
+    \[
+    H(x)+\lambda_0+\lambda_\Pi\pi_0(x)=0
+    \]
+
+    on \(J_1\cup J_2\).  Hence \(H\) is constant on each \(J_i\), so
+    \(H'(x)=0\) on two open intervals.  But \(H'\) is a rational function with
+    possible poles only at \(u,c,v\).  Therefore \(H'\equiv0\) on the connected
+    real domain separated from those poles.  Comparing singular parts at
+    \(u,c,v\) kills \(\lambda_-,\lambda_+,\lambda_{\log}\), then
+    \(\lambda_u,\lambda_c,\lambda_v\), so \(H\equiv0\).  The original relation
+    reduces to
+
+    \[
+    \lambda_0+\lambda_\Pi=0,\qquad
+    \lambda_0-\theta_{\rm per}\lambda_\Pi=0,
+    \]
+
+    whence \(\lambda_\Pi=0\) and \(\lambda_0=0\).  Thus all coefficients
+    vanish and \(\operatorname{Rel}=0\).
+
     Thus the determinant shortcut is not a single-interval theorem.  It is
     available only if the chosen realization support sees at least two
     different period values.  Otherwise the \(\pi_0\)-constant relation must
@@ -5007,6 +5359,150 @@ theorem queue.
       and switch to the actual-density/cone formulation for the endpoint test
       combinations \(Be_u+Ae_\zeta\) and \(Be_\zeta+Ae_v\).
 
+    2026-05-06 bounded-audit decision.
+
+    The best available way to make \(P^0\) proof-grade is not to prove the
+    three annihilation identities directly.  Those identities contain the
+    branch-state constants \(X,Y,F_c,q/a,q/b\), and there is no current
+    singularity argument forcing them from a relation among the kernels.  The
+    direct row-identity route is therefore a low-probability fallback unless a
+    new structural equation is found.
+
+    The primary audit should instead try to choose the realization support
+    \(J_{\rm reg}\) so that it sees two period values.  In that case the seven
+    non-period kernels are independent on each separated regular piece, and
+    the period row is not proportional to the constant row across the chosen
+    support.  Hence
+
+    \[
+    \operatorname{Rel}=0,
+    \]
+
+    and the three formal columns
+
+    \[
+    p_u^0=(0,1,0,0,-X,0,0,0),
+    \]
+
+    \[
+    p_v^0=(0,0,0,1,0,-Y,0,0),
+    \]
+
+    \[
+    p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right)
+    \]
+
+    pass the row-level obstruction automatically.
+
+    This still does not finish the compact \(g=2\) proof.  After
+    \(\operatorname{Rel}=0\), one must still prove that the bump
+    realizations are actual two-sided critical directions in the fixed-period,
+    zero-mass chart.  If they are only one-sided cone directions, the ordinary
+    PSD matrix argument for \(P^{0T}Q_{\rm eff}P^0\) is invalid and must be
+    replaced by a cone KKT argument.
+
+    Therefore the next mathematical task is now sharpened to:
+
+    \[
+    \boxed{
+    \text{Choose a two-period realization support and prove }
+    \operatorname{Rel}=0,\text{ then prove two-sided realization of }
+    p_u^0,p_v^0,p_\zeta^0.
+    }
+    \]
+
+    Stop condition: if no admissible two-period support can be used, and the
+    three annihilation identities cannot be derived from the branch equations,
+    retire the finite-row \(P^0\) clamp route and switch to the
+    actual-density/cone endpoint formulation.
+
+    Next lineality target after \(\operatorname{Rel}=0\).
+
+    Row realization is not the same as two-sided feasibility.  The missing
+    upgrade should be stated as a local implicit-function lemma.
+
+    Work in a compact non-pinched regular chamber and choose
+    \(J_{\rm reg}=J_1\cup J_2\) away from all endpoints, poles, and active
+    zero-boundaries.  Assume:
+
+    1. the background density on \(J_{\rm reg}\) is bounded below by a positive
+       constant;
+    2. all inactive inequalities have positive slack on the compact chart;
+    3. the active equality map
+       \[
+       \mathcal F(\rho,y)=(\text{mass},\text{period},E_-,E_+,F(c),S,\ldots)
+       \]
+       has regular linearization in the chosen finite-gap chart;
+    4. the signed bump \(\eta_j\) and local state displacement \(\delta y_j\)
+       realize \(p_j^0\) and solve the linearized active equations:
+       \[
+       D\mathcal F(\eta_j,\delta y_j)=0.
+       \]
+
+    Then \((\eta_j,\delta y_j)\) lies in the lineality of the critical cone:
+    both \(+t(\eta_j,\delta y_j)\) and \(-t(\eta_j,\delta y_j)\) can be
+    corrected by \(O(t^2)\) terms to actual admissible nearby configurations.
+    The proof is the standard finite-codimension implicit-function theorem:
+    regularity solves the active equalities to second order, while the density
+    lower bound and strict inactive slack keep all inequalities valid for
+    sufficiently small \(|t|\).
+
+    Therefore, under these regular-chamber assumptions, the three columns
+    \(p_u^0,p_v^0,p_\zeta^0\) are legitimate directions for a PSD matrix test.
+    If any of these assumptions fails, especially strict slack or regular
+    equality rank, the lineality argument fails and the proof must switch to a
+    one-sided cone KKT formulation.
+
+    The next proof-grade task is to verify assumptions 1--4 for the compact
+    \(g=2\) chamber, not to recompute the finite matrix yet.
+
+    2026-05-06 lineality decision.
+
+    Under the compact non-pinched hypotheses, this should close as ordinary
+    lineality, not as a cone-only direction, provided the two-period support
+    can be chosen inside positive-density regular interiors.  Signed compactly
+    supported bumps are two-sided there: for sufficiently small \(|t|\),
+    \[
+    \rho_{\rm base}(x)+t\eta_j(x)\ge0
+    \]
+    for both signs of \(t\).  The strict chamber inequalities
+    \[
+    a>0,\qquad b>0,\qquad q>0,\qquad F_c<0,
+    \]
+    together with strict interlacing and positive inactive slack, are open
+    conditions, so they survive small \(\pm t\) perturbations after the
+    active equations are corrected by the implicit-function theorem.
+
+    Thus the next lemma to write is:
+
+    \[
+    \boxed{
+    \operatorname{Rel}=0
+    +\text{ positive regular two-period support}
+    \Longrightarrow
+    p_u^0,p_v^0,p_\zeta^0
+    \in \rho^\sharp(\operatorname{Lin} C_{\rm crit}).
+    }
+    \]
+
+    Do not switch to cone KKT unless one of the following happens:
+
+    1. the two-period support must touch a zero-density boundary or active
+       residue constraint;
+    2. the required row data can only be realized by one-sided nonnegative
+       variations;
+    3. the minimal-lift direction \(Sp_j^0\) cannot be approximated in the
+       energy topology by such two-sided feasible bumps.
+
+    If the lineality lemma is accepted, the next blocker becomes the effective
+    endpoint Hessian identity for
+
+    \[
+    M=P^{0T}Q_{\rm eff}P^0,
+    \]
+
+    including the nonlocal \(K_{\log}\) contribution.
+
 3.  Effective endpoint Hessian identity.  Only after the previous two steps
     can one define
 
@@ -5025,6 +5521,1689 @@ theorem queue.
     \[
     m_{uu},m_{vv},m_{\zeta\zeta},m_{u\zeta},m_{v\zeta}.
     \]
+
+    2026-05-06 effective-entry audit.
+
+    After the lineality lemma, PSD gives only the actual quadratic tests.  Set
+
+    \[
+    m_{ij}=Q_{\rm eff}(p_i^0,p_j^0),
+    \qquad i,j\in\{u,v,\zeta\}.
+    \]
+
+    For \(x\in(u,c)\), with
+
+    \[
+    A=x-u,\qquad B=c-x,\qquad d_-=c-u,
+    \]
+
+    the test vector \(h_-=Be_u+Ae_\zeta\) gives
+
+    \[
+    \boxed{
+    m_{uu}B^2+2m_{u\zeta}AB+m_{\zeta\zeta}A^2\ge0.
+    }
+    \]
+
+    For \(x\in(c,v)\), with
+
+    \[
+    A=x-c,\qquad B=v-x,\qquad d_+=v-c,
+    \]
+
+    the test vector \(h_+=Be_\zeta+Ae_v\) gives
+
+    \[
+    \boxed{
+    m_{\zeta\zeta}B^2+2m_{v\zeta}AB+m_{vv}A^2\ge0.
+    }
+    \]
+
+    These two inequalities are automatic consequences of \(M\succeq0\).  They
+    are not yet the old curvature clamp.  To recover the old clamp, one needs
+    a stronger effective-entry theorem:
+
+    \[
+    m_{uu}=\lambda a,\qquad
+    m_{vv}=\lambda b,\qquad
+    m_{\zeta\zeta}=\lambda Q_c,
+    \]
+
+    and, crucially, a common off-diagonal coefficient
+
+    \[
+    -\frac{2m_{u\zeta}}{d_-}
+    =
+    \frac{2m_{v\zeta}}{d_+}
+    =
+    \lambda\Gamma.
+    \]
+
+    Without this common-coefficient identity, the Hessian cross terms do not
+    necessarily couple to the same \(\Gamma\) that appears in the Wronskian
+    reduction.  Then the old Wronskian contradiction cannot be invoked.
+
+    Therefore the next theorem is not merely positivity of the actual entries.
+    It is the common-coefficient effective Hessian theorem:
+
+    \[
+    \boxed{
+    P^{0T}Q_{\rm eff}P^0
+    \text{ has the old five entries, or else its actual entries still imply
+    the same Wronskian sign obstruction.}
+    }
+    \]
+
+    Stop condition: if \(K_{\log}\) changes the two off-diagonal entries so
+    that
+
+    \[
+    -2m_{u\zeta}/d_-\ne 2m_{v\zeta}/d_+
+    \]
+
+    and no replacement Wronskian argument uses the two unequal coefficients,
+    then the compact \(g=2\) Hessian-clamp route must stop.
+
+    The old five entries should not be assumed to survive by default.  The
+    nonlocal Gram term
+
+    \[
+    K_{\log}(p_i^0,p_j^0)=\mathcal E_{\log}(Sp_i^0,Sp_j^0)
+    \]
+
+    is a real contribution from the energy-minimal row lifts.  A new
+    orthogonality or renormalization identity would be needed to show that it
+    vanishes on the five relevant entries, or that it is absorbed into one
+    common scale \(\lambda\).  Without such an identity, the old finite Schur
+    entries are only a model, not a proof.
+
+    The next derivation is therefore:
+
+    \[
+    \boxed{
+    m_{ij}
+    =
+    b(p_i^0,p_j^0)
+    +\mathcal E_{\log}(Sp_i^0,Sp_j^0),
+    \qquad i,j\in\{u,v,\zeta\},
+    }
+    \]
+
+    where \(S\) is the Riesz/minimal-lift operator on the zero-mass,
+    fixed-period Hilbert space.  One must compute or characterize the induced
+    Schur/Feshbach Gram matrix of the row representers.  This is now the
+    controlling calculation for compact \(g=2\).
+
+    The Feshbach Gram has a concrete finite-dimensional form once the
+    two-period support gives \(\operatorname{Rel}=0\).  Let
+
+    \[
+    \ell_i(\xi)=R_i(\xi)
+    \]
+
+    denote the chosen row functionals on the zero-mass, fixed-period Hilbert
+    space \(H_{0,\Pi}\).  Let \(g_i\in H_{0,\Pi}\) be their Riesz
+    representers:
+
+    \[
+    \mathcal E_{\log}(g_i,h)=\ell_i(h)
+    \qquad(h\in H_{0,\Pi}).
+    \]
+
+    Define the row Gram matrix
+
+    \[
+    C_{ij}=\ell_i(g_j)=\mathcal E_{\log}(g_i,g_j).
+    \]
+
+    When the rows are independent on the feasible row image, \(C\) is positive
+    definite on that image.  For a row vector \(r\), the minimal lift has the
+    form
+
+    \[
+    Sr=\sum_i\alpha_i g_i,\qquad C\alpha=r.
+    \]
+
+    Hence
+
+    \[
+    \boxed{
+    K_{\log}(r,s)=\mathcal E_{\log}(Sr,Ss)=r^T C^{-1}s.
+    }
+    \]
+
+    Therefore, for the three endpoint columns,
+
+    \[
+    \boxed{
+    M=P^{0T}\left(B+C^{-1}\right)P^0,
+    }
+    \]
+
+    where \(B\) is the finite non-log Schur/Hessian matrix \(b\) in the same
+    row coordinates.  This is the actual matrix whose five entries must be
+    analyzed.  The old local matrix \(P^{0T}BP^0\) is insufficient unless
+    \(P^{0T}C^{-1}P^0\) has the same five-entry pattern or can be absorbed
+    into the same common scale.
+
+    Algebraic reduction of this test.  Suppose the finite non-log block already
+    has the old five-entry structure:
+
+    \[
+    P^{0T}BP^0
+    =
+    \lambda_B
+    \begin{pmatrix}
+    a&*&-\Gamma d_-/2\\
+    *&b&\Gamma d_+/2\\
+    -\Gamma d_-/2&\Gamma d_+/2&Q_c
+    \end{pmatrix},
+    \]
+
+    where the row/column order is \(u,v,\zeta\), \(d_-=c-u\), and
+    \(d_+=v-c\).  The entry \((u,v)\) is irrelevant for the elementary
+    two-side curvature clamp because the test vectors use only
+    \((u,\zeta)\) and \((v,\zeta)\).
+
+    Put
+
+    \[
+    N=P^{0T}C^{-1}P^0.
+    \]
+
+    The old five-entry clamp survives with a new scale
+    \(\lambda=\lambda_B+\delta\) only if the five relevant entries of \(N\)
+    lie in the same one-dimensional template:
+
+    \[
+    \boxed{
+    N_{uu}=\delta a,\qquad
+    N_{vv}=\delta b,\qquad
+    N_{\zeta\zeta}=\delta Q_c,
+    }
+    \]
+
+    and
+
+    \[
+    \boxed{
+    -\frac{2N_{u\zeta}}{d_-}
+    =
+    \frac{2N_{v\zeta}}{d_+}
+    =
+    \delta\Gamma.
+    }
+    \]
+
+    In the degenerate subcase \(\Gamma=0\), this condition should be read as
+
+    \[
+    N_{u\zeta}=N_{v\zeta}=0
+    \]
+
+    rather than by dividing by \(\Gamma\).  The resulting scale
+
+    \[
+    \lambda=\lambda_B+\delta
+    \]
+
+    must also remain positive for the old clamp interpretation.
+
+    Equivalently, the five ratios
+
+    \[
+    \frac{N_{uu}}a,\quad
+    \frac{N_{vv}}b,\quad
+    \frac{N_{\zeta\zeta}}{Q_c},\quad
+    -\frac{2N_{u\zeta}}{\Gamma d_-},\quad
+    \frac{2N_{v\zeta}}{\Gamma d_+}
+    \]
+
+    must all agree, ignoring terms whose denominators vanish in a degenerate
+    chamber.  This is a strong codimension-four condition on the five relevant
+    entries of the Gram correction;
+    a generic positive definite \(N\) will not satisfy it.  Therefore the old
+    five-entry pattern can only be expected if the Riesz Gram has an additional
+    symmetry, orthogonality, or variational identity tied to the finite-gap
+    Euler equations.
+
+    If this one-dimensional template test fails, the proof must immediately
+    switch from the old clamp to the actual-entry clamp and then prove a new
+    Wronskian obstruction using the two possibly different cross coefficients.
+
+    2026-05-06 review update: local neck sign and common-template obstruction.
+
+    The local algebra gives a useful sign lemma, but it must not be confused
+    with the effective Hessian diagonal until the identity
+    \(m_{\zeta\zeta}=\lambda Q_c\) or a direct negativity statement for
+    \(m_{\zeta\zeta}\) has been proved.
+
+    In the compact neck, write
+
+    \[
+    A=W'(u),\qquad B=W'(v),\qquad
+    A_2=W''(u),\qquad B_2=W''(v),
+    \]
+
+    and
+
+    \[
+    X=U'(u)=\frac qa+A,\qquad Y=U'(v)=B-\frac qb.
+    \]
+
+    From the branch Euler equation
+
+    \[
+    S=aA+bB=0
+    \]
+
+    and strict convexity of \(W\) on \((u,v)\), one has
+
+    \[
+    A<0<B,\qquad B=-\frac ab A,
+    \]
+
+    and therefore
+
+    \[
+    Y=-\frac ab X.
+    \]
+
+    The local cokernel algebra then gives
+
+    \[
+    P_c=-\frac{AY-BX}{F_cX}=0.
+    \]
+
+    It also gives
+
+    \[
+    \Gamma=\frac{-A+aA_2+B+bB_2}{X}>0,
+    \]
+
+    using \(X>0\), \(A<0<B\), and \(A_2,B_2>0\).  For the local quantity
+
+    \[
+    Q_c=
+    \frac{
+    A^2-AaA_2-AB-AbB_2+aA_2X+bB_2X
+    }{F_cX},
+    \]
+
+    the numerator becomes
+
+    \[
+    A^2+\frac abA^2+aA_2(X-A)+bB_2(X-A),
+    \]
+
+    where \(X-A=q/a>0\).  Hence the numerator is positive, while
+    \(F_c<0\) and \(X>0\), so
+
+    \[
+    \boxed{Q_c<0.}
+    \]
+
+    This is only a local sign lemma until the effective Hessian identification
+    is proved.  It does, however, strongly constrict the old common-template
+    route.  Since \(C^{-1}\) is positive definite on the feasible row image,
+    the Gram correction
+
+    \[
+    N=P^{0T}C^{-1}P^0
+    \]
+
+    is positive semidefinite, and \(N_{\zeta\zeta}>0\) if \(p_\zeta^0\) is a
+    nonzero feasible row vector.  If \(N\) were to preserve the old
+    one-dimensional template, then
+
+    \[
+    N_{uu}=\delta a,\qquad
+    N_{vv}=\delta b,\qquad
+    N_{\zeta\zeta}=\delta Q_c.
+    \]
+
+    Because \(a,b>0\) and \(N\succeq0\), the first two diagonal equations force
+    \(\delta\ge0\).  But \(Q_c<0\), so the third equation gives
+    \(N_{\zeta\zeta}\le0\), contradicting positive definiteness on the
+    nonzero \(p_\zeta^0\) direction.  The only formal escape is the trivial
+    \(\delta=0\) case, which would force the relevant Gram rows to vanish and
+    is incompatible with nonzero endpoint-transfer rows in a positive Gram
+    space.
+
+    Therefore the old five-entry common-template route is not just unproved;
+    it is structurally incompatible with a nontrivial positive Feshbach Gram
+    correction, assuming the local \(Q_c\) above is the same coefficient that
+    appears in the old template.  The proof should no longer try to preserve
+    the old template as the main route.
+
+    The sharpened compact \(g=2\) target is now:
+
+    \[
+    \boxed{\textbf{EffectiveNeckNegativity:}\quad
+    Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0.}
+    \]
+
+    In finite terms this is
+
+    \[
+    b(p_\zeta^0,p_\zeta^0)
+    +(p_\zeta^0)^TC^{-1}p_\zeta^0<0.
+    \]
+
+    If the non-log term has the local form
+
+    \[
+    b(p_\zeta^0,p_\zeta^0)=\lambda_B Q_c,\qquad \lambda_B>0,
+    \]
+
+    then the required estimate is the capacity-type bound
+
+    \[
+    (p_\zeta^0)^TC^{-1}p_\zeta^0<-\lambda_BQ_c.
+    \]
+
+    If this effective-neck negativity holds, compact non-pinched \(g=2\) is
+    excluded directly by second-variation negativity in the \(e_\zeta\)
+    direction.  If it fails, the diagonal shortcut is dead and the proof must
+    use the actual-entry Wronskian route or switch to direct density/cone KKT.
+
+    2026-05-06 capacity-reduction record.
+
+    The proof-grade compact \(g=2\) reduction is now:
+
+    \[
+    \boxed{
+    \text{BranchEulerStateLift}
+    +\text{FeshbachMinimalLift}
+    +\text{RowRealization3/lineality}
+    +\text{EffectiveNeckNegativity}
+    \Longrightarrow
+    \text{no compact non-pinched }g=2.
+    }
+    \]
+
+    More explicitly, assume a separated regular compact \(g=2\) chamber, the
+    corrected branch functional \(\Phi_{\rm br}\), the fixed-period zero-mass
+    Hilbert space, and actual two-sided realization of \(p_\zeta^0\).  If
+
+    \[
+    Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0,
+    \]
+
+    then taking the minimal lift \(\xi_\zeta=Sp_\zeta^0\), or smooth feasible
+    approximants to it, gives
+
+    \[
+    G_{\rm br}(\xi_\zeta,\xi_\zeta)
+    =
+    Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0,
+    \]
+
+    contradicting the second-order necessary condition for an interior compact
+    minimizer.  Thus compact non-pinched \(g=2\) is reduced to one scalar
+    inequality.
+
+    In row coordinates,
+
+    \[
+    p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right),
+    \]
+
+    so the corresponding row functional is
+
+    \[
+    \ell_\zeta(\eta)
+    =
+    F_cR_c(\eta)-\frac qa R_-(\eta)-\frac qb R_+(\eta),
+    \]
+
+    equivalently, at the kernel level,
+
+    \[
+    \phi_\zeta(x)
+    =
+    \frac{F_c}{x-c}
+    -\frac qa L_-(x)-\frac qb L_+(x).
+    \]
+
+    Define the nonlocal capacity term
+
+    \[
+    K_\zeta=(p_\zeta^0)^TC^{-1}p_\zeta^0
+    =
+    \inf\left\{
+    \mathcal E_{\log}(\eta,\eta):
+    \eta\in H_{0,\Pi},\ \rho^\sharp(\eta)=p_\zeta^0
+    \right\}.
+    \]
+
+    The effective-neck inequality is therefore the explicit capacity estimate
+
+    \[
+    \boxed{
+    K_\zeta<-b(p_\zeta^0,p_\zeta^0).
+    }
+    \]
+
+    If the finite non-log part is identified as
+
+    \[
+    b(p_\zeta^0,p_\zeta^0)=\lambda_BQ_c,\qquad \lambda_B>0,
+    \]
+
+    this becomes
+
+    \[
+    \boxed{
+    K_\zeta<-\lambda_BQ_c.
+    }
+    \]
+
+    This is the exact route's current hard mouth.  It is a logarithmic
+    capacity/Riesz-minimal-lift estimate, not a local algebra identity.
+
+    The Euler-Lagrange equation for the minimizer \(\eta_\zeta\) of
+    \(K_\zeta\), modulo harmless sign and factor normalizations in the
+    Lagrange multipliers, has the form
+
+    \[
+    U_{\eta_\zeta}(x)=
+    \sum_i\alpha_i\phi_i(x)+\alpha_0+\alpha_\Pi\pi_0(x)
+    \qquad (x\in J_1\cup J_2),
+    \]
+
+    and after differentiating,
+
+    \[
+    \operatorname{p.v.}\int_{J_1\cup J_2}
+    \frac{d\eta_\zeta(t)}{x-t}
+    =
+    -\sum_i\alpha_i\phi_i'(x).
+    \]
+
+    This is a two-cut finite Hilbert-transform / Cauchy-transform problem.
+    Solving or estimating it is the next genuine calculation.  Abstract signs
+    alone do not imply the needed negativity: a one-dimensional model with
+    \(b(p,p)=-1\) and \(p^TC^{-1}p=2\) already gives
+    \(Q_{\rm eff}(p,p)=1>0\).  Therefore the proof must use the specific
+    finite-gap geometry of this \(p_\zeta^0\), not only \(Q_c<0\) and
+    \(C^{-1}\succeq0\).
+
+    2026-05-06 Schur-positive reformulation.
+
+    Let
+
+    \[
+    r=p_\zeta^0,\qquad T=-b(r,r).
+    \]
+
+    In the expected local identification
+
+    \[
+    b(r,r)=\lambda_BQ_c,\qquad \lambda_B>0,
+    \]
+
+    this is
+
+    \[
+    T=-\lambda_BQ_c>0.
+    \]
+
+    Since \(C\succ0\) on the feasible row image, the capacity inequality
+
+    \[
+    r^TC^{-1}r<T
+    \]
+
+    is equivalent by Schur complement to the augmented Gram positivity
+
+    \[
+    \boxed{
+    \mathcal S_\zeta=
+    \begin{pmatrix}
+    C&r\\
+    r^T&T
+    \end{pmatrix}
+    \succ0.
+    }
+    \]
+
+    Equivalently, in Rayleigh quotient form,
+
+    \[
+    \boxed{
+    (\alpha^Tr)^2
+    <
+    T\,\alpha^TC\alpha
+    \qquad(\alpha\ne0).
+    }
+    \]
+
+    Thus the sharp compact \(g=2\) diagonal shortcut should now be stated as
+
+    \[
+    \boxed{\textbf{EffectiveNeckSchurPositive:}\quad
+    \mathcal S_\zeta\succ0.}
+    \]
+
+    This is exactly equivalent to EffectiveNeckNegativity once \(T=-b(r,r)\)
+    has been identified.  It is often a cleaner proof target because it avoids
+    writing \(C^{-1}\) explicitly.
+
+    The next calculation is to build \(C\) from the two-cut Riesz
+    representers.  For a row kernel \(k_i\), the representer \(g_i\) satisfies
+
+    \[
+    \mathcal E_{\log}(g_i,h)=\ell_i(h)
+    \]
+
+    and, on \(J=J_1\cup J_2\), its potential has the form
+
+    \[
+    U_{g_i}(x)=k_i(x)+\text{constant}+\text{period multiplier}
+    \]
+
+    up to the chosen sign convention for rows and potentials.  Differentiating
+    gives a finite Hilbert-transform equation
+
+    \[
+    \operatorname{p.v.}\int_J\frac{dg_i(t)}{x-t}
+    =
+    -k_i'(x)
+    \]
+
+    with the zero-mass and fixed-period normalizations determining the
+    nullspace terms.  In two-cut notation, with
+
+    \[
+    R(z)=
+    \sqrt{(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)},
+    \]
+
+    the density of \(g_i\) should be obtained by the standard finite Hilbert
+    transform inversion, with an added degree-one numerator divided by
+    \(R_+\) to enforce the mass and period constraints.  The branch, sign, and
+    \(\pi\)-normalizations must be fixed before this formula is used as a
+    proof.  After that,
+
+    \[
+    C_{ij}=\ell_i(g_j)
+    \]
+
+    and the remaining hard theorem is the positive definiteness of
+    \(\mathcal S_\zeta\).
+
+    2026-05-06 Green/Gram-extension audit and downgrade.
+
+    There is a tempting way to view \(\mathcal S_\zeta\) as an augmented Gram
+    matrix.  The neck row
+
+    \[
+    r=p_\zeta^0
+    =
+    \left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right)
+    \]
+
+    has row kernel
+
+    \[
+    \phi_\zeta(x)=
+    \frac{F_c}{x-c}
+    -\frac qaL_-(x)-\frac qbL_+(x).
+    \]
+
+    Formally,
+
+    \[
+    \frac1{x-c}
+    =
+    \mathcal E_{\log}(\partial_c\delta_c,\delta_x),
+    \]
+
+    while
+
+    \[
+    L_-(x)=\mathcal E_{\log}(\delta_c-\delta_u,\delta_x),
+    \qquad
+    L_+(x)=\mathcal E_{\log}(\delta_v-\delta_c,\delta_x).
+    \]
+
+    Hence the distribution
+
+    \[
+    \boxed{
+    D_\zeta=
+    F_c\partial_c\delta_c
+    -\frac qa(\delta_c-\delta_u)
+    -\frac qb(\delta_v-\delta_c)
+    }
+    \]
+
+    reproduces the neck row on smooth external perturbations:
+
+    \[
+    \mathcal E_{\log}(D_\zeta,\eta)=p_\zeta^0(\eta).
+    \]
+
+    If \(D_\zeta\) were a vector in a larger positive Hilbert energy space with
+    self-energy
+
+    \[
+    \langle D_\zeta,D_\zeta\rangle=-b(p_\zeta^0,p_\zeta^0)=T
+    \]
+
+    and \(D_\zeta\) were not in the closed span of the external row
+    representers \(g_i\), then
+
+    \[
+    \begin{pmatrix}
+    C&r\\
+    r^T&T
+    \end{pmatrix}
+    \]
+
+    would be the Gram matrix of \(\{g_i,D_\zeta\}\) and
+    EffectiveNeckSchurPositive would follow immediately.
+
+    This is not a proof.  The distribution \(D_\zeta\) contains point masses
+    and a dipole:
+
+    \[
+    D_\zeta=
+    F_c\partial_c\delta_c
+    +\frac qa\delta_u
+    +\left(\frac qb-\frac qa\right)\delta_c
+    -\frac qb\delta_v.
+    \]
+
+    These objects do not lie in the zero-mass, fixed-period logarithmic energy
+    Hilbert space.  In particular,
+
+    \[
+    \mathcal E_{\log}(\delta_c,\delta_c)=+\infty
+    \]
+
+    and
+
+    \[
+    \mathcal E_{\log}(\partial_c\delta_c,\partial_c\delta_c)
+    \]
+
+    is more singular.  A Hadamard finite part or renormalized self-energy is
+    scheme-dependent unless it is tied to exactly the same local
+    Schur/Hessian subtraction convention used to define \(b\).  Moreover,
+    finite-part pairings are not automatically positive definite.  Therefore
+    the proposed identity
+
+    \[
+    \mathcal E_{\rm ren}(D_\zeta,D_\zeta)
+    =
+    -b(p_\zeta^0,p_\zeta^0)
+    \]
+
+    may be useful bookkeeping, but it cannot replace
+    EffectiveNeckSchurPositive unless one first constructs a genuine positive
+    extension Hilbert space and proves the identity in that space.  This
+    extension is currently not available.  Do not use
+    RenormalizedNeckEnergyIdentity as the main compact \(g=2\) proof route.
+
+    The reliable formulation is still the Schur-positive / capacity
+    inequality:
+
+    \[
+    \boxed{
+    r^TC^{-1}r<T.
+    }
+    \]
+
+    Equivalently, it is the single-RHS constrained minimization
+
+    \[
+    \boxed{
+    K_\zeta=
+    \inf\left\{
+    \mathcal E_{\log}(\eta,\eta):
+    \eta\in H_{0,\Pi},\quad
+    \rho^\sharp(\eta)=p_\zeta^0
+    \right\}<T.
+    }
+    \]
+
+    This is often sharper than computing the entire matrix \(C^{-1}\).  The
+    Euler equation is: find multipliers \(\alpha_i\) and a density
+    \(\eta\in H_{0,\Pi}\) such that
+
+    \[
+    U_\eta(x)=\sum_i\alpha_i k_i(x)+\alpha_0+\alpha_\Pi\pi_0(x),
+    \qquad x\in J_1\cup J_2,
+    \]
+
+    with row constraints
+
+    \[
+    \int_J k_i\,d\eta=r_i.
+    \]
+
+    After differentiating,
+
+    \[
+    \operatorname{p.v.}\int_J\frac{d\eta(t)}{x-t}
+    =
+    -\sum_i\alpha_i k_i'(x).
+    \]
+
+    Solving this single RHS problem gives \(C\alpha=r\), and the minimum
+    energy is
+
+    \[
+    \boxed{
+    K_\zeta=\alpha^Tr.
+    }
+    \]
+
+    Thus the exact compact \(g=2\) hard mouth can be stated as
+
+    \[
+    \boxed{
+    \alpha^Tr<T,\qquad C\alpha=p_\zeta^0.
+    }
+    \]
+
+    In Rayleigh form this is the sharp trace inequality
+
+    \[
+    \boxed{
+    \left(
+    F_c\alpha_c-\frac qa\alpha_- -\frac qb\alpha_+
+    \right)^2
+    <
+    T\,\alpha^TC\alpha
+    \qquad(\alpha\ne0).
+    }
+    \]
+
+    For reference,
+
+    \[
+    \phi_\zeta'(x)=
+    -\frac{F_c}{(x-c)^2}
+    -\frac qa\left(\frac1{x-u}-\frac1{x-c}\right)
+    -\frac qb\left(\frac1{x-c}-\frac1{x-v}\right).
+    \]
+
+    The finite-Hilbert inversion with
+
+    \[
+    f_\alpha(x)=-\sum_i\alpha_i k_i'(x)
+    \]
+
+    should produce
+
+    \[
+    d\eta(x)=
+    \left[
+    \frac{1}{\pi^2|R(x)|}
+    \operatorname{p.v.}\int_J
+    \frac{|R(t)|f_\alpha(t)}{t-x}\,dt
+    +\frac{A_\alpha+B_\alpha x}{|R(x)|}
+    \right]dx,
+    \]
+
+    where \(A_\alpha,B_\alpha\) enforce zero mass and fixed period.  The next
+    real calculation is to turn the constraints into the single linear system
+    for \(\alpha\) and prove \(\alpha^Tr<T\), ideally by converting
+    \(T-\alpha^Tr\) into a manifestly positive period or square integral.
+
+    2026-05-06 constrained balayage / residue-form queue.
+
+    The safe way to use the formal distribution \(D_\zeta\) is not to give it
+    a self-energy.  Since \(u,c,v\) lie off the two-cut support \(J\), the
+    kernel \(\phi_\zeta\) defines a continuous row functional on the separated
+    zero-mass, fixed-period energy space:
+
+    \[
+    \ell_{D_\zeta}(\eta)=p_\zeta^0(\eta).
+    \]
+
+    By Riesz representation there is a unique constrained balayage
+
+    \[
+    \mathsf B_\Pi D_\zeta\in H_{0,\Pi}
+    \]
+
+    such that
+
+    \[
+    \mathcal E_{\log}(\mathsf B_\Pi D_\zeta,\eta)
+    =
+    p_\zeta^0(\eta)
+    \qquad(\eta\in H_{0,\Pi}).
+    \]
+
+    Its squared norm is exactly the capacity term
+
+    \[
+    \boxed{
+    \|\mathsf B_\Pi D_\zeta\|_{\mathcal E}^2
+    =
+    K_\zeta
+    =
+    (p_\zeta^0)^TC^{-1}p_\zeta^0.
+    }
+    \]
+
+    Thus the compact \(g=2\) diagonal shortcut is equivalently
+
+    \[
+    \boxed{\textbf{BalayageGapPositive:}\quad T-K_\zeta>0.}
+    \]
+
+    This formulation is proof-grade as a reduction.  It still does not prove
+    positivity; it only states the exact gap-energy estimate that must be
+    shown.
+
+    The single-RHS problem can be written more explicitly as a Cauchy-transform
+    ansatz.  Let
+
+    \[
+    J=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+    \qquad
+    R(z)=
+    \sqrt{(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)},
+    \]
+
+    with \(R(z)\sim z^2\) at infinity.  For multipliers \(\alpha_i\), put
+
+    \[
+    f_\alpha(z)=-\sum_i\alpha_i k_i'(z).
+    \]
+
+    If
+
+    \[
+    G_\alpha(z)=\int_J\frac{d\eta_\alpha(t)}{z-t},
+    \]
+
+    then the Euler equation gives
+
+    \[
+    \frac{G_{\alpha,+}(x)+G_{\alpha,-}(x)}2=f_\alpha(x),
+    \qquad x\in J.
+    \]
+
+    Hence
+
+    \[
+    \boxed{
+    G_\alpha(z)=f_\alpha(z)+\frac{A_\alpha(z)}{R(z)}.
+    }
+    \]
+
+    The rational numerator \(A_\alpha\) is determined by cancelling the polar
+    parts of \(R f_\alpha\) at \(u,c,v\), plus an affine freedom
+    \(\lambda_0+\lambda_1z\) fixed by the zero-mass and fixed-period
+    normalizations.
+
+    The row constraints can be written directly in terms of \(G_\alpha\).  With
+    \(r=p_\zeta^0\),
+
+    \[
+    \int_J\frac{d\eta(x)}{x-s}=-G_\alpha(s)
+    \qquad(s\in\{u,c,v\}),
+    \]
+
+    and
+
+    \[
+    \int_JL_-(x)\,d\eta(x)=-\int_u^cG_\alpha(s)\,ds,\qquad
+    \int_JL_+(x)\,d\eta(x)=-\int_c^vG_\alpha(s)\,ds.
+    \]
+
+    Therefore, for
+
+    \[
+    p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right),
+    \]
+
+    the sign convention gives
+
+    \[
+    G_\alpha(u)=0,\qquad
+    G_\alpha(c)=-F_c,\qquad
+    G_\alpha(v)=0,
+    \]
+
+    and
+
+    \[
+    \int_u^cG_\alpha(s)\,ds=\frac qa,\qquad
+    \int_c^vG_\alpha(s)\,ds=\frac qb,
+    \]
+
+    together with the zero-mass / fixed-period conditions.  These equations
+    are the concrete single-RHS linear system for \(\alpha\) and the two
+    normalization constants.  Once \(C\alpha=r\) is solved,
+
+    \[
+    \boxed{
+    K_\zeta=\alpha^Tr
+    =
+    F_c\alpha_c-\frac qa\alpha_- -\frac qb\alpha_+.
+    }
+    \]
+
+    The next possible positivity mechanism is a square-residue identity.  A
+    conditional target is
+
+    \[
+    \boxed{\textbf{SquareResidueIdentity}_\zeta}
+    \]
+
+    asserting that
+
+    \[
+    T-\alpha^Tr
+    =
+    \frac{1}{2\pi i}
+    \int_{\partial J}\frac{A_\alpha(z)^2}{R(z)}\,dz
+    +
+    \mathcal P_{\rm per}(A_\alpha),
+    \]
+
+    where \(\mathcal P_{\rm per}\ge0\) is the positive period correction
+    forced by the fixed-period normalization.  Equivalently, with the correct
+    branch conventions this should become a positive expression of the form
+
+    \[
+    \int_J\frac{|A_{\alpha,+}(x)|^2}{|R_+(x)|}\,dx
+    +
+    \mathcal P_{\rm per}(A_\alpha).
+    \]
+
+    If such an identity is proved, the right side is strictly positive unless
+    \(A_\alpha\equiv0\) and the period term vanishes.  That would make
+    \(G_\alpha=f_\alpha\) have no cut jump, hence \(\eta_\alpha=0\), contrary
+    to \(p_\zeta^0\ne0\).  Therefore SquareResidueIdentity would imply
+    \(K_\zeta<T\) and kill compact non-pinched \(g=2\).
+
+    The remaining unproved alignment is more specific:
+
+    \[
+    \boxed{\textbf{LocalSchurTraceIdentity}_\zeta.}
+    \]
+
+    It must identify the finite local branch-Hessian trace
+
+    \[
+    T=-b(p_\zeta^0,p_\zeta^0)
+    \]
+
+    with the polar residue trace of the quadratic differential
+
+    \[
+    \Omega_\alpha(z)=\frac{A_\alpha(z)^2}{R(z)}\,dz
+    \]
+
+    at \(u,c,v,\infty\), using exactly the same endpoint anchors, branch
+    state-lift, and period normalization as the corrected Hessian.  Without
+    this identity, the square-residue expression is not tied to the actual
+    finite block \(b\).  The current proof queue is therefore:
+
+    \[
+    \boxed{
+    \text{LocalSchurTraceIdentity}
+    \Rightarrow
+    \text{SquareResidueIdentity}
+    \Rightarrow
+    K_\zeta<T
+    \Rightarrow
+    \text{no compact non-pinched }g=2.
+    }
+    \]
+
+    This is a sharper version of EffectiveNeckSchurPositive, not a proof of it
+    yet.  The next calculation is to compute
+    \(b(p_\zeta^0,p_\zeta^0)\) from the corrected branch state response and
+    compare it term-by-term with the polar residue trace of \(A_\alpha^2/R\).
+
+    2026-05-06 diagonal shortcut audit.
+
+    The first literal computation of the corrected branch Hessian in the
+    \(p_\zeta^0\) direction does not support the desired diagonal negativity.
+    This is a stop signal for the diagonal shortcut unless an additional
+    explicitly defined finite non-log edge/mixed term is added and proved.
+
+    Recall the branch-compatible row
+
+    \[
+    p_\zeta^0=
+    \left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right).
+    \]
+
+    With the sign convention
+
+    \[
+    F_c\,\delta c+\delta_\xi F(c)=0,
+    \]
+
+    this row corresponds to \(\delta_\xi F(c)=-F_c\), hence
+    \(\delta c=1\).  The endpoint rows give, with the log-at-\(c\) anchor
+    fixed,
+
+    \[
+    \delta E_-=\frac qa,\qquad
+    \delta E_+=-\frac qb.
+    \]
+
+    Substituting in the corrected branch state response gives
+
+    \[
+    \boxed{
+    \delta y_\zeta
+    =
+    (\delta q,\delta a,\delta b,\delta c)
+    =
+    (0,1,-1,1).
+    }
+    \]
+
+    Equivalently,
+
+    \[
+    \delta u=\delta c-\delta a=0,\qquad
+    \delta v=\delta c+\delta b=0,
+    \]
+
+    so this is the formal direction that moves the center \(c\) while keeping
+    \(u,v,q\) fixed.
+
+    For the proof-grade branch functional currently recorded in the ledger,
+    there is no independent \(\lambda_SS\) Hessian term and no free
+    \(\lambda_FF(c)\) Hessian term.  Thus the endpoint contribution uses only
+
+    \[
+    \lambda_-\nabla_y^2E_-+\lambda_+\nabla_y^2E_+,
+    \qquad
+    \lambda_-=\frac1X,\quad \lambda_+=-\frac1Y.
+    \]
+
+    With \(v_\zeta=(0,1,-1,1)\),
+
+    \[
+    v_\zeta^T\nabla_y^2E_-v_\zeta=\frac q{a^2},
+    \qquad
+    v_\zeta^T\nabla_y^2E_+v_\zeta=\frac q{b^2}.
+    \]
+
+    Therefore the endpoint finite Hessian contribution is
+
+    \[
+    H_{\rm ep}(p_\zeta^0,p_\zeta^0)
+    =
+    \frac{q}{a^2X}-\frac{q}{b^2Y}.
+    \]
+
+    Using stationarity \(aA+bB=0\), equivalently
+
+    \[
+    Y=-\frac abX,
+    \]
+
+    this becomes
+
+    \[
+    \boxed{
+    H_{\rm ep}(p_\zeta^0,p_\zeta^0)
+    =
+    \frac{q(a+b)}{a^2bX}>0.
+    }
+    \]
+
+    The endpoint mixed \(y\)-density terms also vanish for this state lift:
+
+    \[
+    D^2_{y\xi}E_-[(\delta y_\zeta),\eta]
+    =
+    (\delta c-\delta a)\,\delta W_\eta'(u)=0,
+    \]
+
+    and
+
+    \[
+    D^2_{y\xi}E_+[(\delta y_\zeta),\eta]
+    =
+    (\delta c+\delta b)\,\delta W_\eta'(v)=0.
+    \]
+
+    Consequently, under the current corrected fixed-chart branch functional and
+    with no additional finite non-log term, the branch finite contribution in
+    the \(p_\zeta^0\) diagonal is positive:
+
+    \[
+    \boxed{
+    b_{\rm br}(p_\zeta^0,p_\zeta^0)
+    =
+    \frac{q(a+b)}{a^2bX}>0.
+    }
+    \]
+
+    This is incompatible with the earlier hoped-for identification
+
+    \[
+    b(p_\zeta^0,p_\zeta^0)=\lambda_BQ_c,\qquad
+    \lambda_B>0,\quad Q_c<0.
+    \]
+
+    Therefore, in the current convention,
+
+    \[
+    Q_{\rm eff}(p_\zeta^0,p_\zeta^0)
+    =
+    b_{\rm br}(p_\zeta^0,p_\zeta^0)+K_\zeta>0
+    \]
+
+    because \(K_\zeta\ge0\).  The \(p_\zeta^0\) diagonal direction does not
+    give the desired negative second variation.  EffectiveNeckSchurPositive is
+    no longer the main route unless a new, explicit, non-endpoint/non-branch
+    finite term is defined and shown to replace the positive endpoint trace by
+    the required polar trace.
+
+    The working stop theorem is:
+
+    \[
+    \boxed{\textbf{DiagonalShortcutFails}_\zeta.}
+    \]
+
+    Under the corrected branch-parametrized functional currently recorded,
+    the \(p_\zeta^0\) diagonal Hessian shortcut does not exclude compact
+    non-pinched \(g=2\).  The route should switch to a first-order KKT
+    separation / cone formulation, unless a fully specified mixed Schur trace
+    is introduced and proved.
+
+    A possible replacement target is:
+
+    \[
+    \boxed{\textbf{MixedSchurTraceIdentity}_\zeta.}
+    \]
+
+    It would need to prove that some explicitly defined full finite Schur
+    trace, including density-state and finite-density terms not present in the
+    endpoint-only branch calculation above, converts
+    \(H_{\rm ep}=q(a+b)/(a^2bX)\) into the polar residue trace of
+    \(A_\alpha^2/R\).  This is currently not proved and not defined in the
+    ledger.
+
+    The active non-diagonal alternative is the first-order cone target:
+
+    \[
+    \boxed{
+    \text{no nonzero }\theta_1K_1+\theta_2K_2
+    \text{ has the admissible oriented compact sign pattern.}
+    }
+    \]
+
+    With
+
+    \[
+    \widetilde K_i(x)=\sigma(x)K_i(x),
+    \qquad \sigma(x)=\operatorname{sgn}(x-c),
+    \]
+
+    this can be stated as the convex-hull condition
+
+    \[
+    \boxed{
+    0\in\operatorname{int}\operatorname{conv}
+    \{(\widetilde K_1(x),\widetilde K_2(x)):
+    x\in J_1\cup J_2\}.
+    }
+    \]
+
+    If this OvalConvexityLemma is proved, no separating \(\theta\ne0\) can
+    make \(\theta_1K_1+\theta_2K_2\) have the admissible oriented sign pattern,
+    and compact non-pinched \(g=2\) is excluded by first-order KKT separation.
+
+    2026-05-06 period quotient / free-period audit.
+
+    The convex-hull route needs a period-space audit before it can be used as a
+    proof.  In the fixed-period chart the admissible density directions satisfy
+
+    \[
+    \Pi(G)=\int_J\pi_0(x)G(x)\omega(x)\,dx=0,
+    \qquad
+    \pi_0|_{J_1}=1,\quad
+    \pi_0|_{J_2}=-\theta_{\rm per}.
+    \]
+
+    A positive oriented period-transfer density of the form
+
+    \[
+    G_\Pi(x)=\sigma(x)h_\Pi(x),\qquad h_\Pi(x)>0,
+    \]
+
+    is not fixed-period.  Indeed,
+
+    \[
+    \pi_0\sigma=-1\quad\text{on }J_1,
+    \qquad
+    \pi_0\sigma=-\theta_{\rm per}<0\quad\text{on }J_2,
+    \]
+
+    hence
+
+    \[
+    \Pi(G_\Pi)<0.
+    \]
+
+    Therefore the earlier positive-quadrature argument cannot be interpreted as
+    a fixed-period tangent argument.  If the first-order KKT normal cone is
+    formed after imposing \(\Pi(G)=0\), the separating kernel may include a
+    period multiplier:
+
+    \[
+    \theta_1K_1+\theta_2K_2+\lambda\pi_0.
+    \]
+
+    Thus proving only that \(\operatorname{span}\{K_1,K_2\}\) has no oriented
+    sign pattern is not enough unless the period row has already been
+    correctly quotiented out.
+
+    The next required lemma is:
+
+    \[
+    \boxed{\textbf{PeriodQuotientLemma}.}
+    \]
+
+    It must prove one of the following precise statements.
+
+    Version A: \(K_1,K_2\) are already the full fixed-period quotient cokernel,
+    so the admissible sign-pattern obstruction is represented by
+    \(\theta_1K_1+\theta_2K_2\) with no additional \(\lambda\pi_0\).
+
+    Version B: if the period multiplier remains present, prove the stronger
+    sign-pattern exclusion
+
+    \[
+    \boxed{
+    \text{no nonzero }
+    \theta_1K_1+\theta_2K_2+\lambda\pi_0
+    \text{ has the admissible oriented compact sign pattern.}
+    }
+    \]
+
+    Without this period quotient step, OvalConvexityLemma is only a six-row
+    local-cokernel statement, not yet a fixed-period cone theorem.
+
+    The positive period-transfer density can still be useful after moving to a
+    free-period lift.  Introduce a period/filling variable \(\tau\) with
+
+    \[
+    \dot\tau+\Pi(G)=0.
+    \]
+
+    Then \(G_\Pi=\sigma h_\Pi\) can be compensated in the period row by
+    \(\dot\tau=-\Pi(G_\Pi)>0\).  The nontrivial part is the six local rows:
+
+    \[
+    \boxed{
+    A\dot y_\Pi+B G_\Pi=0.
+    }
+    \]
+
+    Equivalently,
+
+    \[
+    \int_JK_i(x)G_\Pi(x)\omega(x)\,dx=0,
+    \qquad i=1,2.
+    \]
+
+    In signed Cauchy notation,
+
+    \[
+    C_\Pi(s)=\int_J\frac{G_\Pi(x)\omega(x)}{x-s}\,dx,
+    \qquad
+    M_\Pi=\int_JG_\Pi(x)\omega(x)\,dx,
+    \]
+
+    this is the pair of balance equations
+
+    \[
+    \boxed{
+    \left(-r-\frac abp\right)M_\Pi
+    -\frac ab\int_u^cC_\Pi(s)\,ds
+    +\int_c^vC_\Pi(s)\,ds=0,
+    }
+    \tag{P1}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    p\Gamma M_\Pi
+    +aC_\Pi(u)
+    +Q_cC_\Pi(c)
+    +bC_\Pi(v)
+    +\Gamma\int_u^cC_\Pi(s)\,ds=0.
+    }
+    \tag{P2}
+    \]
+
+    The corresponding sufficient proof target is:
+
+    \[
+    \boxed{\textbf{FreePeriodResidueAnnihilation}.}
+    \]
+
+    It should construct the normalized real period-transfer differential
+
+    \[
+    d\Omega_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)}\,dz
+    \]
+
+    or the equivalent finite-gap form in the chosen convention, prove its
+    boundary density has sign
+
+    \[
+    d\Omega_\Pi|_J=G_\Pi(x)\omega(x)\,dx,
+    \qquad
+    G_\Pi=\sigma h_\Pi,\quad h_\Pi>0,
+    \]
+
+    and verify (P1),(P2) by residue/period calculation.
+
+    This target is stronger than is needed for the regular free-period case.
+    In a free-period chart the quotient part can already be checked by linear
+    algebra.  Extend the local system by a period/filling variable \(\tau\):
+
+    \[
+    \begin{pmatrix}A&0\\0&1\end{pmatrix}
+    \begin{pmatrix}\dot y\\\dot\tau\end{pmatrix}
+    +
+    \begin{pmatrix}B\\\Pi\end{pmatrix}G=0.
+    \]
+
+    If \((\kappa,\kappa_\Pi)\) is an extended left-cokernel, then
+
+    \[
+    (\kappa,\kappa_\Pi)^T
+    \begin{pmatrix}A&0\\0&1\end{pmatrix}=0
+    \]
+
+    gives
+
+    \[
+    \kappa^TA=0,\qquad \kappa_\Pi=0.
+    \]
+
+    Thus the period row is absorbed by \(\tau\); it does not create an
+    additional pointwise sign-shifter \(\lambda\pi_0\).  The relevant
+    free-period normal space is still
+
+    \[
+    \operatorname{span}\{K_1,K_2\}.
+    \]
+
+    Moreover, in a regular free-period chamber one does not need (P1),(P2)
+    separately.  Let the actual KKT normal be
+
+    \[
+    K_\theta=\theta_1K_1+\theta_2K_2,\qquad \theta\ne0,
+    \]
+
+    with the admissible oriented sign pattern
+
+    \[
+    \sigma K_\theta\ge0\quad\text{on }J_1\cup J_2.
+    \]
+
+    If the chamber has a two-sided free-period lineality
+
+    \[
+    G_\Pi=\sigma h_\Pi,\qquad h_\Pi>0,
+    \]
+
+    then normal-lineality orthogonality gives only the scalar identity
+
+    \[
+    0=\int_JK_\theta(x)G_\Pi(x)\omega(x)\,dx
+    =\int_J\sigma(x)K_\theta(x)h_\Pi(x)\omega(x)\,dx.
+    \]
+
+    The last integrand is nonnegative and is not identically zero unless
+    \(K_\theta\equiv0\).  Strict Chebyshev independence of the six-kernel span
+    rules out such a nonzero cokernel combination vanishing on an open
+    interval.  Therefore a regular free-period compact non-pinched \(g=2\)
+    chamber is excluded.  This is a weaker and cleaner regular-case argument
+    than proving (P1),(P2) for both basis vectors separately.
+
+    Conditional chain for the stronger quadrature route:
+
+    \[
+    \boxed{
+    \text{PeriodQuotientLemma}
+    +\text{FreePeriodResidueAnnihilation}
+    \Rightarrow
+    \text{PositiveQuadrature}
+    \Rightarrow
+    \text{OvalConvexity}
+    \Rightarrow
+    \text{no compact non-pinched }g=2.
+    }
+    \]
+
+    The free-period quotient part is now a linear-algebra check as above.
+    FreePeriodResidueAnnihilation is not currently proved in the ledger; it
+    remains a sufficient positive-quadrature certificate, not a necessary step
+    for the regular case.  The remaining compact \(g=2\) hard case is
+    rank-defect: the positive period-transfer density exists, but cannot be
+    corrected to a two-sided local-row lineality.
+
+    In that case set
+
+    \[
+    r_\Pi=
+    \left(
+    \int_JK_1G_\Pi\omega,\,
+    \int_JK_2G_\Pi\omega
+    \right)\in\mathbb R^2.
+    \]
+
+    A KKT normal with oriented sign pattern satisfies
+
+    \[
+    \theta\cdot r_\Pi
+    =\int_JK_\theta G_\Pi\omega
+    =\int_J\sigma K_\theta h_\Pi\omega>0.
+    \]
+
+    To exclude rank-defect compact \(g=2\), one must prove that \(r_\Pi\) is
+    the projection of an admissible one-sided cone direction, so every KKT
+    normal should satisfy \(\theta\cdot r_\Pi\le0\).  This is the current
+    Schiffer/cone-descent hard mouth.  It requires an active-row orientation
+    table for
+
+    \[
+    R_0,\ R_u,\ R_c,\ R_v,\ R_-,\ R_+.
+    \]
+
+    Without that cone-orientation table, rank-defect compact \(g=2\) is not
+    excluded.
+
+    Current compact \(g=2\) trichotomy.
+
+    1. Regular free-period non-pinched chambers are excluded by the
+       lineality/sign contradiction above.
+    2. Pinching or positivity-boundary limits should be routed through the
+       boundary reduction: the genus-two radical loses a pair of branch points,
+       possible pole/zero collisions create only nonnegative endpoint atoms,
+       and the limit is a corrected lower-genus candidate rather than a new
+       compact non-pinched \(g=2\) chamber.
+    3. The remaining unclosed case is a rank-defect non-pinched interior point.
+       It requires a Schiffer/cone-descent argument, concretely the
+       ConeOrientationTable for \(R_0,R_u,R_c,R_v,R_-,R_+\).
+
+    Thus the current status is not "compact \(g=2\) fully killed"; it is
+    "regular free-period killed, boundary routed to lower genus, rank-defect
+    still open pending cone orientation."
+
+    2026-05-06 anchored Schiffer first-variation target.
+
+    The rank-defect cone target should now be stated as one lemma, not as a
+    proliferation of new names:
+
+    \[
+    \boxed{\textbf{Anchored RankDefectSchifferConeLemma}.}
+    \]
+
+    The important correction is that the six local rows
+
+    \[
+    R_0,\ R_u,\ R_c,\ R_v,\ R_-,\ R_+
+    \]
+
+    do not by themselves determine the boundary values required by
+    Proposition 4.1.  The rows \(R_-,R_+\) are endpoint potential differences:
+
+    \[
+    R_-=\delta W(c)-\delta W(u),\qquad
+    R_+=\delta W(v)-\delta W(c),
+    \]
+
+    not absolute endpoint values.  Therefore the Schiffer/first-variation
+    table must include an anchor row
+
+    \[
+    \boxed{
+    R_{\ell c}(G)=\delta W(c)=
+    \int_J\log\frac1{|c-x|}G(x)\omega(x)\,dx.
+    }
+    \]
+
+    Then
+
+    \[
+    \delta W(u)=R_{\ell c}-R_-,\qquad
+    \delta W(v)=R_{\ell c}+R_+.
+    \]
+
+    For the neck interval \((u,v)\), Proposition 4.1 gives the boundary
+    contribution
+
+    \[
+    \delta L_{uv}
+    =
+    \frac{V(u)}{|U'(u)|}
+    +
+    \frac{V(v)}{|U'(v)|}.
+    \]
+
+    Since
+
+    \[
+    U'(u)=X>0,\qquad U'(v)=Y<0,\qquad Y=-\frac abX,
+    \]
+
+    and
+
+    \[
+    V(u)=R_{\ell c}-R_-,\qquad
+    V(v)=R_{\ell c}+R_+,
+    \]
+
+    one obtains the checked formula
+
+    \[
+    \boxed{
+    aX\,\delta L_{uv}
+    =(a+b)R_{\ell c}-aR_-+bR_+.
+    }
+    \tag{ND}
+    \]
+
+    Thus a Schiffer rank-defect descent must produce, after equality-row
+    corrections, at least the anchored neck descent inequality
+
+    \[
+    \boxed{
+    (a+b)R_{\ell c}-aR_-+bR_+<0.
+    }
+    \]
+
+    The proposed perturbation should have the regularized form
+
+    \[
+    V_{\rm Sch}^{(\rho)}
+    =
+    U_{\nu_\Pi}
+    +\sum_m s_m V_{{\rm Schiffer},m}^{(\rho)}
+    +\sum_\ell t_\ell V_{{\rm local},\ell},
+    \]
+
+    where the Schiffer terms are cutoff-regularized before applying
+    Proposition 4.1.  The lemma must verify four concrete items:
+
+    1. \(V_{\rm Sch}^{(\rho)}\) satisfies Proposition 4.1 regularity and
+       admissibility: \(C^1\) near moving boundaries, continuous near \(Z_0\),
+       bounded below on compact subsets of \(E\), and compatible with the
+       one-sided perturbation class.
+    2. Interior-zero protection:
+       \[
+       V_{\rm Sch}^{(\rho)}<0\quad\text{on }Z_0.
+       \]
+    3. Boundary descent, including (ND) and all other superlevel endpoints:
+       \[
+       \sum_j
+       \left(
+       \frac{V_{\rm Sch}^{(\rho)}(a_j)}{|U'(a_j)|}
+       +
+       \frac{V_{\rm Sch}^{(\rho)}(b_j)}{|U'(b_j)|}
+       \right)<0.
+       \]
+    4. Row/cokernel projection: the projected one-sided row direction is
+       \(r_\Pi+o_\rho(1)\), or at least pairs positively with every oriented
+       sign-pattern normal \(K_\theta\), while the feasible cone orientation
+       forces the opposite KKT sign.
+
+    Equivalently, after local equality corrections, the next construction is
+    the anchored semi-infinite linear feasibility problem
+
+    \[
+    \boxed{
+    R_0=0,\qquad
+    R_c=0,\qquad
+    (a+b)R_{\ell c}-aR_-+bR_+<0,\qquad
+    V|_{Z_0}<0.
+    }
+    \tag{LP}
+    \]
+
+    If this LP has a solution satisfying the projection condition, rank-defect
+    compact \(g=2\) is excluded.  If it fails, the Hahn-Banach/Farkas dual
+    produces an additional boundary/\(Z_0\) multiplier; that dual object must
+    then be shown to fall back into the already excluded regular KKT normal,
+    or to force pinching/lower-genus degeneration.  This is now the concrete
+    rank-defect hard mouth.
+
+    Caveats: this formula is only valid after the zero-mass/fixed-period
+    convention is fixed, the period row is continuous in the separated chart,
+    \(\operatorname{Rel}=0\) or the calculation is restricted to
+    \(\operatorname{Rel}^{\perp}\), and all \(p_i^0\) are feasible row vectors.
+    Here \(\operatorname{Rel}=0\) must mean independence as continuous
+    functionals on the chosen Hilbert space, not only pointwise independence on
+    smooth bumps.  The passage from the bump calculation to the Hilbert
+    statement requires density of smooth compactly supported perturbations in
+    the separated-chart energy space and continuity of every row.
+
+    Stop/go for the Hessian step:
+
+    - GO if the \(K_{\log}\) Gram contribution preserves the old five
+      identities up to one positive scale, or if the actual-entry clamp still
+      implies the Wronskian sign contradiction.
+    - STOP this Hessian-clamp route if the actual entries give only generic
+      PSD inequalities with no sign or ratio control.  In that case do not
+      revive the old five-entry assumption; switch to direct actual-density or
+      cone KKT endpoint tests.
 
     The available inequalities are then only
 
