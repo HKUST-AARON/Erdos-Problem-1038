@@ -1,0 +1,20 @@
+import Mathlib
+open scoped BigOperators
+#check MeasureTheory.setIntegral_Ioo_eq_integral
+#check MeasureTheory.setIntegral_Icc_eq_integral
+#check MeasureTheory.integral_Ioo_eq_integral
+#check MeasureTheory.integral_Icc_eq_integral
+#check MeasureTheory.setIntegral_Ioo_eq_lintegral
+#check MeasureTheory.integral_indicator
+#check MeasureTheory.integral_indicator
+#check MeasureTheory.integral_indicator_of_nonneg
+#check Real.continuousOn_log
+#check IntegrableOn.log
+#check IntegrableOn.integralOn_sub_right
+#check intervalIntegral.integral_indicator_of_mem
+#check intervalIntegral.integral_indicator_eq_integral_restrict
+#check intervalIntegral.integral_sub_left
+#check intervalIntegral.integral_sub_right
+#check intervalIntegral.integral_inv
+#check intervalIntegral.intervalIntegrableOn.log
+#check intervalIntegrableOn_log

@@ -1,0 +1,10 @@
+import Mathlib
+#check IntervalIntegrable.symm
+#check IntervalIntegrable.comp_neg
+#check IntervalIntegrable.neg_left
+#check IntervalIntegrable.neg_right
+#check intervalIntegral.intervalIntegrable_neg
+#check intervalIntegrable_neg
+#check IntervalIntegrable.ofReal
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_add_adjacent_intervals

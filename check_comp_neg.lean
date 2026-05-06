@@ -1,0 +1,5 @@
+import Mathlib
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.integral_comp_mul_right
+#check intervalIntegral.intervalIntegrable_const
+#check intervalIntegral.intervalIntegrable_log'

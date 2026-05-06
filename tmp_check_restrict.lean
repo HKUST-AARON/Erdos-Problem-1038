@@ -1,0 +1,12 @@
+import Mathlib
+#check MeasureTheory.integral_restrict
+#check MeasureTheory.integral_restrict₀
+#check measure_restrict_apply
+#check MeasureTheory.integral_indicator
+#check measureTheory
+#check MeasureTheory.lintegral_indicator
+#check integral_indicator
+#check MeasureTheory.integral_indicator_of_not_mem
+#check MeasureTheory.restrict_apply
+#check MeasureTheory.restrict_univ
+#check MeasureTheory.integral_indicator

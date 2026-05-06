@@ -1,0 +1,11 @@
+import Mathlib
+#check Set.uIcc_of_le
+#check Set.uIoc_of_le
+#check Set.uIcc
+#check Set.uIoc
+#check isOpen_Ioo
+#check measurableSet_Icc
+#check measurableSet_Ioo
+#check isMeasurableSet_Icc
+#check isMeasurableSet_Ioc
+#check MeasurableSet

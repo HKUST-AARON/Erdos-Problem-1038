@@ -1,0 +1,11 @@
+import Mathlib
+#check MeasureTheory.lintegral_add_right_eq
+#check MeasureTheory.lintegral_add_right_eq_self
+#check MeasureTheory.lintegral_add_left_eq
+#check MeasureTheory.lintegral_add_left_eq_self
+#check MeasureTheory.lintegral_map_add_right_eq
+#check MeasureTheory.lintegral_map
+#check MeasureTheory.measurePreserving_add_right
+#check MeasureTheory.map_add_right_eq_self
+#check MeasureTheory.measurePreserving_add_right
+#check MeasureTheory.measurePreserving_mul_right

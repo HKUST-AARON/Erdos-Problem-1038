@@ -1,0 +1,16 @@
+import Mathlib
+#check IntervalIntegrable.congr
+#check IntervalIntegrable.congr_fun
+#check intervalIntegrable_congr
+#check IntervalIntegrable.congr_set_ae
+#check intervalIntegrable_sub_left
+#check intervalIntegrable_sub
+#check IntervalIntegrable.ofReal
+#check IntervalIntegrable.aestronglyMeasurable
+#check IntervalIntegrable.norm
+#check IntervalIntegrable.comp_mul_left
+#check IntervalIntegrable.comp_sub_right
+#check IntervalIntegrable.comp_neg
+#check IntervalIntegrable.neg
+#check IntervalIntegrable.sub
+#check intervalIntegral.intervalIntegrable_log'

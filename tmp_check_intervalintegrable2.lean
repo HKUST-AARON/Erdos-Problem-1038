@@ -1,0 +1,11 @@
+import Mathlib
+#check IntervalIntegrable.symm
+#check IntervalIntegrable.of_eq
+#check IntervalIntegrable.ofReal
+#check IntervalIntegrable.subtype_coe
+#check IntervalIntegrable.comp_affine
+#check intervalIntegral.intervalIntegrable_neg
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.intervalIntegrable_log'

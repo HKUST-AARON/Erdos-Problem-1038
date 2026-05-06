@@ -1,0 +1,6 @@
+import Mathlib
+#check intervalIntegral.intervalIntegrable_log
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.integral_log
+#check intervalIntegral.integral_log_from_zero
+#check intervalIntegral.integral_log_from_zero_of_pos

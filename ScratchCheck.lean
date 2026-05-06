@@ -1,0 +1,15 @@
+import Mathlib
+import finite_atoms.common.lean.StandardReduction
+#check lintegral_add_right_eq
+#check lintegral_add_left_eq
+#check measurePreserving_add_right
+#check MeasureTheory.MeasurePreserving.lintegral_comp
+#check MeasureTheory.MeasurePreserving.add_right
+#check lintegral_indicator
+#check intervalIntegral.integral_log
+#check intervalIntegral.integralOn_log
+#check Real.integral_log
+#check Real.volume_Ioo
+#check Real.volume_Icc
+#check ENNReal.ofReal_eq_zero
+#check ENNReal.ofReal_le_ofReal

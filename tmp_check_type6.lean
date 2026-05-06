@@ -1,0 +1,13 @@
+import Mathlib
+#check mem_uIcc
+#check mem_uIoc
+#check mem_Ioo
+#check Set.mem_uIoc
+#check Set.mem_uIcc
+#check Set.mem_uIoi
+#check Set.uIoc
+#check Set.uIcc
+#check intervalIntegral.integral_uIcc
+#check intervalIntegral.integral_uIoc
+#check intervalIntegral.integral_uIoo
+#check MeasureTheory.integral_uIoo

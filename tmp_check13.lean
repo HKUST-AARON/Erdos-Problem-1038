@@ -1,0 +1,7 @@
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+#check MeasureTheory.lintegral_coe_eq_integral
+#check MeasureTheory.integral_coe_eq_lintegral
+#check MeasureTheory.lintegral_coe_eq_setIntegral
+#check MeasureTheory.lintegral_coe_eq_integral_of_nonneg
+#check lintegral_toReal
+#check MeasureTheory.lintegral_toReal

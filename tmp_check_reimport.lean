@@ -1,0 +1,11 @@
+import Mathlib.Analysis.SpecialFunctions.Integrability.Basic
+#check intervalIntegrable_log'
+#check intervalIntegrable_log
+#check intervalIntegrable_log_of_tendsto_nhds_...  
+#check intervalIntegrable_add
+#check IntervalIntegrable.sub
+#check intervalIntegrable_const
+#check intervalIntegral.integral_log
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_from_to
+#check intervalIntegral.integral_sub

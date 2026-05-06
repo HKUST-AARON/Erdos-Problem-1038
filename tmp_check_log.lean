@@ -1,0 +1,12 @@
+import Mathlib
+#check Real.log_of_nonpos
+#check Real.log_of_pos
+#check Real.log_abs
+#check Real.log_mul
+#check Real.log_inv
+#check Real.log_natCast
+#check Real.log_zero
+#check Real.log_nonneg
+#check Real.log_le_sub_one_of_pos
+#check Real.integrableOn_log
+#check Real.integrableOn_log' 

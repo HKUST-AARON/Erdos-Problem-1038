@@ -1,0 +1,4 @@
+import finite_atoms.common.lean.StandardReduction
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.integral_log
+#check intervalIntegral.integral_add_adjacent_intervals

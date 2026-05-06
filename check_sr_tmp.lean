@@ -1,0 +1,14 @@
+import Mathlib
+#check ENNReal.toReal_eq_toReal
+#check MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+#check MeasureTheory.integral_Icc_eq_integral_Ioo
+#check intervalIntegral.integral_of_le
+#check intervalIntegral.integral_comp_neg
+#check MeasureTheory.integral_Icc_eq_integral_Ioc
+#check Real.integral_log
+#check interval_log_from_zero_of_pos
+#check Real.integrableOn_log
+#check intervalIntegral.integral_sub
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.integral_symm

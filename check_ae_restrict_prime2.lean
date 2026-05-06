@@ -1,0 +1,5 @@
+import Mathlib
+#check MeasureTheory.ae_restrict_iff
+#check MeasureTheory.EventuallyEq
+#check MeasureTheory.ae_restrict_of_ae
+#check MeasureTheory.ae_restrict_of_ae_restrict_of_subset

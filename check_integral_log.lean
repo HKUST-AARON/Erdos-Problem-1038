@@ -1,0 +1,9 @@
+import Mathlib
+#check intervalIntegral.integral_log
+#check interval_log_from_zero_of_pos
+#check intervalIntegral.integral_div
+#check Real.integral_log
+#check Real.integral_log_of_pos
+#check integral_log_from_zero_of_pos
+#check intervalIntegral.integral_sub_left
+#check intervalIntegral.integral_sub_right

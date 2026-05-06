@@ -1,0 +1,11 @@
+import Mathlib
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.intervalIntegrable_log'.comp_abs
+#check intervalIntegral.intervalIntegrable_log'.comp_neg
+#check intervalIntegral.intervalIntegrable_log'.const
+#check intervalIntegral.intervalIntegrable_log'.add
+#check intervalIntegral.intervalIntegrable_log'.sub
+#check intervalIntegral.intervalIntegrable_log'.comp_mul_left
+#check intervalIntegral.intervalIntegrable_log'.comp_mul_right
+#check intervalIntegral.intervalIntegrable_log'.comp_inv
+#check intervalIntegrable_log'.comp_abs

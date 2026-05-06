@@ -1,0 +1,4 @@
+import Mathlib
+#check intervalIntegral.integral_add_adjacent_intervals
+#check MeasureTheory.integral_Icc_eq_integral_Ioo
+#check MeasureTheory.integral_Icc_eq_integral_Ioc

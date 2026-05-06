@@ -1,0 +1,11 @@
+import Mathlib
+#check ofReal_integral_eq_lintegral_ofReal
+#check Real.toNNReal
+#check MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+#check intervalIntegral.integral_add_adjacent_intervals
+#check integral_log
+#check intervalIntegral.integral_inv
+#check intervalIntegral.integral_of_sub_right
+#check intervalIntegral.integralOn_inv
+#check intervalIntegral.integralOn_deriv
+#check intervalIntegral.integral_inv

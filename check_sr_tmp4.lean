@@ -1,0 +1,13 @@
+import Mathlib
+#check MeasureTheory.lintegral_coe_eq_integral_of_nonneg
+#check MeasureTheory.ofReal_integral_eq_lintegral_of_nonneg
+#check MeasureTheory.lintegral_ofReal_eq_lintegral_of_nonneg
+#check MeasureTheory.ofReal_lintegral_le_ofReal
+#check MeasureTheory.lintegral_indicator
+#check MeasureTheory.ae_restrict_iff'
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.intervalIntegrable_const
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.intervalIntegrable_inv
+#check intervalIntegral.intervalIntegrable_const'.

@@ -1,0 +1,10 @@
+import Mathlib
+#check isOpen_uIcc
+#check isOpen_uIoc
+#check isOpen_uIoo
+#check isClosed_uIcc
+#check isClosed_uIoc
+#check isMeasurableSet_uIcc
+#check isMeasurableSet_uIoc
+#check Set.uIoc
+#check Set.uIcc

@@ -1,0 +1,12 @@
+import Mathlib
+#check lintegral_add_right_eq_self
+#check MeasureTheory.lintegral_add_right_eq_self
+#check map_add_right_eq_self
+#check MeasureTheory.MeasurePreserving
+#check lintegral_map
+#check integral_add_adjacent_intervals
+#check integral_symm
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_add_adjacent_intervals
+#check lintegral_indicator
+#check MeasureTheory.lintegral_indicator

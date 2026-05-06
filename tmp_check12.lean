@@ -1,0 +1,8 @@
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.intervalIntegrable_log
+#check intervalIntegral.intervalIntegrable_const
+#check intervalIntegral.intervalIntegrable_inv
+#check intervalIntegral.intervalIntegrable_of_even
+#check intervalIntegral.intervalIntegrable_add
+#check intervalIntegral.IntervalIntegrable.of_isBoundedOn

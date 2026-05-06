@@ -1,0 +1,6 @@
+import Mathlib
+#check MeasureTheory.lintegral_indicator_eq_lintegral_ofReal
+#check MeasureTheory.lintegral_indicator_eq
+#check MeasureTheory.integral_indicator_eq_lintegral
+#check MeasureTheory.lintegral_indicator'
+#check MeasureTheory.lintegral_indicator

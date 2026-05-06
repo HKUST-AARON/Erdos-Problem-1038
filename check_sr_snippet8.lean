@@ -1,0 +1,9 @@
+import Mathlib
+#check intervalIntegral.intervalIntegrable_neg
+#check intervalIntegral.intervalIntegrable_sub_left
+#check intervalIntegral.intervalIntegrable_neg
+#check intervalIntegral.intervalIntegrable_const
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegrable_neg
+#check intervalIntegral.IntervalIntegrable.neg
+#check IntervalIntegrable.neg

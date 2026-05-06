@@ -1,0 +1,10 @@
+import Mathlib
+#check intervalIntegral.intervalIntegrable_of_even
+#check intervalIntegral.integral_even
+#check intervalIntegral.integral_even' 
+#check intervalIntegral.integral_neg_eq_neg
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_add_adjacent_intervals
+#check MeasureTheory.integral_Icc_eq_integral_Ioo
+#check intervalIntegral.integral_eq_sub_of_hasDerivAt_of_tendsto

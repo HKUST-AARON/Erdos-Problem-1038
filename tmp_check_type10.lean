@@ -1,0 +1,11 @@
+import Mathlib
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_of_le
+#check intervalIntegral.integral_ofReal
+#check intervalIntegral.integral_sub
+#check intervalIntegral.integral_add
+#check intervalIntegral.integral_of_le
+#check intervalIntegral.integral_sub
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_Ioo

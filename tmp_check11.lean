@@ -1,0 +1,13 @@
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+#check one_le_div
+#check one_le_div₀
+#check le_div_iff
+#check div_le_iff
+#check le_inv_iff₀
+#check inv_le_inv₀
+#check one_le_mul
+#check one_le_ofReal
+#check Real.log_nonneg
+#check Real.log_le_log
+#check Real.log_nonneg_iff
+#check Real.log_pos_iff

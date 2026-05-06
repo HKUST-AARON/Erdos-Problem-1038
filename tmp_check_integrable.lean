@@ -1,0 +1,15 @@
+import Mathlib
+#check intervalIntegrable_iff_integrableOn_uIcc
+#check IntegrableOn.intervalIntegrable
+#check intervalIntegrableOn_uIcc
+#check IntegrableOn
+#check intervalIntegrable.sub
+#check intervalIntegrable.comp_mul_left
+#check intervalIntegrable.ofReal_div
+#check intervalIntegrable.log
+#check intervalIntegrable.comp_sub_right
+#check intervalIntegrable.neg
+#check intervalIntegrable.comp_neg
+#check intervalIntegrable.comp_mul_right
+#check intervalIntegrable_const
+#check intervalIntegrableOn_const

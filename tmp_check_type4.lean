@@ -1,0 +1,10 @@
+import Mathlib
+#check intervalIntegrable_log'
+#check intervalIntegrable_log
+#check IntegrableOn.sub
+#check IntervalIntegrable.sub
+#check intervalIntegrable_const
+#check intervalIntegrable_const
+#check IntegrableOn
+#check intervalIntegrable.mul
+#check intervalIntegrable_id

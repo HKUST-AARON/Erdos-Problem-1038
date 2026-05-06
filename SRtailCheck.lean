@@ -1,0 +1,11 @@
+import Mathlib
+import finite_atoms.common.lean.StandardReduction
+
+#check intervalIntegral.integral_log
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.integral_add_adjacent_intervals
+#check MeasureTheory.lintegral_ofReal_eq_integral
+#check MeasureTheory.lintegral_indicator
+#check MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+#check MeasureTheory.ofReal_integral_eq_lintegral_ofReal
+#check Real.integrableOn_log

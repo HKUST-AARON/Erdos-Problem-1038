@@ -1,0 +1,11 @@
+import Mathlib
+#check intervalIntegral.integral_comp_neg
+#check intervalIntegral.integral_neg
+#check intervalIntegral.integral_substitution
+#check intervalIntegral.integral_change_of_variables
+#check intervalIntegral.integral_congr_ae
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_uIcc
+#check MeasureTheory.lintegral_indicator
+#check MeasureTheory.measurePreserving_neg
+#check MeasureTheory.lintegral_congr_ae

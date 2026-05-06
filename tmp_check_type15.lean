@@ -1,0 +1,16 @@
+import Mathlib
+#check IntervalIntegrable.div
+#check intervalIntegral.intervalIntegrable_inv
+#check IntervalIntegrable.inv
+#check IntervalIntegrable.sub
+#check intervalIntegrable_id
+#check IntervalIntegrable.mul
+#check IntervalIntegrable.div_const
+#check IntervalIntegrable.const_mul
+#check IntervalIntegrable.mul_const
+#check IntervalIntegrable.mul_right
+#check intervalIntegral.intervalIntegrable_inv
+#check intervalIntegrable_log
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.intervalIntegrable_inv
+#check intervalIntegrableOn.log_const_mul

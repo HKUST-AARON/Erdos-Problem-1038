@@ -1,0 +1,12 @@
+import Mathlib
+#check MeasureTheory.integral_restrict
+#check MeasureTheory.integral_restrict_of_nonneg_ae
+#check MeasureTheory.integral_restrict_subtype_val
+#check MeasureTheory.integral_restrict_add
+#check MeasureTheory.integral_restrict_UNIV
+#check MeasureTheory.integral_indicator
+#check MeasureTheory.integral_indicator_of_nonneg
+#check MeasureTheory.integral_Icc_eq_integral_uIcc
+#check MeasureTheory.integral_Icc_eq_integral_Ioo
+#check intervalIntegral.integral_of_le
+#check MeasureTheory.integral_of_le

@@ -1,0 +1,14 @@
+import Mathlib.Analysis.SpecialFunctions.Integrals.Basic
+#check intervalIntegrable_log
+#check intervalIntegrable_log'
+#check intervalIntegrable_inv_of_pos
+#check intervalIntegrable_inv
+#check intervalIntegrable_mul_const
+#check intervalIntegrable_comp_add_left
+#check intervalIntegrable_comp_mul_left
+#check intervalIntegrable_div_const
+#check intervalIntegrable_mul_right
+#check intervalIntegrable_sub
+#check intervalIntegrable_add
+#check intervalIntegrable_neg
+#check intervalIntegrable_of_even

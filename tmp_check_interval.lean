@@ -1,0 +1,13 @@
+import Mathlib
+#check intervalIntegral.integral_of_le
+#check intervalIntegral.integral_of_le
+#check intervalIntegral.integral_of_ge
+#check setIntegral
+#check MeasureTheory.setIntegral
+#check MeasureTheory.setIntegral_Icc
+#check MeasureTheory.setIntegral_Icc
+#check MeasureTheory.integral_indicator
+#check intervalIntegral.integral_Icc_eq_integral_uIcc
+#check intervalIntegral.integral_uIcc
+#check intervalIntegral.integral_Ioc_eq_integral_Ioo
+#check intervalIntegral.integral_uIcc

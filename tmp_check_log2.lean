@@ -1,0 +1,14 @@
+import Mathlib
+#check Real.log_div
+#check Real.log_inv
+#check Real.log_mul
+#check Real.log_eq_zero
+#check Real.log_eq_natCast_log
+#check Real.log_mul
+#check intervalIntegral.integral_sub
+#check intervalIntegral.integral_const
+#check intervalIntegral.integral_add
+#check intervalIntegral.integral_congr_ae
+#check intervalIntegral.integral_const_mul
+#check intervalIntegral.integral_mul_left
+#check intervalIntegral.integral_intervalIntegral_add_adjacent

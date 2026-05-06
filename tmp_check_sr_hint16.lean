@@ -1,0 +1,13 @@
+import Mathlib
+#check intervalIntegrable_iff_integrableOn_uIcc
+#check intervalIntegrable_iff_integrableOn
+#check integrableOn_iff_integrableOn_uIcc
+#check MeasureTheory.integrableOn_iff_integrableOn_uIcc
+#check IntegrableOn.of_sub
+#check MeasureTheory.integrableOn_subtype_iff
+#check MeasureTheory.integrableOn_of_Icc
+#check intervalIntegral.intervalIntegrable_iff_integrableOn_uIcc
+#check intervalIntegral.intervalIntegrableOn_iff
+#check IntervalIntegrable
+#check MeasureTheory.integrableOn_Icc
+#check MeasureTheory.IntegrableOn

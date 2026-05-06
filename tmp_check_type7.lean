@@ -1,0 +1,17 @@
+import Mathlib
+#check intervalIntegrable_abs
+#check intervalIntegrable_neg
+#check intervalIntegrable_comp_mul_left
+#check intervalIntegrable_mul_const
+#check intervalIntegrable_const_mul
+#check intervalIntegrable_mul
+#check intervalIntegrable_div_const
+#check intervalIntegrable_inv
+#check intervalIntegrable_div
+#check intervalIntegrable_pow
+#check intervalIntegrable_sub
+#check intervalIntegrable_sub'
+#check intervalIntegrable_add
+#check intervalIntegrable_log'
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_add

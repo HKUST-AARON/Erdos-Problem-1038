@@ -1,0 +1,9 @@
+import Mathlib
+#check Set.mem_uIcc
+#check Set.mem_uIoc
+#check Set.mem_Icc
+#check Set.mem_Ioc
+#check Set.mem_uIcc
+#check Set.uIcc_eq_uIcc
+#check Set.uIcc_of_le
+#check Set.uIoc_of_le

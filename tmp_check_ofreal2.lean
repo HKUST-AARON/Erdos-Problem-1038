@@ -1,0 +1,3 @@
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+#check ofReal_integral_eq_lintegral_ofReal
+#check integral_eq_lintegral_of_nonneg_ae

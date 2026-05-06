@@ -1,0 +1,9 @@
+import Mathlib
+#check intervalIntegral.integral_log
+#check intervalIntegral.integral_log'
+#check intervalIntegral.integralOn_log
+#check intervalIntegral.integralOn_mul
+#check intervalIntegral.integral_mul
+#check Real.integrableOn_log'
+#check intervalIntegral.integral_Icc_eq_integral_Ioc
+#check intervalIntegral.integral_const

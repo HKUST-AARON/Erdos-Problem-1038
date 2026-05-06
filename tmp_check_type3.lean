@@ -1,0 +1,12 @@
+import Mathlib
+#check MeasureTheory.lintegral_ofReal_eq_integral
+#check MeasureTheory.ofReal_integral_eq_lintegral_ofReal
+#check MeasureTheory.integral_ofReal_eq_lintegral_ofReal
+#check intervalIntegral.integral_add_adjacent_intervals
+#check measureOfReal
+#check integral_indicator
+#check lintegral_indicator
+#check Real.volume_Ioo
+#check lintegral_coe_eq_integral
+#check MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+#check IntervalIntegrable

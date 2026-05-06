@@ -1,0 +1,10 @@
+import Mathlib
+#check Ioo_ae_eq_Ioc
+#check Icc_ae_eq_Ioc
+#check Ioc_ae_eq_Icc
+#check Measure.restrict_restrict
+#check integral_Ioc_eq_integral_Ioo
+#check intervalIntegral.integral_of_le
+#check MeasureTheory.integral_indicator
+#check MeasureTheory.integral_indicator_of_not_mem
+#check intervalIntegral.integral_of_le

@@ -1,0 +1,10 @@
+import Mathlib
+#check ENNReal.ofReal_toReal
+#check ENNReal.toReal_ofReal
+#check ENNReal.toReal_eq_zero
+#check ENNReal.toReal_ofReal_le
+#check ENNReal.toReal_le_iff_le_coe
+#check ENNReal.ofReal_toReal_eq
+#check ENNReal.toReal_ofReal_eq_zero
+#check ENNReal.ofReal_le_ofReal_iff
+#check ENNReal.toReal_le_toReal

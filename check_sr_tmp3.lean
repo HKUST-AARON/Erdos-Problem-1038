@@ -1,0 +1,12 @@
+import Mathlib
+#check integral_log
+#check integral_log_from_zero_of_pos
+#check intervalIntegral.integral_const
+#check integral_mul
+#check integral_log
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_sub
+#check Real.integral_log
+#check Real.log_integrableOn
+#check Real.integrableOn_log
+#check intervalIntegral.integralOfSub_right

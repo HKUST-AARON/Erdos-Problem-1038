@@ -1,0 +1,10 @@
+import Mathlib
+#check intervalIntegrable_log
+#check intervalIntegrable_log'
+#check MeasureTheory.intervalIntegrable_log
+#check MeasureTheory.intervalIntegrable_log'
+#check Real.intervalIntegrable_log
+#check intervalIntegrable_of_monotoneOn
+#check MeasureTheory.intervalIntegrable_id
+#check IntervalIntegrable_log
+#check intervalIntegrable_const

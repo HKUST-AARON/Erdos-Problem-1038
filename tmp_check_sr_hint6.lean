@@ -1,0 +1,16 @@
+import Mathlib
+#check MeasureTheory.lintegral_coe_eq_integral
+#check MeasureTheory.integral_eq_lintegral_of_nonneg_ae
+#check MeasureTheory.integral_coe_eq_lintegral
+#check MeasureTheory.lintegral_coe_eq_setIntegral
+#check MeasureTheory.lintegral_coe_eq_integral_of_nonneg
+#check MeasureTheory.integral_coe_eq_lintegral
+#check MeasureTheory.lintegral_ofReal_eq_lintegral
+#check intervalIntegral.integral_of_le
+#check IntervalIntegrable
+#check intervalIntegral.intervalIntegrable_add
+#check intervalIntegral.intervalIntegrable_log'
+#check intervalIntegral.intervalIntegrable_inv
+#check intervalIntegral.integral_add_adjacent_intervals_cancel
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_add_adjacent_intervals

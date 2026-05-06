@@ -1,0 +1,10 @@
+import Mathlib
+#check lintegral_restrict
+#check MeasureTheory.lintegral_restrict
+#check MeasureTheory.lintegral_restrict_of_ae_eq
+#check MeasureTheory.lintegral_restrict_univ
+#check MeasureTheory.lintegral_restrict_eq_zero
+#check MeasureTheory.integral_restrict_subtype
+#check MeasureTheory.integral_restrict
+#check MeasureTheory.integral_restrict_subtype
+#check MeasureTheory.integral_indicator

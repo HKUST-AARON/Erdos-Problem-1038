@@ -1,0 +1,12 @@
+import Mathlib
+#check MeasureTheory.IntervalIntegrable.congr_ae
+#check MeasureTheory.intervalIntegrable_congr_ae
+#check IntervalIntegrable.congr_ae
+#check intervalIntegral.IntervalIntegrable.congr_ae
+#check intervalIntegral.intervalIntegrable_of_le_of_nonneg
+#check intervalIntegral.intervalIntegrable_of_le
+#check intervalIntegral.intervalIntegrable_of_ne_zero
+#check IntervalIntegrable.of_finite_range
+#check IntervalIntegrable.comp_tendsto_nhdsWithin_of_eq
+#check intervalIntegral.intervalIntegrable_const
+#check intervalIntegral.intervalIntegrable_const_mul

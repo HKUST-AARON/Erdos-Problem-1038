@@ -1,0 +1,16 @@
+import Mathlib
+#check intervalIntegral.integral_log
+#check Real.integral_log
+#check intervalIntegral.integral_add_adjacent_intervals
+#check intervalIntegral.integral_symm
+#check intervalIntegral.integral_const
+#check integral_log
+#check intervalIntegral.integralOn_log
+#check Real.log_eq_zero
+#check Real.log_inv
+#check ofReal_eq_zero
+#check ENNReal.ofReal_eq_zero
+#check lintegral_add_right_eq
+#check lintegral_indicator
+#check MeasureTheory.lintegral_indicator
+#check MeasureTheory.ofReal_integral_eq_lintegral_of_nonneg

@@ -1,0 +1,34 @@
+name = "ErdosMath"
+version = "0.1.0"
+keywords = ["math"]
+
+[leanOptions]
+pp.unicode.fun = true
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.30.0-rc2"
+
+
+[[lean_lib]]
+name = "box_arith_chunks"
+srcDir = "../Erdos-Problem-1038/finite_atoms/forcing_1708/lean"
+globs = ["box_arith_chunks.+"]
+
+[[lean_lib]]
+name = "geometry_chunks"
+srcDir = "../Erdos-Problem-1038/finite_atoms/forcing_1708/lean"
+globs = ["geometry_chunks.+"]
+
+[[lean_lib]]
+name = "coverage_chunks"
+srcDir = "../Erdos-Problem-1038/finite_atoms/forcing_1708/lean"
+globs = ["coverage_chunks.+"]
+
+[[lean_lib]]
+name = "analytic_precondition_chunks"
+srcDir = "../Erdos-Problem-1038/finite_atoms/forcing_1708/lean"
+globs = ["analytic_precondition_chunks.+"]
