@@ -7531,6 +7531,27 @@ theorem componentBlock_logKernel_replacement_le_of_strictOutside
           rw [ENNReal.toReal_inv]
           field_simp [hmass_toReal_pos.ne']
 
+/--
+Function-level component-block Jensen wrapper.
+
+This packages the scaled Jensen theorem as the `hblock_jensen` input expected by
+`componentReplacement_objective_le_of_decomposition_jensen`.
+-/
+theorem componentReplacement_blockKernel_le_original_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_norm_int : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  intro x hx
+  exact componentBlock_logKernel_replacement_le_of_strictOutside
+    R hx hfirst (hkernel_norm_int x hx)
+
 /-!
 ## Finite variance drop under barycenter replacement
 
