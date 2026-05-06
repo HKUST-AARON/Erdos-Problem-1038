@@ -3126,6 +3126,17 @@ theorem componentReplacementProbability_toMeasure
       Measure.comap (fun t : UnitInterval1038 => (t : ℝ))
         (componentReplacementMeasure C) := rfl
 
+/--
+The replacement probability is admissible for the concrete compact admissible
+class used in this file, namely all probability measures on `[-1,1]`.
+-/
+theorem componentReplacementProbability_admissibleProbability
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    (componentReplacementProbability C hmass_unit : AdmissibleProbability1038) =
+      componentReplacementProbability C hmass_unit := rfl
+
 structure ComponentReplacement
     (μ : ProbabilityMeasure UnitInterval1038) (C : PositiveComponent μ) where
   mass_pos : 0 < componentMass C
@@ -8219,6 +8230,19 @@ theorem SecondarySelectorProblemENNReal.exists_secondary_minimizer
       P.secondary_lsc_on_minimizers with
     ⟨a, hmin, hsecondary⟩
   exact ⟨a, hmin, hsecondary⟩
+
+/--
+Selector-problem admissibility bridge for the replacement probability when the
+primary admissible class is the concrete full probability class.
+-/
+theorem componentReplacementProbability_primary_admissible_of_univ
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    {P : SecondarySelectorProblemENNReal (ProbabilityMeasure UnitInterval1038)}
+    (hAdmissible : P.Primary.Admissible = fun _ => True) :
+    P.Primary.Admissible (componentReplacementProbability C hmass_unit) := by
+  simpa [hAdmissible]
 
 /-!
 ## Replacement/variance contradiction layer
