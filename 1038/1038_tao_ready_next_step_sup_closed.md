@@ -4261,6 +4261,27 @@ strict residual inequalities.  Equality is not an interior closure; it routes
 to Gate 3 contact/boundary degeneration or remains a concrete Gate 1
 obstruction.
 
+The cone-envelope assembly is now formal.  If the no-atom collinearity test is
+excluded or routed to boundary, and if the majorants
+\(\theta_\Lambda,\theta_\lambda\) satisfy the \(Z_0\)-majorant and strict
+residual inequalities above, then any raw augmented Farkas certificate
+contradicts its own lifted nonnegativity.  Thus finite-dimensional Farkas plus
+Carathéodory gives the reduced LP.
+
+Equivalently:
+\[
+\boxed{
+\text{majorants + strict residuals}
+\Rightarrow
+\text{RawAugmentedCircuitSign}
+\Rightarrow
+\text{reduced LP feasible.}
+}
+\]
+The only remaining Gate 1 input is the explicit construction of those
+majorants, i.e. the \(P_\theta\)-sign tables on \(Z_0\) and the strict boundary
+/ anchor residual checks.  This is not yet an unconditional Gate 1 PASS.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

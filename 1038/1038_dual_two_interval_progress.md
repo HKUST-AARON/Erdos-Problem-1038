@@ -11884,6 +11884,118 @@ theorem queue.
     \(\theta_\Lambda,\theta_\lambda\), prove their \(P_\theta\)-sign tables on
     \(Z_0\), and verify the strict residual inequalities above.
 
+    Gate 1 cone-envelope assembly.
+
+    We now isolate the exact assembly statement.  This is the part of Gate 1
+    that no longer contains hidden measure theory or informal cone language.
+
+    \[
+    \boxed{\textbf{Gate1ConeEnvelopeAssembly}.}
+    }
+    \]
+
+    Assume the following three finite checks hold in the regular non-pinched
+    moving chart:
+
+    1.  the no-atom branch satisfies
+
+        \[
+        b_S=\Lambda\rho_S
+        \quad\Longrightarrow\quad
+        b_\Pi-\Lambda\rho_\Pi<0,
+        \]
+
+        with the degenerate cases routed to chart-rank boundary as in
+        Gate1NoAtomCertificateExclusion;
+
+    2.  for every \(\Lambda\in\mathbb R\), there is
+        \(\theta_\Lambda\) such that
+
+        \[
+        G_{\theta_\Lambda}(x)\ge0\quad(x\in Z_0),
+        \qquad
+        G_{\theta_\Lambda}^{(b)}
+        -\Lambda G_{\theta_\Lambda}^{(c)}>0;
+        \]
+
+    3.  for every \(\lambda\ne0\), there is \(\theta_\lambda\) such that
+
+        \[
+        G_{\theta_\lambda}(x)\ge0\quad(x\in Z_0),
+        \qquad
+        \lambda G_{\theta_\lambda}^{(c)}<0.
+        \]
+
+    Then no raw augmented Farkas certificate exists in the compact non-pinched
+    regular rank-defect interior.
+
+    Proof.  Let a minimal raw augmented certificate be given.  If its
+    \(Z_0\)-atomic part is zero, the first assumption excludes it, except for
+    the explicitly routed chart-rank boundary cases.
+
+    Suppose now that the certificate has a nonzero \(Z_0\)-atomic part.  If
+    \(\eta>0\), normalize \(\eta=1\) and put
+    \(\Lambda=\lambda/\eta\).  The certificate equations give
+
+    \[
+    \sum_kw_kV_S(x_k)=-b_S+\Lambda\rho_S.
+    \]
+
+    By the majorant \(G_{\theta_\Lambda}\ge0\),
+
+    \[
+    \sum_kw_kV_\Pi(x_k)
+    \le
+    \theta_\Lambda\cdot(-b_S+\Lambda\rho_S).
+    \]
+
+    The strict residual inequality is exactly
+
+    \[
+    \theta_\Lambda\cdot(-b_S+\Lambda\rho_S)
+    <
+    -b_\Pi+\Lambda\rho_\Pi.
+    \]
+
+    Hence
+
+    \[
+    b_\Pi+\sum_kw_kV_\Pi(x_k)-\Lambda\rho_\Pi<0,
+    \]
+
+    contradicting the nonnegative lifted value required by Farkas.
+
+    If \(\eta=0\), then \(\lambda\ne0\) for a nonzero certificate and
+
+    \[
+    \sum_kw_kV_S(x_k)=\lambda\rho_S.
+    \]
+
+    The majorant \(G_{\theta_\lambda}\ge0\) gives
+
+    \[
+    \sum_kw_kV_\Pi(x_k)\le\theta_\lambda\cdot(\lambda\rho_S),
+    \]
+
+    and the homogeneous strict residual gives
+
+    \[
+    \theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi.
+    \]
+
+    This contradicts the homogeneous lifted Farkas inequality.  Therefore no
+    interior atomic certificate remains.  By finite-dimensional Farkas and
+    conic Carathéodory, the reduced LP is feasible.
+
+    Consequently the only unproved Gate 1 input after this assembly is not a
+    cone or Farkas issue: it is the explicit construction of the majorants
+    \(\theta_\Lambda,\theta_\lambda\), equivalently the \(P_\theta\)-sign
+    tables and strict residual checks recorded above.  Once those finite
+    checks are proved, Gate 1 may be marked PASS for the compact non-pinched
+    regular \(g=2\) rank-defect interior.  Until then, this section is the
+    closed assembly conditional on those checks, not an unconditional Gate 1
+    pass.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
