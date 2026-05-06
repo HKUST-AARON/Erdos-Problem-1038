@@ -305,6 +305,7 @@ The constructors
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_lt
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_ne
+CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_open_left_cover
 ```
 
 remove the direct component-block atomization input when the caller has
@@ -314,7 +315,8 @@ internally.  The endpoint-mass/left-endpoint-order variant also removes the
 direct `componentBarycenter = -1` input from the canonical atomized right-region
 package.  The nondegenerate-left-endpoint variant replaces the strict order
 input by `component.left ≠ -1`, using baseline containment to recover
-`component.left < -1`.
+`component.left < -1`.  The open-left-cover variant additionally replaces that
+nondegeneracy input by the local maximal-component cover condition.
 
 The theorem
 

@@ -2527,6 +2527,44 @@ def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_
     endpoint_mass_pos left_endpoint_ne right_endpoint_positive
     right_endpoint_not_mem_support
 
+/--
+Open-left-cover variant of the countable-rigidity constructor.  This is the
+countable rigidity route with the remaining endpoint nondegeneracy supplied by
+the local maximal-component cover input rather than by `component.left ≠ -1`.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_open_left_cover
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α}
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CountableSupportHitNormalizedBlockRigidityData P a b M.μ)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (right_region_eq :
+      D.replacement.component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩
+          Ioi D.replacement.component.left)
+    (baseline_inside_component :
+      Ioo (-1 : ℝ) 0 ⊆ D.replacement.component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (endpoint_mass_pos : 0 < (realMeasure M.μ) ({-1} : Set ℝ))
+    {S : Set ℝ} {ε : ℝ}
+    (hOpen : IsOpen S)
+    (hendpoint : (-1 : ℝ) ∈ S)
+    (hε : 0 < ε)
+    (hleftCover : ∀ y : ℝ, y ∈ S → y ∈ Ioo ((-1 : ℝ) - ε) 0 →
+      y ∈ D.replacement.component.interval)
+    (right_endpoint_positive : 0 < D.replacement.component.right)
+    (right_endpoint_not_mem_support :
+      D.replacement.component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M :=
+  CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_open_left_cover
+    mean_choice reflected translation D.replacement.component right_region_eq
+    baseline_inside_component real_support_bounded D.componentBlock_eq_dirac
+    endpoint_mass_pos hOpen hendpoint hε hleftCover
+    right_endpoint_positive right_endpoint_not_mem_support
+
 end
 end ComponentAtomization
 end StandardReduction
