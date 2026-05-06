@@ -12079,6 +12079,91 @@ theorem queue.
     at which the compact non-pinched \(g=2\) rank-defect proof still needs a
     new sign calculation.
 
+    Abstract insufficiency audit.
+
+    The margin target above is not a formal consequence of the cone-envelope
+    setup alone.  A four-point finite model already satisfies the same
+    Farkas/majorant algebra and fails the required margin.  Take
+
+    \[
+    Z_0=\{x_1,x_2,x_3,x_4\},\qquad
+    V_S(x_i)=e_i,\qquad
+    V_\Pi(x_i)=0,
+    \]
+
+    and
+
+    \[
+    b_S=-(1,1,1,1),\qquad
+    \rho_S=0,\qquad
+    b_\Pi=1,\qquad
+    \rho_\Pi=0.
+    \]
+
+    Then
+
+    \[
+    b_S+\sum_{i=1}^4V_S(x_i)=0
+    \]
+
+    is a positive raw augmented circuit, while the lifted value is
+
+    \[
+    b_\Pi+\sum_{i=1}^4V_\Pi(x_i)=1>0.
+    \]
+
+    Equivalently, \(\mathcal D_Z=\{\theta_i\ge0\}\), and at
+    \(\Lambda=0\)
+
+    \[
+    M_\eta(0)=
+    \sup_{\theta_i\ge0}\left(\theta\cdot b_S-b_\Pi\right)
+    =
+    -1<0.
+    \]
+
+    Thus the desired strict positive margin can fail even though the finite
+    Farkas/cone formalism is perfectly consistent.  This finite model is not a
+    claim about the actual moving-Schiffer columns; it proves the logical
+    point that Gate 1 cannot be closed from the abstract cone-envelope
+    reduction alone.
+
+    Therefore the missing theorem is forced to use the real algebraic content
+    of the moving finite-gap chart:
+
+    \[
+    \boxed{
+    \textbf{MovingSchifferMajorantSignTheorem}.}
+    }
+    \]
+
+    It must prove (G1AffineMarginTarget) and (G1HomMarginTarget) from the
+    explicit repaired columns
+
+    \[
+    H_\gamma^{\rm rep}
+    =
+    QD\,\Delta_\gamma P
+    -PD\,\Delta_\gamma Q
+    -\frac12PQD_\gamma
+    \]
+
+    and the actual moving-chart linear system \(AX_\gamma=-r_\gamma\).  In
+    proof-grade form this means either:
+
+    1.  an explicit signed determinant/product formula for the alternation
+        system of
+
+        \[
+        P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep};
+        \]
+
+    2.  or a direct solution of the extremal majorant problem on the two
+        components of \(Z_0\) proving the two margin inequalities.
+
+    Without one of these two chart-specific sign proofs, writing
+    "Gate 1 PASS" would be a logical error.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

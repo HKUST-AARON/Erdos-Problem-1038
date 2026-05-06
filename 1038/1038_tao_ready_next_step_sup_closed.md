@@ -4309,6 +4309,31 @@ This is the remaining hard mouth: prove those margins, give an explicit signed
 determinant/product formula implying them, or produce a genuine non-boundary
 counter-certificate.
 
+The abstraction alone cannot close this.  A four-point model with
+\(V_S(x_i)=e_i\), \(V_\Pi(x_i)=0\), \(b_S=-(1,1,1,1)\), \(\rho_S=0\),
+\(b_\Pi=1\), \(\rho_\Pi=0\) has a positive raw circuit
+\[
+b_S+\sum_iV_S(x_i)=0
+\]
+with lifted value \(1>0\).  Its dual cone is \(\theta_i\ge0\), and the affine
+margin at \(\Lambda=0\) is \(-1\), not positive.  This does not refute the
+actual moving-Schiffer chart; it proves that the remaining theorem must use
+the explicit repaired columns \(H_\gamma^{\rm rep}\), not just abstract Farkas
+or Schur-complement language.
+
+So the precise missing theorem is:
+\[
+\boxed{\textbf{MovingSchifferMajorantSignTheorem}.}
+\]
+It must prove the two margin inequalities from
+\[
+H_\gamma^{\rm rep}
+=QD\,\Delta_\gamma P-PD\,\Delta_\gamma Q-\frac12PQD_\gamma
+\]
+and the actual moving-chart system \(AX_\gamma=-r_\gamma\), either through an
+explicit signed determinant/product formula for the \(P_\theta\)-alternation
+system or through a direct solution of the two-cut extremal majorant problem.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
