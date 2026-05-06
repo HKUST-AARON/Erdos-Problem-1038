@@ -54,9 +54,17 @@ and its objective invariance remain upstream work.
 `lean/ComponentAtomization.lean` packages the barycenter-replacement part of
 the variation argument.  It exposes objective non-increase from countable or
 finite support-hit certificates and the secondary-minimizer consequence that a
-caller-supplied tested block must already be a Dirac mass.  Identifying that
-tested block with the actual component block remains an explicit upstream
-input.
+caller-supplied tested block must already be a Dirac mass.  It now also
+specializes this rigidity statement to the canonical normalized component
+block and proves the measure-level bridge
+
+```lean
+componentBlock C = componentMass C • Measure.dirac (componentBarycenter C)
+```
+
+from normalized-block Dirac rigidity.  The remaining upstream input in this
+layer is the actual Tao variation data selecting the positive component and
+providing the replacement/secondary-objective hypotheses.
 
 ## Check command
 
