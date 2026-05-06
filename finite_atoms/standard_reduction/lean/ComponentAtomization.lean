@@ -1846,6 +1846,47 @@ def CanonicalAtomizedRightRegionPackageData.toCanonicalRightRegionPackageData
   right_endpoint_not_mem_support := D.right_endpoint_not_mem_support
 
 /--
+Build atomized right-region data from component-block atomization plus the
+endpoint-mass/nondegenerate-left-endpoint inputs.  This is the direct
+constructor for the current normalized route: callers no longer provide
+`componentBarycenter = -1` itself.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (component : PositiveComponent M.μ)
+    (right_region_eq :
+      component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩ Ioi component.left)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (component_block_atomized :
+      componentBlock component =
+        componentMass component • Measure.dirac (componentBarycenter component))
+    (endpoint_mass_pos : 0 < (realMeasure M.μ) ({-1} : Set ℝ))
+    (left_endpoint_ne : component.left ≠ (-1 : ℝ))
+    (right_endpoint_positive : 0 < component.right)
+    (right_endpoint_not_mem_support :
+      component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M where
+  mean_choice := mean_choice
+  reflected := reflected
+  translation := translation
+  component := component
+  right_region_eq := right_region_eq
+  baseline_inside_component := baseline_inside_component
+  real_support_bounded := real_support_bounded
+  component_block_atomized := component_block_atomized
+  barycenter_eq_endpoint :=
+    componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
+      component component_block_atomized endpoint_mass_pos
+      baseline_inside_component left_endpoint_ne
+  right_endpoint_positive := right_endpoint_positive
+  right_endpoint_not_mem_support := right_endpoint_not_mem_support
+
+/--
 Canonical component-package variation data directly gives the normalized
 endpoint-potential interface for each relaxed minimizer.
 -/
@@ -2355,13 +2396,11 @@ def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_
     (right_endpoint_not_mem_support :
       D.replacement.component.right ∉ (realMeasure M.μ).support) :
     CanonicalAtomizedRightRegionPackageData M :=
-  CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
-    D mean_choice reflected translation right_region_eq
-    baseline_inside_component real_support_bounded
-    (componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
-      D.replacement.component D.componentBlock_eq_dirac endpoint_mass_pos
-      baseline_inside_component left_endpoint_ne)
-    right_endpoint_positive right_endpoint_not_mem_support
+  CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
+    mean_choice reflected translation D.replacement.component right_region_eq
+    baseline_inside_component real_support_bounded D.componentBlock_eq_dirac
+    endpoint_mass_pos left_endpoint_ne right_endpoint_positive
+    right_endpoint_not_mem_support
 
 end
 end ComponentAtomization

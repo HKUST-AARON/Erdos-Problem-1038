@@ -272,6 +272,17 @@ support is fixed to `(realMeasure μ).support`, so the caller only proves the
 boundedness of the actual topological support rather than two opposite support
 containments.
 
+The constructor
+
+```lean
+CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
+```
+
+is now the preferred direct constructor for this layer.  It keeps the
+component-block atomization input, but replaces the direct
+`componentBarycenter = -1` field by endpoint positive mass and the
+nondegenerate left-endpoint condition `component.left ≠ -1`.
+
 The constructors
 
 ```lean
