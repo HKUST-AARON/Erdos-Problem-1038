@@ -9645,6 +9645,75 @@ theorem queue.
     to be in the canonical TP class, TPRowRealizationLemma follows from the
     three primitives above, and Gate 1 passes by (Gate1Sylvester).
 
+    Canonical free-period row realization.
+
+    The two unresolved rows in (Gate1RowChecklist) are not independent rows in
+    the canonical Gate 1 chart.
+
+    First, the period/filling constraint is treated in the free-period quotient
+    used throughout the regular compact \(g=2\) audit.  The filling variable
+    \(\tau\) supplies the period column, so the period multiplier is forced to
+    vanish in any left-cokernel calculation.  Equivalently, the endpoint
+    Schiffer normalization matrix \(A\) is built on the quotient by the period
+    row; the period direction appears as the separate lift column
+    \(C_\Pi=\kappa/R\), not as a normalization row that must be included in
+    \(A\).  Thus no sign-changing fixed-period row is present in the canonical
+    Gate 1 block.
+
+    Second, the "regular chart rows" are not equality rows.  Separation of
+    branch endpoints, real simple \(Q\)-poles, positive residues, and strict
+    density signs are open inequalities defining the regular non-pinched
+    chamber.  They are checked before the linearized Schiffer calculation and
+    routed to Gate 3 when they fail.  They do not contribute rows to the
+    finite equality matrix \(A\).
+
+    Therefore the canonical Gate 1 normalization rows are exactly:
+
+    \[
+    \boxed{
+    \text{zero-mass/infinity row}
+    \quad+\quad
+    \text{real pole-state evaluation/confluent derivative rows}.
+    }
+    \tag{Gate1CanonicalRows}
+    \]
+
+    These rows are already covered by the TP row toolbox: the infinity row is
+    the Cauchy row at the ordered source \(\infty\), and the pole-state rows
+    are ordered confluent Cauchy rows at the real simple poles \(p_k\).  The
+    equality row \(\rho\) and all moving-point rows are also ordered evaluation
+    rows.  Hence
+
+    \[
+    \boxed{
+    \text{TPRowRealizationLemma holds for the canonical free-period
+    pole-state Gate 1 row gauge.}
+    }
+    \tag{Gate1TPRowsPass}
+    \]
+
+    This closes the row side of Gate 1.  Combining (Gate1TPRowsPass) with
+    (Gate1Sylvester), the repaired Schur-complement minors inherit the sign of
+    the corresponding full canonical block minors.  The remaining determinant
+    task is now purely column-side: prove that the full canonical block with
+    raw endpoint columns
+
+    \[
+    H_\gamma^{\rm raw}=-\frac12PQD_\gamma
+    \]
+
+    and lift column \(\kappa Q^2\) has the required ordered sign once the
+    canonical rows above are used.  This is the next lemma:
+
+    \[
+    \boxed{\textbf{EndpointPeriodColumnOrientationLemma.}}
+    \]
+
+    It must show that the four columns \(PQD_\gamma\) and the period column
+    \(Q^2\), evaluated against the canonical ordered row block, have the
+    required orientation.  Without this column-orientation lemma, row total
+    positivity alone still does not prove RawAugmentedCircuitSign.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

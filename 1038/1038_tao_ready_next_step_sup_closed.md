@@ -3357,6 +3357,27 @@ to prove that the period/filling row is a positive Cauchy average and that any
 additional regular chart rows are replaced by, or proved equivalent to, this
 canonical TP gauge.
 
+That row audit is now reduced in the canonical free-period chart.  The
+period/filling constraint is quotiented by the filling variable \(\tau\), so it
+does not enter \(A\) as an equality row; the period direction remains only as
+the lift column \(C_\Pi=\kappa/R\).  The regular chart conditions are open
+inequalities, not equality rows, and failure of any of them routes to Gate 3.
+Thus the canonical Gate 1 rows are only the infinity/zero-mass row and the
+real pole-state evaluation/confluent derivative rows, plus the raw circuit
+evaluation and equality rows.  These rows are all covered by the TP row
+toolbox.
+
+So the row side of Gate 1 is now closed in the canonical gauge.  The remaining
+Gate 1 obstruction is column-side:
+
+\[
+\boxed{\textbf{EndpointPeriodColumnOrientationLemma}}
+\]
+
+which must sign the full canonical block containing the four raw endpoint
+columns \(PQD_\gamma\) and the period lift column \(Q^2\).  Only after this
+column-orientation lemma is proved does RawAugmentedCircuitSign follow.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
