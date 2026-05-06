@@ -342,6 +342,69 @@ theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_m
     C hblock hmass
     (endpoint_mem_component_of_baseline_inside_left_ne C hbaseline hleft_ne)
 
+/--
+Open-left-cover bridge for the remaining endpoint nondegeneracy input.
+
+If the positive set is open, the normalized endpoint `-1` is positive, and the
+selected component covers all positive points in a left neighborhood of `-1`,
+then the selected component starts strictly to the left of `-1`.
+-/
+theorem component_left_lt_endpoint_of_open_left_cover
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {S : Set ℝ} {ε : ℝ}
+    (hOpen : IsOpen S)
+    (hendpoint : (-1 : ℝ) ∈ S)
+    (hε : 0 < ε)
+    (hcover : ∀ y : ℝ, y ∈ S → y ∈ Ioo ((-1 : ℝ) - ε) 0 →
+      y ∈ C.interval) :
+    C.left < (-1 : ℝ) := by
+  have hnhds : S ∈ 𝓝 (-1 : ℝ) := hOpen.mem_nhds hendpoint
+  rcases Metric.mem_nhds_iff.mp hnhds with ⟨δ, hδ, hball⟩
+  have hmin_pos : 0 < min δ ε := lt_min hδ hε
+  let η : ℝ := min δ ε / 2
+  have hη_pos : 0 < η := by
+    dsimp [η]
+    exact half_pos hmin_pos
+  let y : ℝ := (-1 : ℝ) - η
+  have hy_lt_endpoint : y < (-1 : ℝ) := by
+    dsimp [y]
+    linarith
+  have hy_dist : dist y (-1 : ℝ) < δ := by
+    dsimp [y, η]
+    rw [Real.dist_eq]
+    have hsub : -1 - min δ ε / 2 - -1 = -(min δ ε / 2) := by ring
+    rw [hsub]
+    rw [abs_of_neg]
+    · have hmin_le : min δ ε ≤ δ := min_le_left δ ε
+      linarith
+    · linarith [hmin_pos]
+  have hyS : y ∈ S := hball hy_dist
+  have hy_local : y ∈ Ioo ((-1 : ℝ) - ε) 0 := by
+    constructor
+    · dsimp [y, η]
+      have hmin_le : min δ ε ≤ ε := min_le_right δ ε
+      linarith
+    · dsimp [y, η]
+      linarith [hmin_pos]
+  have hycomp : y ∈ C.interval := hcover y hyS hy_local
+  rw [PositiveComponent.interval_eq] at hycomp
+  exact lt_trans hycomp.1 hy_lt_endpoint
+
+/--
+Nondegenerate endpoint consequence of the open-left-cover bridge.
+-/
+theorem component_left_ne_endpoint_of_open_left_cover
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {S : Set ℝ} {ε : ℝ}
+    (hOpen : IsOpen S)
+    (hendpoint : (-1 : ℝ) ∈ S)
+    (hε : 0 < ε)
+    (hcover : ∀ y : ℝ, y ∈ S → y ∈ Ioo ((-1 : ℝ) - ε) 0 →
+      y ∈ C.interval) :
+    C.left ≠ (-1 : ℝ) := by
+  exact ne_of_lt
+    (component_left_lt_endpoint_of_open_left_cover C hOpen hendpoint hε hcover)
+
 /-! ### Endpoint support shape and boundary average -/
 
 /-- Neighborhood form of the one-sided boundary exclusion argument. -/

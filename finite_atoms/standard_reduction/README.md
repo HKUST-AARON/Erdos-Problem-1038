@@ -362,6 +362,18 @@ mass at `{-1}`, baseline containment, and the strict endpoint order
 that endpoint nondegeneracy from the genuine maximal-component/translation
 argument, not to re-supply topological support membership by hand.
 
+The local topological bridge for that nondegeneracy is now isolated as:
+
+```lean
+component_left_lt_endpoint_of_open_left_cover
+component_left_ne_endpoint_of_open_left_cover
+```
+
+It says that if the positive set is open, `-1` is positive, and the selected
+component covers all positive points in a left neighborhood of `-1`, then the
+component's left endpoint is strictly less than `-1`.  This is the precise
+maximal-component input still needed upstream.
+
 ## Check command
 
 From the repository root:
