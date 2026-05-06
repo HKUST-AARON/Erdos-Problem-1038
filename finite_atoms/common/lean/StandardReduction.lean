@@ -3422,6 +3422,53 @@ theorem componentReplacementMeasure_ae_mem_Icc_of_mass_unit
   exact bot_unique ((ENNReal.add_le_add_iff_right
     (by simp : (1 : ℝ≥0∞) ≠ ∞)).mp hle)
 
+theorem componentReplacementMeasure_mass_unit_of_ae_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 := by
+  have hzero :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) = 0 := by
+    simpa [Set.compl_def] using (ae_iff.mp hsupport)
+  have hcompl :=
+    measure_add_measure_compl₀
+      (μ := componentReplacementMeasure C)
+      ((measurableSet_Icc : MeasurableSet (Icc (-1 : ℝ) 1)).nullMeasurableSet)
+  have hsum :
+      0 + componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 := by
+    simpa [hzero, componentReplacementMeasure_univ C, add_comm] using hcompl
+  simpa using hsum
+
+theorem componentReplacementMeasure_ae_mem_Icc_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hreal_zero :
+      realMeasure μ {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 :=
+    ae_iff.mp (realMeasure_ae_mem_unitInterval μ)
+  have houtside_zero :
+      ((realMeasure μ).restrict C.intervalᶜ)
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 := by
+    exact bot_unique
+      ((Measure.restrict_apply_le C.intervalᶜ
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1}).trans
+        (le_of_eq hreal_zero))
+  have hatom_zero :
+      (componentMass C • Measure.dirac (componentBarycenter C))
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 := by
+    simp [hbary.1, hbary.2]
+  rw [componentReplacementMeasure]
+  rw [Measure.add_apply]
+  rw [houtside_zero, hatom_zero, zero_add]
+
+theorem componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 :=
+  componentReplacementMeasure_mass_unit_of_ae_mem_Icc
+    (componentReplacementMeasure_ae_mem_Icc_of_barycenter_mem_Icc hbary)
+
 /--
 Subtype probability measure obtained from the real replacement measure once its
 mass on the normalized interval is known to be one.
@@ -12803,6 +12850,76 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       hprimary_replacement, hunique⟩
   exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
     componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Barycenter-support replacement-rigidity version of the endpoint consequence.
+
+This removes the explicit replacement mass-on-`[-1,1]` input.  The provider
+only needs to show that the barycenter atom introduced by the replacement is
+still inside the normalized interval; the mass and a.e. support facts are then
+derived from the real-measure support of `μ`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_barycenter_data
+    (hReplacementBarycenterDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ hbary : componentBarycenter C ∈ Set.Icc (-1 : ℝ) 1,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_mass_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hReplacementBarycenterDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, hbary,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hprimary_replacement, hunique⟩
 
