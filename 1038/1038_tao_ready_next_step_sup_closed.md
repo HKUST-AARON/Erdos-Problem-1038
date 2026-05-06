@@ -2328,7 +2328,7 @@ B_{\rm red}(G)<0,\qquad
 \]
 
 If this reduced LP is feasible for a regularized Schiffer-period seed, the
-rank-defect chamber is excluded.  If it is infeasible, Farkas gives a reduced
+rank-defect chamber is ruled out.  If it is infeasible, Farkas gives a reduced
 dual
 
 \[
@@ -3311,7 +3311,40 @@ LB&L(H_\Gamma^{raw})
 
 with the product sign fixed for every admissible raw augmented circuit.  Until
 that theorem is proved from an explicit moving Schiffer chart, Gate 1 remains
-blocked and rank-defect \(g=2\) is not excluded.
+blocked and the compact \(g=2\) rank-defect chamber remains open.
+
+The algebraic part of this reduction is now separated from the analytic row
+realization.  If the full block
+
+\[
+\mathcal M=
+\begin{pmatrix}
+A&R\\
+B&C
+\end{pmatrix}
+\]
+
+is an oriented sign-regular Cauchy/confluent Cauchy block and \(\det A>0\),
+then its Schur complement \(S=C-BA^{-1}R\) inherits the required minor signs by
+Sylvester's determinant identity:
+
+\[
+\det S[I,J]
+=
+\frac{
+\det
+\begin{pmatrix}
+A&R_{\*,J}\\
+B_{I,\*}&C_{I,J}
+\end{pmatrix}}
+{\det A}.
+\]
+
+Thus the remaining Gate 1 problem is exactly
+`TPRowRealizationLemma`: write the actual moving-chart rows \(\ell_r\) and
+prove that, after positive row/column factors, they form the ordered
+sign-regular block required above.  Once that lemma is proved, Schur-block
+total positivity and RawAugmentedCircuitSign follow formally.
 
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
@@ -3346,7 +3379,7 @@ still depends on Gate 1 supplying reduced LP feasibility:
 \boxed{
 \text{RawAugmentedCircuitSign}
 \Rightarrow
-\text{rank-defect compact }g=2\text{ excluded.}
+\text{compact }g=2\text{ rank-defect chamber ruled out.}
 }
 \]
 

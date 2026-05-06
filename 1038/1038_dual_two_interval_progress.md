@@ -7392,8 +7392,8 @@ theorem queue.
 
     together with the already stated Proposition 4.1 regularity and
     admissibility checks.  If (RLP) is feasible for a regularized
-    period/Schiffer seed, then rank-defect compact \(g=2\) is excluded by the
-    same one-sided length-decrease argument as before.
+    period/Schiffer seed, then the compact \(g=2\) rank-defect chamber is ruled
+    out by the same one-sided length-decrease argument as before.
 
     If the reduced LP is infeasible, the cleaner Farkas fallback has no
     independent equality multipliers.  In a fixed topology where endpoint
@@ -9482,6 +9482,86 @@ theorem queue.
     Until (Gate1NeededTheorem) is proved from an explicit moving Schiffer chart,
     the strongest honest Gate 1 result is the reduction to the raw augmented
     circuit obstruction, not rank-defect exclusion.
+
+    Gate 1 decomposition after the no-go.
+
+    The obstruction above is now split into one proved algebraic step and one
+    remaining row-realization step.
+
+    \[
+    \boxed{\textbf{Lemma: sign-regular Schur complement transfer.}}
+    \]
+
+    Let
+
+    \[
+    \mathcal M=
+    \begin{pmatrix}
+    A&R\\
+    B&C
+    \end{pmatrix},
+    \qquad
+    S=C-BA^{-1}R,
+    \qquad
+    \det A>0.
+    \]
+
+    Suppose the rows and columns have been oriented so that every minor of
+    \(\mathcal M\) obtained by adjoining the same fixed \(A\)-rows and
+    \(A\)-columns to a raw augmented circuit row/column set has the prescribed
+    strict sign.  Then the corresponding Schur-complement minor has that same
+    sign.
+
+    Indeed, for any row set \(I\) and column set \(J\) of equal size, Sylvester's
+    determinant identity gives
+
+    \[
+    \boxed{
+    \det S[I,J]
+    =
+    \frac{
+    \det
+    \begin{pmatrix}
+    A&R_{\*,J}\\
+    B_{I,\*}&C_{I,J}
+    \end{pmatrix}}
+    {\det A}.
+    }
+    \tag{Gate1Sylvester}
+    \]
+
+    Since \(\det A>0\), the Schur-complement minor has exactly the sign of the
+    corresponding full block minor.  Therefore Gate 1 would be closed by the
+    following concrete row-realization lemma:
+
+    \[
+    \boxed{\textbf{TPRowRealizationLemma.}}
+    \]
+
+    The actual moving-chart rows \(\ell_r\), the raw circuit evaluation rows,
+    the equality row \(H\mapsto-H(c)/(Q(c)^2R(c))\), and the period lift
+    \(\kappa Q^2\) form one ordered sign-regular Cauchy/confluent Cauchy block
+    after multiplication by positive row and column factors.
+
+    If TPRowRealizationLemma is proved, then (Gate1Sylvester) gives
+    SchurBlockTotalPositivityLemma, hence RawAugmentedCircuitSign, hence
+    reduced LP feasibility.  Conversely, without TPRowRealizationLemma the
+    Schur complement identity alone contains no sign information.
+
+    Thus the remaining Gate 1 task is now sharply localized:
+
+    \[
+    \boxed{
+    \text{write the rows }\ell_r\text{ explicitly and prove
+    TPRowRealizationLemma.}
+    }
+    \tag{Gate1RemainingRowRealization}
+    \]
+
+    This is narrower than the previous obstruction.  The algebraic transfer
+    from a total-positive full block to the repaired endpoint Schur complement
+    is proved by (Gate1Sylvester); only the realization of the actual
+    moving-chart rows as such a total-positive block remains.
 
     The conditional PV equation is not used in this reduction.
 
