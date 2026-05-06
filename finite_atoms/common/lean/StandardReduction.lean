@@ -10258,6 +10258,44 @@ theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
   rw [← hrestrict_eq]
   exact hdirac_zero
 
+/--
+Concrete normalized-support form from a selected component whose non-endpoint
+open sub-neighborhoods carry no realMeasure mass.
+-/
+theorem realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      (by simpa [PositiveComponent.interval_eq] using
+        (isOpen_Ioo : IsOpen (Ioo C.left C.right)))
+      (realMeasure_support_open_neighborhood_pos μ) hzero
+  exact support_subset_endpoint_union_nonnegative
+    (Support := (realMeasure μ).support)
+    (xMinus := C.left) (xPlus := C.right)
+    (realMeasure_support_subset_unitInterval μ)
+    (by simpa [PositiveComponent.interval_eq] using hbaseline)
+    (by
+      intro t htSupport htInterval
+      exact hunique t htSupport (by simpa [PositiveComponent.interval_eq] using htInterval))
+
+/--
+Concrete normalized-support form from endpoint atomization of the selected
+component block.
+-/
+theorem realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  exact realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+    hbaseline
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint hdirac)
+
 theorem realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (hdirac : componentBlock C =
