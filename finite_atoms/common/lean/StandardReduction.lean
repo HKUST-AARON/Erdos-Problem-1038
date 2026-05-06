@@ -10454,6 +10454,63 @@ theorem normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_
     measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
       (normalizedComponentBlock C) hfirst hsecond hvar
 
+/--
+If the normalized component block is the Dirac mass at its barycenter, then the
+barycenter lies in the selected component interval.
+-/
+theorem componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C)) :
+    componentBarycenter C ∈ C.interval := by
+  have hmem : ∀ᵐ t : ℝ ∂normalizedComponentBlock C, t ∈ C.interval :=
+    normalizedComponentBlock_ae_mem_interval R
+  rw [hdirac] at hmem
+  rw [MeasureTheory.ae_dirac_eq] at hmem
+  exact hmem
+
+/--
+If the normalized component block is a Dirac mass at the component barycenter,
+then that barycenter is a support point of the original real measure.
+-/
+theorem componentBarycenter_mem_realMeasure_support_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C)) :
+    componentBarycenter C ∈ (realMeasure μ).support := by
+  rw [Measure.mem_support_iff_forall]
+  intro U hU
+  have hcenterU : componentBarycenter C ∈ U := mem_of_mem_nhds hU
+  by_contra hnot_pos
+  have hzero_real : realMeasure μ U = 0 := by
+    exact le_antisymm (le_of_not_gt hnot_pos) bot_le
+  have hzero_block : componentBlock C U = 0 := by
+    exact le_antisymm
+      (le_trans (Measure.restrict_le_self U) (le_of_eq hzero_real)) bot_le
+  have hzero_norm : normalizedComponentBlock C U = 0 := by
+    unfold normalizedComponentBlock
+    rw [Measure.smul_apply, hzero_block]
+    simp
+  have hone_norm : normalizedComponentBlock C U = 1 := by
+    rw [hdirac]
+    simp [hcenterU]
+  exact zero_ne_one (hzero_norm.symm.trans hone_norm)
+
+/--
+Endpoint identification after normalized atomization: once the Dirac barycenter
+is known to be the only support point in the selected component, the barycenter
+is the endpoint atom `-1`.
+-/
+theorem componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hunique : ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    componentBarycenter C = -1 := by
+  exact hunique (componentBarycenter C)
+    (componentBarycenter_mem_realMeasure_support_of_normalizedComponentBlock_eq_dirac
+      hdirac)
+    (componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac R hdirac)
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
