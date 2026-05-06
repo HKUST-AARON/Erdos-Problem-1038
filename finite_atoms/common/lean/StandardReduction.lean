@@ -5174,6 +5174,42 @@ theorem singularTail_exists_small_strictOutside_exception
   intro x _hxstrict _hxdiag hxN
   exact hfinite x hxN
 
+/--
+Adding diagonal atom locations to an arbitrary small exceptional set does not
+increase its Lebesgue-volume budget, because the diagonal atom set is countable.
+-/
+theorem diagonalAtomSet_union_exception_volume_le
+    (μ : ProbabilityMeasure UnitInterval1038) {N : Set ℝ} {η : ℝ≥0∞}
+    (hN : volume N ≤ η) :
+    volume (diagonalAtomSet μ ∪ N) ≤ η := by
+  calc
+    volume (diagonalAtomSet μ ∪ N)
+        ≤ volume (diagonalAtomSet μ) + volume N :=
+          measure_union_le (μ := volume) (diagonalAtomSet μ) N
+    _ = volume N := by simp [diagonalAtomSet_volume_zero μ]
+    _ ≤ η := hN
+
+/--
+Small exceptional set with the diagonal atom set already included.  Outside the
+union, the point is automatically off diagonal and has finite singular tail
+mass.
+-/
+theorem singularTail_exists_small_exception_with_diagonal
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      diagonalAtomSet μ ⊆ N ∧
+      ∀ x : ℝ, x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases singularTail_exists_small_finite_exception ε μ η hη with
+    ⟨N0, hN0, hfinite⟩
+  refine ⟨diagonalAtomSet μ ∪ N0, ?_, ?_, ?_⟩
+  · exact diagonalAtomSet_union_exception_volume_le μ hN0
+  · intro x hx
+    exact Or.inl hx
+  · intro x hx
+    exact hfinite x (fun hxN0 => hx (Or.inr hxN0))
+
 theorem unitIntervalLogPotential_objective_lsc_from_tail_control
     {ι : Type*} {L : Filter ι}
     (μ : ProbabilityMeasure UnitInterval1038)
