@@ -7781,6 +7781,94 @@ theorem queue.
     \(V_\Pi,V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2}\) and their
     equality-row values are written down.
 
+    2026-05-07 Schiffer seed normalization checkpoint.
+
+    Attempting the next computation exposes a genuine missing definition.  The
+    ledger currently uses symbols
+
+    \[
+    G_\gamma^{(\rho)},\qquad V_\gamma^{(\rho)},
+    \qquad \gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \]
+
+    but it has not yet defined which endpoint Schiffer seed these symbols mean.
+    Hence the reduced table
+
+    \[
+    V_j(u),\quad V_j(v),\quad
+    E(G_j)=
+    \binom{R_0(G_j)}{R_c(G_j)},\quad V_j|_{Z_0}
+    \]
+
+    is not determined from the present text.  One cannot honestly verify
+    (C4),(C5) before this convention is fixed.
+
+    The ambiguity is not cosmetic.  With
+
+    \[
+    F(z)=\frac{P(z)}{Q(z)}R(z),\qquad
+    R(z)^2=\prod_{\delta\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}}(z-\delta),
+    \]
+
+    the raw coordinate derivative of the branch factor is
+
+    \[
+    \partial_\gamma R(z)=-\frac{R(z)}{2(z-\gamma)}.
+    \]
+
+    If \(P,Q\) are held frozen, this gives the raw candidate
+
+    \[
+    \delta_\gamma F_{\rm raw}(z)
+    =
+    -\frac{P(z)R(z)}{2Q(z)(z-\gamma)}.
+    \]
+
+    But this raw object is not yet an admissible seed: it may change the
+    infinity normalization, residues, period/filling row, pole data, and the
+    branch row \(F(c)\).  Different ways of repairing these defects change
+    \(E(G_\gamma)\), \(V_\gamma|_{Z_0}\), and therefore the circuit signs.
+
+    The next calculation must therefore first fix the endpoint seed
+    normalization.  In the current finite-gap notation the admissible endpoint
+    variation should be written in the form
+
+    \[
+    \delta_\gamma F(z)
+    =
+    \frac{\Delta_\gamma P(z)}{Q(z)}R(z)
+    -\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+    -\frac{P(z)R(z)}{Q(z)^2}\Delta_\gamma Q(z),
+    \tag{SchifferSeed}
+    \]
+
+    with the chosen convention specifying which of \(\Delta_\gamma P\) and
+    \(\Delta_\gamma Q\) are allowed.  The unknown correction is then determined
+    by the finite linear conditions required in the chosen chart:
+
+    - cancellation of unwanted poles or residue changes;
+    - the prescribed decay/total-mass normalization at infinity;
+    - the fixed or free period/filling convention;
+    - the branch row convention for \(F(c)\);
+    - compatibility with the regularized Schiffer cutoff as \(\rho\to0\).
+
+    Only after solving this finite normalization system can one set
+    \(G_\gamma\omega\,dx\) to the boundary density associated with
+    \(\delta_\gamma F\), define \(V_\gamma=U_{G_\gamma\omega dx}\), and compute
+
+    \[
+    b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+    \qquad
+    f_\gamma(x)=
+    V_\gamma(x)
+    -(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_\gamma).
+    \]
+
+    Thus the determinant test is reduced to a precise finite algebraic
+    computation, but it is not yet executed in this ledger.  Any proof of
+    rank-defect exclusion that skips the seed-normalization system above would
+    be using an undefined object.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly

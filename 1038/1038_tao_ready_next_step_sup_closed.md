@@ -2524,6 +2524,50 @@ f_j=V_{G_j}-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_j),
 
 and then prove `AtomicFallbackExclusion`.
 
+There is one required normalization step before that table is meaningful.  The
+current ledger has not yet defined the endpoint Schiffer seeds
+
+\[
+G_\gamma^{(\rho)},\quad V_\gamma^{(\rho)}
+\qquad
+(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2).
+\]
+
+For
+
+\[
+F(z)=\frac{P(z)}{Q(z)}R(z),\qquad
+R(z)^2=\prod_\delta(z-\delta),
+\]
+
+the raw coordinate derivative is
+
+\[
+\partial_\gamma R(z)=-\frac{R(z)}{2(z-\gamma)},
+\qquad
+\delta_\gamma F_{\rm raw}(z)
+=-\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+\]
+
+if \(P,Q\) are frozen.  But this raw variation generally changes the infinity
+normalization, residues, period/filling row, pole data, and the branch row
+\(F(c)\).  Therefore the admissible seed must first be normalized by a finite
+linear correction
+
+\[
+\delta_\gamma F(z)
+=
+\frac{\Delta_\gamma P(z)}{Q(z)}R(z)
+-\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+-\frac{P(z)R(z)}{Q(z)^2}\Delta_\gamma Q(z),
+\]
+
+with the chart specifying which corrections are allowed and which rows are
+held fixed.  Only after this normalization is fixed can one compute
+\(V_\gamma(u),V_\gamma(v),E(G_\gamma)\), and \(V_\gamma|_{Z_0}\).  Thus the
+next strict task is to define and solve this Schiffer seed normalization
+system; determinant signs cannot be checked before the seed table exists.
+
 ### Priority 6: regularity interface
 
 The previous priorities address regular finite-gap counterexamples.  The final
