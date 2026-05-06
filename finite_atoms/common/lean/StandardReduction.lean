@@ -2939,6 +2939,59 @@ theorem componentReplacement_objective_le_of_strictOutside_potential_le
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   exact replacement_objective_le_of_strictOutside_potential_le C houtside
 
+/--
+Component-replacement objective bridge from local potential decompositions.
+
+For a strict outside point `x`, the replacement proof naturally splits both
+potentials into the unchanged outside-component contribution and the component
+block contribution.  If the unchanged contributions are ordered and the
+barycenter block contribution is bounded by the original block contribution
+by Jensen, then the replacement potential is no larger at `x`.
+
+This theorem is deliberately stated at the decomposition level.  The analytic
+work left after this bridge is exactly to prove the two decomposition formulas
+for the concrete restricted measures and to discharge the block Jensen
+inequality by `measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo`.
+-/
+theorem componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart replacementBlock originalBlock : ℝ → ℝ)
+    (hdecomp_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ outsidePart x + replacementBlock x)
+    (hdecomp_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x)
+    (hblock_jensen : ∀ x : ℝ, StrictOutsideComponent C x →
+      replacementBlock x ≤ originalBlock x) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  intro x hx
+  exact le_trans (hdecomp_replacement x hx)
+    (le_trans (add_le_add_right (hblock_jensen x hx) (outsidePart x))
+      (hdecomp_original x hx))
+
+/--
+Objective consequence of the decomposition-plus-Jensen replacement bridge.
+
+This is the route used in the Tao variation argument: once the strict-outside
+potential decomposition and the component-block Jensen estimate are proved,
+the barycenter replacement cannot increase the positive-set objective.
+-/
+theorem componentReplacement_objective_le_of_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart replacementBlock originalBlock : ℝ → ℝ)
+    (hdecomp_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ outsidePart x + replacementBlock x)
+    (hdecomp_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x)
+    (hblock_jensen : ∀ x : ℝ, StrictOutsideComponent C x →
+      replacementBlock x ≤ originalBlock x) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_potential_le C
+    (componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+      C outsidePart replacementBlock originalBlock hdecomp_replacement
+      hdecomp_original hblock_jensen)
+
 lemma eventual_pointwise_error_of_three_errors
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
     (T : ℕ → ℝ → ℝ) (Ts : ℕ → ι → ℝ → ℝ)
