@@ -5537,6 +5537,29 @@ theorem unitIntervalTruncatedPotential_local_eventually_close
   exact unitIntervalTruncatedPotential_oscillation_le ν hε
     (fun t => le_of_lt (hkernel y hyU t))
 
+theorem unitIntervalTruncatedPotential_continuous
+    (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} (hε : 0 < ε) :
+    Continuous (fun x : ℝ => unitIntervalTruncatedPotential ε μ x) := by
+  rw [Metric.continuous_iff]
+  intro x δ hδ
+  have hδhalf : 0 < δ / 2 := by positivity
+  rcases truncatedLogKernel_local_uniform_oscillation
+      (ε := ε) (x := x) (η := δ / 2) hε hδhalf with
+    ⟨U, hUopen, hxU, hosc⟩
+  rcases Metric.isOpen_iff.mp hUopen x hxU with ⟨r, hr_pos, hr_sub⟩
+  refine ⟨r, hr_pos, ?_⟩
+  intro y hy
+  have hyU : y ∈ U := hr_sub hy
+  have hle :
+      |unitIntervalTruncatedPotential ε μ y -
+        unitIntervalTruncatedPotential ε μ x| ≤ δ / 2 :=
+    unitIntervalTruncatedPotential_oscillation_le μ hε
+      (fun t => le_of_lt (hosc y hyU t))
+  have hlt : |unitIntervalTruncatedPotential ε μ y -
+        unitIntervalTruncatedPotential ε μ x| < δ := by
+    linarith
+  simpa [Real.dist_eq, abs_sub_comm] using hlt
+
 lemma eventually_forall_mem_finset
     {ι β : Type*} {L : Filter ι} (s : Finset β) (P : ι → β → Prop)
     (h : ∀ b ∈ s, ∀ᶠ i in L, P i b) :
