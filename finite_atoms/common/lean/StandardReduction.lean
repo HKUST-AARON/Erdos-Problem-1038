@@ -5840,6 +5840,68 @@ theorem unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels
     simp [unitIntervalTruncatedPositiveSet]]
   exact (unitIntervalTruncatedPositiveSet_level_mono μ).measure_iUnion
 
+theorem unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ) :
+    {x : ℝ |
+      unitIntervalPositiveTruncationScale thresholdN <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ⊆
+      Ioo (-2 : ℝ) 2 := by
+  intro x hx
+  exact unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two μ
+    ⟨truncN, lt_trans (unitIntervalPositiveTruncationScale_pos thresholdN) hx⟩
+
+theorem unitIntervalTruncatedPotential_threshold_measure_ne_top
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ) :
+    volume {x : ℝ |
+      unitIntervalPositiveTruncationScale thresholdN <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ≠ ∞ := by
+  have hle :
+      volume {x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} ≤
+        volume (Ioo (-2 : ℝ) 2) :=
+    measure_mono (μ := volume)
+      (unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+        μ truncN thresholdN)
+  have hfinite_window : volume (Ioo (-2 : ℝ) 2) ≠ ∞ := by
+    rw [Real.volume_Ioo]
+    exact ENNReal.ofReal_ne_top
+  exact ne_top_of_le_ne_top hfinite_window hle
+
+theorem unitIntervalTruncatedPotential_threshold_exists_compact_core
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ K : Set ℝ,
+      K ⊆ {x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+      IsCompact K ∧
+      volume ({x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} \ K) ≤
+        (η : ℝ≥0∞) := by
+  let S : Set ℝ := {x : ℝ |
+    unitIntervalPositiveTruncationScale thresholdN <
+      unitIntervalTruncatedPotential
+        (unitIntervalPositiveTruncationScale truncN) μ x}
+  have hSmeas : MeasurableSet S := by
+    exact (isOpen_lt continuous_const
+      (unitIntervalTruncatedPotential_continuous μ
+        (unitIntervalPositiveTruncationScale_pos truncN))).measurableSet
+  have hfinite : volume S ≠ ∞ := by
+    simpa [S] using
+      unitIntervalTruncatedPotential_threshold_measure_ne_top μ truncN thresholdN
+  have hη_ne : (η : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (ne_of_gt hη)
+  rcases hSmeas.exists_isCompact_diff_lt hfinite hη_ne with
+    ⟨K, hKsub, hKcompact, hdiff_lt⟩
+  exact ⟨K, hKsub, hKcompact, le_of_lt hdiff_lt⟩
+
 /-- Truncated-sup positive-set length objective. -/
 def unitIntervalTruncatedPositiveSetObjective
     (μ : ProbabilityMeasure UnitInterval1038) : ℝ≥0∞ :=
