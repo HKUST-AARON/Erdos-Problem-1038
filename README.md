@@ -42,16 +42,35 @@ The exact closing arithmetic is checked in Lean:
 1.708 + (1.814600 - 1.708) = 1.814600
 ```
 
-The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are recorded as interfaces and local consequences here; they are not duplicated as a complete formalization of the original polynomial problem.
+The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. The finite route and the standard-reduction route are kept separate: the former checks concrete certificates after normalization, while the latter is the variational argument that should produce the normalized endpoint form.
 
-The repository now includes the first formal layer of the standard reduction:
-the normalized-support consequence that forces the baseline interval
+## Standard-reduction status
 
-$$
-(-\sqrt2,0)
-$$
+The current Lean files prove several downstream consequences of the Tao/natso standard reduction, but the full variational reduction is not yet closed.
 
-into the positive set, except for the atom point where a real-valued logarithmic potential would be infinite.  The remaining external part is the variational theorem that an arbitrary minimizer can be put into this normalized support/mass form.
+What is already formalized:
+
+- normalized endpoint-mass data imply the baseline positive interval, up to the logarithmic pole at the endpoint;
+- the puncture at the endpoint has zero Lebesgue length;
+- once the component argument supplies the right endpoint/support data, the support-shape and endpoint-mass algebra feeds into the normalized endpoint-potential interface;
+- the finite-atom route can use this normalized endpoint-potential interface as its input.
+
+What remains to be proved:
+
+- the true lower-semicontinuity/minimizer-existence layer for the logarithmic-potential objective;
+- the Tao positive-component/variation theorem that turns an arbitrary secondary minimizer into endpoint-normalized data;
+- the selection of the actual maximal positive component and its open-left-cover/topological bookkeeping;
+- the barycenter replacement and variance-minimization argument that atomizes each positive component.
+
+In the Lean interfaces this remaining hard step is still represented by names such as
+
+```text
+TaoVariationalReductionInput
+TaoVariationalReductionInputENNReal
+EndpointRouteClosureENNReal.endpointFromVariation
+```
+
+These are not final theorems of the standard reduction. They mark the exact entry point where the remaining variational proof has to be supplied.
 
 The 1.814600 branch uses a required-domain interpretation of positivity:
 
@@ -74,13 +93,14 @@ The checked repository status is:
 
 1.814600:
   Lean/Mathlib exact geometry, block coverage, required-domain mapping,
-  non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
+  non-negative finite-atom selector, route arithmetic, tail sweep lemma,
+  and route-level volume bookkeeping under the stated endpoint/forcing inputs.
   Generated 560-block required-domain certificate with Python verification.
   Required-domain worst margin: 9.534343713646365e-06.
   Bad required-domain blocks: 0.
 ```
 
-The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate and the 560 individual logarithmic positivity blocks are still checked by the generated certificate rather than expanded into 560 standalone Lean proof terms.
+The 1.814600 branch is therefore a verified required-domain finite-atom branch under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate, and it does not by itself prove the standard minimizer reduction.
 
 ## Repository layout
 

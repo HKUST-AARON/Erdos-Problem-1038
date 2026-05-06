@@ -30,7 +30,11 @@ identity.
 lean/StandardReduction.lean
 ```
 
-Formalizes the normalized-support consequence used by the standard reduction.
+Records the current formal interface for the standard-reduction route.
+This file should be read as a separation between the consequences already
+proved after endpoint normalization and the variational theorem that still has
+to produce that endpoint-normalized data.
+
 Once the reduced potential has the endpoint lower bound coming from at least
 half of the mass at `-1`, the file proves that the punctured baseline interval
 
@@ -63,8 +67,8 @@ that a minimizer can be put into normalized endpoint-mass form.  The lemmas
 above prove all downstream baseline-interval consequences once that input is
 available.
 
-The file also separates the part of Tao's Section 3 reduction that is purely
-order/algebra from the heavier variational part:
+The file also separates the part of Tao's Section 3 reduction that is
+order/algebra from the heavier positive-component and variation part:
 
 ```text
 TaoComponentReductionData.support_subset_normalized
@@ -78,6 +82,54 @@ containing `(-1,0)`, the Lean file proves that the support is contained in
 `{-1} ∪ [0,1]`, that the endpoint mass is at least `1/2`, and that these data
 feed into the normalized endpoint-potential interface used by the finite-atom
 certificate route.
+
+## Standard-reduction route review
+
+The route currently has three layers.
+
+Closed downstream layer:
+
+- endpoint lower-bound data imply baseline positivity;
+- endpoint punctures do not change Lebesgue length;
+- component endpoint/support hypotheses imply normalized support shape;
+- endpoint-mass algebra gives the `1/2` endpoint lower bound once the boundary-average input is available.
+
+Live standard-reduction layer:
+
+- prove the true positive component selected from the positive set has the open-left-cover property required by the existing endpoint package;
+- prove barycenter replacement for a positive component, using Jensen outside the component and variance decrease inside the component;
+- use the variance-minimizing minimizer to show component atomization;
+- connect the atomized component to the endpoint-normalized support/mass data.
+
+Infrastructure layer still to be closed:
+
+- lower semicontinuity of the actual logarithmic-potential objective;
+- minimizer existence and secondary variance-minimizing minimizer existence;
+- reflection/translation normalization from the selected component;
+- the final polynomial-to-measure bridge for the original polynomial statement.
+
+The main unproved standard-reduction entry points are still visible in the
+Lean interface:
+
+```text
+TaoVariationalReductionInput
+TaoVariationalReductionInputENNReal
+EndpointRouteClosureENNReal.endpointFromVariation
+```
+
+These names should be treated as TODO boundaries, not as completed reduction
+theorems.
+
+The most useful next proof step is the component-topology bridge:
+
+```text
+selected maximal positive component
+  -> open-left-cover near the endpoint
+  -> endpoint package input
+```
+
+After that bridge is closed, the next target is the barycenter replacement and
+variance-decrease argument that removes the remaining atomization input.
 
 Check command from the repository root:
 
