@@ -3845,6 +3845,13 @@ theorem unitInterval_tailCore_subset_threshold
   intro x hx
   exact hx.1
 
+theorem singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCore
+    (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
+    (truncε δ : ℝ) {x : ℝ}
+    (hx : x ∈ unitIntervalThresholdTailCore μ n truncε δ) :
+    singularTailMass truncε μ x < ∞ := by
+  exact lt_of_lt_of_le hx.2 le_top
+
 theorem unitInterval_threshold_diff_tailCore_subset_badSet
     (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
     (truncε δ : ℝ) :
@@ -3910,6 +3917,13 @@ theorem unitInterval_tailCoreOffDiagonal_subset_tailCore
       unitIntervalThresholdTailCore μ n truncε δ := by
   intro x hx
   exact hx.1
+
+theorem singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCoreOffDiagonal
+    (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
+    (truncε δ : ℝ) (N : Set ℝ) {x : ℝ}
+    (hx : x ∈ unitIntervalThresholdTailCoreOffDiagonal μ n truncε δ N) :
+    singularTailMass truncε μ x < ∞ := by
+  exact singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCore μ n truncε δ hx.1
 
 theorem unitInterval_tailCoreOffDiagonal_subset_threshold
     (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
