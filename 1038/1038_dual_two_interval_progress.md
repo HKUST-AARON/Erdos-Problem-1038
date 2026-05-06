@@ -3342,18 +3342,15 @@ This failure mode is now reproducible without a one-off Python snippet:
 
 ```text
 python diagnose_k2_tau_derivative.py \
-  --grid 5 \
   --eta-values 0.007071067811865475,0.01 \
-  --h 1e-4 \
-  --joint-layer-dependency-report
+  --joint-layer-dependency-report-only
 ```
 
-The command also prints the older derivative diagnostic, which fails for these
-larger eta values; that is not the proof gate for this report.  The relevant
-evidence is:
+This command isolates the dependency report from the older derivative stress
+test.  The relevant evidence is:
 
 ```text
-K2_JOINT_LAYER_DEPENDENCY ... point_joint=[-0.036157369394... +/- 4.32e-53]
+K2_JOINT_LAYER_DEPENDENCY ... point_joint=[-0.0361573694 +/- 1.40e-11]
 K2_JOINT_LAYER_DEPENDENCY ... box_joint=[+/- 39.1]
 ```
 

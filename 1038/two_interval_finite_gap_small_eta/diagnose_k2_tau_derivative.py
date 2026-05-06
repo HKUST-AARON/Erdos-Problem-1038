@@ -64,6 +64,11 @@ def main() -> int:
             "eta and on the full eta interval"
         ),
     )
+    parser.add_argument(
+        "--joint-layer-dependency-report-only",
+        action="store_true",
+        help="only run --joint-layer-dependency-report and return success after printing it",
+    )
     args = parser.parse_args()
 
     if args.grid < 3:
@@ -194,6 +199,29 @@ def main() -> int:
                 return term_value
         return "missing"
 
+    def print_joint_layer_dependency_report(eta_low: float, eta_high: float) -> None:
+        eta_mid = 0.5 * (eta_low + eta_high)
+        eta_point = arb(repr(float(eta_mid)))
+        eta_box = solver._arb_interval_from_bounds(eta_low, eta_high)
+        for B in (0.01, -0.01):
+            tau = tau0 + 0.05
+            point_value, point_terms = joint_layer_terms(B, tau, eta_point)
+            box_value, box_terms = joint_layer_terms(B, tau, eta_box)
+            point_joint = find_debug_term(point_terms, "limit_layer_joint_regularized_second:combined")
+            box_joint = find_debug_term(box_terms, "limit_layer_joint_regularized_second:combined")
+            print(
+                "K2_JOINT_LAYER_DEPENDENCY "
+                f"B={B:+.2f} tau={tau:.12e} eta_mid={eta_mid:.12e} "
+                f"point_value={point_value} point_radius={point_value.rad()} "
+                f"point_joint={point_joint}"
+            )
+            print(
+                "K2_JOINT_LAYER_DEPENDENCY "
+                f"B={B:+.2f} tau={tau:.12e} eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
+                f"box_value={box_value} box_radius={box_value.rad()} "
+                f"box_joint={box_joint}"
+            )
+
     def k0_2_box(B: float, tau_box: Any) -> Any:
         qB = arb(repr(float(B)))
         return (
@@ -213,6 +241,12 @@ def main() -> int:
         return k2_point(B, tau, eta) - k0_2(B, tau)
 
     eta_values = [float(part) for part in args.eta_values.split(",") if part.strip()]
+    if args.joint_layer_dependency_report_only:
+        if len(eta_values) < 2:
+            raise SystemExit("joint-layer-dependency-report-only requires at least two eta values")
+        print_joint_layer_dependency_report(min(eta_values), max(eta_values))
+        return 0
+
     worst_derivative = 0.0
     worst_curvature = 0.0
     worst_derivative_source = ""
@@ -415,27 +449,7 @@ def main() -> int:
     if args.joint_layer_dependency_report:
         eta_low = min(eta_values)
         eta_high = max(eta_values)
-        eta_mid = 0.5 * (eta_low + eta_high)
-        eta_point = arb(repr(float(eta_mid)))
-        eta_box = solver._arb_interval_from_bounds(eta_low, eta_high)
-        for B in (0.01, -0.01):
-            tau = tau0 + 0.05
-            point_value, point_terms = joint_layer_terms(B, tau, eta_point)
-            box_value, box_terms = joint_layer_terms(B, tau, eta_box)
-            point_joint = find_debug_term(point_terms, "limit_layer_joint_regularized_second:combined")
-            box_joint = find_debug_term(box_terms, "limit_layer_joint_regularized_second:combined")
-            print(
-                "K2_JOINT_LAYER_DEPENDENCY "
-                f"B={B:+.2f} tau={tau:.12e} eta_mid={eta_mid:.12e} "
-                f"point_value={point_value} point_radius={point_value.rad()} "
-                f"point_joint={point_joint}"
-            )
-            print(
-                "K2_JOINT_LAYER_DEPENDENCY "
-                f"B={B:+.2f} tau={tau:.12e} eta_low={eta_low:.12e} eta_high={eta_high:.12e} "
-                f"box_value={box_value} box_radius={box_value.rad()} "
-                f"box_joint={box_joint}"
-            )
+        print_joint_layer_dependency_report(eta_low, eta_high)
     return 0 if status == "PASS-DIAGNOSTIC" else 1
 
 
