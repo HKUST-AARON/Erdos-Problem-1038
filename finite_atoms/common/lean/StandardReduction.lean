@@ -8530,6 +8530,23 @@ lemma measure_eq_dirac_of_ae_eq_const
       rw [Measure.map_const]
     _ = Measure.dirac m := by simp
 
+lemma ae_eq_const_of_measure_eq_dirac
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {m : ℝ}
+    (h : μ = Measure.dirac m) :
+    (fun t : ℝ => t) =ᵐ[μ] fun _ : ℝ => m := by
+  rw [h]
+  rw [MeasureTheory.ae_dirac_eq]
+  exact Filter.eventually_pure.2 rfl
+
+theorem ComponentReplacement.normalizedComponentBlock_ae_eq_of_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {m : ℝ}
+    (hdirac : normalizedComponentBlock C = Measure.dirac m) :
+    (fun t : ℝ => t) =ᵐ[normalizedComponentBlock C] fun _ : ℝ => m := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  exact ae_eq_const_of_measure_eq_dirac (normalizedComponentBlock C) hdirac
+
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
