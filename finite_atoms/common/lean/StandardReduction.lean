@@ -13347,6 +13347,88 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hprimary_replacement, hunique⟩
 
+/--
+Tail-small version of the component-replacement endpoint consequence.
+
+This removes the explicit comparison
+`unitIntervalPositiveSetObjective μ ≤ unitIntervalTruncatedPositiveSetObjective μ`.
+It is derived internally from the pointwise tail-small condition on the original
+measure's ordinary positive set.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_small_data
+    (hComponentReplacementTailSmallDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            Integrable
+              (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+              ((componentReplacementProbability C hmass_unit :
+                Measure UnitInterval1038))) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_objective_comparison_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTailSmallDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hlog_replacement, hsmall_original, hunique⟩
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small
+      μ hsmall_original
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
