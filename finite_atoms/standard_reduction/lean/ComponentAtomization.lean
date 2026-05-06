@@ -175,6 +175,36 @@ theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
 /-! ### Endpoint support shape and boundary average -/
 
 /--
+Open-set right-boundary lemma.
+
+If an open set has no points strictly to the right of `r`, then `r` itself
+cannot lie in the open set.  This is the topology core needed later for a
+maximal positive component: once `xPlus` is known to be the right boundary of
+the selected component, this lemma supplies
+`xPlus ∉ PositiveSet (unitIntervalLogPotential μ)`.
+-/
+theorem not_mem_of_isOpen_no_right_points
+    {S : Set ℝ} {r : ℝ}
+    (hOpen : IsOpen S)
+    (hNoRight : ∀ y : ℝ, r < y → y ∉ S) :
+    r ∉ S := by
+  intro hr
+  rcases Metric.isOpen_iff.mp hOpen r hr with ⟨ε, hε, hball⟩
+  let y : ℝ := r + ε / 2
+  have hry : r < y := by
+    dsimp [y]
+    linarith
+  have hydist : dist y r < ε := by
+    dsimp [y]
+    rw [Real.dist_eq]
+    have hsub : r + ε / 2 - r = ε / 2 := by ring
+    rw [hsub]
+    have hhalf_nonneg : 0 ≤ ε / 2 := by linarith
+    rw [abs_of_nonneg hhalf_nonneg]
+    linarith
+  exact hNoRight y hry (hball hydist)
+
+/--
 The full component-order information gives the sharper normalized support
 shape used in Tao's endpoint-mass boundary estimate: after normalization, every
 selected support point is either the endpoint atom `-1` or lies to the right of

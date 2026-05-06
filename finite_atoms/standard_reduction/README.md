@@ -135,6 +135,16 @@ form
 endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order
 ```
 
+The same section records the small open-set boundary lemma
+
+```lean
+not_mem_of_isOpen_no_right_points
+```
+
+which is the topological core for the later maximal-component step: if the
+positive set is open and the selected right endpoint has no positive points
+strictly to its right, then the endpoint is not itself positive.
+
 This feeds the boundary-average bridge
 
 ```lean
