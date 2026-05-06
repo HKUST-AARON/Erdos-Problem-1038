@@ -985,6 +985,52 @@ e_v^TMe_\zeta=\frac{\lambda}{2}\Gamma(v-c).
 
 No \(e_u^TMe_v\) identity is needed for the clamp itself.
 
+The immediate theorem queue is therefore:
+
+1.  Prove the separated-chart Feshbach minimal-lift theorem.  This legitimizes
+    \(Q_{\rm eff}\) as the finite effective Hessian on feasible row data; it
+    does not compute the endpoint entries.
+
+2.  Prove endpoint-transfer realization.  The three columns of
+
+    \[
+    P:\operatorname{span}\{e_u,e_v,e_\zeta\}\to V^\sharp
+    \]
+
+    must lie in the actual row image.  Full row surjectivity is optional; these
+    three columns are the necessary target.
+
+3.  Prove or replace the effective endpoint identities for
+    \(M=P^TQ_{\rm eff}P\).  The log-minimal term
+    \(K_{\log}=\mathcal E_{\log}(S\cdot,S\cdot)\) can alter the old local
+    entries, so identities for the finite Schur term \(b\) alone are not
+    enough.
+
+4.  If the old five entries survive, derive the curvature clamp.  If they do
+    not, use the actual effective entries
+
+    \[
+    m_{uu},m_{vv},m_{\zeta\zeta},m_{u\zeta},m_{v\zeta}
+    \]
+
+    and prove the corrected effective-entry clamp.
+
+5.  Prove that the resulting clamp forces the Wronskian/sign pattern
+    contradiction for the two-dimensional KKT cokernel.  The six-kernel
+    Chebyshev determinant is only a variation-diminishing tool; it does not
+    close compact \(g=2\) by itself.
+
+Stop/go rule:
+
+\[
+\boxed{\text{GO, but only on the }Q_{\rm eff}\text{ theorem queue.}}
+\]
+
+If the actual effective entries do not imply the Wronskian contradiction, stop
+the compact \(g=2\) Hessian-clamp route.  Do not return to the retired
+free-\(F(c)\) multiplier, the naive finite-row radical quotient, or a
+standalone Chebyshev determinant proof.
+
 
 ### Priority 5: global closure statement
 
@@ -1001,6 +1047,12 @@ does the exact statement follow:
 \[
 \boxed{L_-=M_*=1.8344304757626617\ldots}.
 \]
+
+The \(Q_{\rm eff}\) work closes only one component of this global statement:
+the compact non-pinched \(g=2\) chamber.  It does not close by itself the
+one-cut upper construction, corrected \(g=1\) branch, pinching/degeneration,
+high-genus local-neck reduction, regularity removal, or standard normalized
+minimizer reduction.
 
 ### Priority 6: regularity interface
 

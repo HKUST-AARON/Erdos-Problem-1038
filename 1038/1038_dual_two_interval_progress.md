@@ -4387,12 +4387,13 @@ for the \(F\)-row contribution.
 
 ### 10.17g Updated blocker for Schur complement
 
-The hard mouth is now:
+The hard mouth is now narrower than the old "finite row quotient" target.
+The naive radical quotient is retired.  The active target is the separated
+fixed-chart Feshbach reduction:
 
 \[
 \boxed{
-\text{prove the density-to-row quotient or realization lemma for }
-G_{\rm br}.
+\text{prove the separated-chart minimal-lift theorem for }Q_{\rm eff}.
 }
 \]
 
@@ -4443,6 +4444,114 @@ A_\xi
 on \(\delta\Pi=0\) is only a formal target, not a theorem.
 
 After this turn, the state-lift and fixed-chart Hessian well-definedness
-statements are recorded.  The remaining obstruction is the quotient step:
-prove that \(G_{\rm br}\) descends to the finite row image \(V\), or keep the
-entire compact \(g=2\) obstruction on actual density perturbations.
+statements are recorded.  The remaining obstruction is not to prove that
+\(G_{\rm br}\) descends by radical quotient.  That route is false because the
+row kernel still has positive log energy.  The replacement is the following
+theorem queue.
+
+1.  Separated-chart Feshbach minimal lift.  In the Hilbert completion
+    \(H_\Pi\), with continuous \(\rho^\sharp\) and closed
+    \(W^\sharp=\ker\rho^\sharp\), every feasible row vector
+    \(r\in V^\sharp\) has a unique lift
+
+    \[
+    Sr\in (W^\sharp)^{\perp_{\mathcal E}}\cap(\rho^\sharp)^{-1}(r).
+    \]
+
+    If
+
+    \[
+    G_{\rm br}=\mathcal E_{\log}
+    +b\circ(\rho^\sharp,\rho^\sharp),
+    \]
+
+    then
+
+    \[
+    G_{\rm br}(Sr+w,Ss+w')
+    =
+    Q_{\rm eff}(r,s)+\mathcal E_{\log}(w,w'),
+    \]
+
+    where
+
+    \[
+    Q_{\rm eff}(r,s)=\mathcal E_{\log}(Sr,Ss)+b(r,s).
+    \]
+
+    This is the first theorem to prove.  It legitimizes \(Q_{\rm eff}\); it
+    does not compute the endpoint Hessian entries.
+
+2.  Endpoint-transfer realization.  One must prove that the three columns of
+    the endpoint-transfer map
+
+    \[
+    P:\operatorname{span}\{e_u,e_v,e_\zeta\}\to V^\sharp
+    \]
+
+    are actual feasible row directions.  Full row surjectivity is stronger
+    than needed.  It is enough to realize these three columns, with the period
+    row fixed and inside \(\operatorname{Rel}^{\perp}\).
+
+3.  Effective endpoint Hessian identity.  Only after the previous two steps
+    can one define
+
+    \[
+    M=P^TQ_{\rm eff}P.
+    \]
+
+    The desired five local entries must be proved for this \(M\), not for the
+    finite Schur term \(b\) alone.  The nonlocal contribution
+    \(K_{\log}(r,s)=\mathcal E_{\log}(Sr,Ss)\) may change the entries.
+
+4.  Effective clamp.  If the five old entries hold, the existing curvature
+    clamp follows.  If they do not hold, the compact proof must use the actual
+    entries
+
+    \[
+    m_{uu},m_{vv},m_{\zeta\zeta},m_{u\zeta},m_{v\zeta}.
+    \]
+
+    The available inequalities are then only
+
+    \[
+    m_{uu}B^2+2m_{u\zeta}AB+m_{\zeta\zeta}A^2\ge0
+    \quad (u<x<c),
+    \]
+
+    and
+
+    \[
+    m_{\zeta\zeta}B^2+2m_{v\zeta}AB+m_{vv}A^2\ge0
+    \quad (c<x<v).
+    \]
+
+5.  Wronskian/sign-pattern obstruction.  Even after a clamp is obtained, one
+    still has to prove that it forces the two-dimensional KKT cokernel
+    Wronskian to have the sign pattern needed to contradict admissibility.
+    This step is not automatic from the six-kernel Chebyshev determinant.
+
+Stop/go judgment:
+
+\[
+\boxed{\text{GO, but conditional and narrow.}}
+\]
+
+Continue this route only through the \(Q_{\rm eff}\) theorem queue above.  If
+the actual effective entries cannot imply the Wronskian sign contradiction,
+stop the compact \(g=2\) Hessian-clamp line; do not revive the retired
+free-\(F(c)\) row, the naive row quotient, or a standalone six-kernel
+determinant closure.
+
+Relation to the full theorem:
+
+\[
+\boxed{
+Q_{\rm eff}\text{ is only the compact non-pinched }g=2\text{ hard mouth.}
+}
+\]
+
+Closing it would not by itself prove \(L_-=M_*\).  The full exact proof still
+needs the one-cut upper construction, the corrected \(g=1\) branch, the
+pinching/degeneration lemma, the high-genus local-neck reduction, the
+regularity-removal interface, and the standard normalized minimizer reduction.
