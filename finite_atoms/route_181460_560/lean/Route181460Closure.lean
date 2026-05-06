@@ -1385,6 +1385,25 @@ structure Route181460EndpointData
           (StandardReduction.unitIntervalLogPotential μ))
   tailMassFinite : TailMassFiniteHypothesis μ
 
+/--
+Build the endpoint route data from the more global off-diagonal tail-mass
+condition on the unit interval.  The finite tail route only samples five moving
+atoms, so the route-specific `TailMassFiniteHypothesis` is a direct consequence.
+-/
+def Route181460EndpointData.of_unitInterval_offDiagonal
+    {μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038}
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hforcing1708Strong :
+      ¬ LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
+        ENNReal.ofReal (q 1836 1000) ≤
+          volume (StandardReduction.PositiveSet
+            (StandardReduction.unitIntervalLogPotential μ)))
+    (hfinite : UnitIntervalTailMassFiniteOffDiagonal μ) :
+    Route181460EndpointData μ where
+  normalizedSupport := hNorm
+  forcing1708Strong := hforcing1708Strong
+  tailMassFinite := TailMassFiniteHypothesis.of_unitInterval_offDiagonal hfinite
+
 /-- The endpoint-route package closes the `M = 1.814600` lower bound. -/
 theorem Route181460EndpointData.lower_bound
     (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
@@ -1394,6 +1413,26 @@ theorem Route181460EndpointData.lower_bound
         (StandardReduction.unitIntervalLogPotential μ)) :=
   augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_tailMass
     μ D.normalizedSupport D.forcing1708Strong D.tailMassFinite
+
+/--
+Route closure using the global off-diagonal tail-mass condition instead of the
+route-specific five-atom `TailMassFiniteHypothesis`.
+-/
+theorem augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_unitIntervalOffDiagonal
+    (μ : MeasureTheory.ProbabilityMeasure StandardReduction.UnitInterval1038)
+    (hNorm : UnitIntervalNormalizedSupportAE μ)
+    (hforcing1708Strong :
+      ¬ LongInterval ⊆ StandardReduction.unitIntervalAugmentedPositiveSet μ →
+        ENNReal.ofReal (q 1836 1000) ≤
+          volume (StandardReduction.PositiveSet
+            (StandardReduction.unitIntervalLogPotential μ)))
+    (hfinite : UnitIntervalTailMassFiniteOffDiagonal μ) :
+    ENNReal.ofReal M ≤
+      volume (StandardReduction.PositiveSet
+        (StandardReduction.unitIntervalLogPotential μ)) :=
+  Route181460EndpointData.lower_bound μ
+    (Route181460EndpointData.of_unitInterval_offDiagonal
+      hNorm hforcing1708Strong hfinite)
 
 /--
 Route closure matching the currently formalized `forcing_1708` constants.

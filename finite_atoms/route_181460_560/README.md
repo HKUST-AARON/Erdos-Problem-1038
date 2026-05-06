@@ -22,6 +22,14 @@ Route181460EndpointData.forcing1708Strong
 Route181460EndpointData.tailMassFinite
 ```
 
+For callers that have the more global unit-interval off-diagonal tail-mass
+condition, the route-specific tail-mass field is built automatically by:
+
+```text
+Route181460EndpointData.of_unitInterval_offDiagonal
+augmented_positiveSet_volume_lower_bound_from_forcing1708Strong_or_unitIntervalOffDiagonal
+```
+
 The packaged theorem is:
 
 ```text
