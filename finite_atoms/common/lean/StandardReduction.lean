@@ -10511,6 +10511,28 @@ theorem componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
       hdirac)
     (componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac R hdirac)
 
+/--
+Normalized atomization at the endpoint: moment equality gives a Dirac mass at
+the component barycenter, and endpoint uniqueness identifies that barycenter
+with `-1`.
+-/
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_componentBlock_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C)
+    (hunique : ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+  have hdirac_bary :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C) :=
+    normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_secondMoment_eq
+      R heq
+  have hbary_endpoint : componentBarycenter C = -1 :=
+    componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+      R hdirac_bary hunique
+  simpa [hbary_endpoint] using hdirac_bary
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
