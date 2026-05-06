@@ -1881,6 +1881,14 @@ def unitIntervalLogPotential
   ∫ t : UnitInterval1038,
     Real.log (1 / |x - (t : ℝ)|) ∂(μ : Measure UnitInterval1038)
 
+/--
+Concrete secondary objective for the Tao selector: the second moment of the
+probability measure on the normalized interval `[-1,1]`.
+-/
+def unitIntervalSecondMomentObjective
+    (μ : ProbabilityMeasure UnitInterval1038) : ℝ :=
+  ∫ t : UnitInterval1038, (t : ℝ) ^ 2 ∂(μ : Measure UnitInterval1038)
+
 /-- Joint measurability of the logarithmic kernel on `ℝ × [-1,1]`. -/
 lemma measurable_unitIntervalLogKernel_uncurry :
     Measurable
@@ -6207,10 +6215,9 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer :
     unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous
 
 /--
-Secondary minimizer selector for the truncated-sup surrogate.  Since this file
-does not define a concrete second-moment objective on `ProbabilityMeasure
-UnitInterval1038`, the secondary objective is an explicit lower-semicontinuous
-parameter.
+Backward-compatible secondary minimizer selector for the truncated-sup
+surrogate with an explicit lower-semicontinuous secondary parameter.  The
+concrete Tao second-moment objective is `unitIntervalSecondMomentObjective`.
 -/
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
     (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
