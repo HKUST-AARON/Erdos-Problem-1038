@@ -8219,6 +8219,23 @@ lemma strictOutsideSupportHitSet_volume_zero_of_subset_finset
   exact strictOutsideSupportHitSet_volume_zero_of_subset_countable C
     S.countable_toSet hsub
 
+/-- If the singular support-hit branch is empty, it is null. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_empty
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hempty : strictOutsideSupportHitSet C = ∅) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  simp [hempty]
+
+/-- If the singular support-hit branch is contained in the two component
+endpoints, it is null. -/
+lemma strictOutsideSupportHitSet_volume_zero_of_subset_endpoints
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hsub :
+      strictOutsideSupportHitSet C ⊆ ({C.left, C.right} : Set ℝ)) :
+    volume (strictOutsideSupportHitSet C) = 0 := by
+  exact strictOutsideSupportHitSet_volume_zero_of_subset_finite C
+    (by simp : ({C.left, C.right} : Set ℝ).Finite) hsub
+
 /-- Component replacement does not increase the objective if the outside
 restriction has null support. -/
 theorem componentReplacement_objective_le_of_outsideSupport_null
@@ -8309,6 +8326,31 @@ theorem componentReplacement_objective_le_of_supportHit_subset_finset
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
   exact componentReplacement_objective_le_of_supportHit_subset_countable
     C hmass_pos S.countable_toSet hsub
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is empty. -/
+theorem componentReplacement_objective_le_of_supportHit_empty
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hempty : strictOutsideSupportHitSet C = ∅) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_empty C hempty)
+
+/-- Component replacement does not increase the objective if the actual
+singular support-hit branch is contained in the two component endpoints. -/
+theorem componentReplacement_objective_le_of_supportHit_subset_endpoints
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C)
+    (hsub :
+      strictOutsideSupportHitSet C ⊆ ({C.left, C.right} : Set ℝ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
+    C hmass_pos
+    (strictOutsideSupportHitSet_volume_zero_of_subset_endpoints C hsub)
 
 /-!
 ## Finite variance drop under barycenter replacement

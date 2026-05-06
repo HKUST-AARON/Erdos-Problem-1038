@@ -149,6 +149,8 @@ strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
 strictOutsideSupportHitSet_volume_zero_of_subset_countable
 strictOutsideSupportHitSet_volume_zero_of_subset_finite
 strictOutsideSupportHitSet_volume_zero_of_subset_finset
+strictOutsideSupportHitSet_volume_zero_of_empty
+strictOutsideSupportHitSet_volume_zero_of_subset_endpoints
 componentReplacement_objective_le_of_outsideSupport_null
 componentReplacement_objective_le_of_outsideSupport_countable
 componentReplacement_objective_le_of_outsideSupport_subset_countable
@@ -156,6 +158,8 @@ componentReplacement_objective_le_of_supportHit_subset_countable
 componentReplacement_objective_le_of_supportHit_countable
 componentReplacement_objective_le_of_supportHit_subset_finite
 componentReplacement_objective_le_of_supportHit_subset_finset
+componentReplacement_objective_le_of_supportHit_empty
+componentReplacement_objective_le_of_supportHit_subset_endpoints
 measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
 endpoint_lower_bound_from_normalized_support_decomposition
 endpoint_mass_ge_half_from_boundary_average
@@ -239,6 +243,9 @@ carrier for the outside measure controls its full topological support.
 The same local criterion is available with either an abstract finite carrier
 or a concrete `Finset` carrier, which is the interface expected from later
 component-topology or atomization arguments.
+Two boundary-level special cases are also packaged directly: the singular
+support-hit branch may be empty, or it may be contained in the two component
+endpoints `{C.left, C.right}`.
 The same interface is now available in a punctured-neighbourhood form: if the
 outside restriction gives zero mass to some open interval around each strict
 outside test point, Lean turns that into positive distance separation and closes
