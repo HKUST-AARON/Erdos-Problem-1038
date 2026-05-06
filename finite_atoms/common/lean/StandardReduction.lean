@@ -9126,6 +9126,60 @@ theorem standard_reduction_baseline_length_from_tao_endpoint_data_ennreal
         volume (PositiveSet (Potential (normalize a))) := by
   exact (TaoEndpointReductionInputENNReal.mk hEndpoint).exists_baseline_length
 
+/--
+Main proof-graph closure for a finite-route lower bound after standard
+normalization.
+
+This structure deliberately leaves exactly two mathematical inputs:
+
+* `endpointFromVariation`: the Tao positive-component/variation argument
+  produces endpoint-normalized data for every secondary minimizer;
+* `routeFromEndpoint`: the chosen finite-atom route consumes that endpoint data
+  and proves the requested length lower bound.
+
+The theorem below proves that no additional bookkeeping is hidden between those
+two inputs and the final lower-bound statement for secondary minimizers.
+-/
+structure EndpointRouteClosureENNReal
+    {α Normalized : Type} [TopologicalSpace α]
+    (P : SecondarySelectorProblemENNReal α)
+    (normalize : α → Normalized)
+    (Potential : Normalized → ℝ → ℝ)
+    (L : ℝ≥0∞) where
+  endpointFromVariation :
+    ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+      TaoEndpointNormalizationData (Potential (normalize a))
+  routeFromEndpoint :
+    ∀ n : Normalized, TaoEndpointNormalizationData (Potential n) →
+      L ≤ volume (PositiveSet (Potential n))
+
+/-- Every secondary minimizer satisfies the finite-route lower bound once the
+two closure inputs have been supplied. -/
+theorem EndpointRouteClosureENNReal.lower_bound
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    {L : ℝ≥0∞}
+    (h : EndpointRouteClosureENNReal P normalize Potential L)
+    {a : α} (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a) :
+    L ≤ volume (PositiveSet (Potential (normalize a))) :=
+  h.routeFromEndpoint (normalize a) (h.endpointFromVariation a ha)
+
+/-- Existence form of the closed proof graph.  This is the target shape used
+when the direct method has selected a secondary minimizer. -/
+theorem EndpointRouteClosureENNReal.exists_lower_bound
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    {L : ℝ≥0∞}
+    (h : EndpointRouteClosureENNReal P normalize Potential L) :
+    ∃ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a ∧
+      L ≤ volume (PositiveSet (Potential (normalize a))) := by
+  rcases P.exists_secondary_minimizer with ⟨a, ha⟩
+  exact ⟨a, ha, h.lower_bound ha⟩
+
 theorem SecondaryMinimizerNormalization.exists_normalized_endpoint_potential
     {α Normalized : Type} [TopologicalSpace α]
     {P : SecondarySelectorProblem α}

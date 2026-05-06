@@ -167,6 +167,9 @@ endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
 TaoComponentReductionData.support_subset_normalized
 TaoComponentReductionData.endpointMass_ge_half
 TaoReducedPotentialData.toNormalizedEndpointPotential
+EndpointRouteClosureENNReal
+EndpointRouteClosureENNReal.lower_bound
+EndpointRouteClosureENNReal.exists_lower_bound
 ```
 
 The most recent additions in this layer are:
@@ -179,6 +182,17 @@ endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
 The first is the named support-decomposition-to-endpoint-lower-bound bridge.
 The second matches the mathematical proof's split between `x_+ > 0` and the
 degenerate two-point `x_+ = 0` case.
+
+The main proof graph is now also fixed by `EndpointRouteClosureENNReal`.
+It deliberately exposes exactly two remaining mathematical inputs for a
+finite-route lower bound after standard normalization: the Tao variation step
+must provide `TaoEndpointNormalizationData` for every secondary minimizer, and
+the chosen finite-atom route must turn that endpoint package into the requested
+length lower bound.  The Lean theorems
+`EndpointRouteClosureENNReal.lower_bound` and
+`EndpointRouteClosureENNReal.exists_lower_bound` prove that no further
+bookkeeping is hidden between those two inputs and the route-level lower-bound
+statement.
 
 The component-replacement layer now also has an explicit assembly bridge:
 Lean decomposes integration against the original measure into outside plus
