@@ -8918,31 +8918,134 @@ theorem queue.
     form a four-dimensional correction space.  The raw augmented determinant
     test is therefore not merely unproved; with these columns it is degenerate.
 
-    This identifies the required repair.  The endpoint Schiffer seed cannot be
-    just the fixed-\(P\), fixed-\(Q\) branch variation followed by Hermite
-    cancellation of \(Q\)-poles.  One must replace the endpoint table by an
-    actual non-collapsing Schiffer chart, for example by including the required
-    numerator variation \(\delta P_\gamma\), using a moving-\(Q\) chart, or
-    otherwise defining four independent regularized Schiffer endpoint
-    directions before returning to the circuit sign problem.
+    Repaired endpoint Schiffer table.
+
+    The repair is to stop using the fixed-\(P\), fixed-\(Q\) pole-cancellation
+    table as the endpoint seed table.  The endpoint seed must be defined from
+    the full Schiffer variation
+
+    \[
+    \boxed{
+    \delta_\gamma F(z)
+    =
+    \frac{\Delta_\gamma P(z)}{Q(z)}R(z)
+    -\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+    -\frac{P(z)R(z)}{Q(z)^2}\Delta_\gamma Q(z).
+    }
+    \tag{FullSchifferSeed}
+    \]
+
+    Equivalently, in the common denominator \(Q^2R\),
+
+    \[
+    \boxed{
+    H_\gamma^{\rm rep}
+    =
+    QD\,\Delta_\gamma P
+    -PD\,\Delta_\gamma Q
+    -\frac12PQD_\gamma,
+    \qquad
+    C_\gamma^{\rm rep}
+    =
+    \frac{H_\gamma^{\rm rep}}{Q^2R}.
+    }
+    \tag{RepairedEndpointH}
+    \]
+
+    The unknown pair
+
+    \[
+    (\Delta_\gamma P,\Delta_\gamma Q)\in\mathcal X_{\rm Sch}
+    \]
+
+    is determined by a finite moving-chart normalization system
+
+    \[
+    \boxed{
+    \mathcal L_{\rm Sch}(\Delta_\gamma P,\Delta_\gamma Q)
+    =
+    -\mathcal L_{\rm Sch}
+    \left(0,0;-\frac12PQD_\gamma\right).
+    }
+    \tag{SchifferLinearSystem}
+    \]
+
+    Here \(\mathcal L_{\rm Sch}\) contains exactly the chart rows that must be
+    fixed for a regular endpoint Schiffer direction: zero mass, the selected
+    free-period/filling convention, the moving-pole gauge for \(Q\), the
+    prescribed residue/pole-state convention, and the regularity rows needed to
+    keep the finite-\(\varepsilon\) perturbation in the separated non-pinched
+    chart.  It does not include \(R_c\), because \(R_c\) is still corrected by
+    the boundary-neutral bump pair.  It also does not impose the collapsed
+    fixed-\(Q\) conditions \(H(p_k)=H'(p_k)=0\) unless those rows are part of a
+    larger moving-\(Q\) system with enough numerator/pole-state freedom to avoid
+    (EndpointCollapse).
+
+    With this repaired definition,
+
+    \[
+    R_0(G_\gamma)=0,
+    \qquad
+    \rho_\gamma=R_c(G_\gamma)=-C_\gamma^{\rm rep}(c),
+    \]
+
+    and
+
+    \[
+    V_\gamma(s)=\int_s^\infty C_\gamma^{\rm rep}(y)\,dy
+    \qquad(s\notin J)
+    \]
+
+    with the usual continuous logarithmic boundary value on \(Z_0\).  The
+    reduced endpoint column is therefore
+
+    \[
+    \boxed{
+    b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+    \qquad
+    f_\gamma(x)=V_\gamma(x)-\rho_\gamma A_c(x).
+    }
+    \tag{RepairedEndpointColumn}
+    \]
+
+    The noncollapse condition for the repaired table is now explicit:
+
+    \[
+    \boxed{
+    \operatorname{rank}
+    \left[
+    C_{\alpha_1}^{\rm rep},\
+    C_{\beta_1}^{\rm rep},\
+    C_{\alpha_2}^{\rm rep},\
+    C_{\beta_2}^{\rm rep}
+    \right]
+    \equiv 4
+    \quad
+    \text{modulo the period column }C_\Pi.
+    }
+    \tag{RepairedSchifferRank}
+    \]
+
+    This is the repaired endpoint table to use in Gate 1.  The old
+    fixed-\(Q\) Hermite table is retained only as a failed audit showing why the
+    numerator/pole-state part of the Schiffer variation is necessary.
 
     Gate status.
 
     \[
     \boxed{
-    \textbf{Gate 1 result: FAIL under the current documents.}
+    \textbf{Gate 1 repair status: endpoint table repaired; sign proof still open.}
     }
     \]
 
     The failure is not in the \(A_c\)-elimination, the period column, the
     zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
-    failure is exactly the endpoint-column collapse (EndpointCollapse), hence
-    the absence of a nondegenerate four-column Schiffer correction space.  Under
-    the execution protocol, this means Gates 2--7 must not be written as
-    completed consequences.  They remain queued conditional bridges, activated
-    only after the endpoint Schiffer table is repaired and
-    `AugmentedSchifferChebyshevLemma` is proved or replaced by a different
-    proof of (RAS).
+    repaired table removes the fixed-\(Q\) endpoint-column collapse, but Gate 1
+    still has two proof obligations: verify (RepairedSchifferRank) for the
+    chosen moving chart and prove `AugmentedSchifferChebyshevLemma`, or replace
+    it by a different proof of (RAS).  Under the execution protocol, Gates 2--7
+    must not be written as completed consequences until these two obligations
+    are discharged.
 
     Therefore the current honest conclusion is:
 

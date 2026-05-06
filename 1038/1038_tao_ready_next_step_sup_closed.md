@@ -3092,22 +3092,77 @@ H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
 under the monic convention for \(Q\).  Thus the endpoint columns currently
 written in the fixed-\(Q\) Hermite table are all proportional to
 \(C_\Pi=\kappa/R\).  The endpoint Schiffer table is therefore degenerate, not
-just missing a sign proof.  The table must be repaired by adding the actual
-endpoint numerator variation, using a moving-\(Q\) chart, or otherwise defining
-four independent regularized Schiffer endpoint directions.
+just missing a sign proof.
+
+The repaired endpoint seed must use the full moving-chart Schiffer variation
+
+\[
+\delta_\gamma F
+=
+\frac{\Delta_\gamma P}{Q}R
+-\frac{PR}{2Q(z-\gamma)}
+-\frac{PR}{Q^2}\Delta_\gamma Q.
+\]
+
+Equivalently,
+
+\[
+\boxed{
+H_\gamma^{\rm rep}
+=
+QD\,\Delta_\gamma P
+-PD\,\Delta_\gamma Q
+-\frac12PQD_\gamma,
+\qquad
+C_\gamma^{\rm rep}=\frac{H_\gamma^{\rm rep}}{Q^2R}.
+}
+\]
+
+The pair \((\Delta_\gamma P,\Delta_\gamma Q)\) is determined by the finite
+moving-chart linear system fixing zero mass, the chosen free-period/filling
+normalization, the pole/residue gauge, and regularity in the separated
+non-pinched chart.  The branch row \(R_c\) remains outside this system because
+it is corrected by the boundary-neutral bump pair.  The collapsed fixed-\(Q\)
+conditions \(H(p_k)=H'(p_k)=0\) are not used as the endpoint seed table unless
+they are embedded in a larger moving-\(Q\) system.
+
+The repaired reduced column is
+
+\[
+\boxed{
+b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+\qquad
+f_\gamma=V_\gamma-\rho_\gamma A_c,
+\qquad
+\rho_\gamma=-C_\gamma^{\rm rep}(c).
+}
+\]
+
+The next Gate 1 check is now the noncollapse condition
+
+\[
+\operatorname{rank}
+\{C_{\alpha_1}^{\rm rep},C_{\beta_1}^{\rm rep},
+C_{\alpha_2}^{\rm rep},C_{\beta_2}^{\rm rep}\}
+=4
+\quad\text{modulo }C_\Pi,
+\]
+
+followed by the raw augmented determinant sign proof.
 
 Gate status:
 
 \[
 \boxed{
-\textbf{Gate 1 result: FAIL under the current documents.}
+\textbf{Gate 1 repair status: endpoint table repaired; sign proof still open.}
 }
 \]
 
-The algebraic reductions are usable, but the current fixed-\(Q\) endpoint
-columns collapse to the period column.  Therefore the later gates--Proposition
-4.1 interface, pinching, high genus, Lemma R, and final assembly--must remain
-conditional rather than completed.
+The algebraic reductions are usable, and the repaired moving-chart table
+removes the fixed-\(Q\) endpoint-column collapse.  The later gates--Proposition
+4.1 interface, pinching, high genus, Lemma R, and final assembly--remain
+conditional until the repaired rank condition and raw augmented determinant
+sign are proved.
 
 Hence the rank-defect conclusion currently has the precise conditional form:
 
