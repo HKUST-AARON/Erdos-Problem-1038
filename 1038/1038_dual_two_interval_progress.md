@@ -10480,6 +10480,107 @@ theorem queue.
     except the period normalization, whose separated-chart admissibility is
     already isolated.
 
+    Normalization solver for \(A_\mu,B_\mu\).
+
+    Put
+
+    \[
+    \widetilde C_\mu(z)
+    =
+    f_\mu(z)-\frac{\operatorname{PP}_\mu(z)}{R(z)}.
+    \tag{G1Ctilde}
+    \]
+
+    Define the two linear functionals
+
+    \[
+    m(T)=[z^{-1}]_\infty T,
+    \qquad
+    p(T)=\Pi(T).
+    \]
+
+    Then \(A_\mu,B_\mu\) are determined by
+
+    \[
+    \begin{pmatrix}
+    m(R^{-1})&m(zR^{-1})\\
+    p(R^{-1})&p(zR^{-1})
+    \end{pmatrix}
+    \binom{A_\mu}{B_\mu}
+    =
+    -
+    \binom{m(\widetilde C_\mu)}{p(\widetilde C_\mu)}.
+    \tag{G1NormMatrix}
+    \]
+
+    Because \(R(z)\sim z^2\),
+
+    \[
+    m(R^{-1})=0,\qquad m(zR^{-1})=1.
+    \tag{G1MassRow}
+    \]
+
+    Hence, in the standard two-cut normalization, set
+
+    \[
+    \pi_0=p(R^{-1}),\qquad \pi_1=p(zR^{-1}),
+    \qquad
+    m_\mu=m(\widetilde C_\mu),\qquad p_\mu=p(\widetilde C_\mu).
+    \]
+
+    If \(\pi_0\ne0\), then
+
+    \[
+    \boxed{
+    B_\mu=-m_\mu,
+    \qquad
+    A_\mu=
+    \frac{-p_\mu+m_\mu\pi_1}{\pi_0}.
+    }
+    \tag{G1NormSolution}
+    \]
+
+    This gives a fully explicit Cauchy transform:
+
+    \[
+    \boxed{
+    C_\mu(z)
+    =
+    \widetilde C_\mu(z)
+    +
+    \frac{1}{R(z)}
+    \left(
+    \frac{-p_\mu+m_\mu\pi_1}{\pi_0}
+    -
+    m_\mu z
+    \right).
+    }
+    \tag{G1CmuExplicit}
+    \]
+
+    If \(\pi_0=0\), the pair \((m,\Pi)\) does not normalize the
+    one-dimensional mass-free nullspace in this chart.  That is a
+    period-normalization degeneracy, not a hidden analytic case; it must be
+    handled either by changing the period coordinate or by routing the point to
+    Gate 3 boundary / chart-rank loss.
+
+    Thus the capacity matrix is now algorithmic:
+
+    \[
+    k_\mu
+    \longmapsto
+    \widetilde C_\mu
+    \longmapsto
+    (m_\mu,p_\mu)
+    \longmapsto
+    C_\mu
+    \longmapsto
+    C_{\nu\mu}
+    =
+    \int_J k_\nu\,dg_\mu.
+    \tag{G1CAlgorithm}
+    \]
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

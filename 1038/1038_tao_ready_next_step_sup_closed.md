@@ -3721,6 +3721,37 @@ arbitrary interior step kernel; it is handled by \(\Pi(C_\mu)=0\), or by a
 gap-supported \(H^{1/2}\) kernel.  If the period jump enters the active support,
 this separated Riesz-Gram chart is invalid and the case is routed to boundary.
 
+The normalization constants are explicit.  With
+
+\[
+\widetilde C_\mu=f_\mu-\operatorname{PP}_\mu/R,
+\qquad
+m(T)=[z^{-1}]_\infty T,\quad p(T)=\Pi(T),
+\]
+
+\[
+\begin{pmatrix}
+m(R^{-1})&m(zR^{-1})\\
+p(R^{-1})&p(zR^{-1})
+\end{pmatrix}
+\binom{A_\mu}{B_\mu}
+=
+-
+\binom{m(\widetilde C_\mu)}{p(\widetilde C_\mu)}.
+\]
+
+Since \(R(z)\sim z^2\), the first row is \((0,1)\).  Writing
+\(\pi_0=p(R^{-1})\), \(\pi_1=p(zR^{-1})\),
+\(m_\mu=m(\widetilde C_\mu)\), and \(p_\mu=p(\widetilde C_\mu)\), one gets
+
+\[
+B_\mu=-m_\mu,\qquad
+A_\mu=\frac{-p_\mu+m_\mu\pi_1}{\pi_0}
+\]
+
+provided \(\pi_0\ne0\).  If \(\pi_0=0\), the period normalization degenerates
+and the point must be treated as chart-rank boundary or reparametrized.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
