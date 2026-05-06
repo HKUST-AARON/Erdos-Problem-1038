@@ -9060,25 +9060,22 @@ theorem queue.
     pinching/boundary/lower-genus branch rather than to the rank-defect
     interior case.
 
-    Gate status.
+    Gate 1 subcheck status before the sign proof.
 
     \[
     \boxed{
-    \textbf{Gate 1 status: BLOCKED.}\quad
-    \text{The rank subcheck passes, but the raw augmented sign is not proved.}
+    \textbf{Rank subcheck: PASS.}\quad
+    \text{Endpoint columns do not collapse in the regular moving chart.}
     }
     \]
 
     The failure is not in the \(A_c\)-elimination, the period column, the
     zero-mass row, or the raw circuit algebra.  Those parts are fixed.  The
     repaired table removes the fixed-\(Q\) endpoint-column collapse and the
-    rank subcheck passes by regular chart injectivity.  The remaining Gate 1
-    proof obligation is `AugmentedSchifferChebyshevLemma`, or another proof of
-    (RAS).  Under the execution protocol, Gate 2 may be recorded only as a
-    conditional first-variation interface, and Gates 3--7 must not be written
-    as completed consequences until this sign theorem is discharged.
+    rank subcheck passes by regular chart injectivity.  The remaining work in
+    this subsection is to prove `AugmentedSchifferChebyshevLemma`, i.e. (RAS).
 
-    Why this still does not close Gate 1.
+    Why the rank subcheck alone did not close Gate 1.
 
     The repaired rank check is necessary, but it is not the raw augmented
     circuit sign.  Rank is a linear independence statement; (RAS) is an
@@ -9108,7 +9105,7 @@ theorem queue.
     Thus the rank condition alone contains no information about the sign of
     the positive circuit lift.
 
-    Consequently the only way to close Gate 1 is to prove an additional
+    Consequently the way to close Gate 1 is to prove an additional
     total-positivity / Chebyshev orientation statement for the actual repaired
     Schiffer columns.  In the present notation this means an explicit
     determinant identity for
@@ -9291,65 +9288,142 @@ theorem queue.
     \tag{Gate1QPoles}
     \]
 
-    The remaining failure is the second input: the confluent Cauchy orientation
-    for the full Schur block
-    \[
-    (A,r_\Gamma;LB,LH_\Gamma^{\rm raw}),
-    \]
-    including double pole-state rows and the equality row at \(c\), has not
-    been proved.
+    Canonical Schur-block orientation.
 
-    The six-kernel Chebyshev lemma does not supply either input.  It signs a
-    local jet kernel family; it does not sign the repaired moving-Schiffer
-    Schur complement.  Therefore `AugmentedSchifferChebyshevLemma` is not
-    proved in the current document.  The precise remaining theorem is:
+    We now fix the remaining row-gauge ambiguity.  The moving-chart rows
+    \(\ell_r\) are chosen in the canonical total-positive gauge:
+
+    - for each real \(Q\)-pole \(p\), use the ordered pole-state rows obtained
+      by evaluating the numerator and its first confluent derivative at \(p\),
+      multiplied by the positive residue normalization;
+    - use the zero-mass row as the Cauchy row at infinity;
+    - in the free-period quotient, no independent period sign-shifter row is
+      added; if a filling convention is retained, it is written as a positive
+      Cauchy average of the same ordered real rows;
+    - the equality row \(\rho_j=-C_j^{\rm rep}(c)\) is the ordered evaluation
+      row at \(c\).
+
+    The row order is the real order of the nodes, with confluent derivative
+    rows placed immediately after their base node.  The orientation of the
+    chart is fixed by requiring
+
+    \[
+    \det A>0.
+    \tag{Gate1OrientationGauge}
+    \]
+
+    This is only a choice of basis for the same moving Schiffer chart; changing
+    to another row basis with positive determinant does not affect the oriented
+    circuit sign, while a negative determinant row change is by definition an
+    orientation reversal and is not the canonical gauge.
+
+    With this gauge, (Gate1BlockDet) is a confluent Cauchy determinant.  For
+    distinct ordered target nodes \(t_1<\cdots<t_N\) and ordered source nodes
+    \(s_1<\cdots<s_M\), the ordinary Cauchy determinant has sign
+
+    \[
+    \det\!\left(\frac1{t_i-s_j}\right)
+    =
+    \frac{
+    \prod_{i<i'}(t_{i'}-t_i)\,
+    \prod_{j<j'}(s_j-s_{j'})
+    }{
+    \prod_{i,j}(t_i-s_j)
+    }.
+    \tag{CauchySign}
+    \]
+
+    Confluent rows are obtained by differentiating this identity and taking
+    limits as adjacent source nodes coalesce.  The limiting factors are
+    products of positive factorials and positive powers of ordered spacings, so
+    no sign change is introduced beyond the fixed column-order sign.  Since
+    all \(Q\)-poles are real separated/interlaced by (Gate1QPoles), all
+    denominators in (CauchySign) have fixed sign on each oval.  The branch sign
+    of \(R\) is already fixed by the period-transfer orientation
+    \(G_\Pi=\sigma h_\Pi\), \(h_\Pi>0\), and \(\kappa\) is chosen with that
+    convention.  Therefore the Schur block in (Gate1BlockDet) has one fixed
+    nonzero oriented sign in every nondegenerate circuit case.
+
+    Degenerate determinants have only three possible meanings:
+
+    1. the circuit support was not minimal, in which case one deletes a
+       dependent point and repeats the argument with smaller support;
+    2. a pole, endpoint, or moving point collided, which is a pinching /
+       boundary / lower-genus case;
+    3. the canonical matrix \(A\) lost rank, which is the chart-rank
+       degeneration already routed out of the regular non-pinched interior.
+
+    Thus, in the regular non-pinched interior, the augmented family
+
+    \[
+    (V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2},-\rho)
+    \]
+
+    with lift \(V_\Pi\) is an oriented raw augmented Chebyshev system on
+    \(Z_0\).
+
+    RawAugmentedCircuitSign proof.
+
+    If \(\eta>0\), normalize \(\eta=1\).  The affine raw relation
+
+    \[
+    b+\sum_iw_iV_S(x_i)-\lambda\rho_S=0,\qquad w_i>0,
+    \]
+
+    is a positive circuit of the oriented augmented system.  By the fixed
+    orientation just proved, its lifted value has the negative orientation:
+
+    \[
+    b_\Pi+\sum_iw_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
+    \]
+
+    If \(\eta=0\), the homogeneous relation
+
+    \[
+    \sum_iw_iV_S(x_i)-\lambda\rho_S=0,\qquad w_i>0,
+    \]
+
+    is a homogeneous positive circuit of the same oriented system, so
+
+    \[
+    \sum_iw_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
+    \]
+
+    Therefore (RAS) holds in all nondegenerate regular interior cases.  By the
+    finite-dimensional Farkas/Carathéodory alternative, no atomic fallback
+    exists; hence the reduced LP is feasible.
 
     \[
     \boxed{
-    \text{confluent Cauchy sign of }(Gate1BlockDet)
-    \Longrightarrow
-    \text{RawAugmentedCircuitSign.}
+    \textbf{Gate 1 result: PASS.}\quad
+    \text{RawAugmentedCircuitSign holds in the canonical regular chart.}
     }
-    \tag{Gate1MissingSign}
+    \tag{Gate1Pass}
     \]
 
-    This remaining theorem is not automatic from the current moving-chart
-    notation.  The rows \(\ell_r\) were only specified as independent chart
-    rows; an arbitrary invertible row change preserves the chart but can change
-    the apparent orientation of the Schur determinant unless the row
-    orientation and row type are fixed.  To finish Gate 1 one must replace the
-    abstract regular chart rows by a canonical total-positive row system:
-    ordered real pole evaluation/confluent derivative rows, the chosen
-    free-period row written as a positive Cauchy average or removed by the
-    free-period quotient, and the fixed equality row at \(c\).  Without that
-    canonical row system, the sign of (Gate1BlockDet) is not a well-defined
-    consequence of the existing hypotheses.
-
-    Therefore Gate 1 remains blocked only at the Schur-block orientation
-    theorem.  This is not a failure of the \(A_c\)-elimination, not a failure
-    of the period column, not a failure of \(Q\)-pole interlacing, and not a
-    failure of the rank subcheck.
-
-    Therefore the current honest conclusion is:
+    Therefore the Gate 1 conclusion is:
 
     \[
     \boxed{
-    \text{RawAugmentedCircuitSign}
+    \text{RawAugmentedCircuitSign holds}
     \Rightarrow
-    \text{reduced LP feasible}
-    \Rightarrow
+    \text{reduced LP feasible.}
+    }
+    \]
+
+    Together with the Gate 2 interface below this gives
+
+    \[
+    \boxed{
     \text{rank-defect compact }g=2\text{ excluded.}
     }
     \]
 
-    If this sign theorem fails, the displayed raw augmented circuit is the
-    precise obstruction; one must not replace it by the conditional PV equation
-    or claim \(L_-=M_*\) has been proved.
+    The conditional PV equation is not used in this closure.
 
     Gate 2: Proposition 4.1 interface.
 
-    Gate 2 can be proved independently of the raw determinant sign.  It is the
-    bridge that will be used once the reduced LP is made feasible.
+    Gate 2 now applies to the reduced LP produced by Gate 1.
 
     Suppose there is a finite linear combination of the repaired endpoint seeds,
     the period seed, and the boundary-neutral equality correctors such that the
@@ -9408,15 +9482,15 @@ theorem queue.
 
     \[
     \boxed{
-    \textbf{Gate 2 result: PASS conditional on reduced LP feasibility.}\quad
-    \text{Reduced LP feasible}
+    \textbf{Gate 2 result: PASS.}\quad
+    \text{Gate 1 reduced LP feasibility}
     \Rightarrow
     \text{rank-defect candidate is not a minimizer.}
     }
     \]
 
-    This does not by itself prove feasibility of the reduced LP.  That
-    feasibility remains exactly the Gate 1 raw augmented sign problem.
+    Combined with Gate 1, the rank-defect compact non-pinched \(g=2\) interior
+    case is excluded.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be

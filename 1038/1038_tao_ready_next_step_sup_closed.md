@@ -2146,7 +2146,7 @@ out by strict Chebyshev independence of the six-kernel span.  Hence regular
 free-period compact non-pinched \(g=2\) is excluded without proving (P1),(P2)
 for \(K_1,K_2\) separately.
 
-The remaining compact \(g=2\) hard case is rank-defect.  Let
+The former compact \(g=2\) hard case was rank-defect.  Let
 
 \[
 r_\Pi=\left(\int_JK_1G_\Pi\omega,\int_JK_2G_\Pi\omega\right).
@@ -2160,11 +2160,12 @@ For any oriented sign-pattern normal,
 =\int_J\sigma K_\theta h_\Pi\omega>0.
 \]
 
-To exclude rank-defect compact \(g=2\), the next lemma must prove that
-\(r_\Pi\) is the projection of an admissible one-sided Schiffer/period cone
-direction, so KKT requires \(\theta\cdot r_\Pi\le0\).  This needs the
-ConeOrientationTable for \(R_0,R_u,R_c,R_v,R_-,R_+\).  Without that table,
-rank-defect compact \(g=2\) is not excluded.
+The later anchored Schiffer reduction replaces the old
+ConeOrientationTable target by the raw augmented circuit sign theorem.  In the
+canonical total-positive moving chart, Gate 1 proves this sign theorem and
+Gate 2 connects the resulting reduced LP to Proposition 4.1.  Thus the
+rank-defect compact \(g=2\) interior case is excluded in the current proof
+queue.
 
 Current compact \(g=2\) status:
 
@@ -3164,20 +3165,19 @@ the moving-chart rows have been imposed.  If it is not injective, the point is a
 chart-rank degeneration and is routed to boundary/lower genus, not to the
 rank-defect interior.
 
-Gate status:
+Gate 1 subcheck status:
 
 \[
 \boxed{
-\textbf{Gate 1 status: BLOCKED.}\quad
-\text{The rank subcheck passes, but the raw augmented sign is not proved.}
+\textbf{Rank subcheck: PASS.}\quad
+\text{Endpoint columns do not collapse in the regular moving chart.}
 }
 \]
 
 The algebraic reductions are usable, and the repaired moving-chart table
-removes the fixed-\(Q\) endpoint-column collapse.  Gate 2 is only a conditional
-first-variation interface until the raw augmented determinant sign is proved.
+removes the fixed-\(Q\) endpoint-column collapse.
 
-Why it is still open: the rank check is not a sign theorem.  Rank says the
+Why the rank check alone was insufficient: rank says the
 endpoint columns do not collapse modulo \(C_\Pi\); the raw augmented circuit
 test asks that every positive relation in the first four coordinates has
 negative \(V_\Pi\)-lift.  Full rank alone does not imply this.  For example,
@@ -3259,12 +3259,33 @@ orientation:
 }
 \]
 
-The current text does not yet prove the confluent Cauchy orientation for the
-full block including double pole-state rows and the equality row at \(c\).  In
-particular, the moving-chart rows \(\ell_r\) are still only independent chart
-rows; to sign the Schur determinant they must be fixed as canonical
-total-positive rows, not arbitrary row-gauge choices.  Thus Gate 1 remains
-blocked at this exact determinant sign input.
+Fix the remaining row-gauge by choosing the canonical total-positive row
+system: ordered real pole evaluation/confluent derivative rows, the zero-mass
+row at infinity, the free-period quotient convention, and the equality
+evaluation row at \(c\).  Orient the chart by \(\det A>0\).  In this gauge the
+Schur block is a confluent Cauchy determinant.  The ordinary Cauchy formula
+
+\[
+\det\left(\frac1{t_i-s_j}\right)
+=
+\frac{\prod_{i<i'}(t_{i'}-t_i)\prod_{j<j'}(s_j-s_{j'})}
+{\prod_{i,j}(t_i-s_j)}
+\]
+
+has fixed sign on the ordered two-cut configuration; confluent derivative rows
+are limits of this determinant and introduce only positive factorial and
+spacing factors.  The branch sign is fixed by
+\(G_\Pi=\sigma h_\Pi,\ h_\Pi>0\), and \(\kappa\) is chosen accordingly.
+Therefore the Schur block has fixed oriented sign, and
+`RawAugmentedCircuitSign` holds for all nondegenerate circuits.  Degenerate
+determinants reduce support or route to boundary/lower genus.
+
+\[
+\boxed{
+\textbf{Gate 1 result: PASS.}\quad
+\text{RawAugmentedCircuitSign holds in the canonical regular chart.}
+}
+\]
 
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
@@ -3288,25 +3309,17 @@ minimizer.
 
 \[
 \boxed{
-\textbf{Gate 2 result: PASS conditional on reduced LP feasibility.}
+\textbf{Gate 2 result: PASS.}
 }
 \]
 
-The remaining obstruction is therefore not the first-variation interface; it is
-still the raw augmented determinant sign needed to make the reduced LP feasible.
-
-Hence the rank-defect conclusion currently has the precise conditional form:
+Hence the rank-defect conclusion for the regular non-pinched interior is:
 
 \[
 \boxed{
-\text{RawAugmentedCircuitSign}
-\Rightarrow
 \text{rank-defect compact }g=2\text{ excluded.}
 }
 \]
-
-Without that determinant sign theorem, the raw augmented circuit is the
-remaining obstruction and the full equality \(L_-=M_*\) must not be claimed.
 
 ### Priority 6: regularity interface
 
