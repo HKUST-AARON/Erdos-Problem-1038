@@ -1889,6 +1889,39 @@ def unitIntervalSecondMomentObjective
     (μ : ProbabilityMeasure UnitInterval1038) : ℝ :=
   ∫ t : UnitInterval1038, (t : ℝ) ^ 2 ∂(μ : Measure UnitInterval1038)
 
+/-- The bounded-continuous-function form of the second-moment integrand. -/
+noncomputable def unitIntervalSecondMomentBCF :
+    BoundedContinuousFunction UnitInterval1038 ℝ :=
+  BoundedContinuousFunction.mkOfCompact
+    ⟨fun t : UnitInterval1038 => (t : ℝ) ^ 2, by continuity⟩
+
+/-- Weak continuity of the concrete second-moment objective. -/
+theorem unitIntervalSecondMomentObjective_tendsto
+    {ι : Type*} {L : Filter ι}
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {μs : ι → ProbabilityMeasure UnitInterval1038}
+    (hμs : Filter.Tendsto μs L (nhds μ)) :
+    Filter.Tendsto
+      (fun i => unitIntervalSecondMomentObjective (μs i)) L
+      (nhds (unitIntervalSecondMomentObjective μ)) := by
+  simpa [unitIntervalSecondMomentObjective, unitIntervalSecondMomentBCF] using
+    (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp hμs)
+      unitIntervalSecondMomentBCF
+
+/-- Continuity of the concrete second-moment objective. -/
+theorem unitIntervalSecondMomentObjective_continuous :
+    Continuous unitIntervalSecondMomentObjective := by
+  rw [continuous_iff_continuousAt]
+  intro μ
+  exact unitIntervalSecondMomentObjective_tendsto
+    (μs := fun ν : ProbabilityMeasure UnitInterval1038 => ν)
+    (L := nhds μ) Filter.tendsto_id
+
+/-- Lower semicontinuity of the concrete second-moment secondary objective. -/
+theorem unitIntervalSecondMomentObjective_lowerSemicontinuous :
+    LowerSemicontinuous unitIntervalSecondMomentObjective :=
+  unitIntervalSecondMomentObjective_continuous.lowerSemicontinuous
+
 /-- Joint measurability of the logarithmic kernel on `ℝ × [-1,1]`. -/
 lemma measurable_unitIntervalLogKernel_uncurry :
     Measurable
