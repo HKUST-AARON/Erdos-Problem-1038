@@ -277,6 +277,7 @@ The constructors
 ```lean
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
 CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_lt
+CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_ne
 ```
 
 remove the direct component-block atomization input when the caller has
@@ -284,7 +285,9 @@ the countable-support-hit normalized rigidity package.  It uses
 `CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac`
 internally.  The endpoint-mass/left-endpoint-order variant also removes the
 direct `componentBarycenter = -1` input from the canonical atomized right-region
-package.
+package.  The nondegenerate-left-endpoint variant replaces the strict order
+input by `component.left ≠ -1`, using baseline containment to recover
+`component.left < -1`.
 
 The theorem
 
@@ -324,13 +327,17 @@ membership true:
 
 ```lean
 endpoint_mem_component_of_baseline_inside_left_lt
+endpoint_mem_component_of_baseline_inside_left_ne
 componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
+componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
 ```
 
 Thus the barycenter endpoint step can now be driven by atomization, positive
 mass at `{-1}`, baseline containment, and the strict endpoint order
-`component.left < -1`.  The remaining analytic normalization work is to derive
-that strict endpoint order from the genuine maximal-component/translation
+`component.left < -1`.  Equivalently, since baseline containment already gives
+`component.left ≤ -1`, it can be driven by the nondegeneracy condition
+`component.left ≠ -1`.  The remaining analytic normalization work is to derive
+that endpoint nondegeneracy from the genuine maximal-component/translation
 argument, not to re-supply topological support membership by hand.
 
 ## Check command

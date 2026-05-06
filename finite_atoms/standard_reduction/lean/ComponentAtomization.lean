@@ -292,6 +292,21 @@ theorem endpoint_mem_component_of_baseline_inside_left_lt
     linarith
 
 /--
+Nondegenerate-left-endpoint form of endpoint membership.  Baseline containment
+already gives `C.left ≤ -1`; excluding equality upgrades this to the strict
+left-endpoint condition needed for `-1 ∈ C.interval`.
+-/
+theorem endpoint_mem_component_of_baseline_inside_left_ne
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_ne : C.left ≠ (-1 : ℝ)) :
+    (-1 : ℝ) ∈ C.interval := by
+  have hleft_le : C.left ≤ (-1 : ℝ) :=
+    (component_endpoint_order_of_baseline_inside C hbaseline).1
+  exact endpoint_mem_component_of_baseline_inside_left_lt C hbaseline
+    (lt_of_le_of_ne hleft_le hleft_ne)
+
+/--
 Endpoint-mass and endpoint-order form of the barycenter bridge.  Once
 atomization has been proved, positive mass at `-1`, baseline containment, and a
 strictly left normalized component endpoint imply that the barycenter is `-1`.
@@ -308,6 +323,24 @@ theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_m
   exact componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
     C hblock hmass
     (endpoint_mem_component_of_baseline_inside_left_lt C hbaseline hleft)
+
+/--
+Endpoint-mass and nondegenerate-left-endpoint form of the barycenter bridge.
+This replaces the strict order input by the weaker equality-exclusion input
+`C.left ≠ -1`.
+-/
+theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C))
+    (hmass : 0 < (realMeasure μ) ({-1} : Set ℝ))
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_ne : C.left ≠ (-1 : ℝ)) :
+    componentBarycenter C = -1 := by
+  exact componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
+    C hblock hmass
+    (endpoint_mem_component_of_baseline_inside_left_ne C hbaseline hleft_ne)
 
 /-! ### Endpoint support shape and boundary average -/
 
@@ -2293,6 +2326,41 @@ def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_
     (componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
       D.replacement.component D.componentBlock_eq_dirac endpoint_mass_pos
       baseline_inside_component left_endpoint_lt)
+    right_endpoint_positive right_endpoint_not_mem_support
+
+/--
+Nondegenerate-left-endpoint variant of the countable-rigidity constructor.
+It replaces the strict left-endpoint order input by `component.left ≠ -1`;
+baseline containment supplies the weak order, so equality exclusion is enough.
+-/
+def CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_ne
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {a b : α}
+    {M : MinimizerExistence.RelaxedMinimizer}
+    (D : CountableSupportHitNormalizedBlockRigidityData P a b M.μ)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (right_region_eq :
+      D.replacement.component.interval =
+        PositiveSet (VariationEndpoint.RelaxedPotential M) ∩
+          Ioi D.replacement.component.left)
+    (baseline_inside_component :
+      Ioo (-1 : ℝ) 0 ⊆ D.replacement.component.interval)
+    (real_support_bounded : (realMeasure M.μ).support ⊆ Icc (-1 : ℝ) 1)
+    (endpoint_mass_pos : 0 < (realMeasure M.μ) ({-1} : Set ℝ))
+    (left_endpoint_ne : D.replacement.component.left ≠ (-1 : ℝ))
+    (right_endpoint_positive : 0 < D.replacement.component.right)
+    (right_endpoint_not_mem_support :
+      D.replacement.component.right ∉ (realMeasure M.μ).support) :
+    CanonicalAtomizedRightRegionPackageData M :=
+  CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
+    D mean_choice reflected translation right_region_eq
+    baseline_inside_component real_support_bounded
+    (componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
+      D.replacement.component D.componentBlock_eq_dirac endpoint_mass_pos
+      baseline_inside_component left_endpoint_ne)
     right_endpoint_positive right_endpoint_not_mem_support
 
 end
