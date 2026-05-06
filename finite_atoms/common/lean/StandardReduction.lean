@@ -8662,6 +8662,32 @@ theorem ComponentReplacement.normalizedComponentBlock_ae_eq_of_eq_dirac
     R.normalizedComponentBlock_isProbabilityMeasure
   exact ae_eq_const_of_measure_eq_dirac (normalizedComponentBlock C) hdirac
 
+theorem unique_support_in_component_of_support_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {Support component : Set ℝ}
+    (hcomponent_open : IsOpen component)
+    (hSupport_nhds :
+      ∀ t : ℝ, t ∈ Support → ∀ U : Set ℝ,
+        IsOpen U → t ∈ U → realMeasure μ U ≠ 0)
+    (hzero :
+      ∀ U : Set ℝ, IsOpen U → U ⊆ component → -1 ∉ U →
+        realMeasure μ U = 0) :
+    ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1 := by
+  intro t htSupport htComponent
+  by_contra ht_ne
+  let U : Set ℝ := component ∩ ({-1} : Set ℝ)ᶜ
+  have hUopen : IsOpen U :=
+    hcomponent_open.inter (isClosed_singleton.isOpen_compl)
+  have htU : t ∈ U := by
+    exact ⟨htComponent, by simpa using ht_ne⟩
+  have hUsub : U ⊆ component := by
+    intro y hy
+    exact hy.1
+  have hendpoint_not_mem : -1 ∉ U := by
+    simp [U]
+  exact (hSupport_nhds t htSupport U hUopen htU)
+    (hzero U hUopen hUsub hendpoint_not_mem)
+
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
