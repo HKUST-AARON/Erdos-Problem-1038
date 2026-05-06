@@ -3630,6 +3630,59 @@ So the next concrete Gate 1 calculation is to compute or certify
 \(\Lambda_{\rm at}<0\) directly or the stronger local-margin versus
 capacity-load inequality above.
 
+The row Gram \(C\) is now reduced to a finite-Hilbert formula.  In the
+separated two-cut chart
+
+\[
+J=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+\qquad
+R^2=\prod_{r=1}^2(z-\alpha_r)(z-\beta_r),
+\]
+
+for a row kernel \(k_\mu\), set \(f_\mu=-k_\mu'\).  If
+\(\operatorname{PP}_\mu\) is the principal part of \(R f_\mu\) at all off-cut
+poles, then the Riesz representer has Cauchy transform
+
+\[
+C_\mu(z)
+=
+f_\mu(z)
+-
+\frac{\operatorname{PP}_\mu(z)}{R(z)}
++
+\frac{A_\mu+B_\mu z}{R(z)}.
+\]
+
+The two constants \(A_\mu,B_\mu\) are fixed by zero mass and fixed period:
+
+\[
+[z^{-1}]_\infty C_\mu=0,\qquad \Pi(C_\mu)=0.
+\]
+
+The density is the jump
+
+\[
+dg_\mu(x)
+=
+\frac{C_{\mu,-}(x)-C_{\mu,+}(x)}{2\pi i}\,dx,
+\]
+
+and hence
+
+\[
+\boxed{
+C_{\mu\nu}
+=
+\int_J k_\mu(x)\,
+\frac{C_{\nu,-}(x)-C_{\nu,+}(x)}{2\pi i}\,dx.
+}
+\]
+
+Thus the capacity-load matrix is no longer abstract.  The remaining concrete
+work is to plug the actual endpoint-certificate row kernels into this formula,
+evaluate \(C\), and compare it against \(B_{\rm at}\) on
+\(\mathcal C_{\rm at}\).
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 

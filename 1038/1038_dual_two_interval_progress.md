@@ -10265,6 +10265,139 @@ theorem queue.
     certificate cone \(\mathcal C_{\rm at}\).  It does not require the retired
     first-order determinant sign.
 
+    Two-cut Riesz Gram formula.
+
+    We now make the \(C\)-matrix in (G1HNsplit) computable.  Work in the
+    separated two-cut chart
+
+    \[
+    J=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+    \qquad
+    R(z)^2=\prod_{r=1}^2(z-\alpha_r)(z-\beta_r),
+    \qquad
+    R(z)\sim z^2.
+    \]
+
+    Let \(k_\mu\) be one of the row kernels defining the endpoint-row image
+    after zero-mass and fixed-period conventions.  The Riesz representer
+    \(g_\mu\in H_{0,\Pi}\) is characterized by
+
+    \[
+    \mathcal E_{\log}(g_\mu,h)=\ell_\mu(h)
+    =
+    \int_J k_\mu(x)\,dh(x)
+    \qquad(h\in H_{0,\Pi}).
+    \tag{G1RieszDef}
+    \]
+
+    Hence, on \(J\), the potential of \(g_\mu\) has the Euler form
+
+    \[
+    U_{g_\mu}(x)=k_\mu(x)+A_\mu+B_\mu\pi_0(x),
+    \tag{G1RieszEuler}
+    \]
+
+    with \(A_\mu,B_\mu\) the Lagrange multipliers for zero mass and fixed
+    period.  On each open cut interval, differentiating gives
+
+    \[
+    \operatorname{p.v.}\int_J\frac{dg_\mu(t)}{x-t}
+    =
+    f_\mu(x),
+    \qquad
+    f_\mu(x):=-k_\mu'(x),
+    \tag{G1RieszPV}
+    \]
+
+    up to the harmless sign convention fixed by the definition of
+    \(\mathcal E_{\log}\).  We use this sign convention below.
+
+    Let \(\mathcal P_\mu\) be the finite set of off-cut poles of \(f_\mu\).  Set
+
+    \[
+    \operatorname{PP}_\mu(z)
+    =
+    \operatorname{PP}_{\mathcal P_\mu}\bigl(R(z)f_\mu(z)\bigr),
+    \tag{G1PP}
+    \]
+
+    the sum of the principal parts of \(R f_\mu\) at those poles.  Then the
+    Cauchy transform of \(g_\mu\) is
+
+    \[
+    \boxed{
+    C_\mu(z)
+    =
+    f_\mu(z)
+    -
+    \frac{\operatorname{PP}_\mu(z)}{R(z)}
+    +
+    \frac{A_\mu+B_\mu z}{R(z)}.
+    }
+    \tag{G1RieszCauchy}
+    \]
+
+    The term \(\operatorname{PP}_\mu/R\) cancels every off-cut pole of
+    \(f_\mu\).  The remaining constants \(A_\mu,B_\mu\) are uniquely fixed by
+
+    \[
+    [z^{-1}]_\infty C_\mu=0,
+    \qquad
+    \Pi(C_\mu)=0,
+    \tag{G1RieszNorm}
+    \]
+
+    namely zero total mass and the fixed-period normalization.  If this
+    \(2\times2\) normalization system is singular, the chart is not a separated
+    regular two-cut chart and the case is routed to Gate 3.
+
+    The density is the jump of \(C_\mu\):
+
+    \[
+    dg_\mu(x)
+    =
+    \frac{1}{2\pi i}\left(C_{\mu,-}(x)-C_{\mu,+}(x)\right)\,dx.
+    \tag{G1RieszDensity}
+    \]
+
+    Therefore the Riesz Gram entries are the explicit finite-Hilbert integrals
+
+    \[
+    \boxed{
+    C_{\mu\nu}
+    =
+    \ell_\mu(g_\nu)
+    =
+    \int_J k_\mu(x)\,dg_\nu(x)
+    =
+    \int_J k_\mu(x)
+    \frac{C_{\nu,-}(x)-C_{\nu,+}(x)}{2\pi i}\,dx.
+    }
+    \tag{G1RieszGramFormula}
+    \]
+
+    Symmetry follows from the Riesz identity
+
+    \[
+    C_{\mu\nu}
+    =
+    \mathcal E_{\log}(g_\mu,g_\nu)
+    =
+    C_{\nu\mu},
+    \]
+
+    and positivity follows from the positive zero-mass log-energy on
+    \(H_{0,\Pi}\).  Thus \(C\succ0\) exactly when the chosen row kernels are
+    independent modulo the zero-mass/fixed-period constraints; otherwise the
+    zero eigenvector is a row-relation boundary and must be removed before
+    applying (G1PointSchur).
+
+    This closes the formal construction of the capacity-load matrix.  The
+    remaining numerical/symbolic task is now finite: insert the actual kernels
+    \(k_\mu\) for the endpoint certificate basis into (G1RieszCauchy), compute
+    \(C\) by (G1RieszGramFormula), and then prove either
+    (G1DominanceCriterion) or (G1PointSchur).
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
