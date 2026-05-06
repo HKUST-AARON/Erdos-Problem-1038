@@ -415,6 +415,123 @@ theorem boundary_average_of_endpointRemainder_boundary_distance
   nlinarith
 
 /--
+Boundary-distance lower bound from a nonpositive boundary potential.
+
+This is the Jensen/log step in the right-endpoint argument.  If the boundary
+point has nonpositive logarithmic potential, then the average distance from
+that point to the measure is at least `1`.  Splitting the measure into the
+endpoint atom at `-1` plus the canonical endpoint remainder gives the displayed
+endpoint-plus-remainder lower bound.
+-/
+theorem endpointRemainder_boundary_distance_of_potential_nonpos
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus ε : ℝ}
+    (hxPlus_nonneg : 0 ≤ xPlus)
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      ((realMeasure μ) (({-1} : Set ℝ))).toReal * (xPlus + 1) +
+        (∫ t : ℝ, |xPlus - t| ∂endpointRemainder μ) := by
+  have hdist_avg :
+      1 ≤ ∫ t : ℝ, |xPlus - t| ∂realMeasure μ := by
+    by_contra hnot
+    have hlt : (∫ t : ℝ, |xPlus - t| ∂realMeasure μ) < 1 :=
+      lt_of_not_ge hnot
+    have hpos :
+        0 < measureLogPotential (realMeasure μ) xPlus :=
+      measureLogPotential_pos_of_abs_integral_lt_one
+        (realMeasure μ) hε hdist_lower hdist_int hlog_int hlt
+    rw [← unitIntervalLogPotential_eq_realMeasure μ xPlus] at hpos
+    linarith
+  let f : ℝ → ℝ := fun t : ℝ => |xPlus - t|
+  have hatom_int :
+      Integrable f
+        (((realMeasure μ) (({-1} : Set ℝ))) •
+          Measure.dirac (-1 : ℝ)) := by
+    exact (integrable_dirac
+      (a := (-1 : ℝ))
+      (f := f)
+      (by simp [f])).smul_measure
+        (measure_ne_top (realMeasure μ) (({-1} : Set ℝ)))
+  have hsum :
+      endpointRemainder μ +
+          ((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ) =
+        realMeasure μ := by
+    calc
+      endpointRemainder μ +
+          ((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ)
+          = (realMeasure μ).restrict (({-1} : Set ℝ)ᶜ) +
+              (realMeasure μ).restrict ({-1} : Set ℝ) := by
+              rw [endpointRemainder, Measure.restrict_singleton]
+      _ = realMeasure μ := by
+              exact Measure.restrict_compl_add_restrict
+                (μ := realMeasure μ) (s := ({-1} : Set ℝ))
+                (measurableSet_singleton (-1 : ℝ))
+  have hsplit :
+      (∫ t : ℝ, f t ∂realMeasure μ) =
+        (∫ t : ℝ, f t ∂endpointRemainder μ) +
+          (∫ t : ℝ, f t
+            ∂(((realMeasure μ) (({-1} : Set ℝ))) •
+              Measure.dirac (-1 : ℝ))) := by
+    calc
+      (∫ t : ℝ, f t ∂realMeasure μ)
+          = ∫ t : ℝ, f t ∂(endpointRemainder μ +
+              ((realMeasure μ) (({-1} : Set ℝ))) •
+                Measure.dirac (-1 : ℝ)) := by
+              rw [hsum]
+      _ = (∫ t : ℝ, f t ∂endpointRemainder μ) +
+          (∫ t : ℝ, f t
+            ∂(((realMeasure μ) (({-1} : Set ℝ))) •
+              Measure.dirac (-1 : ℝ))) := by
+              exact integral_add_measure hrem_dist_int hatom_int
+  have hatom_eval :
+      (∫ t : ℝ, f t
+          ∂(((realMeasure μ) (({-1} : Set ℝ))) •
+            Measure.dirac (-1 : ℝ))) =
+        ((realMeasure μ) (({-1} : Set ℝ))).toReal * (xPlus + 1) := by
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    have hnonneg : 0 ≤ xPlus + 1 := by linarith
+    simp [f, sub_eq_add_neg, abs_of_nonneg hnonneg, smul_eq_mul]
+  rw [hsplit, hatom_eval] at hdist_avg
+  simpa [f, add_comm] using hdist_avg
+
+/--
+Boundary-average constructor directly from nonpositive boundary potential.
+-/
+theorem boundary_average_of_boundary_potential_nonpos
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus ε : ℝ}
+    (hxPlus_nonneg : 0 ≤ xPlus)
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1)
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  refine boundary_average_of_endpointRemainder_boundary_distance
+    μ hrem_support hrem_dist_int ?_
+  exact endpointRemainder_boundary_distance_of_potential_nonpos
+    μ hxPlus_nonneg hpotential_nonpos hε hdist_lower hdist_int hlog_int
+    hrem_dist_int
+
+/--
 On the baseline punctured interval, the log kernel is integrable against the
 canonical endpoint remainder once the normalized support shape
 `support ⊆ {-1} ∪ [0,1]` is known.

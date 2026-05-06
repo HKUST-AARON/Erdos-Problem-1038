@@ -145,6 +145,18 @@ which reduces the algebraic `boundary_average` field to the analytic boundary
 distance lower bound at the component right endpoint plus distance
 integrability of the canonical endpoint remainder.
 
+The boundary-distance lower bound itself is now connected to the boundary
+potential sign through Jensen's logarithmic inequality:
+
+```lean
+endpointRemainder_boundary_distance_of_potential_nonpos
+boundary_average_of_boundary_potential_nonpos
+```
+
+Thus the `boundary_average` field can be obtained from a nonpositive boundary
+potential value at `xPlus`, standard distance/log integrability and separation
+hypotheses, and the canonical endpoint-remainder support-order theorem above.
+
 At the relaxed-minimizer interface, the same file defines
 
 ```lean
