@@ -7970,6 +7970,49 @@ theorem componentReplacement_objective_le_of_outside_integrability_jensen
     (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
 
 /--
+Outside-restricted real-measure log-kernel integrability from finite singular
+tail mass.
+
+The existing tail-mass theorem gives full unit-interval integrability over the
+subtype measure.  This bridge pushes it forward to `realMeasure μ` and then
+restricts to the outside of the component interval.
+-/
+theorem outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε x : ℝ} (hε : 0 < ε)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htailFinite : singularTailMass ε μ x < ∞) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  have hunit_raw :
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |(t : ℝ) - x|))
+        (μ : Measure UnitInterval1038) :=
+    unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      (μ := μ) hε hxdiag htailFinite
+  have hunit :
+      Integrable
+        ((fun t : ℝ => Real.log (1 / |x - t|)) ∘
+          (fun t : UnitInterval1038 => (t : ℝ)))
+        (μ : Measure UnitInterval1038) := by
+    exact hunit_raw.congr (Filter.Eventually.of_forall (fun t => by
+      simp [abs_sub_comm]))
+  have hkernel_meas :
+      AEStronglyMeasurable
+        (fun t : ℝ => Real.log (1 / |x - t|))
+        (Measure.map (fun t : UnitInterval1038 => (t : ℝ))
+          (μ : Measure UnitInterval1038)) :=
+    (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+  have hreal :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (realMeasure μ) := by
+    dsimp [realMeasure]
+    exact (integrable_map_measure hkernel_meas
+      continuous_subtype_val.measurable.aemeasurable).2 hunit
+  exact hreal.restrict
+
+/--
 Off-diagonal component-replacement objective wrapper.
 
 The outside restricted log-kernel only has to be integrable at strict-outside
@@ -8012,6 +8055,27 @@ theorem componentReplacement_objective_le_of_outside_integrability_offdiag_jense
   rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
     houtside_int hcomponent_int]
   exact add_le_add le_rfl hblock
+
+/--
+Tail-mass component-replacement objective wrapper.
+
+Finite singular tail mass at every off-diagonal strict-outside test point
+discharges the outside restricted log-kernel integrability assumption in
+`componentReplacement_objective_le_of_outside_integrability_offdiag_jensen`.
+-/
+theorem componentReplacement_objective_le_of_outside_tailMass_offdiag_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_outside_integrability_offdiag_jensen
+    R ?_
+  intro x hxstrict hxdiag
+  exact outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    C hε hxdiag (htailFinite x hxstrict hxdiag)
 
 /-!
 ## Finite variance drop under barycenter replacement
