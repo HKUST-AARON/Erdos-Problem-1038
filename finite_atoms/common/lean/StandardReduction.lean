@@ -8856,6 +8856,47 @@ theorem componentReplacement_blockKernel_le_original_of_strictOutside
     R hx hfirst (hkernel_norm_int x hx)
 
 /--
+Pointwise strict-outside Jensen inequality for the concrete barycenter
+replacement.  The only remaining analytic input is integrability of the
+unchanged outside part; component-block and normalized-block integrability are
+automatic for strict outside test points.
+-/
+theorem componentReplacement_strictOutside_potential_le_of_outside_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  let outsidePart : ℝ → ℝ :=
+    fun x => measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x
+  let replacementBlock : ℝ → ℝ :=
+    fun x => (componentMass C).toReal *
+      Real.log (1 / |x - componentBarycenter C|)
+  let originalBlock : ℝ → ℝ :=
+    fun x => ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C
+  refine componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+    C outsidePart replacementBlock originalBlock ?_ ?_ ?_
+  · simpa [outsidePart, replacementBlock] using
+      componentReplacement_potential_le_outside_add_replacementAtom
+        C outsidePart (fun x hx => le_rfl) houtside_integrable
+  · refine unitIntervalLogPotential_original_potential_decomposition_lower
+      C outsidePart originalBlock (fun x hx => le_rfl) ?_
+      houtside_integrable
+      (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
+    intro x hx
+    simp [originalBlock]
+  · simpa [replacementBlock, originalBlock] using
+      componentReplacement_blockKernel_le_original_of_strictOutside
+        R
+        (R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+          (componentBlock_firstMoment_integrable C))
+        (fun x hx =>
+          R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+            (componentBlock_logKernel_integrable_of_strictOutside C hx))
+
+/--
 Concrete component-replacement objective wrapper.
 
 This combines the concrete outside/replacement decomposition, the concrete
