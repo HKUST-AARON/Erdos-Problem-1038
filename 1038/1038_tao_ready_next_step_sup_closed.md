@@ -916,6 +916,18 @@ The energy-minimal lift exists uniquely in the \(\mathcal E_{\log}\)-Hilbert
 completion under continuity and feasibility of \(\rho^\sharp\); it should not
 be claimed to be a smooth density without a separate regularity theorem.
 
+The row-continuity assumption is a separated fixed-chart statement.  With
+
+\[
+J\Subset\mathbb R\setminus\{u,c,v\},
+\]
+
+zero-mass log-energy is equivalent to an \(H^{-1/2}(J)\) norm, so rows are
+continuous if their kernels lie in \(H^{1/2}(J)\).  The Cauchy rows, split
+kernels \(L_\pm\), and \(R_{\log c}\) are continuous under this separation.
+The period kernel \(\pi_0\) is continuous only if its jump lies in a gap away
+from the support; an interior step jump is not \(H^{1/2}\).
+
 The finite effective object, if the non-log part factors through
 \(\rho^\sharp\), is
 
@@ -924,16 +936,18 @@ Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r),
 \qquad r\in V^\sharp=\rho^\sharp(\mathcal X_\Pi).
 \]
 
-Separately, one should prove a row-realization lemma: smooth compactly
-supported density bumps realize all row vectors in
-\(\operatorname{Rel}^{\perp}\), and if the seven kernels
+Separately, one should prove a row-realization lemma.  For the eight kernels
 
 \[
 1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,
 \log\frac1{|c-x|},\pi_0
 \]
 
-are independent, every period-zero enlarged row vector is actually realizable.
+let \(\operatorname{Rel}\) be their linear relations on the regular support.
+Smooth compactly supported density bumps realize exactly
+\(\operatorname{Rel}^{\perp}\).  Full period-zero row realization requires the
+extra determinant condition that these eight kernels are independent on
+regular support.
 This supports Chebyshev tests, but it does not by itself make the Hessian
 finite-dimensional.
 
@@ -941,7 +955,21 @@ Until the minimal-lift or actual-density formulation is closed, the six local
 rows cannot be treated as arbitrary free Hessian coordinates.  Any cokernel
 vector is meaningful only through its action on the actual row image \(V\).
 
-After that, the curvature clamp needs exactly five reduced-Hessian identities:
+After that, the next theorem is not the curvature clamp directly.  The
+log-minimal lift contributes a nonlocal term
+
+\[
+K_{\log}(r,s)=\mathcal E_{\log}(Sr,Ss),
+\]
+
+so one must first prove the effective endpoint Hessian identities for
+
+\[
+P^TQ_{\rm eff}P.
+\]
+
+Only if this effective block has the expected entries does the curvature clamp
+need exactly five reduced-Hessian identities:
 
 \[
 e_u^TMe_u=\lambda a,\qquad

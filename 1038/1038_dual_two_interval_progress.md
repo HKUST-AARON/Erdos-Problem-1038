@@ -3999,6 +3999,42 @@ Riesz/Lax-Milgram on \(\ker\rho^\sharp\) gives a unique energy-minimizing
 completed lift.  The lift need not be a smooth density unless a separate
 regularity theorem is proved.
 
+The continuity assumption is valid in the separated fixed-chart regime.  If
+
+\[
+J\Subset\mathbb R\setminus\{u,c,v\},
+\]
+
+then zero-mass log-energy is equivalent to the \(H^{-1/2}(J)\) norm, and a row
+
+\[
+\xi\mapsto \int_J k(x)\,d\xi(x)
+\]
+
+is continuous whenever \(k|_J\in H^{1/2}(J)\) modulo constants.  Hence
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\
+L_-,\ L_+,\ \log\frac1{|c-x|}
+\]
+
+are continuous rows when \(J\) stays a positive distance from \(u,c,v\).  Here
+
+\[
+L_-(x)=\log|x-u|-\log|x-c|,
+\qquad
+L_+(x)=\log|x-c|-\log|x-v|
+\]
+
+is the proof-grade interpretation of the split kernels.  The period kernel
+\(\pi_0\) is continuous only if its jumps lie in gaps away from \(J\); a
+genuine step jump inside a connected support interval is not \(H^{1/2}\).
+
+Thus this minimal-lift theorem is a separated-chart result.  It fails, or
+needs a different chart, when \(J\) reaches \(u,c,v\), when the log anchor is
+singular on the support, or when the period row is a topological coordinate
+not represented by an \(H^{1/2}\) kernel.
+
 If the non-log part factors through the row map,
 
 \[
@@ -4065,6 +4101,37 @@ Then smooth compactly supported density perturbations realize exactly
 period-zero enlarged row vector is realizable.  This follows by choosing bump
 functions near points where the kernel evaluation matrix has full rank.
 
+More precisely, if
+
+\[
+T:C_c^\infty(J_{\rm reg})\to\mathbb R^8,\qquad
+T\eta=\left(\int k_i\,d\eta\right)_i,
+\]
+
+then
+
+\[
+\operatorname{Im}T=\operatorname{Rel}^{\perp}.
+\]
+
+The proof is distributional: \(\lambda\) annihilates \(\operatorname{Im}T\)
+iff \(\sum_i\lambda_i k_i=0\) on \(J_{\rm reg}\).  Full row surjectivity is an
+extra condition, equivalent to existence of regular points
+
+\[
+x_1,\ldots,x_8\in J_{\rm reg}
+\]
+
+with
+
+\[
+\det(k_i(x_j))_{i,j=1}^8\ne0.
+\]
+
+If this determinant is not proved nonzero, keep the actual row space as
+\(\operatorname{Rel}^{\perp}\cap\{r_\Pi=0\}\) rather than pretending the
+ambient period-zero space is available.
+
 But realization alone does not make \(G_{\rm br}\) finite-dimensional.  It only
 guarantees that row test directions are actual density directions.
 
@@ -4081,10 +4148,29 @@ that \(R_-,R_+\) are differences rather than absolute endpoint values.
 
 ### 10.17e Curvature-clamp Hessian identity package
 
-Once the no-overcount Schur complement has been constructed, the curvature
-clamp does not require every entry of the reduced Hessian \(M\).  It requires
-the following five scalar identities with one common positive scale
-\(\lambda>0\):
+Once \(Q_{\rm eff}\) has been constructed, the next target is not the curvature
+clamp itself but the effective endpoint Hessian identity.  The log-minimal
+lift contributes a real nonlocal term
+
+\[
+K_{\log}(r,s)=\mathcal E_{\log}(Sr,Ss),
+\]
+
+so
+
+\[
+Q_{\rm eff}(r,s)=K_{\log}(r,s)+b(r,s).
+\]
+
+The old five local entries are therefore not automatic for the finite row
+Schur term \(b\).  They must be proved for
+
+\[
+P^TQ_{\rm eff}P.
+\]
+
+The desired effective identities are the following, with one common positive
+scale \(\lambda>0\):
 
 \[
 \boxed{
@@ -4162,10 +4248,13 @@ This is the right-side curvature-clamp inequality.
 Status:
 
 These five identities are target identities for the true reduced Hessian after
-the branch-parametrized Phi-Euler-Hessian lemma and the fixed-chart
-state-lift/period-splitting lemma, and only after the density-to-row quotient
-or realization lemma.  They must not be asserted for an arbitrary formal
-matrix.
+the branch-parametrized Phi-Euler-Hessian lemma, fixed-chart state-lift,
+minimal-lift/Feshbach reduction, and row realization.  If the log-minimal
+contribution does not collapse to these entries, the curvature clamp must be
+rewritten with the actual effective entries
+\[
+m_{uu},m_{vv},m_{\zeta\zeta},m_{u\zeta},m_{v\zeta}.
+\]
 
 ### 10.17f Retired free-\(F(c)\) derivative convention
 
