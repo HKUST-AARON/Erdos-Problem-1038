@@ -7184,6 +7184,55 @@ theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_log
         unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ
     _ = unitIntervalPositiveSetObjective μ := rfl
 
+theorem unitIntervalTruncatedPositiveSet_subset_augmented_union_exception_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSet μ ⊆
+      unitIntervalAugmentedPositiveSet μ ∪ N := by
+  intro x hx
+  by_cases hxN : x ∈ N
+  · exact Or.inr hxN
+  · rcases hx with ⟨n, hpos⟩
+    by_cases hxdiag : x ∈ diagonalAtomSet μ
+    · exact Or.inl (unitInterval_diagonalAtomSet_subset_augmented μ hxdiag)
+    · have hle :
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x ≤
+          unitIntervalLogPotential μ x :=
+        unitIntervalTruncatedPotential_le_logPotential_of_ae_ne
+          (unitIntervalPositiveTruncationScale_pos n)
+          (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+          (hlog_int x hxdiag hxN)
+      exact Or.inl (unitInterval_positiveSet_subset_augmented μ
+        (lt_of_lt_of_le hpos hle))
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable_null_exception
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hN : volume N = 0)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective μ
+        = volume (unitIntervalTruncatedPositiveSet μ) := rfl
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ ∪ N) :=
+        measure_mono
+          (unitIntervalTruncatedPositiveSet_subset_augmented_union_exception_of_logKernel_integrable
+            μ N hlog_int)
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) + volume N :=
+        measure_union_le _ _
+    _ = volume (unitIntervalAugmentedPositiveSet μ) := by
+        simp [hN]
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) :=
+        unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ
+    _ = unitIntervalPositiveSetObjective μ := rfl
+
 theorem unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential_eventually_on_compact
     (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} {K : Set ℝ}
     (hε : 0 < ε)
@@ -10228,6 +10277,57 @@ theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_compar
       (by positivity : (0 : ℝ) < 1)
       hxdiag
       (htail_replacement x hxdiag)
+
+theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_null_exception_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (N : Set ℝ) (hN : volume N = 0)
+    (htail_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        x ∉ N →
+        singularTailMass 1
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) x < ∞)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)))
+        ≤ unitIntervalPositiveSetObjective
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R))) :=
+          unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable_null_exception
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R)))
+            N hN
+            (by
+              intro x hxdiag hxN
+              simpa [abs_sub_comm] using
+                unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+                  (by positivity : (0 : ℝ) < 1)
+                  hxdiag
+                  (htail_replacement x hxdiag hxN))
+    _ ≤ unitIntervalPositiveSetObjective μ := by
+          simpa [unitIntervalPositiveSetObjective] using
+            componentReplacementProbability_positiveSetObjective_le R
+              (by positivity : (0 : ℝ) < 1)
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+          horiginal_positive_le_truncated
 
 /-!
 ## Finite variance drop under barycenter replacement
@@ -13702,6 +13802,102 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact ⟨mean_choice, reflected, translation, C, R,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+
+/--
+Two-null-exception tail-mass version of the component-replacement endpoint
+consequence.
+
+Compared with
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_mass_null_exception_data`,
+this also allows the replacement off-diagonal tail-mass condition to fail on a
+supplied zero-volume exceptional set.  Thus both ordinary-to-truncated
+comparisons used in the endpoint consequence are now null-exception versions.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_two_null_exception_data
+    (hComponentReplacementTwoNullDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ Nrepl Norig : Set ℝ,
+        ∃ xMinus xPlus : ℝ,
+          volume Nrepl = 0 ∧
+          volume Norig = 0 ∧
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            x ∉ Nrepl →
+            singularTailMass 1
+              (componentReplacementProbability C hmass_unit) x < ∞) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            x ∉ Norig →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTwoNullDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, Nrepl, Norig,
+      xMinus, xPlus, hNrepl, hNorig, hcomponent_interval, hbaseline, hright,
+      hboundary, htail_replacement_off_N, hsmall_original_off_N, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
+      μ Norig hNorig hsmall_original_off_N
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_null_exception_comparisons
+      R Nrepl hNrepl htail_replacement_off_N horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
