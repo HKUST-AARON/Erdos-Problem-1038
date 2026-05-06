@@ -9943,6 +9943,54 @@ theorem componentReplacement_objective_le_of_singularTail_small_exceptions
   intro η hη
   exact singularTail_exists_small_strictOutside_exception C ε η hη
 
+theorem componentReplacementProbability_positiveSetObjective_le_of_singularTail_small_exceptions
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    volume (PositiveSet
+        (unitIntervalLogPotential (componentReplacementProbability C hmass_unit))) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  rw [unitIntervalLogPotential_componentReplacementProbability_eq
+    C hmass_unit hsupport]
+  exact componentReplacement_objective_le_of_singularTail_small_exceptions
+    R hε
+
+theorem componentReplacementProbability_positiveSetObjective_le_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    volume (PositiveSet
+        (unitIntervalLogPotential
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary)))) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  have hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 :=
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit
+  exact
+    componentReplacementProbability_positiveSetObjective_le_of_singularTail_small_exceptions
+      R hε hmass_unit hsupport
+
+theorem componentReplacementProbability_positiveSetObjective_le
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε) :
+    volume (PositiveSet
+        (unitIntervalLogPotential
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))))) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacementProbability_positiveSetObjective_le_of_barycenter_mem_Icc
+    R hε (componentBarycenter_mem_Icc R)
+
 /-!
 ## Finite variance drop under barycenter replacement
 
