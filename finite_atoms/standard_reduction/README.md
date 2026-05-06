@@ -293,10 +293,16 @@ removes the direct `componentBarycenter = -1` input at the proof level.  After
 atomization, if `-1` is a real support point lying in the selected component
 interval, the barycenter is the normalized endpoint.
 
-Locally in `ComponentAtomization.lean`, positive singleton mass is converted to
-topological support membership.  Thus the remaining endpoint support membership
-can be targeted through positive mass at the normalized endpoint without adding
-another public wrapper theorem.
+The endpoint-mass form
+
+```lean
+componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
+```
+
+is the preferred bridge for the normalized route: after atomization, positive
+mass at `{-1}` and membership of `-1` in the selected component imply that the
+component barycenter is `-1`.  This removes the separate topological-support
+membership input from this step.
 
 The theorem
 

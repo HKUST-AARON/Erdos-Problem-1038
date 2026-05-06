@@ -206,6 +206,24 @@ theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac
   exact hendpoint_eq.symm
 
 /--
+Endpoint-mass version of the barycenter endpoint bridge.  Positive mass at the
+normalized endpoint makes `-1` a topological support point, so the atomized
+component block has barycenter `-1` as soon as the selected component contains
+that endpoint.
+-/
+theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C))
+    (hmass : 0 < (realMeasure μ) ({-1} : Set ℝ))
+    (hendpoint_component : (-1 : ℝ) ∈ C.interval) :
+    componentBarycenter C = -1 := by
+  exact componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac C hblock
+    (mem_support_of_singleton_mass_pos (realMeasure μ) hmass)
+    hendpoint_component
+
+/--
 If the selected component contains the whole baseline interval `(-1,0)`, then
 its left endpoint is at or to the left of `-1`, and its right endpoint is at or
 to the right of `0`.
