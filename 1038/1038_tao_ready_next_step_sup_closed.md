@@ -2397,6 +2397,110 @@ The required next theorem is `AtomicFallbackExclusion`: show this finite atomic
 certificate is impossible unless the candidate is already on a pinching,
 positivity-boundary, or lower-genus degeneration.
 
+Boundary-neutral corrector simplification:
+
+The equality-correction bumps may be chosen so that they do not change the
+boundary functional.  Since
+
+\[
+B_{\rm safe}(G)=aV_G(u)+bV_G(v),
+\]
+
+unit bumps at regular interior points have limiting rows
+
+\[
+\left(
+1,\frac1{x-c},
+a\log\frac1{|u-x|}+b\log\frac1{|v-x|}
+\right).
+\]
+
+The logarithmic row is not affine in \((x-c)^{-1}\) on a regular interval, so
+three interior bumps can be chosen with independent
+\((R_0,R_c,B_{\rm safe})\)-rows.  Taking two signed combinations in the
+kernel of \(B_{\rm safe}\) gives smooth correctors \(\psi_1,\psi_2\) with
+
+\[
+B_{\rm safe}(\psi_1)=B_{\rm safe}(\psi_2)=0,
+\]
+
+while the \(2\times2\) matrix of \((R_0,R_c)\)-rows remains invertible.  These
+are signed smooth correctors supported in positive-density interiors, so they
+remain regularity-safe for small amplitudes.
+
+With this choice,
+
+\[
+\boxed{
+B_{\rm red}(G)=B_{\rm safe}(G)=aV_G(u)+bV_G(v).
+}
+\]
+
+Only the \(Z_0\)-functions still need equality correction:
+
+\[
+f_j(x)=V_{G_j}(x)
+-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_j).
+\]
+
+Thus the reduced Schiffer table simplifies to
+
+\[
+b_j=aV_{G_j}(u)+bV_{G_j}(v),
+\qquad
+f_j=\widehat V_{G_j}|_{Z_0}.
+\]
+
+The finite fallback can now be checked by positive circuits.  With
+
+\[
+F(x)=
+\begin{pmatrix}
+f_{\alpha_1}(x)\\
+f_{\beta_1}(x)\\
+f_{\alpha_2}(x)\\
+f_{\beta_2}(x)
+\end{pmatrix},
+\quad
+b=
+\begin{pmatrix}
+b_{\alpha_1}\\
+b_{\beta_1}\\
+b_{\alpha_2}\\
+b_{\beta_2}
+\end{pmatrix},
+\quad
+\tau=f_\Pi,\quad \tau_*=b_\Pi,
+\]
+
+`AtomicFallbackExclusion` is the assertion that every positive relation
+
+\[
+\eta b+\sum_k w_kF(x_k)=0
+\]
+
+has negative lifted value
+
+\[
+\eta\tau_*+\sum_k w_k\tau(x_k)<0.
+\]
+
+Equivalently, prove the determinant signs:
+
+\[
+\tau_*-\tau_X^TF_X^{-1}b<0
+\]
+
+for every four-point circuit with \(w=-F_X^{-1}b>0\), and
+
+\[
+\sum_{i=1}^5w_i\tau(x_i)<0
+\]
+
+for every five-point positive circuit with \(\eta=0\).  Degenerate
+determinants must reduce to smaller circuits or to boundary routing.  This
+criterion is now the immediate finite-dimensional rank-defect test.
+
 Converting this fallback into a finite-Hilbert equation is conditional: the
 allowed seed class must be dense enough, after equality correction, to test all
 smooth compactly supported density perturbations on \(J\).  Under that
@@ -2413,7 +2517,7 @@ The PV route is therefore only an optional conditional fallback.  The immediate
 task is to compute the reduced Schiffer table
 
 \[
-b_j=B_{\rm safe}(G_j)-\beta^TM^{-1}E(G_j),
+b_j=aV_{G_j}(u)+bV_{G_j}(v),
 \qquad
 f_j=V_{G_j}-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_j),
 \]

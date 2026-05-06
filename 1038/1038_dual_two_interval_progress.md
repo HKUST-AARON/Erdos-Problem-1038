@@ -7596,6 +7596,191 @@ theorem queue.
     for \(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2\), plus the corresponding
     period-seed entries.
 
+    2026-05-07 boundary-neutral correctors and circuit test.
+
+    The equality-correction bumps can be chosen so that they do not alter the
+    boundary descent functional.  Write
+
+    \[
+    B_{\rm safe}(G)=aV_G(u)+bV_G(v),
+    \]
+
+    which is the same as
+
+    \[
+    (a+b)R_{\ell c}(G)-aR_-(G)+bR_+(G)
+    \]
+
+    by the anchor identities.  Choose three regular interior points
+    \(x_1,x_2,x_3\) in \(J_1\cup J_2\), away from \(u,c,v\), branch endpoints,
+    and the \(Z_0\)-boundary.  A unit bump at \(x\) has limiting rows
+
+    \[
+    (R_0,R_c,B_{\rm safe})
+    =
+    \left(
+    1,\frac1{x-c},
+    a\log\frac1{|u-x|}+b\log\frac1{|v-x|}
+    \right).
+    \]
+
+    Let
+
+    \[
+    k(x)=\frac1{x-c},\qquad
+    \ell(x)=a\log\frac1{|u-x|}+b\log\frac1{|v-x|}.
+    \]
+
+    The function \(\ell\) is not an affine function of \(k\) on any regular
+    interval.  Otherwise \(\ell(x)=A+B(x-c)^{-1}\) on an interval, and after
+    differentiation the logarithmic side has simple poles at \(u,v\), while
+    the right side has only the pole structure at \(c\).  Hence one can choose
+    \(x_1,x_2,x_3\) so that
+
+    \[
+    (1,k(x_i),\ell(x_i)),\qquad i=1,2,3,
+    \]
+
+    are linearly independent.  In the span of the three corresponding smooth
+    local bumps, the condition \(B_{\rm safe}=0\) has a two-dimensional kernel.
+    On this kernel, the map \(G\mapsto(R_0(G),R_c(G))\) is injective; otherwise
+    the same signed combination would annihilate the three independent rows
+    \((1,k,\ell)\).  Thus we may choose two smooth signed bumps
+    \(\psi_1,\psi_2\) such that
+
+    \[
+    B_{\rm safe}(\psi_1)=B_{\rm safe}(\psi_2)=0,
+    \]
+
+    and
+
+    \[
+    M=
+    \begin{pmatrix}
+    R_0(\psi_1)&R_0(\psi_2)\\
+    R_c(\psi_1)&R_c(\psi_2)
+    \end{pmatrix}
+    \]
+
+    is invertible.  These are signed smooth correctors, not positive bumps;
+    this is harmless because they are supported in strict positive-density
+    interiors and are used only with small amplitudes.  If such a regular
+    triple of points cannot be chosen, that is already a degeneration of the
+    regular compact chamber rather than a new interior rank-defect case.
+
+    With these boundary-neutral correctors, \(\beta=0\), so
+
+    \[
+    \boxed{
+    B_{\rm red}(G)=B_{\rm safe}(G)=aV_G(u)+bV_G(v).
+    }
+    \tag{Bneutral}
+    \]
+
+    The \(Z_0\)-functions still require equality correction:
+
+    \[
+    \boxed{
+    f_j(x)=
+    V_{G_j}(x)-
+    (U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_j),
+    \qquad x\in Z_0.
+    }
+    \]
+
+    Hence the reduced Schiffer table may be simplified to the entries
+
+    \[
+    b_j=aV_{G_j}(u)+bV_{G_j}(v),
+    \qquad
+    f_j=\widehat V_{G_j}|_{Z_0}.
+    \]
+
+    For the finite-dimensional LP, set
+
+    \[
+    F(x)=
+    \begin{pmatrix}
+    f_{\alpha_1}(x)\\
+    f_{\beta_1}(x)\\
+    f_{\alpha_2}(x)\\
+    f_{\beta_2}(x)
+    \end{pmatrix},
+    \qquad
+    b=
+    \begin{pmatrix}
+    b_{\alpha_1}\\
+    b_{\beta_1}\\
+    b_{\alpha_2}\\
+    b_{\beta_2}
+    \end{pmatrix},
+    \]
+
+    and
+
+    \[
+    \tau(x)=f_\Pi(x),\qquad \tau_*=b_\Pi.
+    \]
+
+    The reduced LP is
+
+    \[
+    b\cdot s+\tau_*<0,\qquad
+    F(x)\cdot s+\tau(x)<0\quad(x\in Z_0).
+    \]
+
+    Under the fixed topology/closure assumptions stated above, finite
+    Farkas and conic Carathéodory give the following equivalent obstruction:
+    LP infeasibility produces a positive relation
+
+    \[
+    \eta b+\sum_k w_kF(x_k)=0,
+    \qquad
+    \eta\ge0,\quad w_k>0,\quad x_k\in Z_0,
+    \]
+
+    with
+
+    \[
+    \eta\tau_*+\sum_k w_k\tau(x_k)\ge0.
+    \]
+
+    Conversely, if there is \(s\) satisfying the reduced LP, every such
+    positive relation has strictly negative lifted value, because
+
+    \[
+    \eta\tau_*+\sum_k w_k\tau(x_k)
+    =
+    \eta(b\cdot s+\tau_*)+
+    \sum_k w_k(F(x_k)\cdot s+\tau(x_k))<0.
+    \]
+
+    Thus `AtomicFallbackExclusion` can be checked as positive-circuit
+    negativity: every positive circuit in the first four coordinates must have
+    negative lifted value.  In determinant form:
+
+    - If \(\eta>0\), normalize \(\eta=1\).  For four points \(x_1,\ldots,x_4\)
+      with \(F_X=[F(x_1)\ \cdots\ F(x_4)]\) invertible, the weights are
+      \(w=-F_X^{-1}b\).  Whenever \(w_i>0\), one must prove
+      \[
+      \tau_*+\sum_{i=1}^4w_i\tau(x_i)
+      =
+      \tau_*-\tau_X^TF_X^{-1}b<0.
+      \tag{C4}
+      \]
+    - If \(\eta=0\), a five-point positive circuit
+      \(\sum_{i=1}^5w_iF(x_i)=0\), \(w_i>0\), must satisfy
+      \[
+      \sum_{i=1}^5w_i\tau(x_i)<0.
+      \tag{C5}
+      \]
+
+    Degenerate determinants reduce to smaller support circuits or to the
+    pinching/positivity-boundary routing.  The determinant signs (C4),(C5)
+    cannot be checked until the explicit reduced Schiffer seed functions
+    \(V_\Pi,V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2}\) and their
+    equality-row values are written down.
+
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
     large enough, after equality correction, to test all smooth compactly
