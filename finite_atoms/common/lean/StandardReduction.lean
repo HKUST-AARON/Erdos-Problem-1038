@@ -2814,6 +2814,20 @@ def PositiveComponent.AugmentedIntervalMaximal
       Ioo l r ⊆ C.interval
 
 /--
+An augmented-maximal selected component is maximal for ordinary positive
+intervals.  This is the bridge from the pole-as-win component selection used in
+the real-valued formalization back to the ordinary positive-component API.
+-/
+theorem PositiveComponent.intervalMaximal_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.AugmentedIntervalMaximal) :
+    C.IntervalMaximal := by
+  intro l r hlr hpos hinter
+  exact hmax l r hlr
+    (fun x hx => unitInterval_positiveSet_subset_augmented μ (hpos hx))
+    hinter
+
+/--
 Augmented open-left-cover bridge.
 
 This is the usable component-selection bridge when the endpoint `-1` is carried
