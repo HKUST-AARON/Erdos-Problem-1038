@@ -3246,6 +3246,16 @@ lemma componentMass_ne_top
   haveI : IsFiniteMeasure (realMeasure μ) := by infer_instance
   exact ne_of_lt (measure_lt_top (realMeasure μ) C.interval)
 
+/-- Construct component-replacement data from the only nontrivial mass input:
+the selected component has positive `realMeasure` mass.  Finiteness is automatic
+because `realMeasure μ` is a finite probability measure. -/
+def ComponentReplacement.of_mass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_pos : 0 < componentMass C) :
+    ComponentReplacement μ C where
+  mass_pos := hmass_pos
+  mass_ne_top := componentMass_ne_top C
+
 lemma componentReplacementMeasure_def
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentReplacementMeasure C =
