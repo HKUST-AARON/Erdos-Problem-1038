@@ -10919,6 +10919,192 @@ theorem queue.
     bump-correction and moving-chart choices have disappeared; only the
     two-cut period data and the endpoint Hessian remain.
 
+    Explicit finite branch Hessian block.
+
+    It remains to put \(B_{\rm at}\) in the same row coordinates as \(C\).  This
+    part is local and can be written without another Hilbert problem.
+
+    Use \(y=(q,a,b,c)\), \(u=c-a\), \(v=c+b\), and set
+
+    \[
+    A_2=W''(u),\qquad B_2=W''(v),\qquad
+    \lambda_-=\frac1X,\qquad \lambda_+=-\frac1Y.
+    \]
+
+    For a state displacement
+
+    \[
+    \delta y=(\delta q,\delta a,\delta b,\delta c),
+    \]
+
+    the two endpoint energies have second differentials
+
+    \[
+    \boxed{
+    D^2E_-[\delta y,\delta y]
+    =
+    -\frac{2}{a}\delta q\,\delta a
+    +
+    \frac{q}{a^2}(\delta a)^2
+    +
+    A_2(\delta c-\delta a)^2,
+    }
+    \tag{G1D2Eminus}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    D^2E_+[\delta y,\delta y]
+    =
+    -\frac{2}{b}\delta q\,\delta b
+    +
+    \frac{q}{b^2}(\delta b)^2
+    +
+    B_2(\delta c+\delta b)^2.
+    }
+    \tag{G1D2Eplus}
+    \]
+
+    Thus the finite branch Hessian form is
+
+    \[
+    \boxed{
+    B_{\rm at}^{(y)}[\delta y,\delta y]
+    =
+    \lambda_-D^2E_-[\delta y,\delta y]
+    +
+    \lambda_+D^2E_+[\delta y,\delta y].
+    }
+    \tag{G1ByForm}
+    \]
+
+    For row coordinates
+
+    \[
+    r=(r_0,r_u,r_c,r_v,r_-,r_+,r_{\log},r_\Pi),
+    \]
+
+    the branch-state linear equations give the state lift
+
+    \[
+    \boxed{
+    \delta q=-r_0,\qquad
+    \delta c=\frac{r_c}{F_c},
+    }
+    \tag{G1StateLiftQC}
+    \]
+
+    \[
+    \boxed{
+    \delta a=
+    \frac{-\ell_-r_0+A\,r_c/F_c+r_{\log}-r_-}{X},
+    }
+    \tag{G1StateLiftA}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    \delta b=
+    \frac{-r_++\ell_+r_0-B\,r_c/F_c-r_{\log}}{Y}.
+    }
+    \tag{G1StateLiftB}
+    \]
+
+    Here
+
+    \[
+    \ell_-=\log\frac1a,\qquad \ell_+=\log\frac1b.
+    \]
+
+    The rows \(r_u,r_v,r_\Pi\) do not enter this local state lift; they enter
+    the certificate cone and the Riesz load through the row kernels already
+    listed in \(\mathcal K_{\rm G1}\).  Therefore the branch block in row
+    coordinates is the pullback
+
+    \[
+    \boxed{
+    B_{\rm at}(r,r')
+    =
+    B_{\rm at}^{(y)}[T_y r,T_y r'],
+    }
+    \tag{G1BatPullback}
+    \]
+
+    where \(T_y\) is the linear map (G1StateLiftQC)--(G1StateLiftB).
+
+    In the formal endpoint-length basis
+
+    \[
+    e_u^0=(0,1,0,0),\qquad
+    e_v^0=(0,0,1,0),\qquad
+    e_\zeta^0=(0,1,-1,1)
+    \]
+
+    of state displacements, the local matrix is
+
+    \[
+    \boxed{
+    B_{\rm at}^{0}
+    =
+    \begin{pmatrix}
+    \dfrac{q/a^2+A_2}{X}
+    &
+    0
+    &
+    \dfrac{q}{a^2X}
+    \\[1.1em]
+    0
+    &
+    -\dfrac{q/b^2+B_2}{Y}
+    &
+    \dfrac{q}{b^2Y}
+    \\[1.1em]
+    \dfrac{q}{a^2X}
+    &
+    \dfrac{q}{b^2Y}
+    &
+    \dfrac{q}{a^2X}-\dfrac{q}{b^2Y}
+    \end{pmatrix}.
+    }
+    \tag{G1BatFormalMatrix}
+    \]
+
+    The third diagonal entry reproduces the earlier diagonal-shortcut audit:
+
+    \[
+    B_{\rm at}^{0}(e_\zeta^0,e_\zeta^0)
+    =
+    \frac{q}{a^2X}-\frac{q}{b^2Y}
+    =
+    \frac{q(a+b)}{a^2bX}>0.
+    \]
+
+    Hence the diagonal shortcut still fails.  The value of the present
+    calculation is different: it supplies the exact finite local block for the
+    Schur test (G1FinalSchurTest).  Gate 1 is therefore reduced to the
+    following fully explicit data:
+
+    \[
+    \boxed{
+    C_{\nu\mu}
+    =
+    \int_J k_\nu N_\mu\,d\Omega_R,
+    \qquad
+    B_{\rm at}=T_y^*B_{\rm at}^{(y)}T_y,
+    \qquad
+    \alpha\in\mathcal C_{\rm at}.
+    }
+    \tag{G1DataForFinalCheck}
+    \]
+
+    The remaining proof obligation is no longer to define either matrix; it is
+    to prove the Schur positivity (G1FinalSchurTest) on the atomic certificate
+    cone.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

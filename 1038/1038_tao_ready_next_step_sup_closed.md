@@ -3885,6 +3885,77 @@ C&\alpha\\
 \quad(\alpha\in\mathcal C_{\rm at}).
 \]
 
+The finite local block \(B_{\rm at}\) is also explicit.  With
+\(\lambda_-=1/X\), \(\lambda_+=-1/Y\),
+
+\[
+D^2E_-[\delta y]^2
+=
+-\frac2a\delta q\,\delta a+\frac q{a^2}(\delta a)^2
++A_2(\delta c-\delta a)^2,
+\]
+
+\[
+D^2E_+[\delta y]^2
+=
+-\frac2b\delta q\,\delta b+\frac q{b^2}(\delta b)^2
++B_2(\delta c+\delta b)^2,
+\]
+
+and
+
+\[
+B_{\rm at}^{(y)}
+=
+\lambda_-D^2E_-+\lambda_+D^2E_+.
+\]
+
+For a row
+
+\[
+r=(r_0,r_u,r_c,r_v,r_-,r_+,r_{\log},r_\Pi),
+\]
+
+the branch-state lift is
+
+\[
+\delta q=-r_0,\qquad
+\delta c=r_c/F_c,
+\]
+
+\[
+\delta a=
+\frac{-\ell_-r_0+A\,r_c/F_c+r_{\log}-r_-}{X},
+\]
+
+\[
+\delta b=
+\frac{-r_++\ell_+r_0-B\,r_c/F_c-r_{\log}}{Y}.
+\]
+
+Thus
+
+\[
+B_{\rm at}(r,r')=B_{\rm at}^{(y)}[T_y r,T_y r'].
+\]
+
+In the formal endpoint-length state basis
+\((e_u^0,e_v^0,e_\zeta^0)\), this gives
+
+\[
+B_{\rm at}^0=
+\begin{pmatrix}
+\dfrac{q/a^2+A_2}{X}&0&\dfrac{q}{a^2X}\\[0.8em]
+0&-\dfrac{q/b^2+B_2}{Y}&\dfrac{q}{b^2Y}\\[0.8em]
+\dfrac{q}{a^2X}&\dfrac{q}{b^2Y}&
+\dfrac{q}{a^2X}-\dfrac{q}{b^2Y}
+\end{pmatrix}.
+\]
+
+The positive \(e_\zeta^0\) diagonal explains why the diagonal shortcut did
+not work.  Gate 1 now depends on the coupled Schur test using both this local
+block and the Riesz Gram matrix \(C\).
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
