@@ -8043,6 +8043,93 @@ theorem queue.
     logarithmic integral in (SeedPotential).  Thus the table is computable from
     the single normalized rational function \(\delta_\gamma F\).
 
+    Therefore the reduced Schiffer seed table is:
+
+    \[
+    C_j(z):=\int_J\frac{G_j(x)\omega(x)}{z-x}\,dx,
+    \qquad
+    E_j:=
+    \binom{R_0(G_j)}{R_c(G_j)}.
+    \]
+
+    \[
+    \boxed{
+    \begin{array}{c|c|c|c|c}
+    j & C_j(z) & E_j & b_j & f_j(x)\\ \hline
+    \Pi
+    &
+    \displaystyle C_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)}
+    &
+    \displaystyle
+    \binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)}
+    &
+    \displaystyle aV_\Pi(u)+bV_\Pi(v)
+    &
+    \displaystyle
+    V_\Pi(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\Pi
+    \\[1.2em]
+    \gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}
+    &
+    \displaystyle
+    C_\gamma(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}
+    &
+    \displaystyle
+    \binom{[z^{-1}]_\infty C_\gamma}{-C_\gamma(c)}
+    &
+    \displaystyle aV_\gamma(u)+bV_\gamma(v)
+    &
+    \displaystyle
+    V_\gamma(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\gamma
+    \end{array}
+    }
+    \tag{ReducedSchifferTable}
+    \]
+
+    Here
+
+    \[
+    H_\gamma
+    =
+    -\frac12PQD_\gamma
+    -
+    H_\gamma^{\rm corr},
+    \qquad
+    \mathcal N(H_\gamma^{\rm corr})
+    =
+    \mathcal N\!\left(-\frac12PQD_\gamma\right),
+    \]
+
+    and \(H_\Pi\) is the already chosen period-transfer numerator in the same
+    fixed-cut chart.  The potentials in the table are
+
+    \[
+    V_j(s)=\int_J\log\frac1{|s-x|}G_j(x)\omega(x)\,dx,
+    \qquad j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\}.
+    \]
+
+    This is the complete reduced seed table used by the finite-dimensional LP.
+    Substituting it gives
+
+    \[
+    F(x)=
+    \begin{pmatrix}
+    f_{\alpha_1}(x)\\
+    f_{\beta_1}(x)\\
+    f_{\alpha_2}(x)\\
+    f_{\beta_2}(x)
+    \end{pmatrix},
+    \qquad
+    b=
+    \begin{pmatrix}
+    b_{\alpha_1}\\
+    b_{\beta_1}\\
+    b_{\alpha_2}\\
+    b_{\beta_2}
+    \end{pmatrix},
+    \qquad
+    \tau=f_\Pi,\quad \tau_*=b_\Pi.
+    \]
+
     The remaining, still unproved, part is not definitional: one must compute
     these entries and prove the positive-circuit inequalities (C4),(C5).
 

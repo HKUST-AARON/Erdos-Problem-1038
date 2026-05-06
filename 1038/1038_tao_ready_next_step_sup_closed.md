@@ -2659,6 +2659,62 @@ The absolute endpoint values \(V_\gamma(u),V_\gamma(v)\) are the logarithmic
 integrals defining \(V_\gamma\).  Hence the reduced table is computable from
 the normalized rational function \(\delta_\gamma F\).
 
+The reduced Schiffer seed table is therefore:
+
+\[
+C_j(z):=\int_J\frac{G_j(x)\omega(x)}{z-x}\,dx,\qquad
+E_j=\binom{R_0(G_j)}{R_c(G_j)}.
+\]
+
+\[
+\boxed{
+\begin{array}{c|c|c|c|c}
+j & C_j(z) & E_j & b_j & f_j(x)\\ \hline
+\Pi
+&
+\displaystyle C_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)}
+&
+\displaystyle \binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)}
+&
+\displaystyle aV_\Pi(u)+bV_\Pi(v)
+&
+\displaystyle V_\Pi(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\Pi
+\\[1.2em]
+\gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}
+&
+\displaystyle C_\gamma(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}
+&
+\displaystyle \binom{[z^{-1}]_\infty C_\gamma}{-C_\gamma(c)}
+&
+\displaystyle aV_\gamma(u)+bV_\gamma(v)
+&
+\displaystyle V_\gamma(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\gamma
+\end{array}
+}
+\]
+
+where
+
+\[
+H_\gamma
+=
+-\frac12PQD_\gamma-H_\gamma^{\rm corr},
+\qquad
+\mathcal N(H_\gamma^{\rm corr})
+=
+\mathcal N\!\left(-\frac12PQD_\gamma\right).
+\]
+
+This table gives the \(F,b,\tau,\tau_*\) used in the positive-circuit test:
+
+\[
+F=(f_{\alpha_1},f_{\beta_1},f_{\alpha_2},f_{\beta_2})^T,
+\quad
+b=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T,
+\quad
+\tau=f_\Pi,\quad \tau_*=b_\Pi.
+\]
+
 What remains is the actual algebraic computation of these entries and the
 positive-circuit sign proof.
 
