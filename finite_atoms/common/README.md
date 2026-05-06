@@ -30,7 +30,11 @@ identity.
 lean/StandardReduction.lean
 ```
 
-Formalizes the normalized-support consequence used by the standard reduction.
+Records the current formal interface for the standard-reduction route.
+This file should be read as a separation between the consequences already
+proved after endpoint normalization and the variational theorem that still has
+to produce that endpoint-normalized data.
+
 Once the reduced potential has the endpoint lower bound coming from at least
 half of the mass at `-1`, the file proves that the punctured baseline interval
 
@@ -63,8 +67,8 @@ that a minimizer can be put into normalized endpoint-mass form.  The lemmas
 above prove all downstream baseline-interval consequences once that input is
 available.
 
-The file also separates the part of Tao's Section 3 reduction that is purely
-order/algebra from the heavier variational part:
+The file also separates the part of Tao's Section 3 reduction that is
+order/algebra from the heavier positive-component and variation part:
 
 ```text
 TaoComponentReductionData.support_subset_normalized
@@ -79,253 +83,53 @@ containing `(-1,0)`, the Lean file proves that the support is contained in
 feed into the normalized endpoint-potential interface used by the finite-atom
 certificate route.
 
-## Standard-reduction status after the current mathematical audit
+## Standard-reduction route review
 
-The pure mathematical reduction has been written as the following chain:
+The route currently has three layers.
 
-1. Lower semicontinuity of the relaxed objective gives a minimizer.
-2. Among minimizers, choose one with minimal variance.
-3. A positive component has positive mass.
-4. Barycenter replacement outside that component does not increase the
-   logarithmic potential on the complement, hence does not increase the
-   positive-set length.
-5. Variance rigidity forces the restriction of the minimizer to each positive
-   component to be a Dirac mass at its barycenter.
-6. The mean-sign lemma gives a component containing `(-1,0)` after reflection.
-7. Translation of the selected component atom to `-1` gives normalized support
-   in `{-1} ∪ [0,1]`.
-8. The boundary-average argument gives endpoint mass at least `1/2`; the
-   degenerate `x_+ = 0` case is handled separately by the two-point/reflection
-   case.
+Closed downstream layer:
 
-The Lean file has internalized several downstream pieces of this chain:
+- endpoint lower-bound data imply baseline positivity;
+- endpoint punctures do not change Lebesgue length;
+- component endpoint/support hypotheses imply normalized support shape;
+- endpoint-mass algebra gives the `1/2` endpoint lower bound once the boundary-average input is available.
 
-```text
-measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
-integral_realMeasure_eq_outside_add_componentBlock
-integral_componentReplacementMeasure_eq
-unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
-componentReplacementPotential_eq_outside_add_barycenter_logKernel
-finiteMeasure_normalize_ae_of_ae
-integral_finiteMeasure_eq_mass_mul_normalize
-componentBlockFiniteMeasure
-normalized_componentBlock_ae_mem_interval
-normalized_componentBlock_first_moment_integrable
-normalized_componentBlock_logKernel_integrable_of_strictOutside
-integrable_of_ae_mem_compact_of_continuousOn
-outsideRestriction_ae_mem_unitInterval
-logKernel_continuousOn_of_dist_ge
-outsideRestriction_logKernel_integrable_of_compact_support
-outsideRestriction_logKernel_integrable_of_dist_ge
-outsideRestriction_ae_dist_ge_of_Ioo_null
-outsideRestriction_logKernel_integrable_of_Ioo_null
-outsideRestriction_exists_Ioo_null_of_not_mem_support
-outsideRestriction_logKernel_integrable_of_not_mem_support
-outsideRestriction_support_subset_interval_compl
-outsideRestriction_not_mem_support_of_mem_interval
-strictOutsideSupportHitSet
-componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
-componentBlock_integral_eq_mass_mul_normalized
-componentBlock_integrable_of_normalized_integrable
-componentBarycenter_eq_normalized_componentBlock_integral
-componentBarycenterAtom_logKernel_integrable
-componentReplacement_potential_le_of_decomposition_and_block_jensen
-componentReplacement_objective_le_of_strictOutside_decomposition_jensen
-componentReplacement_objective_le_of_strictOutside_logKernel_jensen
-componentBlock_logKernel_jensen_scaled_of_probability_block
-componentBlock_logKernel_jensen_scaled_normalized
-componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
-componentReplacement_objective_le_of_strictOutside_compactOutside
-componentReplacement_objective_le_of_strictOutside_distSeparated
-componentReplacement_objective_le_of_strictOutside_IooNull
-componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
-componentReplacement_objective_le_of_strictOutside_supportCase
-componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
-componentReplacement_objective_le_of_strictOutside_supportHit_null
-strictOutsideSupportHitSet_subset_outsideSupport
-strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
-strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
-strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
-strictOutsideSupportHitSet_volume_zero_of_subset_countable
-strictOutsideSupportHitSet_volume_zero_of_subset_finite
-strictOutsideSupportHitSet_volume_zero_of_subset_finset
-strictOutsideSupportHitSet_volume_zero_of_empty
-strictOutsideSupportHitSet_volume_zero_of_subset_endpoints
-componentReplacement_objective_le_of_outsideSupport_null
-componentReplacement_objective_le_of_outsideSupport_countable
-componentReplacement_objective_le_of_outsideSupport_subset_countable
-componentReplacement_objective_le_of_supportHit_subset_countable
-componentReplacement_objective_le_of_supportHit_countable
-componentReplacement_objective_le_of_supportHit_subset_finite
-componentReplacement_objective_le_of_supportHit_subset_finset
-componentReplacement_objective_le_of_supportHit_empty
-componentReplacement_objective_le_of_supportHit_subset_endpoints
-measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
-endpoint_lower_bound_from_normalized_support_decomposition
-endpoint_mass_ge_half_from_boundary_average
-endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
-TaoComponentReductionData.support_subset_normalized
-TaoComponentReductionData.endpointMass_ge_half
-TaoReducedPotentialData.toNormalizedEndpointPotential
-EndpointRouteClosureENNReal
-EndpointRouteClosureENNReal.lower_bound
-EndpointRouteClosureENNReal.exists_lower_bound
-```
+Live standard-reduction layer:
 
-The most recent additions in this layer are:
+- prove the true positive component selected from the positive set has the open-left-cover property required by the existing endpoint package;
+- prove barycenter replacement for a positive component, using Jensen outside the component and variance decrease inside the component;
+- use the variance-minimizing minimizer to show component atomization;
+- connect the atomized component to the endpoint-normalized support/mass data.
+
+Infrastructure layer still to be closed:
+
+- lower semicontinuity of the actual logarithmic-potential objective;
+- minimizer existence and secondary variance-minimizing minimizer existence;
+- reflection/translation normalization from the selected component;
+- the final polynomial-to-measure bridge for the original polynomial statement.
+
+The main unproved standard-reduction entry points are still visible in the
+Lean interface:
 
 ```text
-endpoint_lower_bound_from_normalized_support_decomposition
-endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate
+TaoVariationalReductionInput
+TaoVariationalReductionInputENNReal
+EndpointRouteClosureENNReal.endpointFromVariation
 ```
 
-The first is the named support-decomposition-to-endpoint-lower-bound bridge.
-The second matches the mathematical proof's split between `x_+ > 0` and the
-degenerate two-point `x_+ = 0` case.
+These names should be treated as TODO boundaries, not as completed reduction
+theorems.
 
-The main proof graph is now also fixed by `EndpointRouteClosureENNReal`.
-It deliberately exposes exactly two remaining mathematical inputs for a
-finite-route lower bound after standard normalization: the Tao variation step
-must provide `TaoEndpointNormalizationData` for every secondary minimizer, and
-the chosen finite-atom route must turn that endpoint package into the requested
-length lower bound.  The Lean theorems
-`EndpointRouteClosureENNReal.lower_bound` and
-`EndpointRouteClosureENNReal.exists_lower_bound` prove that no further
-bookkeeping is hidden between those two inputs and the route-level lower-bound
-statement.
-
-The component-replacement layer now also has an explicit assembly bridge:
-Lean decomposes integration against the original measure into outside plus
-component-block terms, decomposes integration against the replacement measure
-into outside plus barycenter-atom terms, and then assembles these scalar
-decompositions with the Jensen comparison into pointwise replacement-potential
-inequality and objective non-increase theorems.
-
-The newest bridge specializes this assembly to the actual logarithmic kernel
-`t ↦ log (1 / |x - t|)`: given the needed log-kernel integrability assumptions
-and the Jensen comparison for every strict outside point, Lean now derives the
-component-replacement objective non-increase directly.
-
-The Jensen side has also been connected to the unnormalized component block:
-if a probability block represents the normalized component block, Lean scales
-the probability-block Jensen inequality by `componentMass C` and rewrites it
-as the component-block Jensen term required by the log-kernel bridge.
-
-The normalized probability block is now represented canonically by
-`(componentBlockFiniteMeasure C).normalize`.  Lean proves that a.e. support
-inside the component transfers to this normalized block, that integrals against
-`componentBlock C` scale by its finite mass, and that `componentBarycenter C`
-is the mean of the normalized component block whenever `componentMass C > 0`.
-The canonical normalized block is now wired directly into the scaled Jensen
-comparison, so no external normalized-block identification is needed for the
-Jensen step.
-The objective non-increase theorem has also been lifted to this canonical
-normalized block interface: after the caller supplies only the log-kernel and
-first-moment integrability inputs, Lean produces the Jensen comparison and
-then the component-replacement objective inequality.
-The first-moment input is now discharged internally: because the normalized
-component block is supported in the bounded interval `(C.left, C.right)`, Lean
-proves `Integrable (fun t => t)` for it and removes this from the external
-hypotheses.
-The barycenter-atom log-kernel integrability is also internal: integration is
-against a finite scalar multiple of a Dirac measure, so the real-valued log
-kernel is integrable without an external assumption.
-The component-block log-kernel integrability is now derived from normalized
-component-block log-kernel integrability by the finite-measure normalization
-identity, so it no longer has to be supplied separately.
-The normalized component-block log-kernel integrability is now also internal:
-for a strict outside point, the singularity is outside the compact closure
-`[C.left, C.right]`, and Lean combines compact-support continuity with the
-normalized block's a.e. support in the component.
-The outside-restriction input has been sharpened from a raw integrability
-assumption to a compact off-singularity support certificate: if the outside
-restriction is a.e. carried by a compact set on which the log kernel is
-continuous, Lean derives the needed outside integrability and closes the
-component-replacement objective comparison.
-There is also a distance-separated interface: if the outside restriction is
-a.e. at positive distance from the strict outside test point, Lean constructs
-the compact certificate internally from `[-1,1]` support and closes the same
-objective comparison.
-The singular support-hit branch has also been reduced to a zero-measure
-criterion: if the outside-restriction support is null, countable, or merely
-contained in a countable carrier, then component replacement does not increase
-the positive-set objective.
-There is also a more local version: it is enough for the actual singular
-support-hit set itself to be countable, or to be contained in a countable
-carrier. This is deliberately weaker than asserting that an a.e. countable
-carrier for the outside measure controls its full topological support.
-The same local criterion is available with either an abstract finite carrier
-or a concrete `Finset` carrier, which is the interface expected from later
-component-topology or atomization arguments.
-Two boundary-level special cases are also packaged directly: the singular
-support-hit branch may be empty, or it may be contained in the two component
-endpoints `{C.left, C.right}`.
-The same interface is now available in a punctured-neighbourhood form: if the
-outside restriction gives zero mass to some open interval around each strict
-outside test point, Lean turns that into positive distance separation and closes
-the replacement objective comparison.
-The outside certificate can now also be stated in support language: if each
-strict outside test point is outside the topological support of the outside
-restriction, Lean extracts the zero-mass neighbourhood and closes the same
-objective comparison.
-Lean also records the basic support geometry of the outside restriction: its
-support is contained in the closed complement of the component interval, so any
-point strictly inside the component is automatically excluded from that outside
-support.
-The regular part of the support split is now pointwise: at any strict outside
-point not lying in the outside-restriction support, Lean proves
-`componentReplacementPotential C x ≤ unitIntervalLogPotential μ x` directly.
-The objective-level theorem therefore isolates the only remaining singular
-branch: strict outside points that lie in the outside-restriction support.
-That singular branch is now packaged as `strictOutsideSupportHitSet C`.  Lean
-proves that if this exceptional set is Lebesgue-null, then the component
-replacement objective still does not increase; endpoints are handled as the
-same finite null exception as before.
-Lean also proves two sufficient criteria for this exceptional set to be null:
-the outside-restriction support itself is null, or it is countable.  Under
-either criterion, component replacement objective non-increase is now a direct
-theorem.
-
-The following review findings remain real Lean gaps, not solved claims:
+The most useful next proof step is the component-topology bridge:
 
 ```text
-1. The core variational provider is still external:
-   TaoVariationalReductionInput.reducedData is an input, not yet a theorem.
-
-2. The actual objective
-   μ ↦ volume {x | 0 < unitIntervalLogPotential μ x}
-   has not yet been proved lower semicontinuous end-to-end.
-
-3. The component-replacement objective lemma no longer needs raw outside
-   log-kernel integrability if either a compact off-singularity support
-   certificate, a positive-distance separation certificate, or the equivalent
-   punctured-neighbourhood zero-mass certificate is supplied.  The normalized
-   probability
-   block, a.e. support transfer, integral scaling, barycenter identification,
-   log-kernel specialization, scalar assembly, and canonical normalized-block
-   Jensen bridge are formalized, and the normalized first-moment integrability
-   plus barycenter-atom/component-block/normalized-block log-kernel
-   integrability are internal.  The remaining local analytic task is to prove
-   one of the support-null/countable support criteria from actual
-   minimizer/component topology data, or to handle the singular support-hit
-   branch by another endpoint/extended-potential argument.
-
-4. PositiveComponent is still supplied as structure; the extraction of the
-   relevant component from a minimizer, with boundary and replacement legality,
-   is not fully formalized.
-
-5. Endpoint lower bound is still packaged as data in TaoReducedPotentialData.
-   The normalized-remainder bridge exists, but the full support decomposition
-   from an arbitrary minimizer is not yet internalized.
+selected maximal positive component
+  -> open-left-cover near the endpoint
+  -> endpoint package input
 ```
 
-So the current honest status is:
-
-```text
-pure mathematical standard-reduction route: written and clarified;
-Lean formalization: downstream bridges are growing, but the full variational
-provider and true-objective l.s.c. are still open formalization tasks.
-```
+After that bridge is closed, the next target is the barycenter replacement and
+variance-decrease argument that removes the remaining atomization input.
 
 Check command from the repository root:
 

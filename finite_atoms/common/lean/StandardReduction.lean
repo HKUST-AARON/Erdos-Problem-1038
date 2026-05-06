@@ -200,31 +200,6 @@ theorem endpoint_lower_bound_from_normalized_remainder_measure
   have hdecomp := hU_decomp x hx
   nlinarith
 
-/--
-Named version of the normalized-support endpoint lower-bound theorem.
-
-This is the direct formal counterpart of the mathematical step:
-an endpoint atom of mass `p` at `-1`, plus a remainder of mass `1-p` supported
-in `[0,1]`, implies the lower bound used by the normalized finite-atom route.
-
-The theorem still assumes the caller has supplied the actual potential
-decomposition lower bound `hU_decomp`; it does not construct the decomposition
-from an arbitrary minimizer.
--/
-theorem endpoint_lower_bound_from_normalized_support_decomposition
-    {U : ℝ → ℝ} {remainder : Measure ℝ} {p : ℝ}
-    (hrem_supp : ∀ᵐ t ∂remainder, 0 ≤ t ∧ t ≤ 1)
-    (hrem_mass : remainder Set.univ = ENNReal.ofReal (1 - p))
-    (hrem_mass_nonneg : 0 ≤ 1 - p)
-    (hkernel_int : ∀ x : ℝ, x ∈ BaselinePunctured →
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) remainder)
-    (hU_decomp : ∀ x : ℝ, x ∈ BaselinePunctured →
-      p * Real.log (1 / |x + 1|) +
-        (∫ t : ℝ, Real.log (1 / |x - t|) ∂remainder) ≤ U x) :
-    HasNormalizedEndpointLowerBound U p :=
-  endpoint_lower_bound_from_normalized_remainder_measure
-    hrem_supp hrem_mass hrem_mass_nonneg hkernel_int hU_decomp
-
 lemma half_endpoint_average_eq_half_product {x : ℝ}
     (hx : x ∈ BaselineInterval) (hne : x ≠ -1) :
     (1 / 2 : ℝ) * Real.log (1 / |x + 1|) +
@@ -433,26 +408,6 @@ lemma endpoint_mass_ge_half_from_boundary_average {x p : ℝ}
     (havg : 1 ≤ (x + 1) * p + (1 - x) * (1 - p)) :
     (1 / 2 : ℝ) ≤ p := by
   nlinarith
-
-/--
-Endpoint-mass algebra with the degenerate right-endpoint case separated.
-
-In the standard reduction, the boundary-average inequality proves the endpoint
-mass bound when the translated right endpoint `x` is strictly positive.  If
-`x = 0`, the mathematical proof first identifies the two-point degenerate case
-and, if necessary, reflects it; that separate argument is represented here by
-`hdegenerate`.  This lemma is the precise Lean bridge combining the two cases.
--/
-lemma endpoint_mass_ge_half_from_boundary_average_nonneg_or_degenerate {x p : ℝ}
-    (hx : 0 ≤ x)
-    (havg : 1 ≤ (x + 1) * p + (1 - x) * (1 - p))
-    (hdegenerate : x = 0 → (1 / 2 : ℝ) ≤ p) :
-    (1 / 2 : ℝ) ≤ p := by
-  by_cases hx0 : x = 0
-  · exact hdegenerate hx0
-  · have hxne : (0 : ℝ) ≠ x := fun h => hx0 h.symm
-    have hxpos : 0 < x := lt_of_le_of_ne hx hxne
-    exact endpoint_mass_ge_half_from_boundary_average hxpos havg
 
 /--
 The order-theoretic support conclusion from the component reduction.  If the
@@ -1363,6 +1318,40 @@ lemma measureLogPotential_eq_neg_log_abs_integral
   rw [integral_congr_ae hcongr]
   rw [integral_neg]
 
+/--
+Boundary form of Jensen's logarithmic step.  If the logarithmic potential at a
+test point is nonpositive, then the average distance from that point is at
+least one.
+-/
+lemma one_le_abs_integral_of_measureLogPotential_nonpos
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) μ)
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) μ)
+    (hpotential_nonpos : measureLogPotential μ x ≤ 0) :
+    1 ≤ ∫ t, |x - t| ∂μ := by
+  have hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t| :=
+    hdist_lower.mono (fun _ ht => lt_of_lt_of_le hε ht)
+  have hlog_nonneg : 0 ≤ ∫ t, Real.log |x - t| ∂μ := by
+    rw [measureLogPotential_eq_neg_log_abs_integral μ hdist_pos] at hpotential_nonpos
+    linarith
+  have hlog_le :
+      (∫ t, Real.log |x - t| ∂μ) ≤
+        Real.log (∫ t, |x - t| ∂μ) :=
+    measure_log_abs_integral_le_log_abs_integral μ
+      hε hdist_lower hdist_int hlog_int
+  have hlog_avg_nonneg : 0 ≤ Real.log (∫ t, |x - t| ∂μ) :=
+    le_trans hlog_nonneg hlog_le
+  have hε_le_avg : ε ≤ ∫ t, |x - t| ∂μ := by
+    have hle :
+        (∫ _ : ℝ, ε ∂μ) ≤ ∫ t, |x - t| ∂μ :=
+      integral_mono_ae (integrable_const ε) hdist_int hdist_lower
+    simpa using hle
+  have havg_pos : 0 < ∫ t, |x - t| ∂μ :=
+    lt_of_lt_of_le hε hε_le_avg
+  exact (Real.log_nonneg_iff havg_pos).1 hlog_avg_nonneg
+
 theorem measureLogPotential_nonneg_of_nonnegative_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ] {x ε : ℝ}
     (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
@@ -1712,6 +1701,25 @@ lemma positiveSet_measure_le_of_thresholds_le
   rw [positiveSet_measure_eq_iSup_thresholds U]
   exact iSup_le hB
 
+lemma exists_iSup_nat_le_add_of_ne_top
+    (f : ℕ → ℝ≥0∞) {η : NNReal}
+    (hη : 0 < η) (hfinite : (⨆ n : ℕ, f n) ≠ ∞) :
+    ∃ n : ℕ, (⨆ n : ℕ, f n) ≤ f n + (η : ℝ≥0∞) := by
+  let S : ℝ≥0∞ := ⨆ n : ℕ, f n
+  by_cases hSzero : S = 0
+  · exact ⟨0, by simp [S, hSzero]⟩
+  · have hη_ne : (η : ℝ≥0∞) ≠ 0 := by
+      exact_mod_cast (ne_of_gt hη)
+    have hsub_lt : S - (η : ℝ≥0∞) < S := by
+      exact ENNReal.sub_lt_self (by simpa [S] using hfinite) hSzero hη_ne
+    have hexists : ∃ n : ℕ, S - (η : ℝ≥0∞) < f n := by
+      simpa [S] using (lt_iSup_iff.mp hsub_lt)
+    rcases hexists with ⟨n, hn⟩
+    refine ⟨n, le_of_lt ?_⟩
+    have hlt : S < (η : ℝ≥0∞) + f n :=
+      ENNReal.lt_add_of_sub_lt_left (Or.inl (by simpa [S] using hfinite)) hn
+    simpa [add_comm] using hlt
+
 lemma probability_measure_open_liminf_of_tendsto
     {Ω ι : Type*} {L : Filter ι}
     [MeasurableSpace Ω] [TopologicalSpace Ω] [OpensMeasurableSpace Ω]
@@ -1907,6 +1915,47 @@ def unitIntervalLogPotential
   ∫ t : UnitInterval1038,
     Real.log (1 / |x - (t : ℝ)|) ∂(μ : Measure UnitInterval1038)
 
+/--
+Concrete secondary objective for the Tao selector: the second moment of the
+probability measure on the normalized interval `[-1,1]`.
+-/
+def unitIntervalSecondMomentObjective
+    (μ : ProbabilityMeasure UnitInterval1038) : ℝ :=
+  ∫ t : UnitInterval1038, (t : ℝ) ^ 2 ∂(μ : Measure UnitInterval1038)
+
+/-- The bounded-continuous-function form of the second-moment integrand. -/
+noncomputable def unitIntervalSecondMomentBCF :
+    BoundedContinuousFunction UnitInterval1038 ℝ :=
+  BoundedContinuousFunction.mkOfCompact
+    ⟨fun t : UnitInterval1038 => (t : ℝ) ^ 2, by continuity⟩
+
+/-- Weak continuity of the concrete second-moment objective. -/
+theorem unitIntervalSecondMomentObjective_tendsto
+    {ι : Type*} {L : Filter ι}
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {μs : ι → ProbabilityMeasure UnitInterval1038}
+    (hμs : Filter.Tendsto μs L (nhds μ)) :
+    Filter.Tendsto
+      (fun i => unitIntervalSecondMomentObjective (μs i)) L
+      (nhds (unitIntervalSecondMomentObjective μ)) := by
+  simpa [unitIntervalSecondMomentObjective, unitIntervalSecondMomentBCF] using
+    (ProbabilityMeasure.tendsto_iff_forall_integral_tendsto.mp hμs)
+      unitIntervalSecondMomentBCF
+
+/-- Continuity of the concrete second-moment objective. -/
+theorem unitIntervalSecondMomentObjective_continuous :
+    Continuous unitIntervalSecondMomentObjective := by
+  rw [continuous_iff_continuousAt]
+  intro μ
+  exact unitIntervalSecondMomentObjective_tendsto
+    (μs := fun ν : ProbabilityMeasure UnitInterval1038 => ν)
+    (L := nhds μ) Filter.tendsto_id
+
+/-- Lower semicontinuity of the concrete second-moment secondary objective. -/
+theorem unitIntervalSecondMomentObjective_lowerSemicontinuous :
+    LowerSemicontinuous unitIntervalSecondMomentObjective :=
+  unitIntervalSecondMomentObjective_continuous.lowerSemicontinuous
+
 /-- Joint measurability of the logarithmic kernel on `ℝ × [-1,1]`. -/
 lemma measurable_unitIntervalLogKernel_uncurry :
     Measurable
@@ -1938,6 +1987,17 @@ theorem unitIntervalLogPotential_measurableSet_threshold
 def realMeasure (μ : ProbabilityMeasure UnitInterval1038) : Measure ℝ :=
   Measure.map (fun t : UnitInterval1038 => (t : ℝ)) (μ : Measure UnitInterval1038)
 
+/-- The second-moment objective is the second moment of the pushed-forward real
+measure. -/
+theorem unitIntervalSecondMomentObjective_eq_realMeasure
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    unitIntervalSecondMomentObjective μ =
+      ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+  unfold unitIntervalSecondMomentObjective realMeasure
+  rw [integral_map]
+  · exact continuous_subtype_val.measurable.aemeasurable
+  · exact (continuous_pow 2).measurable.aestronglyMeasurable
+
 instance realMeasure.isProbabilityMeasure
     (μ : ProbabilityMeasure UnitInterval1038) :
     IsProbabilityMeasure (realMeasure μ) := by
@@ -1951,6 +2011,154 @@ lemma realMeasure_ae_mem_unitInterval
   exact (ae_map_iff
     continuous_subtype_val.measurable.aemeasurable measurableSet_Icc).2
     (Filter.Eventually.of_forall (fun t : UnitInterval1038 => t.2))
+
+theorem realMeasure_ae_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ᵐ t ∂realMeasure μ, t ∈ (realMeasure μ).support := by
+  exact Measure.support_mem_ae
+
+theorem realMeasure_support_open_neighborhood_pos
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → ∀ U : Set ℝ,
+      IsOpen U → t ∈ U → realMeasure μ U ≠ 0 := by
+  intro t ht U hU htU hzero
+  have hsubset :
+      U ⊆ (realMeasure μ).supportᶜ :=
+    Measure.subset_compl_support_of_isOpen (μ := realMeasure μ) hU hzero
+  exact hsubset htU ht
+
+theorem realMeasure_support_subset_unitInterval
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (realMeasure μ).support ⊆ Icc (-1 : ℝ) 1 :=
+  Measure.support_subset_of_isClosed isClosed_Icc
+    (realMeasure_ae_mem_unitInterval μ)
+
+theorem realMeasure_endpointRemainder_support_in_support
+    (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
+    (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, t ∈ Support := by
+  exact hSupport.filter_mono (ae_restrict_le)
+
+theorem realMeasure_endpointRemainder_no_endpoint
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, t ≠ -1 := by
+  have hmem :
+      ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ,
+        t ∈ ({-1} : Set ℝ)ᶜ :=
+    ae_restrict_mem₀ (measurableSet_singleton (-1 : ℝ)).compl.nullMeasurableSet
+  filter_upwards [hmem] with t ht
+  simpa using ht
+
+theorem realMeasure_endpointRemainder_univ_add_endpoint
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ +
+        realMeasure μ ({-1} : Set ℝ) = 1 := by
+  have h :=
+    measure_add_measure_compl₀
+      (μ := realMeasure μ)
+      ((measurableSet_singleton (-1 : ℝ)).nullMeasurableSet)
+  simpa [add_comm] using h
+
+theorem realMeasure_endpointRemainder_mass
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p)
+    (hp_nonneg_left : 0 ≤ p) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ =
+      ENNReal.ofReal (1 - p) := by
+  have hadd :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ +
+        ENNReal.ofReal p = 1 := by
+    simpa [hp] using realMeasure_endpointRemainder_univ_add_endpoint μ
+  have hsub :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ Set.univ =
+        (1 : ℝ≥0∞) - ENNReal.ofReal p :=
+    ENNReal.eq_sub_of_add_eq ENNReal.ofReal_ne_top hadd
+  have hofReal :
+      ENNReal.ofReal (1 - p) = (1 : ℝ≥0∞) - ENNReal.ofReal p := by
+    simpa using (ENNReal.ofReal_sub (1 : ℝ) hp_nonneg_left)
+  rw [hsub, ← hofReal]
+
+theorem realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} = ENNReal.ofReal p) :
+    realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p := by
+  rw [realMeasure]
+  rw [Measure.map_apply continuous_subtype_val.measurable
+    (measurableSet_singleton (-1 : ℝ))]
+  simpa [Set.preimage, Set.mem_singleton_iff] using hp
+
+theorem unitInterval_endpoint_atom_eq_of_realMeasure_endpoint_atom_eq
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} = ENNReal.ofReal p := by
+  have hmap :
+      realMeasure μ ({-1} : Set ℝ) =
+        (μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1} := by
+    rw [realMeasure]
+    rw [Measure.map_apply continuous_subtype_val.measurable
+      (measurableSet_singleton (-1 : ℝ))]
+    rfl
+  exact hmap.symm.trans hp
+
+theorem unitInterval_endpoint_atom_ne_top
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} ≠ ⊤ := by
+  have hle :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+        (μ : Measure UnitInterval1038) Set.univ :=
+    measure_mono (Set.subset_univ _)
+  have hlt :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} < ⊤ := by
+    refine lt_of_le_of_lt hle ?_
+    simp
+  exact ne_of_lt hlt
+
+theorem unitInterval_endpoint_atom_eq_ofReal_toReal
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} =
+        ENNReal.ofReal
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) := by
+  rw [ENNReal.ofReal_toReal (unitInterval_endpoint_atom_ne_top μ)]
+
+theorem unitInterval_endpoint_atom_toReal_nonneg
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    0 ≤
+      (((μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) :=
+  ENNReal.toReal_nonneg
+
+theorem unitInterval_endpoint_atom_toReal_le_one
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) ≤ 1 := by
+  have hle :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+        (1 : ℝ≥0∞) := by
+    have hle_univ :
+        (μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1} ≤
+          (μ : Measure UnitInterval1038) Set.univ :=
+      measure_mono (Set.subset_univ _)
+    simpa using hle_univ
+  simpa using (ENNReal.toReal_mono ENNReal.one_ne_top hle)
+
+theorem unitInterval_endpoint_atom_remainderMass_nonneg
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    0 ≤ 1 -
+      (((μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) := by
+  have hle := unitInterval_endpoint_atom_toReal_le_one μ
+  linarith
 
 /-- Real points carrying positive mass for the pushed-forward unit-interval measure. -/
 def diagonalAtomSet (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
@@ -2053,6 +2261,223 @@ lemma unitIntervalLogPotential_eq_realMeasure
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
   simpa [realMeasure] using unitIntervalLogPotential_eq_map_subtypeVal μ x
+
+/-! ## Concrete reflection/translation normalization map -/
+
+/-- Point map used by the concrete Tao normalization: optional reflection,
+followed by translation. -/
+def taoNormalizePoint (reflected : Bool) (translation x : ℝ) : ℝ :=
+  (if reflected then -x else x) + translation
+
+/-- Real push-forward measure under the concrete Tao normalization map. -/
+def taoNormalizeRealMeasure
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    Measure ℝ :=
+  Measure.map (taoNormalizePoint reflected translation) (realMeasure μ)
+
+/-- Potential of the concrete normalized real measure. -/
+def taoNormalizedPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    ℝ → ℝ :=
+  measureLogPotential (taoNormalizeRealMeasure μ reflected translation)
+
+lemma taoNormalizePoint_false (translation x : ℝ) :
+    taoNormalizePoint false translation x = x + translation := by
+  rfl
+
+lemma taoNormalizePoint_true (translation x : ℝ) :
+    taoNormalizePoint true translation x = -x + translation := by
+  rfl
+
+lemma taoNormalizeRealMeasure_false
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    taoNormalizeRealMeasure μ false translation =
+      Measure.map (fun t : ℝ => t + translation) (realMeasure μ) := by
+  rfl
+
+lemma taoNormalizeRealMeasure_true
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    taoNormalizeRealMeasure μ true translation =
+      Measure.map (fun t : ℝ => -t + translation) (realMeasure μ) := by
+  rfl
+
+lemma measureLogPotential_reflect_translate (μ : Measure ℝ) (x shift : ℝ) :
+    measureLogPotential (Measure.map (fun t : ℝ => -t + shift) μ)
+      (-x + shift) =
+    measureLogPotential μ x := by
+  unfold measureLogPotential
+  rw [integral_map]
+  · apply integral_congr_ae
+    filter_upwards with t
+    have habs : |-x + shift - (-t + shift)| = |x - t| := by
+      rw [show -x + shift - (-t + shift) = -(x - t) by ring]
+      exact abs_neg (x - t)
+    rw [habs]
+  · fun_prop
+  · exact (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+
+theorem taoNormalizedPotential_false_apply
+    (μ : ProbabilityMeasure UnitInterval1038) (translation x : ℝ) :
+    taoNormalizedPotential μ false translation (x + translation) =
+      unitIntervalLogPotential μ x := by
+  change measureLogPotential
+      (Measure.map (fun t : ℝ => t + translation) (realMeasure μ))
+      (x + translation) = unitIntervalLogPotential μ x
+  rw [measureLogPotential_translate]
+  exact (unitIntervalLogPotential_eq_realMeasure μ x).symm
+
+theorem taoNormalizedPotential_true_apply
+    (μ : ProbabilityMeasure UnitInterval1038) (translation x : ℝ) :
+    taoNormalizedPotential μ true translation (-x + translation) =
+      unitIntervalLogPotential μ x := by
+  change measureLogPotential
+      (Measure.map (fun t : ℝ => -t + translation) (realMeasure μ))
+      (-x + translation) = unitIntervalLogPotential μ x
+  rw [measureLogPotential_reflect_translate]
+  exact (unitIntervalLogPotential_eq_realMeasure μ x).symm
+
+theorem positiveSet_taoNormalizedPotential_false_eq_preimage
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    PositiveSet (taoNormalizedPotential μ false translation) =
+      (fun y : ℝ => y - translation) ⁻¹'
+        PositiveSet (unitIntervalLogPotential μ) := by
+  ext y
+  constructor
+  · intro hy
+    have happly := taoNormalizedPotential_false_apply μ translation (y - translation)
+    have hy_eq : y - translation + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+  · intro hy
+    have happly := taoNormalizedPotential_false_apply μ translation (y - translation)
+    have hy_eq : y - translation + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+
+theorem positiveSet_taoNormalizedPotential_true_eq_preimage
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    PositiveSet (taoNormalizedPotential μ true translation) =
+      (fun y : ℝ => -y + translation) ⁻¹'
+        PositiveSet (unitIntervalLogPotential μ) := by
+  ext y
+  constructor
+  · intro hy
+    have happly := taoNormalizedPotential_true_apply μ translation (-y + translation)
+    have hy_eq : -(-y + translation) + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+  · intro hy
+    have happly := taoNormalizedPotential_true_apply μ translation (-y + translation)
+    have hy_eq : -(-y + translation) + translation = y := by ring
+    rw [hy_eq] at happly
+    simpa [PositiveSet, happly] using hy
+
+theorem volume_positiveSet_taoNormalizedPotential_false
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ false translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hset := positiveSet_taoNormalizedPotential_false_eq_preimage μ translation
+  have hmap : Measure.map (fun y : ℝ => y - translation) volume = volume := by
+    simpa [sub_eq_add_neg] using
+      (map_add_right_eq_self (μ := volume) (-translation))
+  have hmeas : NullMeasurableSet (PositiveSet (unitIntervalLogPotential μ)) volume := by
+    exact (unitIntervalLogPotential_measurableSet_threshold μ (0 : ℝ)).nullMeasurableSet
+  rw [hset]
+  exact Measure.measure_preimage_of_map_eq_self hmap hmeas
+
+theorem volume_positiveSet_taoNormalizedPotential_true
+    (μ : ProbabilityMeasure UnitInterval1038) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ true translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hset := positiveSet_taoNormalizedPotential_true_eq_preimage μ translation
+  have hmeas : NullMeasurableSet (PositiveSet (unitIntervalLogPotential μ)) volume := by
+    exact (unitIntervalLogPotential_measurableSet_threshold μ (0 : ℝ)).nullMeasurableSet
+  rw [hset]
+  have htranslate :
+      volume ((fun y : ℝ => y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+        volume (PositiveSet (unitIntervalLogPotential μ)) := by
+    exact Measure.measure_preimage_of_map_eq_self
+      (map_add_right_eq_self (μ := volume) translation) hmeas
+  have hneg :
+      volume ((fun y : ℝ => -y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+        volume ((fun y : ℝ => y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) := by
+    have hpre :
+        ((fun y : ℝ => -y + translation) ⁻¹'
+          PositiveSet (unitIntervalLogPotential μ)) =
+          (fun y : ℝ => (-1 : ℝ) * y) ⁻¹'
+            ((fun y : ℝ => y + translation) ⁻¹'
+              PositiveSet (unitIntervalLogPotential μ)) := by
+      ext y
+      simp
+    rw [hpre, Real.volume_preimage_mul_left (by norm_num : (-1 : ℝ) ≠ 0)]
+    simp
+  exact hneg.trans htranslate
+
+theorem volume_positiveSet_taoNormalizedPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (reflected : Bool) (translation : ℝ) :
+    volume (PositiveSet (taoNormalizedPotential μ reflected translation)) =
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  cases reflected
+  · exact volume_positiveSet_taoNormalizedPotential_false μ translation
+  · exact volume_positiveSet_taoNormalizedPotential_true μ translation
+
+/-- Unit-interval version of the boundary Jensen step. -/
+theorem one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|)
+    (hdist_int : Integrable (fun t : ℝ => |x - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ x ≤ 0) :
+    1 ≤ ∫ t, |x - t| ∂realMeasure μ := by
+  rw [unitIntervalLogPotential_eq_realMeasure] at hpotential_nonpos
+  exact one_le_abs_integral_of_measureLogPotential_nonpos
+    (realMeasure μ) hε hdist_lower hdist_int hlog_int hpotential_nonpos
+
+/--
+Tao boundary-average inequality once the boundary Jensen lower bound and the
+endpoint/remainder distance upper bound have been supplied.
+-/
+theorem tao_boundary_average_of_boundary_distance_upper
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus endpointMass ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int : Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hdistance_upper :
+      (∫ t, |xPlus - t| ∂realMeasure μ) ≤
+        (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)) :
+    1 ≤ (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass) := by
+  exact le_trans
+    (one_le_unitInterval_boundary_abs_integral_of_potential_nonpos
+      μ hε hdist_lower hdist_int hlog_int hpotential_nonpos)
+    hdistance_upper
+
+/--
+Endpoint half-mass consequence of the boundary-distance form of Tao's boundary
+average inequality.
+-/
+theorem endpoint_mass_ge_half_of_boundary_distance_upper
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus endpointMass ε : ℝ}
+    (hright_endpoint_positive : 0 < xPlus)
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int : Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int : Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hpotential_nonpos : unitIntervalLogPotential μ xPlus ≤ 0)
+    (hdistance_upper :
+      (∫ t, |xPlus - t| ∂realMeasure μ) ≤
+        (xPlus + 1) * endpointMass + (1 - xPlus) * (1 - endpointMass)) :
+    (1 / 2 : ℝ) ≤ endpointMass := by
+  exact endpoint_mass_ge_half_from_boundary_average hright_endpoint_positive
+    (tao_boundary_average_of_boundary_distance_upper μ hε hdist_lower
+      hdist_int hlog_int hpotential_nonpos hdistance_upper)
 
 /-!
 ## Finite atomic dual-potential selector
@@ -2529,6 +2954,27 @@ structure PositiveComponent (μ : ProbabilityMeasure UnitInterval1038) where
   left_lt_right : left < right
   interval_pos : Ioo left right ⊆ PositiveSet (unitIntervalLogPotential μ)
 
+/-- Build a positive component package from an open interval contained in the
+positive set.  This is the first component-selection bridge: the genuinely hard
+part is producing the interval witness from the variation argument. -/
+def PositiveComponent.of_interval_subset_positiveSet
+    {μ : ProbabilityMeasure UnitInterval1038} {l r : ℝ}
+    (hlr : l < r)
+    (hpos : Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    PositiveComponent μ where
+  left := l
+  right := r
+  left_lt_right := hlr
+  interval_pos := hpos
+
+/-- Existence form of `PositiveComponent.of_interval_subset_positiveSet`. -/
+theorem exists_positiveComponent_of_interval_subset_positiveSet
+    {μ : ProbabilityMeasure UnitInterval1038} {l r : ℝ}
+    (hlr : l < r)
+    (hpos : Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ, C.left = l ∧ C.right = r := by
+  refine ⟨PositiveComponent.of_interval_subset_positiveSet hlr hpos, rfl, rfl⟩
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
@@ -2536,6 +2982,12 @@ def PositiveComponent.interval
 lemma PositiveComponent.interval_eq
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     C.interval = Ioo C.left C.right := rfl
+
+/-- Every packaged positive component already supplies interval endpoints. -/
+theorem PositiveComponent.exists_interval_endpoints
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ∃ xMinus xPlus : ℝ, C.interval = Ioo xMinus xPlus ∧ xMinus < xPlus := by
+  exact ⟨C.left, C.right, rfl, C.left_lt_right⟩
 
 lemma PositiveComponent.measurableSet_interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
@@ -2554,6 +3006,354 @@ lemma PositiveComponent.interval_subset_positiveSet
     C.interval ⊆ PositiveSet (unitIntervalLogPotential μ) :=
   C.interval_pos
 
+/--
+Endpoint criterion for the baseline placement field.  Once the selected
+component is known to start strictly left of `-1` and reach at least `0`, it
+contains the whole Tao baseline interval `(-1,0)`.
+-/
+theorem PositiveComponent.baseline_subset_interval_of_left_lt_endpoint_right_nonneg
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hleft : C.left < -1)
+    (hright : 0 ≤ C.right) :
+    Ioo (-1 : ℝ) 0 ⊆ C.interval := by
+  intro x hx
+  rw [C.interval_eq]
+  exact ⟨lt_trans hleft hx.1, lt_of_lt_of_le hx.2 hright⟩
+
+/--
+The baseline placement alone forces the right endpoint to be nonnegative.  It
+does not force strict positivity: the component could end exactly at `0`.
+-/
+theorem PositiveComponent.right_nonneg_of_baseline_subset_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    0 ≤ C.right := by
+  by_contra hnot
+  have hright_neg : C.right < 0 := lt_of_not_ge hnot
+  let x : ℝ := C.right / 2
+  have hx_base : x ∈ Ioo (-1 : ℝ) 0 := by
+    constructor
+    · have hleft_lt_right : -1 < C.right := by
+        have hmid : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+        have hmem := hbaseline hmid
+        rw [C.interval_eq] at hmem
+        exact lt_trans (by norm_num : (-1 : ℝ) < -(1 : ℝ) / 2) hmem.2
+      dsimp [x]
+      linarith
+    · dsimp [x]
+      linarith
+  have hx_interval := hbaseline hx_base
+  rw [C.interval_eq] at hx_interval
+  have hx_ge_right : C.right ≤ x := by
+    dsimp [x]
+    linarith
+  exact not_lt_of_ge hx_ge_right hx_interval.2
+
+/--
+Strict right-endpoint positivity from an actual positive point in the selected
+component.  This is the exact extra witness needed beyond baseline placement.
+-/
+theorem PositiveComponent.right_pos_of_pos_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {x : ℝ} (hxpos : 0 < x) (hx : x ∈ C.interval) :
+    0 < C.right := by
+  rw [C.interval_eq] at hx
+  exact lt_trans hxpos hx.2
+
+/--
+Maximal-open-interval formulation for the selected positive component.
+
+This is the topological interface needed by the Tao reduction: any open
+interval contained in the positive set and intersecting the selected component
+is already part of the selected component.  It is deliberately a predicate,
+not a new component structure.
+-/
+def PositiveComponent.IntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Prop :=
+  ∀ l r : ℝ, l < r →
+    Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ) →
+    (Ioo l r ∩ C.interval).Nonempty →
+      Ioo l r ⊆ C.interval
+
+/--
+The local component-selection bridge for the endpoint `-1`.
+
+If the selected positive component contains the right baseline `(-1,0)`, the
+endpoint `-1` is positive, and a left neighbourhood of `-1` is positive, then
+maximality of the selected component forces the whole left neighbourhood
+`(-1-ε,-1)` into the same component.  This is the formal open-left-cover step
+needed before feeding the component into the atomized right-region package.
+
+The theorem does not prove endpoint positivity or component maximality; it
+isolates the exact topological step once those analytic inputs are available.
+-/
+theorem PositiveComponent.left_open_cover_of_intervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.IntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_pos : (-1 : ℝ) ∈ PositiveSet (unitIntervalLogPotential μ)) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  intro y hy
+  have hleft_endpoint_lt : -(1 : ℝ) - ε < -1 := by
+    linarith
+  let l : ℝ := ((-(1 : ℝ) - ε) + y) / 2
+  have hl_lower : -(1 : ℝ) - ε < l := by
+    dsimp [l]
+    linarith [hy.1]
+  have hl_y : l < y := by
+    dsimp [l]
+    linarith [hy.1]
+  have hy_mhalf : y < (-(1 : ℝ) / 2) := by
+    linarith [hy.2]
+  have hl_mthreequarter : l < (-(3 : ℝ) / 4) := by
+    have hl_lt_neg_one : l < -1 := by
+      dsimp [l]
+      linarith [hy.2, hleft_endpoint_lt]
+    linarith
+  have hJ_pos :
+      Ioo l (-(1 : ℝ) / 2) ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_pos ⟨lt_trans hl_lower hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_pos
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact C.interval_subset_positiveSet
+          (hbaseline ⟨hq_base_left, hq_base_right⟩)
+  have hJ_inter : (Ioo l (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · exact ⟨hl_mthreequarter, by norm_num⟩
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo l (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax l (-(1 : ℝ) / 2) (by linarith [hl_y, hy_mhalf]) hJ_pos hJ_inter
+  exact hJ_subset ⟨hl_y, hy_mhalf⟩
+
+/--
+Augmented maximal-open-interval formulation for the selected component.
+
+This is the version that matches the real-valued logarithmic potential used in
+this file.  Diagonal atoms are carried by `unitIntervalAugmentedPositiveSet`,
+because `Real.log` does not model the endpoint singularity as `+∞`.
+-/
+def PositiveComponent.AugmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Prop :=
+  ∀ l r : ℝ, l < r →
+    Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+    (Ioo l r ∩ C.interval).Nonempty →
+      Ioo l r ⊆ C.interval
+
+/--
+An augmented-maximal selected component is maximal for ordinary positive
+intervals.  This is the bridge from the pole-as-win component selection used in
+the real-valued formalization back to the ordinary positive-component API.
+-/
+theorem PositiveComponent.intervalMaximal_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.AugmentedIntervalMaximal) :
+    C.IntervalMaximal := by
+  intro l r hlr hpos hinter
+  exact hmax l r hlr
+    (fun x hx => unitInterval_positiveSet_subset_augmented μ (hpos hx))
+    hinter
+
+/--
+Augmented open-left-cover bridge.
+
+This is the usable component-selection bridge when the endpoint `-1` is carried
+as a diagonal atom rather than as a real-valued positive-potential point.  If a
+maximal augmented interval containing the right baseline also has an augmented
+left neighbourhood of `-1`, then that left neighbourhood belongs to the same
+selected component.
+-/
+theorem PositiveComponent.left_open_cover_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_aug : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  intro y hy
+  have hleft_endpoint_lt : -(1 : ℝ) - ε < -1 := by
+    linarith
+  let l : ℝ := ((-(1 : ℝ) - ε) + y) / 2
+  have hl_lower : -(1 : ℝ) - ε < l := by
+    dsimp [l]
+    linarith [hy.1]
+  have hl_y : l < y := by
+    dsimp [l]
+    linarith [hy.1]
+  have hy_mhalf : y < (-(1 : ℝ) / 2) := by
+    linarith [hy.2]
+  have hl_mthreequarter : l < (-(3 : ℝ) / 4) := by
+    have hl_lt_neg_one : l < -1 := by
+      dsimp [l]
+      linarith [hy.2, hleft_endpoint_lt]
+    linarith
+  have hJ_aug :
+      Ioo l (-(1 : ℝ) / 2) ⊆ unitIntervalAugmentedPositiveSet μ := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_aug ⟨lt_trans hl_lower hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_aug
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet
+            (hbaseline ⟨hq_base_left, hq_base_right⟩))
+  have hJ_inter : (Ioo l (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · exact ⟨hl_mthreequarter, by norm_num⟩
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo l (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax l (-(1 : ℝ) / 2) (by linarith [hl_y, hy_mhalf]) hJ_aug hJ_inter
+  exact hJ_subset ⟨hl_y, hy_mhalf⟩
+
+/--
+Endpoint-atom version of the augmented open-left-cover bridge.
+
+This is the form closest to the normalized endpoint reduction: if `-1` has
+positive mass, then it is in `diagonalAtomSet μ`, hence in the augmented
+positive set.  A real-valued positive left neighbourhood is also an augmented
+left neighbourhood, so augmented maximality selects the same component.
+-/
+theorem PositiveComponent.left_open_cover_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) (-1) ⊆ C.interval := by
+  refine C.left_open_cover_of_augmentedIntervalMaximal hε hmax hbaseline ?_ ?_
+  · intro x hx
+    exact unitInterval_positiveSet_subset_augmented μ (hleft_pos hx)
+  · exact unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_atom)
+
+/--
+Endpoint membership from augmented maximality.
+
+The endpoint `-1` is not usually a point of the real-valued positive set, but if
+it is a diagonal atom and the selected component is maximal for the augmented
+positive set, then the same interval-gluing argument places `-1` inside the
+selected component.
+-/
+theorem PositiveComponent.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    (-1 : ℝ) ∈ C.interval := by
+  have hleft_aug : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    exact unitInterval_positiveSet_subset_augmented μ (hleft_pos hx)
+  have hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ :=
+    unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_atom)
+  have hJ_aug :
+      Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_aug ⟨hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_aug
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet
+            (hbaseline ⟨hq_base_left, hq_base_right⟩))
+  have hJ_inter :
+      (Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · constructor
+      · linarith [hε]
+      · norm_num
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax (-(1 : ℝ) - ε) (-(1 : ℝ) / 2)
+      (by linarith [hε]) hJ_aug hJ_inter
+  exact hJ_subset (by constructor <;> norm_num [hε])
+
+/--
+Combined component-selection conclusion around the endpoint.
+
+Under augmented maximality, endpoint atom mass, right-baseline membership, and a
+positive left neighbourhood, the whole open interval `(-1-ε,0)` lies in the
+selected component.  This is the most convenient local component-selection
+form for the later endpoint-normalization package.
+-/
+theorem PositiveComponent.endpoint_neighborhood_subset_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) 0 ⊆ C.interval := by
+  intro x hx
+  by_cases hx_left : x < -1
+  · exact C.left_open_cover_of_augmentedIntervalMaximal_endpointAtom
+      hε hmax hbaseline hleft_pos hendpoint_atom ⟨hx.1, hx_left⟩
+  · have hx_ge : -1 ≤ x := le_of_not_gt hx_left
+    by_cases hx_endpoint : x = -1
+    · simpa [hx_endpoint] using
+        C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom
+          hε hmax hbaseline hleft_pos hendpoint_atom
+    · have hx_base_left : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
+      exact hbaseline ⟨hx_base_left, hx.2⟩
+
+theorem PositiveComponent.endpoint_neighborhood_subset_component_of_augmentedIntervalMaximal_endpointAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {component : Set ℝ} {ε : ℝ}
+    (hcomponent : component = C.interval)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_pos : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) 0 ⊆ component := by
+  intro x hx
+  rw [hcomponent]
+  exact C.endpoint_neighborhood_subset_of_augmentedIntervalMaximal_endpointAtom
+    hε hmax hbaseline hleft_pos hendpoint_atom hx
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
@@ -2571,15 +3371,263 @@ def componentReplacementMeasure
   (realMeasure μ).restrict C.intervalᶜ +
     componentMass C • Measure.dirac (componentBarycenter C)
 
+theorem componentReplacementMeasure_univ
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    componentReplacementMeasure C Set.univ = 1 := by
+  have hsplit :
+      ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+          ((realMeasure μ).restrict C.interval) Set.univ =
+        (realMeasure μ) Set.univ := by
+    have h :=
+      congrArg (fun m : Measure ℝ => m Set.univ)
+        (Measure.restrict_compl_add_restrict
+          (μ := realMeasure μ) C.measurableSet_interval)
+    simpa using h
+  calc
+    componentReplacementMeasure C Set.univ
+        = ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+            componentMass C := by
+              simp [componentReplacementMeasure]
+    _ = ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+            ((realMeasure μ).restrict C.interval) Set.univ := by
+              simp [componentMass]
+    _ = (realMeasure μ) Set.univ := hsplit
+    _ = 1 := by
+      rw [realMeasure]
+      rw [Measure.map_apply continuous_subtype_val.measurable MeasurableSet.univ]
+      simp
+
+theorem componentReplacementMeasure_ae_mem_Icc_of_mass_unit
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hcompl :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) +
+          componentReplacementMeasure C (Icc (-1 : ℝ) 1) =
+        componentReplacementMeasure C Set.univ := by
+    rw [← measure_union_add_inter
+      (μ := componentReplacementMeasure C)
+      (s := (Icc (-1 : ℝ) 1)ᶜ) (t := Icc (-1 : ℝ) 1)]
+    · simp
+    · exact (measurableSet_Icc : MeasurableSet (Icc (-1 : ℝ) 1))
+  have hsum :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) + 1 = 1 := by
+    simpa [hmass_unit, componentReplacementMeasure_univ C] using hcompl
+  have hle :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) + 1 ≤
+        (0 : ℝ≥0∞) + 1 := by
+    simpa [hsum]
+  exact bot_unique ((ENNReal.add_le_add_iff_right
+    (by simp : (1 : ℝ≥0∞) ≠ ∞)).mp hle)
+
+theorem componentReplacementMeasure_mass_unit_of_ae_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 := by
+  have hzero :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) = 0 := by
+    simpa [Set.compl_def] using (ae_iff.mp hsupport)
+  have hcompl :=
+    measure_add_measure_compl₀
+      (μ := componentReplacementMeasure C)
+      ((measurableSet_Icc : MeasurableSet (Icc (-1 : ℝ) 1)).nullMeasurableSet)
+  have hsum :
+      0 + componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 := by
+    simpa [hzero, componentReplacementMeasure_univ C, add_comm] using hcompl
+  simpa using hsum
+
+theorem componentReplacementMeasure_ae_mem_Icc_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hreal_zero :
+      realMeasure μ {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 :=
+    ae_iff.mp (realMeasure_ae_mem_unitInterval μ)
+  have houtside_zero :
+      ((realMeasure μ).restrict C.intervalᶜ)
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 := by
+    exact bot_unique
+      ((Measure.restrict_apply_le C.intervalᶜ
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1}).trans
+        (le_of_eq hreal_zero))
+  have hatom_zero :
+      (componentMass C • Measure.dirac (componentBarycenter C))
+          {x : ℝ | x ∉ Icc (-1 : ℝ) 1} = 0 := by
+    simp [hbary.1, hbary.2]
+  rw [componentReplacementMeasure]
+  rw [Measure.add_apply]
+  rw [houtside_zero, hatom_zero, zero_add]
+
+theorem componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 :=
+  componentReplacementMeasure_mass_unit_of_ae_mem_Icc
+    (componentReplacementMeasure_ae_mem_Icc_of_barycenter_mem_Icc hbary)
+
+/--
+Subtype probability measure obtained from the real replacement measure once its
+mass on the normalized interval is known to be one.
+
+This is the measure-construction part of the barycenter replacement.  The
+remaining analytic obligations are exactly the hypotheses that the replacement
+measure stays on `[-1,1]` with total mass one.
+-/
+noncomputable def componentReplacementProbability
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    ProbabilityMeasure UnitInterval1038 :=
+  ⟨Measure.comap (fun t : UnitInterval1038 => (t : ℝ))
+      (componentReplacementMeasure C), by
+    refine ⟨?_⟩
+    rw [Measure.comap_apply (fun t : UnitInterval1038 => (t : ℝ))
+      Subtype.coe_injective
+      (fun s hs => MeasurableSet.subtype_image measurableSet_Icc hs)
+      (componentReplacementMeasure C) MeasurableSet.univ]
+    simpa [UnitInterval1038] using hmass_unit⟩
+
+/-- The underlying measure of `componentReplacementProbability` is the subtype
+comap of the real replacement measure. -/
+theorem componentReplacementProbability_toMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    (componentReplacementProbability C hmass_unit : Measure UnitInterval1038) =
+      Measure.comap (fun t : UnitInterval1038 => (t : ℝ))
+        (componentReplacementMeasure C) := rfl
+
+/--
+The replacement probability is admissible for the concrete compact admissible
+class used in this file, namely all probability measures on `[-1,1]`.
+-/
+theorem componentReplacementProbability_admissibleProbability
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    (componentReplacementProbability C hmass_unit : AdmissibleProbability1038) =
+      componentReplacementProbability C hmass_unit := rfl
+
+/--
+If the real replacement measure is supported on the normalized interval, then
+the real pushforward of its subtype probability representative is exactly the
+real replacement measure.
+-/
+theorem realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    realMeasure (componentReplacementProbability C hmass_unit) =
+      componentReplacementMeasure C := by
+  unfold realMeasure
+  rw [componentReplacementProbability_toMeasure]
+  rw [map_comap_subtype_coe measurableSet_Icc]
+  exact Measure.restrict_eq_self_of_ae_mem hsupport
+
 structure ComponentReplacement
     (μ : ProbabilityMeasure UnitInterval1038) (C : PositiveComponent μ) where
   mass_pos : 0 < componentMass C
   mass_ne_top : componentMass C ≠ ⊤
 
+/--
+The component block normalized to total mass one.
+
+This is the measure to which the existing measure-level Jensen theorem applies.
+The normalization is only useful under `ComponentReplacement.mass_pos` and
+`ComponentReplacement.mass_ne_top`.
+-/
+def normalizedComponentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
+  (componentMass C)⁻¹ • componentBlock C
+
 lemma componentBlock_univ
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentBlock C Set.univ = componentMass C := by
   simp [componentBlock, componentMass]
+
+lemma normalizedComponentBlock_univ
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    normalizedComponentBlock C Set.univ = 1 := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  simp [normalizedComponentBlock, componentBlock_univ,
+    ENNReal.inv_mul_cancel hmass_ne_zero R.mass_ne_top]
+
+theorem ComponentReplacement.normalizedComponentBlock_isProbabilityMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    IsProbabilityMeasure (normalizedComponentBlock C) :=
+  ⟨normalizedComponentBlock_univ R⟩
+
+theorem normalizedComponentBlock_ae_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    ∀ᵐ t ∂normalizedComponentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hreal_zero :
+      realMeasure μ {t : ℝ | -1 ≤ t → 1 < t} = 0 := by
+    simpa using (ae_iff.mp (realMeasure_ae_mem_unitInterval μ))
+  have hblock_zero :
+      componentBlock C {t : ℝ | -1 ≤ t → 1 < t} = 0 := by
+    unfold componentBlock
+    exact bot_unique
+      ((Measure.restrict_apply_le C.interval
+          {t : ℝ | -1 ≤ t → 1 < t}).trans
+        (le_of_eq hreal_zero))
+  rw [normalizedComponentBlock]
+  rw [Measure.smul_apply]
+  simpa [hblock_zero]
+
+theorem integral_mem_Icc_of_probability_ae_mem_Icc
+    (ν : Measure ℝ) [IsProbabilityMeasure ν]
+    (hsupport : ∀ᵐ t ∂ν, t ∈ Icc (-1 : ℝ) 1)
+    (hfirst : Integrable (fun t : ℝ => t) ν) :
+    (∫ t : ℝ, t ∂ν) ∈ Icc (-1 : ℝ) 1 := by
+  have hconst_neg : Integrable (fun _ : ℝ => (-1 : ℝ)) ν :=
+    integrable_const (-1 : ℝ)
+  have hconst_pos : Integrable (fun _ : ℝ => (1 : ℝ)) ν :=
+    integrable_const (1 : ℝ)
+  have hneg_ae :
+      (fun _ : ℝ => (-1 : ℝ)) ≤ᵐ[ν] fun t : ℝ => t := by
+    filter_upwards [hsupport] with t ht
+    exact ht.1
+  have hpos_ae :
+      (fun t : ℝ => t) ≤ᵐ[ν] fun _ : ℝ => (1 : ℝ) := by
+    filter_upwards [hsupport] with t ht
+    exact ht.2
+  constructor
+  · have hle :
+        (∫ _ : ℝ, (-1 : ℝ) ∂ν) ≤ ∫ t : ℝ, t ∂ν :=
+      integral_mono_ae hconst_neg hfirst hneg_ae
+    have hconst : (∫ _ : ℝ, (-1 : ℝ) ∂ν) = -1 := by
+      rw [integral_const]
+      simp
+    simpa [hconst] using hle
+  · have hle :
+        (∫ t : ℝ, t ∂ν) ≤ ∫ _ : ℝ, (1 : ℝ) ∂ν :=
+      integral_mono_ae hfirst hconst_pos hpos_ae
+    have hconst : (∫ _ : ℝ, (1 : ℝ) ∂ν) = 1 := by
+      rw [integral_const]
+      simp
+    simpa [hconst] using hle
+
+lemma normalizedComponentBlock_integral_eq_barycenter
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    (∫ t : ℝ, t ∂normalizedComponentBlock C) = componentBarycenter C := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  unfold normalizedComponentBlock componentBarycenter
+  rw [integral_smul_measure]
+  rw [ENNReal.toReal_inv]
+  rw [smul_eq_mul]
+  field_simp [hmass_toReal_pos.ne']
 
 lemma componentBlock_ae_mem_interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
@@ -2587,219 +3635,121 @@ lemma componentBlock_ae_mem_interval
   unfold componentBlock
   exact ae_restrict_mem₀ C.measurableSet_interval.nullMeasurableSet
 
+/--
+The component block has finite first moment automatically.  It is the
+restriction of the pushed-forward unit-interval probability measure, whose
+support is a.e. contained in `[-1,1]`, so the identity is bounded by `1` on the
+block.
+-/
+theorem componentBlock_firstMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t) (componentBlock C) := by
+  have hsupp : ∀ᵐ t : ℝ ∂componentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+    unfold componentBlock
+    refine (ae_restrict_iff' C.measurableSet_interval).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure (componentBlock C) := by
+    unfold componentBlock
+    infer_instance
+  have hconst : Integrable (fun _ : ℝ => (1 : ℝ)) (componentBlock C) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' measurable_id.aestronglyMeasurable ?_
+  filter_upwards [hsupp] with t ht
+  have ht_abs : |t| ≤ 1 := abs_le.mpr ht
+  simpa [Real.norm_eq_abs] using ht_abs
+
+theorem componentBarycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    componentBarycenter C ∈ Icc (-1 : ℝ) 1 := by
+  haveI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) := by
+    unfold normalizedComponentBlock
+    exact (componentBlock_firstMoment_integrable C).smul_measure
+      (ENNReal.inv_ne_top.mpr (ne_of_gt R.mass_pos))
+  have hmem :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) ∈ Icc (-1 : ℝ) 1 :=
+    integral_mem_Icc_of_probability_ae_mem_Icc
+      (normalizedComponentBlock C)
+      (normalizedComponentBlock_ae_mem_Icc C) hfirst
+  simpa [normalizedComponentBlock_integral_eq_barycenter R] using hmem
+
+/-- The component block has finite second moment, again by unit-interval
+support. -/
+theorem componentBlock_secondMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t ^ 2) (componentBlock C) := by
+  have hsupp : ∀ᵐ t : ℝ ∂componentBlock C, t ∈ Icc (-1 : ℝ) 1 := by
+    unfold componentBlock
+    refine (ae_restrict_iff' C.measurableSet_interval).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure (componentBlock C) := by
+    unfold componentBlock
+    infer_instance
+  have hconst : Integrable (fun _ : ℝ => (1 : ℝ)) (componentBlock C) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' (by fun_prop : AEStronglyMeasurable (fun t : ℝ => t ^ 2) (componentBlock C)) ?_
+  filter_upwards [hsupp] with t ht
+  have hsq_nonneg : 0 ≤ t ^ 2 := sq_nonneg t
+  have hsq_le : t ^ 2 ≤ 1 := by
+    nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1), ht.1, ht.2]
+  have hsq : |t ^ 2| ≤ 1 := by
+    simpa [abs_of_nonneg hsq_nonneg] using hsq_le
+  simpa [Real.norm_eq_abs] using hsq
+
+/-- The outside part also has finite second moment by unit-interval support. -/
+theorem outsideComponent_secondMoment_integrable
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    Integrable (fun t : ℝ => t ^ 2)
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  have hsupp :
+      ∀ᵐ t : ℝ ∂(realMeasure μ).restrict C.intervalᶜ,
+        t ∈ Icc (-1 : ℝ) 1 := by
+    refine (ae_restrict_iff' C.measurableSet_interval.compl).2 ?_
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htC
+    exact ht
+  haveI : IsFiniteMeasure ((realMeasure μ).restrict C.intervalᶜ) := by
+    infer_instance
+  have hconst :
+      Integrable (fun _ : ℝ => (1 : ℝ))
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    integrable_const (1 : ℝ)
+  refine hconst.mono' (by fun_prop : AEStronglyMeasurable (fun t : ℝ => t ^ 2)
+    ((realMeasure μ).restrict C.intervalᶜ)) ?_
+  filter_upwards [hsupp] with t ht
+  have hsq_nonneg : 0 ≤ t ^ 2 := sq_nonneg t
+  have hsq_le : t ^ 2 ≤ 1 := by
+    nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1), ht.1, ht.2]
+  have hsq : |t ^ 2| ≤ 1 := by
+    simpa [abs_of_nonneg hsq_nonneg] using hsq_le
+  simpa [Real.norm_eq_abs] using hsq
+
+lemma normalizedComponentBlock_ae_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (_R : ComponentReplacement μ C) :
+    ∀ᵐ t : ℝ ∂normalizedComponentBlock C, t ∈ C.interval := by
+  exact (componentBlock_ae_mem_interval C).filter_mono
+    (Measure.ae_mono' Measure.smul_absolutelyContinuous)
+
 lemma componentMass_ne_top
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentMass C ≠ ⊤ := by
   haveI : IsFiniteMeasure (realMeasure μ) := by infer_instance
   exact ne_of_lt (measure_lt_top (realMeasure μ) C.interval)
 
-/--
-Almost-everywhere facts pass from a nonzero finite measure to its normalized
-probability measure.
--/
-lemma finiteMeasure_normalize_ae_of_ae
-    {p : ℝ → Prop} (ν : FiniteMeasure ℝ) (hν : ν ≠ 0)
-    (hp : ∀ᵐ t : ℝ ∂(ν : Measure ℝ), p t) :
-    ∀ᵐ t : ℝ ∂(ν.normalize : Measure ℝ), p t := by
-  rw [ν.toMeasure_normalize_eq_of_nonzero hν]
-  have hmass_ne : ((ν.mass)⁻¹ : NNReal) ≠ 0 := by
-    exact inv_ne_zero (ν.mass_nonzero_iff.mpr hν)
-  exact (Measure.ae_smul_measure_iff hmass_ne).2 hp
-
-/--
-Integral scaling for a nonzero finite measure and its normalized probability
-measure.
--/
-lemma integral_finiteMeasure_eq_mass_mul_normalize
-    (ν : FiniteMeasure ℝ) (f : ℝ → ℝ) :
-    (∫ t : ℝ, f t ∂(ν : Measure ℝ)) =
-      (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ) := by
-  calc
-    (∫ t : ℝ, f t ∂(ν : Measure ℝ))
-        = ∫ t : ℝ, f t ∂((ν.mass : ℝ≥0∞) •
-            (ν.normalize : Measure ℝ)) := by
-            conv_lhs => rw [ν.self_eq_mass_smul_normalize]
-            rfl
-    _ = (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ) := by
-          rw [integral_smul_measure]
-          change ((ν.mass : ℝ≥0∞).toReal *
-              ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ)) =
-            (ν.mass : ℝ) * ∫ t : ℝ, f t ∂(ν.normalize : Measure ℝ)
-          rw [ENNReal.coe_toReal]
-
-/-- The component block as a finite measure. -/
-def componentBlockFiniteMeasure
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
-    FiniteMeasure ℝ :=
-  ⟨componentBlock C, ⟨by
-    rw [componentBlock_univ C]
-    exact lt_top_iff_ne_top.mpr (componentMass_ne_top C)⟩⟩
-
-lemma componentBlockFiniteMeasure_mass
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
-    (componentBlockFiniteMeasure C).mass = (componentMass C).toNNReal := by
-  apply ENNReal.coe_injective
-  calc
-    ((componentBlockFiniteMeasure C).mass : ℝ≥0∞)
-        = componentBlock C Set.univ := by
-          rw [FiniteMeasure.ennreal_mass]
-          rfl
-    _ = componentMass C := componentBlock_univ C
-    _ = ((componentMass C).toNNReal : ℝ≥0∞) := by
-          exact (ENNReal.coe_toNNReal (componentMass_ne_top C)).symm
-
-lemma componentBlockFiniteMeasure_ne_zero_of_mass_pos
+/-- Construct component-replacement data from the only nontrivial mass input:
+the selected component has positive `realMeasure` mass.  Finiteness is automatic
+because `realMeasure μ` is a finite probability measure. -/
+def ComponentReplacement.of_mass_pos
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (hmass_pos : 0 < componentMass C) :
-    componentBlockFiniteMeasure C ≠ 0 := by
-  intro hzero
-  have hmass_zero : componentMass C = 0 := by
-    have h :
-        componentBlock C Set.univ = 0 := by
-      simpa [componentBlockFiniteMeasure] using
-        congrArg (fun ν : FiniteMeasure ℝ => (ν : Measure ℝ) Set.univ) hzero
-    simpa [componentBlock_univ C] using h
-  exact (ne_of_gt hmass_pos) hmass_zero
-
-lemma normalized_componentBlock_ae_mem_interval
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C) :
-    ∀ᵐ t : ℝ ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ),
-      t ∈ C.interval := by
-  exact finiteMeasure_normalize_ae_of_ae
-    (componentBlockFiniteMeasure C)
-    (componentBlockFiniteMeasure_ne_zero_of_mass_pos C hmass_pos)
-    (componentBlock_ae_mem_interval C)
-
-lemma normalized_componentBlock_first_moment_integrable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C) :
-    Integrable (fun t : ℝ => t)
-      ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-  refine ⟨aestronglyMeasurable_id, ?_⟩
-  refine HasFiniteIntegral.of_bounded
-    (C := max |C.left| |C.right|) ?_
-  filter_upwards [normalized_componentBlock_ae_mem_interval C hmass_pos] with t ht
-  rw [PositiveComponent.interval_eq, Set.mem_Ioo] at ht
-  have hleft_abs : |C.left| ≤ max |C.left| |C.right| := le_max_left _ _
-  have hright_abs : |C.right| ≤ max |C.left| |C.right| := le_max_right _ _
-  have ht_abs_left : |t| ≤ max |C.left| |C.right| := by
-    by_cases ht_nonneg : 0 ≤ t
-    · rw [abs_of_nonneg ht_nonneg]
-      have ht_le_right : t ≤ C.right := le_of_lt ht.2
-      have hright_le_abs : C.right ≤ |C.right| := le_abs_self C.right
-      exact le_trans ht_le_right (le_trans hright_le_abs hright_abs)
-    · have ht_nonpos : t ≤ 0 := le_of_not_ge ht_nonneg
-      rw [abs_of_nonpos ht_nonpos]
-      have hleft_le_t : C.left ≤ t := le_of_lt ht.1
-      have hneg_t_le : -t ≤ -C.left := neg_le_neg hleft_le_t
-      have hneg_left_le_abs : -C.left ≤ |C.left| := neg_le_abs C.left
-      exact le_trans hneg_t_le (le_trans hneg_left_le_abs hleft_abs)
-  simpa using ht_abs_left
-
-lemma componentBlock_integral_eq_mass_mul_normalized
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (f : ℝ → ℝ) :
-    (∫ t : ℝ, f t ∂componentBlock C) =
-      ((componentBlockFiniteMeasure C).mass : ℝ) *
-        ∫ t : ℝ, f t ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-  exact integral_finiteMeasure_eq_mass_mul_normalize
-    (componentBlockFiniteMeasure C) f
-
-lemma componentBlock_integrable_of_normalized_integrable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (f : ℝ → ℝ)
-    (hf :
-      Integrable f
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
-    Integrable f (componentBlock C) := by
-  have hmeasure :
-      componentBlock C =
-        ((componentBlockFiniteMeasure C).mass : ℝ≥0∞) •
-          ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-    calc
-      componentBlock C = (componentBlockFiniteMeasure C : Measure ℝ) := rfl
-      _ = ((componentBlockFiniteMeasure C).mass : ℝ≥0∞) •
-            ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-            conv_lhs =>
-              rw [(componentBlockFiniteMeasure C).self_eq_mass_smul_normalize]
-            rfl
-  rw [hmeasure]
-  exact hf.smul_measure (by simp)
-
-/--
-A finite-measure integrability bridge used repeatedly in the replacement
-argument: if a finite measure is supported a.e. on a compact set and the
-function is continuous on that compact set, then the function is integrable
-against the full measure.
--/
-lemma integrable_of_ae_mem_compact_of_continuousOn
-    (ν : Measure ℝ) [IsFiniteMeasure ν] (K : Set ℝ) (f : ℝ → ℝ)
-    (hmemK : ∀ᵐ t : ℝ ∂ν, t ∈ K)
-    (hcompact : IsCompact K)
-    (hcont : ContinuousOn f K) :
-    Integrable f ν := by
-  have hintOn : IntegrableOn f K ν :=
-    hcont.integrableOn_compact hcompact
-  rw [IntegrableOn, Measure.restrict_eq_self_of_ae_mem hmemK] at hintOn
-  exact hintOn
-
-/-- The outside restriction of a unit-interval probability is still supported
-a.e. in `[-1,1]`. -/
-lemma outsideRestriction_ae_mem_unitInterval
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
-    ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
-      t ∈ Icc (-1 : ℝ) 1 := by
-  rw [ae_restrict_iff' C.measurableSet_interval.compl]
-  filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht _htoutside
-  exact ht
-
-/-- The real logarithmic kernel is continuous on any set separated from its
-singularity by a positive distance. -/
-lemma logKernel_continuousOn_of_dist_ge
-    {x ε : ℝ} {K : Set ℝ} (hε : 0 < ε)
-    (hK : K ⊆ {t : ℝ | ε ≤ |x - t|}) :
-    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
-  apply ContinuousOn.log
-  · exact (continuousOn_const.div₀
-      ((continuousOn_const.sub continuousOn_id).abs)
-      (fun t ht hzero => by
-        have hdist : ε ≤ |x - t| := hK ht
-        have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
-        exact (ne_of_gt hpos) hzero))
-  · intro t ht hzero
-    have hdist : ε ≤ |x - t| := hK ht
-    have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
-    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
-
-lemma componentBarycenter_eq_normalized_componentBlock_integral
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C) :
-    componentBarycenter C =
-      ∫ t : ℝ, t ∂((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-  unfold componentBarycenter
-  have hscale := componentBlock_integral_eq_mass_mul_normalized C
-    (fun t : ℝ => t)
-  have hmass_eq :
-      ((componentBlockFiniteMeasure C).mass : ℝ) =
-        (componentMass C).toReal := by
-    rw [componentBlockFiniteMeasure_mass C]
-    rfl
-  have hmass_ne : (componentMass C).toReal ≠ 0 := by
-    exact ENNReal.toReal_ne_zero.mpr
-      ⟨ne_of_gt hmass_pos, componentMass_ne_top C⟩
-  rw [hscale, hmass_eq]
-  field_simp [hmass_ne]
-
-lemma componentBarycenterAtom_logKernel_integrable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (x : ℝ) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      (componentMass C • Measure.dirac (componentBarycenter C)) := by
-  exact (integrable_dirac
-    (a := componentBarycenter C)
-    (f := fun t : ℝ => Real.log (1 / |x - t|))
-    (by simp)).smul_measure (componentMass_ne_top C)
+    ComponentReplacement μ C where
+  mass_pos := hmass_pos
+  mass_ne_top := componentMass_ne_top C
 
 lemma componentReplacementMeasure_def
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
@@ -2807,111 +3757,83 @@ lemma componentReplacementMeasure_def
       (realMeasure μ).restrict C.intervalᶜ +
         componentMass C • Measure.dirac (componentBarycenter C) := rfl
 
-/--
-Integral decomposition of the original measure into the outside restriction and
-the component block.
-
-This is the companion identity to `integral_componentReplacementMeasure_eq`.
-It is the formal partition-of-measure step used before comparing the component
-block with the barycenter atom.
--/
-lemma integral_realMeasure_eq_outside_add_componentBlock
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (f : ℝ → ℝ)
-    (houtside :
-      Integrable f ((realMeasure μ).restrict C.intervalᶜ))
-    (hblock : Integrable f (componentBlock C)) :
-    (∫ t : ℝ, f t ∂realMeasure μ) =
-      (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
-        (∫ t : ℝ, f t ∂componentBlock C) := by
-  have hsum :
-      (realMeasure μ).restrict C.intervalᶜ +
-          (realMeasure μ).restrict C.interval =
-        realMeasure μ :=
-    Measure.restrict_compl_add_restrict (μ := realMeasure μ)
-      C.measurableSet_interval
-  calc
-    (∫ t : ℝ, f t ∂realMeasure μ)
-        = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
-            (realMeasure μ).restrict C.interval) := by rw [hsum]
-    _ = (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
-          (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.interval)) := by
-          exact integral_add_measure houtside (by
-            simpa [componentBlock] using hblock)
-    _ = (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
-          (∫ t : ℝ, f t ∂componentBlock C) := by
-          simp [componentBlock]
-
-/--
-Integral decomposition for the component-replacement measure.
-
-This is the measure-level identity behind the replacement potential
-decomposition: integration against the replacement measure is integration over
-the outside restriction plus the component mass times evaluation at the
-barycenter.
--/
-lemma integral_componentReplacementMeasure_eq
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (f : ℝ → ℝ)
-    (houtside :
-      Integrable f ((realMeasure μ).restrict C.intervalᶜ))
-    (hatom :
-      Integrable f (componentMass C • Measure.dirac (componentBarycenter C))) :
-    (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
-      (∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ)) +
-        (componentMass C).toReal * f (componentBarycenter C) := by
-  rw [componentReplacementMeasure_def C]
-  rw [integral_add_measure houtside hatom]
-  rw [integral_smul_measure]
-  simp [smul_eq_mul, mul_comm]
-
 def componentReplacementPotential
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : ℝ → ℝ :=
   measureLogPotential (componentReplacementMeasure C)
 
 /--
-Log-kernel decomposition of the original potential into outside and component
-pieces.
-
-This specializes `integral_realMeasure_eq_outside_add_componentBlock` to the
-actual logarithmic kernel at the external point `x`.
+Potential equality for the subtype replacement probability.  The only remaining
+side condition is the natural support statement that the real replacement
+measure stays inside `[-1,1]`.
 -/
-lemma unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ)
-    (houtside :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((realMeasure μ).restrict C.intervalᶜ))
-    (hblock :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentBlock C)) :
-    unitIntervalLogPotential μ x =
-      (∫ t : ℝ, Real.log (1 / |x - t|)
-          ∂((realMeasure μ).restrict C.intervalᶜ)) +
-        (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) := by
+theorem unitIntervalLogPotential_componentReplacementProbability_eq
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    unitIntervalLogPotential (componentReplacementProbability C hmass_unit) =
+      componentReplacementPotential C := by
+  funext x
   rw [unitIntervalLogPotential_eq_realMeasure]
-  exact integral_realMeasure_eq_outside_add_componentBlock C
-    (fun t : ℝ => Real.log (1 / |x - t|)) houtside hblock
+  rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    C hmass_unit hsupport]
+  rfl
 
-/--
-Log-kernel decomposition of the component-replacement potential into the same
-outside piece plus the barycenter atom contribution.
--/
-lemma componentReplacementPotential_eq_outside_add_barycenter_logKernel
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ)
-    (houtside :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((realMeasure μ).restrict C.intervalᶜ))
-    (hatom :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentMass C • Measure.dirac (componentBarycenter C))) :
+theorem componentReplacement_potential_eq_outside_add_replacementAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (x : ℝ)
+    (houtside_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ)) :
     componentReplacementPotential C x =
-      (∫ t : ℝ, Real.log (1 / |x - t|)
-          ∂((realMeasure μ).restrict C.intervalᶜ)) +
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
         (componentMass C).toReal *
           Real.log (1 / |x - componentBarycenter C|) := by
+  have hdirac_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp)).smul_measure (componentMass_ne_top C)
   unfold componentReplacementPotential measureLogPotential
-  exact integral_componentReplacementMeasure_eq C
-    (fun t : ℝ => Real.log (1 / |x - t|)) houtside hatom
+  rw [componentReplacementMeasure_def]
+  rw [integral_add_measure houtside_integrable hdirac_integrable]
+  · rw [integral_smul_measure]
+    simp [smul_eq_mul]
+
+/--
+Original-potential decomposition into the unchanged outside contribution and
+the selected component block.
+
+This is the original-side analogue of
+`componentReplacement_potential_eq_outside_add_replacementAtom`: the real
+measure splits as its restriction to `C.intervalᶜ` plus its restriction to
+`C.interval`, namely `componentBlock C`.
+-/
+theorem unitIntervalLogPotential_eq_outside_add_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (x : ℝ)
+    (houtside_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock_integrable : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    unitIntervalLogPotential μ x =
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C = realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  calc
+    unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
+      exact unitIntervalLogPotential_eq_realMeasure μ x
+    _ = measureLogPotential
+        ((realMeasure μ).restrict C.intervalᶜ + componentBlock C) x := by
+      rw [hsplit]
+    _ = measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x +
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+      unfold measureLogPotential
+      rw [integral_add_measure houtside_integrable hblock_integrable]
 
 lemma replacement_positiveSet_subset_original_of_outside_le
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
@@ -2927,6 +3849,106 @@ lemma replacement_positiveSet_subset_original_of_outside_le
 def StrictOutsideComponent
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) (x : ℝ) : Prop :=
   x < C.left ∨ C.right < x
+
+/--
+Function-level original-side decomposition lower bound for the
+decomposition-plus-Jensen objective bridge.
+
+If `outsidePart` is bounded by the concrete outside restricted potential and
+`originalBlock` is bounded by the concrete component-block integral, then their
+sum is bounded by the actual original potential.  This packages the
+`hdecomp_original` input expected by
+`componentReplacement_objective_le_of_decomposition_jensen`.
+-/
+theorem unitIntervalLogPotential_original_potential_decomposition_lower
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart originalBlock : ℝ → ℝ)
+    (houtside_le : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x ≤
+        measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    (hblock_le : ∀ x : ℝ, StrictOutsideComponent C x →
+      originalBlock x ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hblock_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x := by
+  intro x hx
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    (houtside_integrable x hx) (hblock_integrable x hx)]
+  exact add_le_add (houtside_le x hx) (hblock_le x hx)
+
+theorem unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p)
+    (hp_nonneg : 0 ≤ p)
+    (hrem_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      p * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|)
+          ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) ≤
+        unitIntervalLogPotential μ x := by
+  intro x hx
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  have hsplit :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ +
+          (realMeasure μ).restrict ({-1} : Set ℝ) =
+        realMeasure μ := by
+    exact Measure.restrict_compl_add_restrict (measurableSet_singleton (-1 : ℝ))
+  have hendpoint_integrable :
+      Integrable f ((realMeasure μ).restrict ({-1} : Set ℝ)) := by
+    rw [Measure.restrict_singleton]
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hendpoint_eq :
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)) =
+        p * Real.log (1 / |x + 1|) := by
+    rw [Measure.restrict_singleton]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    rw [hp]
+    simp [f, smul_eq_mul, ENNReal.toReal_ofReal hp_nonneg]
+  have hEq :
+      unitIntervalLogPotential μ x =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+          p * Real.log (1 / |x + 1|) := by
+    calc
+      unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
+        exact unitIntervalLogPotential_eq_realMeasure μ x
+      _ = measureLogPotential
+          ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ +
+            (realMeasure μ).restrict ({-1} : Set ℝ)) x := by
+        rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+            (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)) := by
+        unfold measureLogPotential
+        exact integral_add_measure (hrem_integrable x hx) hendpoint_integrable
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+            p * Real.log (1 / |x + 1|) := by
+        rw [hendpoint_eq]
+  rw [hEq]
+  linarith
+
+theorem componentReplacement_potential_le_outside_add_replacementAtom
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart : ℝ → ℝ)
+    (houtside_decomp : ∀ x : ℝ, StrictOutsideComponent C x →
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x ≤ outsidePart x)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤
+        outsidePart x + (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) := by
+  intro x hx
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    (houtside_integrable x hx)]
+  exact add_le_add (houtside_decomp x hx) le_rfl
 
 lemma PositiveComponent.not_interval_imp_strictOutside_or_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
@@ -3007,6 +4029,175 @@ theorem replacement_objective_le_of_strictOutside_potential_le
     _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
           simp [hfinite]
 
+lemma replacement_positiveSet_subset_original_union_endpoints_diagonal_of_strictOutside_le_offdiag
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ}
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → U' x ≤ unitIntervalLogPotential μ x) :
+    PositiveSet U' ⊆
+      PositiveSet (unitIntervalLogPotential μ) ∪
+        (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ) := by
+  intro x hx
+  by_cases hxC : x ∈ C.interval
+  · exact Or.inl (C.interval_subset_positiveSet hxC)
+  · rcases C.not_interval_imp_strictOutside_or_endpoint hxC with hstrict | hendpoint
+    · by_cases hxdiag : x ∈ diagonalAtomSet μ
+      · exact Or.inr (Or.inr hxdiag)
+      · exact Or.inl (lt_of_lt_of_le hx (houtside x hstrict hxdiag))
+    · exact Or.inr (Or.inl (by simpa [Set.mem_insert_iff] using hendpoint))
+
+lemma replacement_positiveSet_subset_original_union_endpoints_diagonal_null_of_strictOutside_le_offdiag
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ} {N : Set ℝ}
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → U' x ≤ unitIntervalLogPotential μ x) :
+    PositiveSet U' ⊆
+      PositiveSet (unitIntervalLogPotential μ) ∪
+        (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) := by
+  intro x hx
+  by_cases hxC : x ∈ C.interval
+  · exact Or.inl (C.interval_subset_positiveSet hxC)
+  · rcases C.not_interval_imp_strictOutside_or_endpoint hxC with hstrict | hendpoint
+    · by_cases hxdiag : x ∈ diagonalAtomSet μ
+      · exact Or.inr (Or.inr (Or.inl hxdiag))
+      · by_cases hxN : x ∈ N
+        · exact Or.inr (Or.inr (Or.inr hxN))
+        · exact Or.inl (lt_of_lt_of_le hx (houtside x hstrict hxdiag hxN))
+    · exact Or.inr (Or.inl (by simpa [Set.mem_insert_iff] using hendpoint))
+
+theorem replacement_objective_le_of_strictOutside_potential_le_offdiag_null
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ} {N : Set ℝ}
+    (hN : volume N = 0)
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → U' x ≤ unitIntervalLogPotential μ x) :
+    volume (PositiveSet U') ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hsub :=
+    replacement_positiveSet_subset_original_union_endpoints_diagonal_null_of_strictOutside_le_offdiag
+      C houtside
+  have hmono :
+      volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) :=
+    measure_mono (μ := volume) hsub
+  have hendpoint_zero : volume ({C.left, C.right} : Set ℝ) = 0 := by
+    exact Set.Countable.measure_zero (by simp : ({C.left, C.right} : Set ℝ).Countable) volume
+  have hexception_zero :
+      volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) = 0 := by
+    apply le_antisymm
+    · calc
+        volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) ≤
+            volume ({C.left, C.right} : Set ℝ) +
+              volume (diagonalAtomSet μ ∪ N) := measure_union_le (μ := volume) _ _
+        _ ≤ volume ({C.left, C.right} : Set ℝ) +
+              (volume (diagonalAtomSet μ) + volume N) := by
+                exact add_le_add_right
+                  (measure_union_le (μ := volume) (diagonalAtomSet μ) N) _
+        _ = 0 := by simp [hendpoint_zero, diagonalAtomSet_volume_zero μ, hN]
+    · exact bot_le
+  have hunion :
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) :=
+    measure_union_le (μ := volume) _ _
+  calc
+    volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) := hmono
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) := hunion
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
+          simp [hexception_zero]
+
+theorem replacement_objective_le_add_of_strictOutside_potential_le_offdiag_exception
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ} {N : Set ℝ} {η : ℝ≥0∞}
+    (hN : volume N ≤ η)
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → U' x ≤ unitIntervalLogPotential μ x) :
+    volume (PositiveSet U') ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+  have hsub :=
+    replacement_positiveSet_subset_original_union_endpoints_diagonal_null_of_strictOutside_le_offdiag
+      C houtside
+  have hmono :
+      volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) :=
+    measure_mono (μ := volume) hsub
+  have hendpoint_zero : volume ({C.left, C.right} : Set ℝ) = 0 := by
+    exact Set.Countable.measure_zero (by simp : ({C.left, C.right} : Set ℝ).Countable) volume
+  have hexception_le :
+      volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) ≤ η := by
+    calc
+      volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) ≤
+          volume ({C.left, C.right} : Set ℝ) +
+            volume (diagonalAtomSet μ ∪ N) := measure_union_le (μ := volume) _ _
+      _ ≤ volume ({C.left, C.right} : Set ℝ) +
+            (volume (diagonalAtomSet μ) + volume N) := by
+              exact add_le_add_right
+                (measure_union_le (μ := volume) (diagonalAtomSet μ) N) _
+      _ = volume N := by
+            simp [hendpoint_zero, diagonalAtomSet_volume_zero μ]
+      _ ≤ η := hN
+  have hunion :
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) :=
+    measure_union_le (μ := volume) _ _
+  calc
+    volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N))) := hmono
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ (diagonalAtomSet μ ∪ N)) := hunion
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+          exact add_le_add_right hexception_le _
+
+theorem replacement_objective_le_of_strictOutside_potential_le_offdiag
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {U' : ℝ → ℝ}
+    (houtside : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → U' x ≤ unitIntervalLogPotential μ x) :
+    volume (PositiveSet U') ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  have hsub :=
+    replacement_positiveSet_subset_original_union_endpoints_diagonal_of_strictOutside_le_offdiag
+      C houtside
+  have hmono :
+      volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ)) :=
+    measure_mono (μ := volume) hsub
+  have hendpoint_zero : volume ({C.left, C.right} : Set ℝ) = 0 := by
+    exact Set.Countable.measure_zero (by simp : ({C.left, C.right} : Set ℝ).Countable) volume
+  have hexception_zero :
+      volume (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ) = 0 := by
+    apply le_antisymm
+    · calc
+        volume (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ) ≤
+            volume ({C.left, C.right} : Set ℝ) +
+              volume (diagonalAtomSet μ) := measure_union_le _ _
+        _ = 0 := by simp [hendpoint_zero, diagonalAtomSet_volume_zero μ]
+    · exact bot_le
+  have hunion :
+      volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ)) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ) :=
+    measure_union_le _ _
+  calc
+    volume (PositiveSet U') ≤
+        volume (PositiveSet (unitIntervalLogPotential μ) ∪
+          (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ)) := hmono
+    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
+          volume (({C.left, C.right} : Set ℝ) ∪ diagonalAtomSet μ) := hunion
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
+          simp [hexception_zero]
+
 theorem replacement_objective_le_of_outside_potential_le
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {U' : ℝ → ℝ}
@@ -3034,87 +4225,57 @@ theorem componentReplacement_objective_le_of_strictOutside_potential_le
   exact replacement_objective_le_of_strictOutside_potential_le C houtside
 
 /--
-Scalar assembly step for the barycenter-replacement argument.
+Component-replacement objective bridge from local potential decompositions.
 
-At a point outside the component, the original potential and the replacement
-potential share the same outside contribution.  The only comparison needed is
-the Jensen comparison between the original component block and the barycenter
-atom.  This lemma turns those three scalar facts into the outside-potential
-inequality consumed by `componentReplacement_objective_le_of_*`.
+For a strict outside point `x`, the replacement proof naturally splits both
+potentials into the unchanged outside-component contribution and the component
+block contribution.  If the unchanged contributions are ordered and the
+barycenter block contribution is bounded by the original block contribution
+by Jensen, then the replacement potential is no larger at `x`.
+
+This theorem is deliberately stated at the decomposition level.  The analytic
+work left after this bridge is exactly to prove the two decomposition formulas
+for the concrete restricted measures and to discharge the block Jensen
+inequality by `measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo`.
 -/
-lemma componentReplacement_potential_le_of_decomposition_and_block_jensen
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    {outside block replacementAtom : ℝ}
-    (horiginal :
-      unitIntervalLogPotential μ x = outside + block)
-    (hreplacement :
-      componentReplacementPotential C x = outside + replacementAtom)
-    (hjensen : replacementAtom ≤ block) :
-    componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
-  linarith
+theorem componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (outsidePart replacementBlock originalBlock : ℝ → ℝ)
+    (hdecomp_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ outsidePart x + replacementBlock x)
+    (hdecomp_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x)
+    (hblock_jensen : ∀ x : ℝ, StrictOutsideComponent C x →
+      replacementBlock x ≤ originalBlock x) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  intro x hx
+  exact le_trans (hdecomp_replacement x hx)
+    (le_trans (add_le_add_right (hblock_jensen x hx) (outsidePart x))
+      (hdecomp_original x hx))
 
 /--
-Objective non-increase for component replacement, packaged from pointwise
-decomposition/Jensen data on the strict outside of the component.
+Objective consequence of the decomposition-plus-Jensen replacement bridge.
 
-This is the Lean interface matching the mathematical proof step: decompose both
-potentials into the common outside contribution plus the component contribution,
-use Jensen on the component contribution, and then use the zero-measure endpoint
-bridge to compare positive-set lengths.
+This is the route used in the Tao variation argument: once the strict-outside
+potential decomposition and the component-block Jensen estimate are proved,
+the barycenter replacement cannot increase the positive-set objective.
 -/
-theorem componentReplacement_objective_le_of_strictOutside_decomposition_jensen
+theorem componentReplacement_objective_le_of_decomposition_jensen
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
-      ∃ outside block replacementAtom : ℝ,
-        unitIntervalLogPotential μ x = outside + block ∧
-        componentReplacementPotential C x = outside + replacementAtom ∧
-        replacementAtom ≤ block) :
+    (outsidePart replacementBlock originalBlock : ℝ → ℝ)
+    (hdecomp_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ outsidePart x + replacementBlock x)
+    (hdecomp_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x + originalBlock x ≤ unitIntervalLogPotential μ x)
+    (hblock_jensen : ∀ x : ℝ, StrictOutsideComponent C x →
+      replacementBlock x ≤ originalBlock x) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_potential_le C ?_
-  intro x hx
-  rcases hdata x hx with
-    ⟨outside, block, replacementAtom, horiginal, hreplacement, hjensen⟩
-  exact componentReplacement_potential_le_of_decomposition_and_block_jensen
-    (C := C) (x := x) (outside := outside) (block := block)
-    (replacementAtom := replacementAtom) horiginal hreplacement hjensen
-
-/--
-Objective non-increase for component replacement from log-kernel integrability
-and the Jensen block comparison at every strict outside point.
-
-This is the log-kernel specialization of the decomposition/Jensen bridge.  It
-does not yet extract the hypotheses from an arbitrary minimizer component; it
-formalizes the exact analytic data that remain to be supplied.
--/
-theorem componentReplacement_objective_le_of_strictOutside_logKernel_jensen
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((realMeasure μ).restrict C.intervalᶜ) ∧
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentBlock C) ∧
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentMass C • Measure.dirac (componentBarycenter C)) ∧
-      (componentMass C).toReal *
-          Real.log (1 / |x - componentBarycenter C|) ≤
-        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_decomposition_jensen C ?_
-  intro x hx
-  rcases hdata x hx with ⟨houtside, hblock, hatom, hjensen⟩
-  refine ⟨
-    (∫ t : ℝ, Real.log (1 / |x - t|)
-      ∂((realMeasure μ).restrict C.intervalᶜ)),
-    (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C),
-    (componentMass C).toReal *
-      Real.log (1 / |x - componentBarycenter C|),
-    ?_, ?_, hjensen⟩
-  · exact unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
-      C x houtside hblock
-  · exact componentReplacementPotential_eq_outside_add_barycenter_logKernel
-      C x houtside hatom
+  exact componentReplacement_objective_le_of_strictOutside_potential_le C
+    (componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+      C outsidePart replacementBlock originalBlock hdecomp_replacement
+      hdecomp_original hblock_jensen)
 
 lemma eventual_pointwise_error_of_three_errors
     {ι : Type*} {L : Filter ι} (U : ℝ → ℝ) (Us : ι → ℝ → ℝ)
@@ -3674,6 +4835,13 @@ theorem unitInterval_tailCore_subset_threshold
   intro x hx
   exact hx.1
 
+theorem singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCore
+    (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
+    (truncε δ : ℝ) {x : ℝ}
+    (hx : x ∈ unitIntervalThresholdTailCore μ n truncε δ) :
+    singularTailMass truncε μ x < ∞ := by
+  exact lt_of_lt_of_le hx.2 le_top
+
 theorem unitInterval_threshold_diff_tailCore_subset_badSet
     (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
     (truncε δ : ℝ) :
@@ -3739,6 +4907,13 @@ theorem unitInterval_tailCoreOffDiagonal_subset_tailCore
       unitIntervalThresholdTailCore μ n truncε δ := by
   intro x hx
   exact hx.1
+
+theorem singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCoreOffDiagonal
+    (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
+    (truncε δ : ℝ) (N : Set ℝ) {x : ℝ}
+    (hx : x ∈ unitIntervalThresholdTailCoreOffDiagonal μ n truncε δ N) :
+    singularTailMass truncε μ x < ∞ := by
+  exact singularTailMass_lt_top_of_mem_unitIntervalThresholdTailCore μ n truncε δ hx.1
 
 theorem unitInterval_tailCoreOffDiagonal_subset_threshold
     (μ : ProbabilityMeasure UnitInterval1038) (n : ℕ)
@@ -4414,6 +5589,121 @@ lemma exists_tailScale_for_target {δ : ℝ} {η : NNReal}
     rw [ENNReal.ofReal_le_ofReal_iff]
     · nlinarith [η.2]
     · positivity
+
+lemma exists_tailThreshold_for_target (ε : ℝ) {η : NNReal}
+    (hη : 0 < η) :
+    ∃ δ : ℝ,
+      0 < δ ∧
+      ENNReal.ofReal (2 * ε) / (ENNReal.ofReal δ / 2) ≤
+        (η : ℝ≥0∞) := by
+  let A : ℝ := max (2 * ε) 0 + 1
+  have hApos : 0 < A := by
+    dsimp [A]
+    nlinarith [le_max_right (2 * ε) (0 : ℝ)]
+  refine ⟨4 * A / (η : ℝ), ?_, ?_⟩
+  · positivity
+  · have hδpos : 0 < 4 * A / (η : ℝ) := by positivity
+    have hden_eq :
+        ENNReal.ofReal (4 * A / (η : ℝ)) / 2 =
+          ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) := by
+      simpa using
+        (ENNReal.ofReal_div_of_pos (x := 4 * A / (η : ℝ)) (y := 2)
+          (by norm_num : (0 : ℝ) < 2)).symm
+    rw [hden_eq]
+    have hden0 : ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) ≠ 0 := by
+      exact ne_of_gt (ENNReal.ofReal_pos.mpr (by positivity))
+    have hdentop : ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) ≠ ∞ :=
+      ENNReal.ofReal_ne_top
+    rw [ENNReal.div_le_iff hden0 hdentop]
+    have hright :
+        (η : ℝ≥0∞) * ENNReal.ofReal ((4 * A / (η : ℝ)) / 2) =
+          ENNReal.ofReal ((η : ℝ) * ((4 * A / (η : ℝ)) / 2)) := by
+      rw [ENNReal.coe_nnreal_eq]
+      rw [← ENNReal.ofReal_mul (show 0 ≤ (η : ℝ) by exact η.2)]
+    rw [hright]
+    apply ENNReal.ofReal_le_ofReal
+    have hleA : 2 * ε ≤ A := by
+      dsimp [A]
+      nlinarith [le_max_left (2 * ε) (0 : ℝ)]
+    have heta_pos : 0 < (η : ℝ) := by exact_mod_cast hη
+    field_simp [ne_of_gt heta_pos]
+    nlinarith
+
+/--
+Arbitrarily small closed singular-tail exceptional set.  Outside this set, the
+fixed-scale singular tail mass is finite.
+-/
+theorem singularTail_exists_small_finite_exception
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      ∀ x : ℝ, x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases exists_tailThreshold_for_target ε hη with
+    ⟨δ, hδ, hscale⟩
+  refine ⟨{x : ℝ | ENNReal.ofReal δ ≤ singularTailMass ε μ x}, ?_, ?_⟩
+  · exact singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
+      ε μ hδ hscale
+  · intro x hxN
+    have hlt : singularTailMass ε μ x < ENNReal.ofReal δ := by
+      exact lt_of_not_ge hxN
+    exact lt_trans hlt ENNReal.ofReal_lt_top
+
+/--
+Strict-outside/off-diagonal version of the small singular-tail exceptional-set
+provider.  The exceptional set itself comes from the global tail estimate; the
+extra strict-outside and off-diagonal hypotheses are preserved for the
+replacement objective interface.
+-/
+theorem singularTail_exists_small_strictOutside_exception
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (ε : ℝ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      ∀ x : ℝ, StrictOutsideComponent C x →
+        x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases singularTail_exists_small_finite_exception ε μ η hη with
+    ⟨N, hN, hfinite⟩
+  refine ⟨N, hN, ?_⟩
+  intro x _hxstrict _hxdiag hxN
+  exact hfinite x hxN
+
+/--
+Adding diagonal atom locations to an arbitrary small exceptional set does not
+increase its Lebesgue-volume budget, because the diagonal atom set is countable.
+-/
+theorem diagonalAtomSet_union_exception_volume_le
+    (μ : ProbabilityMeasure UnitInterval1038) {N : Set ℝ} {η : ℝ≥0∞}
+    (hN : volume N ≤ η) :
+    volume (diagonalAtomSet μ ∪ N) ≤ η := by
+  calc
+    volume (diagonalAtomSet μ ∪ N)
+        ≤ volume (diagonalAtomSet μ) + volume N :=
+          measure_union_le (μ := volume) (diagonalAtomSet μ) N
+    _ = volume N := by simp [diagonalAtomSet_volume_zero μ]
+    _ ≤ η := hN
+
+/--
+Small exceptional set with the diagonal atom set already included.  Outside the
+union, the point is automatically off diagonal and has finite singular tail
+mass.
+-/
+theorem singularTail_exists_small_exception_with_diagonal
+    (ε : ℝ) (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ N : Set ℝ,
+      volume N ≤ (η : ℝ≥0∞) ∧
+      diagonalAtomSet μ ⊆ N ∧
+      ∀ x : ℝ, x ∉ N → singularTailMass ε μ x < ∞ := by
+  rcases singularTail_exists_small_finite_exception ε μ η hη with
+    ⟨N0, hN0, hfinite⟩
+  refine ⟨diagonalAtomSet μ ∪ N0, ?_, ?_, ?_⟩
+  · exact diagonalAtomSet_union_exception_volume_le μ hN0
+  · intro x hx
+    exact Or.inl hx
+  · intro x hx
+    exact hfinite x (fun hxN0 => hx (Or.inr hxN0))
 
 theorem unitIntervalLogPotential_objective_lsc_from_tail_control
     {ι : Type*} {L : Filter ι}
@@ -5102,6 +6392,29 @@ theorem unitIntervalTruncatedPotential_local_eventually_close
   exact unitIntervalTruncatedPotential_oscillation_le ν hε
     (fun t => le_of_lt (hkernel y hyU t))
 
+theorem unitIntervalTruncatedPotential_continuous
+    (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} (hε : 0 < ε) :
+    Continuous (fun x : ℝ => unitIntervalTruncatedPotential ε μ x) := by
+  rw [Metric.continuous_iff]
+  intro x δ hδ
+  have hδhalf : 0 < δ / 2 := by positivity
+  rcases truncatedLogKernel_local_uniform_oscillation
+      (ε := ε) (x := x) (η := δ / 2) hε hδhalf with
+    ⟨U, hUopen, hxU, hosc⟩
+  rcases Metric.isOpen_iff.mp hUopen x hxU with ⟨r, hr_pos, hr_sub⟩
+  refine ⟨r, hr_pos, ?_⟩
+  intro y hy
+  have hyU : y ∈ U := hr_sub hy
+  have hle :
+      |unitIntervalTruncatedPotential ε μ y -
+        unitIntervalTruncatedPotential ε μ x| ≤ δ / 2 :=
+    unitIntervalTruncatedPotential_oscillation_le μ hε
+      (fun t => le_of_lt (hosc y hyU t))
+  have hlt : |unitIntervalTruncatedPotential ε μ y -
+        unitIntervalTruncatedPotential ε μ x| < δ := by
+    linarith
+  simpa [Real.dist_eq, abs_sub_comm] using hlt
+
 lemma eventually_forall_mem_finset
     {ι β : Type*} {L : Filter ι} (s : Finset β) (P : ι → β → Prop)
     (h : ∀ b ∈ s, ∀ᶠ i in L, P i b) :
@@ -5210,6 +6523,162 @@ theorem unitIntervalPositiveTruncationScale_pos (n : ℕ) :
   unfold unitIntervalPositiveTruncationScale
   positivity
 
+theorem unitIntervalPositiveTruncationScale_le_one (n : ℕ) :
+    unitIntervalPositiveTruncationScale n ≤ 1 := by
+  unfold unitIntervalPositiveTruncationScale
+  have hden : (1 : ℝ) ≤ (n : ℝ) + 1 := by
+    exact_mod_cast Nat.succ_pos n
+  have hpos : 0 < (n : ℝ) + 1 := by positivity
+  rw [div_le_iff₀ hpos]
+  simpa using hden
+
+lemma truncatedLogKernel_eq_logKernel_of_scale_le_one_of_two_le_abs
+    {x : ℝ} (hx : (2 : ℝ) ≤ |x|)
+    {ε : ℝ} (hε_le_one : ε ≤ 1) (t : UnitInterval1038) :
+    truncatedLogKernel ε x (t : ℝ) =
+      Real.log (1 / |x - (t : ℝ)|) := by
+  unfold truncatedLogKernel
+  have hdist : (1 : ℝ) ≤ |x - (t : ℝ)| :=
+    one_le_abs_sub_of_two_le_abs_of_mem_unitInterval hx t.2
+  have hε_le_dist : ε ≤ |x - (t : ℝ)| := le_trans hε_le_one hdist
+  rw [max_eq_right hε_le_dist]
+
+lemma unitIntervalTruncatedKernel_nonpos_of_two_le_abs
+    {x : ℝ} (hx : (2 : ℝ) ≤ |x|) (n : ℕ) (t : UnitInterval1038) :
+    truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ) ≤ 0 := by
+  rw [truncatedLogKernel_eq_logKernel_of_scale_le_one_of_two_le_abs
+    hx (unitIntervalPositiveTruncationScale_le_one n) t]
+  exact unitInterval_logKernel_nonpos_of_two_le_abs hx t
+
+theorem unitIntervalTruncatedPotential_nonpos_of_two_le_abs
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : (2 : ℝ) ≤ |x|) (n : ℕ) :
+    unitIntervalTruncatedPotential (unitIntervalPositiveTruncationScale n) μ x ≤ 0 := by
+  unfold unitIntervalTruncatedPotential
+  have hkernel_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ (unitIntervalPositiveTruncationScale_pos n)
+  have hzero_int :
+      Integrable (fun _t : UnitInterval1038 => (0 : ℝ))
+        (μ : Measure UnitInterval1038) := integrable_const 0
+  have hle_ae :
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ))
+        ≤ᵐ[(μ : Measure UnitInterval1038)]
+      (fun _t : UnitInterval1038 => (0 : ℝ)) := by
+    filter_upwards with t
+    exact unitIntervalTruncatedKernel_nonpos_of_two_le_abs hx n t
+  have hle :
+      (∫ t : UnitInterval1038,
+        truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ)
+          ∂(μ : Measure UnitInterval1038)) ≤
+        ∫ _t : UnitInterval1038, (0 : ℝ) ∂(μ : Measure UnitInterval1038) :=
+    integral_mono_ae hkernel_int hzero_int hle_ae
+  simpa using hle
+
+lemma truncatedLogKernel_mono_of_scale_le
+    {ε₁ ε₂ x t : ℝ} (hε₂ : 0 < ε₂) (hε₂_le : ε₂ ≤ ε₁) :
+    truncatedLogKernel ε₁ x t ≤ truncatedLogKernel ε₂ x t := by
+  unfold truncatedLogKernel
+  have hmax₂_pos : 0 < max ε₂ |x - t| :=
+    lt_of_lt_of_le hε₂ (le_max_left ε₂ |x - t|)
+  have hε₁_pos : 0 < ε₁ := lt_of_lt_of_le hε₂ hε₂_le
+  have hmax₁_pos : 0 < max ε₁ |x - t| :=
+    lt_of_lt_of_le hε₁_pos (le_max_left ε₁ |x - t|)
+  have hmax_le : max ε₂ |x - t| ≤ max ε₁ |x - t| :=
+    max_le_max_right |x - t| hε₂_le
+  have hinv : 1 / max ε₁ |x - t| ≤ 1 / max ε₂ |x - t| :=
+    one_div_le_one_div_of_le hmax₂_pos hmax_le
+  exact Real.log_le_log (one_div_pos.mpr hmax₁_pos) hinv
+
+theorem unitIntervalPositiveTruncationScale_antitone :
+    Antitone unitIntervalPositiveTruncationScale := by
+  intro n m hnm
+  unfold unitIntervalPositiveTruncationScale
+  have hden : (n : ℝ) + 1 ≤ (m : ℝ) + 1 := by
+    exact_mod_cast Nat.succ_le_succ hnm
+  have hpos : 0 < (n : ℝ) + 1 := by positivity
+  exact one_div_le_one_div_of_le hpos hden
+
+theorem unitIntervalTruncatedPotential_mono_index
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    Monotone (fun n : ℕ =>
+      unitIntervalTruncatedPotential
+        (unitIntervalPositiveTruncationScale n) μ x) := by
+  intro n m hnm
+  unfold unitIntervalTruncatedPotential
+  have hfn_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ (unitIntervalPositiveTruncationScale_pos n)
+  have hfm_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel (unitIntervalPositiveTruncationScale m) x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ (unitIntervalPositiveTruncationScale_pos m)
+  have hle_ae :
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel (unitIntervalPositiveTruncationScale n) x (t : ℝ))
+        ≤ᵐ[(μ : Measure UnitInterval1038)]
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel (unitIntervalPositiveTruncationScale m) x (t : ℝ)) := by
+    filter_upwards with t
+    exact truncatedLogKernel_mono_of_scale_le
+      (unitIntervalPositiveTruncationScale_pos m)
+      (unitIntervalPositiveTruncationScale_antitone hnm)
+  exact integral_mono_ae hfn_int hfm_int hle_ae
+
+theorem unitIntervalTruncatedPotential_mono_scale
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ)
+    {ε₁ ε₂ : ℝ} (hε₂ : 0 < ε₂) (hε₂_le : ε₂ ≤ ε₁) :
+    unitIntervalTruncatedPotential ε₁ μ x ≤
+      unitIntervalTruncatedPotential ε₂ μ x := by
+  unfold unitIntervalTruncatedPotential
+  have hε₁ : 0 < ε₁ := lt_of_lt_of_le hε₂ hε₂_le
+  have hfn_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel ε₁ x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ hε₁
+  have hfm_int :
+      Integrable
+        (fun t : UnitInterval1038 =>
+          truncatedLogKernel ε₂ x (t : ℝ))
+        (μ : Measure UnitInterval1038) :=
+    truncatedLogKernel_integrable μ hε₂
+  have hle_ae :
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel ε₁ x (t : ℝ))
+        ≤ᵐ[(μ : Measure UnitInterval1038)]
+      (fun t : UnitInterval1038 =>
+        truncatedLogKernel ε₂ x (t : ℝ)) := by
+    filter_upwards with t
+    exact truncatedLogKernel_mono_of_scale_le hε₂ hε₂_le
+  exact integral_mono_ae hfn_int hfm_int hle_ae
+
+theorem exists_unitIntervalPositiveTruncationScale_le {ε : ℝ}
+    (hε : 0 < ε) :
+    ∃ n : ℕ, unitIntervalPositiveTruncationScale n ≤ ε := by
+  rcases exists_nat_one_div_lt hε with ⟨n, hn⟩
+  exact ⟨n, le_of_lt hn⟩
+
+theorem unitIntervalTruncatedPositiveSet_level_mono
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    Monotone (fun n : ℕ =>
+      {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x}) := by
+  intro n m hnm x hx
+  exact lt_of_lt_of_le hx
+    (unitIntervalTruncatedPotential_mono_index μ x hnm)
+
 /--
 Positive set generated by the countable family of positively truncated
 potentials.  This is a truncated-sup surrogate only; no equivalence with the
@@ -5220,6 +6689,257 @@ def unitIntervalTruncatedPositiveSet
   {x : ℝ | ∃ n : ℕ,
     0 < unitIntervalTruncatedPotential
       (unitIntervalPositiveTruncationScale n) μ x}
+
+theorem mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
+    {μ : ProbabilityMeasure UnitInterval1038} {ε x : ℝ}
+    (hε : 0 < ε) (hpos : 0 < unitIntervalTruncatedPotential ε μ x) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  rcases exists_unitIntervalPositiveTruncationScale_le hε with ⟨n, hn⟩
+  refine ⟨n, lt_of_lt_of_le hpos ?_⟩
+  exact unitIntervalTruncatedPotential_mono_scale μ x
+    (unitIntervalPositiveTruncationScale_pos n) hn
+
+theorem unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    unitIntervalTruncatedPositiveSet μ ⊆ Ioo (-2 : ℝ) 2 := by
+  intro x hx
+  rcases hx with ⟨n, hnpos⟩
+  have hnot : ¬ (2 : ℝ) ≤ |x| := by
+    intro h2
+    have hnonpos := unitIntervalTruncatedPotential_nonpos_of_two_le_abs μ h2 n
+    linarith
+  have hlt_abs : |x| < 2 := lt_of_not_ge hnot
+  rw [abs_lt] at hlt_abs
+  exact ⟨hlt_abs.1, hlt_abs.2⟩
+
+theorem unitIntervalTruncatedPositiveSet_volume_ne_top
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    volume (unitIntervalTruncatedPositiveSet μ) ≠ ∞ := by
+  have hle :
+      volume (unitIntervalTruncatedPositiveSet μ) ≤
+        volume (Ioo (-2 : ℝ) 2) :=
+    measure_mono (μ := volume)
+      (unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two μ)
+  have hfinite_window : volume (Ioo (-2 : ℝ) 2) ≠ ∞ := by
+    rw [Real.volume_Ioo]
+    exact ENNReal.ofReal_ne_top
+  exact ne_top_of_le_ne_top hfinite_window hle
+
+theorem unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    volume (unitIntervalTruncatedPositiveSet μ) =
+      ⨆ n : ℕ, volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x} := by
+  rw [show unitIntervalTruncatedPositiveSet μ =
+      ⋃ n : ℕ,
+        {x : ℝ | 0 < unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x} by
+    ext x
+    simp [unitIntervalTruncatedPositiveSet]]
+  exact (unitIntervalTruncatedPositiveSet_level_mono μ).measure_iUnion
+
+theorem unitIntervalTruncatedPositiveSet_exists_level_volume_le_add
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ truncN : ℕ,
+      volume (unitIntervalTruncatedPositiveSet μ) ≤
+        volume {x : ℝ | 0 <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (η : ℝ≥0∞) := by
+  have hfinite :
+      (⨆ n : ℕ, volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x}) ≠ ∞ := by
+    simpa [← unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels μ]
+      using unitIntervalTruncatedPositiveSet_volume_ne_top μ
+  rcases exists_iSup_nat_le_add_of_ne_top
+      (fun n : ℕ => volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x})
+      hη hfinite with
+    ⟨truncN, htruncN⟩
+  exact ⟨truncN, by
+    simpa [unitIntervalTruncatedPositiveSet_volume_eq_iSup_levels μ]
+      using htruncN⟩
+
+theorem unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ) :
+    {x : ℝ |
+      unitIntervalPositiveTruncationScale thresholdN <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ⊆
+      Ioo (-2 : ℝ) 2 := by
+  intro x hx
+  exact unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two μ
+    ⟨truncN, lt_trans (unitIntervalPositiveTruncationScale_pos thresholdN) hx⟩
+
+theorem unitIntervalTruncatedPotential_threshold_measure_ne_top
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ) :
+    volume {x : ℝ |
+      unitIntervalPositiveTruncationScale thresholdN <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ≠ ∞ := by
+  have hle :
+      volume {x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} ≤
+        volume (Ioo (-2 : ℝ) 2) :=
+    measure_mono (μ := volume)
+      (unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+        μ truncN thresholdN)
+  have hfinite_window : volume (Ioo (-2 : ℝ) 2) ≠ ∞ := by
+    rw [Real.volume_Ioo]
+    exact ENNReal.ofReal_ne_top
+  exact ne_top_of_le_ne_top hfinite_window hle
+
+theorem unitIntervalTruncatedPotential_threshold_exists_compact_core
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN thresholdN : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ K : Set ℝ,
+      K ⊆ {x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+      IsCompact K ∧
+      volume ({x : ℝ |
+        unitIntervalPositiveTruncationScale thresholdN <
+          unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale truncN) μ x} \ K) ≤
+        (η : ℝ≥0∞) := by
+  let S : Set ℝ := {x : ℝ |
+    unitIntervalPositiveTruncationScale thresholdN <
+      unitIntervalTruncatedPotential
+        (unitIntervalPositiveTruncationScale truncN) μ x}
+  have hSmeas : MeasurableSet S := by
+    exact (isOpen_lt continuous_const
+      (unitIntervalTruncatedPotential_continuous μ
+        (unitIntervalPositiveTruncationScale_pos truncN))).measurableSet
+  have hfinite : volume S ≠ ∞ := by
+    simpa [S] using
+      unitIntervalTruncatedPotential_threshold_measure_ne_top μ truncN thresholdN
+  have hη_ne : (η : ℝ≥0∞) ≠ 0 := by
+    exact_mod_cast (ne_of_gt hη)
+  rcases hSmeas.exists_isCompact_diff_lt hfinite hη_ne with
+    ⟨K, hKsub, hKcompact, hdiff_lt⟩
+  exact ⟨K, hKsub, hKcompact, le_of_lt hdiff_lt⟩
+
+theorem unitIntervalTruncatedPotential_positiveSet_exists_threshold_volume_le_add
+    (μ : ProbabilityMeasure UnitInterval1038) (truncN : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    ∃ thresholdN : ℕ,
+      volume {x : ℝ | 0 <
+        unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale truncN) μ x} ≤
+        volume {x : ℝ |
+          unitIntervalPositiveTruncationScale thresholdN <
+            unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (η : ℝ≥0∞) := by
+  let U : ℝ → ℝ :=
+    fun x => unitIntervalTruncatedPotential
+      (unitIntervalPositiveTruncationScale truncN) μ x
+  have hfinite :
+      (⨆ thresholdN : ℕ,
+        volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x}) ≠ ∞ := by
+    have hle :
+        (⨆ thresholdN : ℕ,
+          volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x}) ≤
+          volume (Ioo (-2 : ℝ) 2) := by
+      refine iSup_le ?_
+      intro thresholdN
+      exact measure_mono (μ := volume)
+        (by
+          intro x hx
+          exact unitIntervalTruncatedPotential_threshold_subset_Ioo_neg_two_two
+            μ truncN thresholdN hx)
+    have hfinite_window : volume (Ioo (-2 : ℝ) 2) ≠ ∞ := by
+      rw [Real.volume_Ioo]
+      exact ENNReal.ofReal_ne_top
+    exact ne_top_of_le_ne_top hfinite_window hle
+  rcases exists_iSup_nat_le_add_of_ne_top
+      (fun thresholdN : ℕ =>
+        volume {x : ℝ | 1 / ((thresholdN : ℝ) + 1) < U x})
+      hη hfinite with
+    ⟨thresholdN, hthresholdN⟩
+  refine ⟨thresholdN, ?_⟩
+  simpa [U, unitIntervalPositiveTruncationScale,
+    positiveSet_measure_eq_iSup_thresholds] using hthresholdN
+
+theorem unitIntervalTruncatedPositiveSetObjective_compact_threshold_core :
+    ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K := by
+  intro μ η hη
+  let ηPart : NNReal := η / 3
+  have hηPart : 0 < ηPart := by
+    positivity
+  rcases unitIntervalTruncatedPositiveSet_exists_level_volume_le_add
+      μ ηPart hηPart with
+    ⟨truncN, hlevel⟩
+  rcases unitIntervalTruncatedPotential_positiveSet_exists_threshold_volume_le_add
+      μ truncN ηPart hηPart with
+    ⟨thresholdN, hthreshold⟩
+  rcases unitIntervalTruncatedPotential_threshold_exists_compact_core
+      μ truncN thresholdN ηPart hηPart with
+    ⟨K, hKsub, hKcompact, hKmeasure⟩
+  refine ⟨truncN, thresholdN, K, ?_, hKsub, hKcompact⟩
+  let S : Set ℝ := {x : ℝ |
+    unitIntervalPositiveTruncationScale thresholdN <
+      unitIntervalTruncatedPotential
+        (unitIntervalPositiveTruncationScale truncN) μ x}
+  have hSmeasure : volume S ≤ volume K + (ηPart : ℝ≥0∞) := by
+    have hSsubset : S ⊆ K ∪ (S \ K) := by
+      intro x hx
+      by_cases hxK : x ∈ K
+      · exact Or.inl hxK
+      · exact Or.inr ⟨hx, hxK⟩
+    have hmono : volume S ≤ volume (K ∪ (S \ K)) :=
+      measure_mono hSsubset
+    have hunion : volume (K ∪ (S \ K)) ≤ volume K + volume (S \ K) :=
+      measure_union_le _ _
+    calc
+      volume S ≤ volume (K ∪ (S \ K)) := hmono
+      _ ≤ volume K + volume (S \ K) := hunion
+      _ ≤ volume K + (ηPart : ℝ≥0∞) := by
+            simpa [S, add_comm, add_left_comm, add_assoc] using
+              add_le_add_right hKmeasure (volume K)
+  have hη_cast :
+      (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) = (η : ℝ≥0∞) := by
+    simpa [ηPart] using ENNReal.add_thirds (η : ℝ≥0∞)
+  calc
+    volume (unitIntervalTruncatedPositiveSet μ)
+        ≤ volume {x : ℝ | 0 <
+            unitIntervalTruncatedPotential
+              (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (ηPart : ℝ≥0∞) := hlevel
+    _ ≤ (volume {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} +
+          (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞) := by
+            exact add_le_add hthreshold le_rfl
+    _ ≤ ((volume K + (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞)) +
+          (ηPart : ℝ≥0∞) := by
+            simpa [S, add_assoc] using
+              add_le_add_right (add_le_add hSmeasure le_rfl)
+                (ηPart : ℝ≥0∞)
+    _ = volume K + (η : ℝ≥0∞) := by
+            calc
+              ((volume K + (ηPart : ℝ≥0∞)) + (ηPart : ℝ≥0∞)) +
+                    (ηPart : ℝ≥0∞)
+                  = volume K + ((ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) +
+                    (ηPart : ℝ≥0∞)) := by ac_rfl
+              _ = volume K + (η : ℝ≥0∞) := by rw [hη_cast]
 
 /-- Truncated-sup positive-set length objective. -/
 def unitIntervalTruncatedPositiveSetObjective
@@ -5320,6 +7040,15 @@ theorem unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact
   exact le_trans hKmeasure hsum
 
 /--
+Lower semicontinuity of the truncated-sup objective with its compact
+threshold-core provider generated internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous :
+    LowerSemicontinuous unitIntervalTruncatedPositiveSetObjective := by
+  exact unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
+    unitIntervalTruncatedPositiveSetObjective_compact_threshold_core
+
+/--
 Compact-threshold-core minimizer existence for the truncated-sup surrogate.
 This uses only the lower-semicontinuity assembled above from compact
 threshold-core hypotheses.
@@ -5345,10 +7074,22 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer_of_compact_th
       hcore)
 
 /--
-Secondary minimizer selector for the truncated-sup surrogate.  Since this file
-does not define a concrete second-moment objective on `ProbabilityMeasure
-UnitInterval1038`, the secondary objective is an explicit lower-semicontinuous
-parameter.
+Primary minimizer existence for the truncated-sup surrogate, with the compact
+threshold-core and lower-semicontinuity inputs generated internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_minimizer :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν := by
+  exact admissible_probability_lsc_exists_minimizer_ennreal
+    unitIntervalTruncatedPositiveSetObjective
+    unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous
+
+/--
+Backward-compatible secondary minimizer selector for the truncated-sup
+surrogate with an explicit lower-semicontinuous secondary parameter.  The
+concrete Tao second-moment objective is `unitIntervalSecondMomentObjective`.
 -/
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
     (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
@@ -5377,6 +7118,26 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_
     (unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous_of_compact_threshold_core
       hcore)
     hsecondary_lsc
+
+/--
+Concrete secondary minimizer selector for the truncated-sup surrogate: among
+primary minimizers, choose one minimizing the second moment on `[-1,1]`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν := by
+  exact admissible_probability_lsc_exists_secondary_minimizer_ennreal_primary
+    unitIntervalTruncatedPositiveSetObjective unitIntervalSecondMomentObjective
+    unitIntervalTruncatedPositiveSetObjective_lowerSemicontinuous
+    unitIntervalSecondMomentObjective_lowerSemicontinuous
 
 lemma truncatedLogKernel_le_logKernel {ε x t : ℝ}
     (hε : 0 < ε) (hne : x ≠ t) :
@@ -5427,6 +7188,137 @@ theorem unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential
   · exact Or.inr
       (unitIntervalTruncatedPotential_le_logPotential_of_ae_ne
         hε (ae_ne_of_notMem_diagonalAtomSet hxdiag) (hlog_int hxdiag))
+
+theorem unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSet μ ⊆ unitIntervalAugmentedPositiveSet μ := by
+  intro x hx
+  rcases hx with ⟨n, hpos⟩
+  have hdiag_or_le :
+      x ∈ diagonalAtomSet μ ∨
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x ≤
+          unitIntervalLogPotential μ x :=
+    unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential
+      (unitIntervalPositiveTruncationScale_pos n) (hlog_int x)
+  rcases hdiag_or_le with hdiag | hle
+  · exact unitInterval_diagonalAtomSet_subset_augmented μ hdiag
+  · exact unitInterval_positiveSet_subset_augmented μ
+      (lt_of_lt_of_le hpos hle)
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective μ
+        = volume (unitIntervalTruncatedPositiveSet μ) := rfl
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) :=
+        measure_mono
+          (unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
+            μ hlog_int)
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) :=
+        unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ
+    _ = unitIntervalPositiveSetObjective μ := rfl
+
+theorem unitIntervalTruncatedPositiveSet_subset_augmented_union_exception_of_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSet μ ⊆
+      unitIntervalAugmentedPositiveSet μ ∪ N := by
+  intro x hx
+  by_cases hxN : x ∈ N
+  · exact Or.inr hxN
+  · rcases hx with ⟨n, hpos⟩
+    by_cases hxdiag : x ∈ diagonalAtomSet μ
+    · exact Or.inl (unitInterval_diagonalAtomSet_subset_augmented μ hxdiag)
+    · have hle :
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x ≤
+          unitIntervalLogPotential μ x :=
+        unitIntervalTruncatedPotential_le_logPotential_of_ae_ne
+          (unitIntervalPositiveTruncationScale_pos n)
+          (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+          (hlog_int x hxdiag hxN)
+      exact Or.inl (unitInterval_positiveSet_subset_augmented μ
+        (lt_of_lt_of_le hpos hle))
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable_null_exception
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hN : volume N = 0)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective μ
+        = volume (unitIntervalTruncatedPositiveSet μ) := rfl
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ ∪ N) :=
+        measure_mono
+          (unitIntervalTruncatedPositiveSet_subset_augmented_union_exception_of_logKernel_integrable
+            μ N hlog_int)
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) + volume N :=
+        measure_union_le _ _
+    _ = volume (unitIntervalAugmentedPositiveSet μ) := by
+        simp [hN]
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) :=
+        unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ
+    _ = unitIntervalPositiveSetObjective μ := rfl
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_add_positiveSetObjective_of_logKernel_integrable_exception
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ) {η : ℝ≥0∞}
+    (hN : volume N ≤ η)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ + η := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective μ
+        = volume (unitIntervalTruncatedPositiveSet μ) := rfl
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ ∪ N) :=
+        measure_mono
+          (unitIntervalTruncatedPositiveSet_subset_augmented_union_exception_of_logKernel_integrable
+            μ N hlog_int)
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) + volume N :=
+        measure_union_le _ _
+    _ ≤ volume (unitIntervalAugmentedPositiveSet μ) + η :=
+        add_le_add le_rfl hN
+    _ = volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+        rw [unitIntervalAugmentedPositiveSet_volume_eq_positiveSet μ]
+    _ = unitIntervalPositiveSetObjective μ + η := rfl
+
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_forall_small_logKernel_integrable_exception
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, x ∉ diagonalAtomSet μ → x ∉ N →
+          Integrable
+            (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+            (μ : Measure UnitInterval1038)) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _
+  rcases hsmall η hη with ⟨N, hN, hlog_int⟩
+  exact
+    unitIntervalTruncatedPositiveSetObjective_le_add_positiveSetObjective_of_logKernel_integrable_exception
+      μ N hN hlog_int
 
 theorem unitInterval_diagonalAtom_or_truncatedPotential_le_logPotential_eventually_on_compact
     (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} {K : Set ℝ}
@@ -5817,6 +7709,22 @@ theorem unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
   exact hbase.congr (Filter.Eventually.of_forall (fun t => by
     simp [abs_sub_comm]))
 
+theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_tailMass_small_exceptions
+    (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} (hε : 0 < ε) :
+    unitIntervalTruncatedPositiveSetObjective μ ≤
+      unitIntervalPositiveSetObjective μ := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_forall_small_logKernel_integrable_exception
+      μ ?_
+  intro η hη
+  rcases singularTail_exists_small_finite_exception ε μ η hη with
+    ⟨N, hN, hfinite⟩
+  refine ⟨N, hN, ?_⟩
+  intro x hxdiag hxN
+  simpa [abs_sub_comm] using
+    unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      hε hxdiag (hfinite x hxN)
+
 /--
 Candidate-location dichotomy for the real-valued finite-atom selector.
 
@@ -6091,6 +7999,250 @@ theorem unitInterval_diagonalAtom_or_log_error_lt_of_tailMass
   · exact Or.inr
       (unitInterval_log_error_lt_of_tailMass_and_ae_ne
         hε hδ htail (ae_ne_of_notMem_diagonalAtomSet hxdiag))
+
+theorem mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ} {n : ℕ}
+    (hpos : 0 < unitIntervalLogPotential μ x)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htail :
+      singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+        ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  have hhalf_pos : 0 < unitIntervalLogPotential μ x / 2 := by
+    positivity
+  have herror :
+      |unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x -
+        unitIntervalLogPotential μ x| <
+        unitIntervalLogPotential μ x / 2 :=
+    unitInterval_log_error_lt_of_tailMass_and_ae_ne
+      (unitIntervalPositiveTruncationScale_pos n)
+      hhalf_pos htail (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+  have hlower :
+      -(unitIntervalLogPotential μ x / 2) <
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x -
+          unitIntervalLogPotential μ x :=
+    (abs_lt.mp herror).1
+  refine ⟨n, ?_⟩
+  linarith
+
+theorem mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {x truncε threshold : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hpos : threshold < unitIntervalLogPotential μ x)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htail : singularTailMass truncε μ x <
+      ENNReal.ofReal (threshold / 2)) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  have hhalf_pos : 0 < threshold / 2 := by positivity
+  have herror :
+      |unitIntervalTruncatedPotential truncε μ x -
+        unitIntervalLogPotential μ x| < threshold / 2 :=
+    unitInterval_log_error_lt_of_tailMass_and_ae_ne
+      htruncε hhalf_pos htail (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+  have hlower :
+      -(threshold / 2) <
+        unitIntervalTruncatedPotential truncε μ x -
+          unitIntervalLogPotential μ x :=
+    (abs_lt.mp herror).1
+  have htrunc_pos : 0 < unitIntervalTruncatedPotential truncε μ x := by
+    nlinarith
+  exact mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
+    htruncε htrunc_pos
+
+theorem unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    {truncε : ℝ} (htruncε : 0 < truncε) :
+    {x : ℝ | 1 / ((level : ℝ) + 1) < unitIntervalLogPotential μ x} ⊆
+      unitIntervalTruncatedPositiveSet μ ∪
+        (diagonalAtomSet μ ∪
+          {x : ℝ |
+            ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+              singularTailMass truncε μ x}) := by
+  intro x hx
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inr (Or.inl hxdiag)
+  · by_cases htail :
+        singularTailMass truncε μ x <
+          ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2)
+    · exact Or.inl
+        (mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+          htruncε (by positivity) hx hxdiag htail)
+    · exact Or.inr (Or.inr (le_of_not_gt htail))
+
+theorem unitInterval_threshold_volume_le_truncatedObjective_add_of_tailBad
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    {truncε : ℝ} (htruncε : 0 < truncε) {η : ℝ≥0∞}
+    (hbad :
+      volume {x : ℝ |
+        ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+          singularTailMass truncε μ x} ≤ η) :
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x} ≤
+      unitIntervalTruncatedPositiveSetObjective μ + η := by
+  let Bad : Set ℝ :=
+    {x : ℝ |
+      ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+        singularTailMass truncε μ x}
+  calc
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x}
+        ≤ volume (unitIntervalTruncatedPositiveSet μ ∪
+            (diagonalAtomSet μ ∪ Bad)) :=
+          measure_mono
+            (unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
+              μ level htruncε)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          volume (diagonalAtomSet μ ∪ Bad) :=
+        measure_union_le _ _
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          (volume (diagonalAtomSet μ) + volume Bad) :=
+        add_le_add le_rfl (measure_union_le _ _)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) + (0 + η) := by
+        exact add_le_add le_rfl
+          (add_le_add (le_of_eq (diagonalAtomSet_volume_zero μ)) hbad)
+    _ = unitIntervalTruncatedPositiveSetObjective μ + η := by
+        simp [unitIntervalTruncatedPositiveSetObjective]
+
+theorem unitInterval_threshold_volume_le_truncatedObjective_add
+    (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
+    (η : NNReal) (hη : 0 < η) :
+    volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+        unitIntervalLogPotential μ x} ≤
+      unitIntervalTruncatedPositiveSetObjective μ + (η : ℝ≥0∞) := by
+  let threshold : ℝ := (1 / ((level : ℝ) + 1)) / 2
+  have hthreshold : 0 < threshold := by
+    dsimp [threshold]
+    positivity
+  rcases exists_tailScale_for_target hthreshold hη with
+    ⟨truncε, htruncε, hscale⟩
+  have hbad :
+      volume {x : ℝ |
+        ENNReal.ofReal ((1 / ((level : ℝ) + 1)) / 2) ≤
+          singularTailMass truncε μ x} ≤ (η : ℝ≥0∞) := by
+    simpa [threshold] using
+      singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
+        truncε μ hthreshold hscale
+  exact unitInterval_threshold_volume_le_truncatedObjective_add_of_tailBad
+    μ level htruncε hbad
+
+theorem unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    unitIntervalPositiveSetObjective μ ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _
+  calc
+    unitIntervalPositiveSetObjective μ
+        = ⨆ level : ℕ,
+            volume {x : ℝ | 1 / ((level : ℝ) + 1) <
+              unitIntervalLogPotential μ x} := by
+          rw [unitIntervalPositiveSetObjective]
+          exact positiveSet_measure_eq_iSup_thresholds
+            (unitIntervalLogPotential μ)
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ + (η : ℝ≥0∞) := by
+          exact iSup_le (fun level =>
+            unitInterval_threshold_volume_le_truncatedObjective_add
+              μ level η hη)
+
+theorem positiveSet_subset_truncatedPositiveSet_union_diagonal_of_tailMass_small
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    PositiveSet (unitIntervalLogPotential μ) ⊆
+      unitIntervalTruncatedPositiveSet μ ∪ diagonalAtomSet μ := by
+  intro x hx
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inr hxdiag
+  · rcases hsmall x hx hxdiag with ⟨n, htail⟩
+    exact Or.inl
+      (mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+        hx hxdiag htail)
+
+theorem unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    unitIntervalPositiveSetObjective μ ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalPositiveSetObjective μ
+        = volume (PositiveSet (unitIntervalLogPotential μ)) := rfl
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ ∪ diagonalAtomSet μ) :=
+        measure_mono
+          (positiveSet_subset_truncatedPositiveSet_union_diagonal_of_tailMass_small
+            μ hsmall)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          volume (diagonalAtomSet μ) :=
+        measure_union_le _ _
+    _ = volume (unitIntervalTruncatedPositiveSet μ) := by
+        simp [diagonalAtomSet_volume_zero μ]
+    _ = unitIntervalTruncatedPositiveSetObjective μ := rfl
+
+theorem positiveSet_subset_truncatedPositiveSet_union_diagonal_union_exception_of_tailMass_small
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      x ∉ N →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    PositiveSet (unitIntervalLogPotential μ) ⊆
+      unitIntervalTruncatedPositiveSet μ ∪ (diagonalAtomSet μ ∪ N) := by
+  intro x hx
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inr (Or.inl hxdiag)
+  · by_cases hxN : x ∈ N
+    · exact Or.inr (Or.inr hxN)
+    · rcases hsmall x hx hxdiag hxN with ⟨n, htail⟩
+      exact Or.inl
+        (mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+          hx hxdiag htail)
+
+theorem unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
+    (μ : ProbabilityMeasure UnitInterval1038) (N : Set ℝ)
+    (hN : volume N = 0)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      x ∉ N →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    unitIntervalPositiveSetObjective μ ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  have hbad_zero : volume (diagonalAtomSet μ ∪ N) = 0 := by
+    apply le_antisymm
+    · calc
+        volume (diagonalAtomSet μ ∪ N)
+            ≤ volume (diagonalAtomSet μ) + volume N :=
+              measure_union_le _ _
+        _ = 0 := by simp [diagonalAtomSet_volume_zero μ, hN]
+    · exact bot_le
+  calc
+    unitIntervalPositiveSetObjective μ
+        = volume (PositiveSet (unitIntervalLogPotential μ)) := rfl
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ ∪
+          (diagonalAtomSet μ ∪ N)) :=
+        measure_mono
+          (positiveSet_subset_truncatedPositiveSet_union_diagonal_union_exception_of_tailMass_small
+            μ N hsmall)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          volume (diagonalAtomSet μ ∪ N) :=
+        measure_union_le _ _
+    _ = volume (unitIntervalTruncatedPositiveSet μ) := by
+        simp [hbad_zero]
+    _ = unitIntervalTruncatedPositiveSetObjective μ := rfl
 
 theorem unitInterval_log_error_eventually_on_compact_of_tailMass_and_ae_ne
     (μ : ProbabilityMeasure UnitInterval1038) {ε δ : ℝ} {K : Set ℝ}
@@ -6602,24 +8754,24 @@ theorem unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_stabili
   refine unitIntervalPositiveSetObjective_lowerSemicontinuous_of_tailMass_badSet_control ?_
   intro μ n ε hε
   let δ : ℝ := (1 / ((n : ℝ) + 1)) / 3
-  let ηHalf : NNReal := ε / 2
+  let ηPart : NNReal := ε / 2
   have hδ_pos : 0 < δ := by
     dsimp [δ]
     positivity
-  have hηHalf_pos : 0 < ηHalf := by
-    dsimp [ηHalf]
+  have hηPart_pos : 0 < ηPart := by
+    dsimp [ηPart]
     positivity
-  rcases exists_tailScale_for_target (δ := δ) (η := ηHalf)
-      hδ_pos hηHalf_pos with
+  rcases exists_tailScale_for_target (δ := δ) (η := ηPart)
+      hδ_pos hηPart_pos with
     ⟨truncε, htruncε_pos, hscale⟩
-  refine ⟨truncε, (ηHalf : ℝ≥0∞), (ηHalf : ℝ≥0∞),
+  refine ⟨truncε, (ηPart : ℝ≥0∞), (ηPart : ℝ≥0∞),
     htruncε_pos, ?_, ?_, ?_, ?_⟩
-  · exact ne_of_gt (ENNReal.coe_pos.mpr hηHalf_pos)
+  · exact ne_of_gt (ENNReal.coe_pos.mpr hηPart_pos)
   · simpa [δ] using
       singularTail_closed_badSet_volume_le_of_two_mul_real_threshold
         truncε μ hδ_pos hscale
   · have hbudget_eq :
-        (ηHalf : ℝ≥0∞) + (ηHalf : ℝ≥0∞) = (ε : ℝ≥0∞) := by
+        (ηPart : ℝ≥0∞) + (ηPart : ℝ≥0∞) = (ε : ℝ≥0∞) := by
       rw [← ENNReal.coe_add]
       congr 1
       exact add_halves ε
@@ -7171,6 +9323,19 @@ theorem SecondarySelectorProblemENNReal.exists_secondary_minimizer
     ⟨a, hmin, hsecondary⟩
   exact ⟨a, hmin, hsecondary⟩
 
+/--
+Selector-problem admissibility bridge for the replacement probability when the
+primary admissible class is the concrete full probability class.
+-/
+theorem componentReplacementProbability_primary_admissible_of_univ
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    {P : SecondarySelectorProblemENNReal (ProbabilityMeasure UnitInterval1038)}
+    (hAdmissible : P.Primary.Admissible = fun _ => True) :
+    P.Primary.Admissible (componentReplacementProbability C hmass_unit) := by
+  simpa [hAdmissible]
+
 /-!
 ## Replacement/variance contradiction layer
 
@@ -7432,6 +9597,21 @@ lemma logKernel_continuousOn_Ici_right {x c : ℝ} (hc : x < c) :
     have hpos : 0 < |x - t| := abs_pos.mpr hxt
     exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
 
+lemma logKernel_continuousOn_away {x : ℝ} {K : Set ℝ}
+    (haway : ∀ t : ℝ, t ∈ K → x ≠ t) :
+    ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
+  apply ContinuousOn.log
+  · exact (continuousOn_const.div₀
+      ((continuousOn_const.sub continuousOn_id).abs)
+      (fun t ht hzero => by
+        exact (haway t ht) (sub_eq_zero.mp (abs_eq_zero.mp hzero))))
+  · intro t ht hzero
+    have hxt : x - t ≠ 0 := by
+      intro h
+      exact (haway t ht) (sub_eq_zero.mp h)
+    have hpos : 0 < |x - t| := abs_pos.mpr hxt
+    exact (div_ne_zero one_ne_zero (ne_of_gt hpos)) hzero
+
 theorem finite_barycenter_logKernel_replacement_le_left
     {ι : Type*} [DecidableEq ι]
     (s : Finset ι) (w y : ι → ℝ) {x c : ℝ}
@@ -7546,811 +9726,862 @@ theorem measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
       hrx hmem hfirst hkernel_int
 
 /--
-Scaled Jensen comparison for an actual component block represented by a
-probability block.
-
-The existing Jensen theorem is stated for probability measures.  In the
-component-replacement argument the component block has total mass
-`componentMass C`, so this lemma multiplies the probability-block Jensen
-inequality by that mass and rewrites it back to the unnormalized component
-block integral.
+The component-block log kernel is integrable for test points strictly outside
+the component.  The restricted block is a.e. supported on
+`C.interval ∩ [-1,1]`; on this compact set it lies in the closed half-line away
+from `x`, where the log kernel is continuous.
 -/
-theorem componentBlock_logKernel_jensen_scaled_of_probability_block
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (block : Measure ℝ) [IsProbabilityMeasure block]
+theorem componentBlock_logKernel_integrable_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {x : ℝ} (hx : StrictOutsideComponent C x) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) := by
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  have hrestrict :
+      (realMeasure μ).restrict C.interval =
+        (realMeasure μ).restrict (C.interval ∩ Icc (-1 : ℝ) 1) := by
+    apply Measure.restrict_congr_set
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht
+    exact propext ⟨fun htC => ⟨htC, ht⟩, fun htC => htC.1⟩
+  have hs_meas : MeasurableSet (C.interval ∩ Icc (-1 : ℝ) 1) :=
+    C.measurableSet_interval.inter measurableSet_Icc
+  haveI : IsFiniteMeasure (realMeasure μ) := by infer_instance
+  rcases hx with hx_left | hx_right
+  · let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ Ici C.left
+    have hK : IsCompact K := by
+      exact isCompact_Icc.inter_right isClosed_Ici
+    have hsub : C.interval ∩ Icc (-1 : ℝ) 1 ⊆ K := by
+      intro t ht
+      have htC : t ∈ Ioo C.left C.right := by
+        simpa [C.interval_eq] using ht.1
+      exact ⟨ht.2, le_of_lt htC.1⟩
+    have hcont : ContinuousOn f K := by
+      exact (logKernel_continuousOn_Ici_right hx_left).mono
+        (by intro t ht; exact ht.2)
+    have hint : IntegrableOn f (C.interval ∩ Icc (-1 : ℝ) 1)
+        (realMeasure μ) :=
+      hcont.integrableOn_of_subset_isCompact hK hs_meas hsub
+        (measure_ne_top (realMeasure μ) _)
+    change Integrable f (componentBlock C)
+    unfold componentBlock
+    rw [hrestrict]
+    simpa [IntegrableOn] using hint
+  · let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ Iic C.right
+    have hK : IsCompact K := by
+      exact isCompact_Icc.inter_right isClosed_Iic
+    have hsub : C.interval ∩ Icc (-1 : ℝ) 1 ⊆ K := by
+      intro t ht
+      have htC : t ∈ Ioo C.left C.right := by
+        simpa [C.interval_eq] using ht.1
+      exact ⟨ht.2, le_of_lt htC.2⟩
+    have hcont : ContinuousOn f K := by
+      exact (logKernel_continuousOn_Iic_left hx_right).mono
+        (by intro t ht; exact ht.2)
+    have hint : IntegrableOn f (C.interval ∩ Icc (-1 : ℝ) 1)
+        (realMeasure μ) :=
+      hcont.integrableOn_of_subset_isCompact hK hs_meas hsub
+        (measure_ne_top (realMeasure μ) _)
+    change Integrable f (componentBlock C)
+    unfold componentBlock
+    rw [hrestrict]
+    simpa [IntegrableOn] using hint
+
+/--
+Integrability transfers from the component block to its normalized probability
+rescaling.  This is only the scalar-measure bridge; the caller still supplies
+the original component-block integrability.
+-/
+theorem ComponentReplacement.normalizedComponentBlock_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {f : ℝ → ℝ}
+    (hf : Integrable f (componentBlock C)) :
+    Integrable f (normalizedComponentBlock C) := by
+  unfold normalizedComponentBlock
+  exact hf.smul_measure (ENNReal.inv_ne_top.mpr (ne_of_gt R.mass_pos))
+
+theorem ComponentReplacement.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hkernel_int
+
+theorem ComponentReplacement.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (componentBlock C)) :
+    Integrable (fun t : ℝ => t) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hfirst
+
+theorem ComponentReplacement.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) (componentBlock C)) :
+    Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) := by
+  exact R.normalizedComponentBlock_integrable_of_componentBlock hsecond
+
+/--
+Component-block Jensen inequality in normalized form.
+
+After normalizing the restricted component block to a probability measure, the
+existing measure-level Jensen theorem applies directly.  The conclusion is the
+pointwise block inequality before multiplying back by the component mass.
+-/
+theorem normalizedComponentBlock_logKernel_replacement_le_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
     (hstrict : StrictOutsideComponent C x)
-    (hmem : ∀ᵐ t : ℝ ∂block, t ∈ Ioo C.left C.right)
-    (hfirst : Integrable (fun t : ℝ => t) block)
-    (hkernel_int :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) block)
-    (hbary :
-      componentBarycenter C = ∫ t : ℝ, t ∂block)
-    (hblock_kernel :
-      (∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) =
-        (componentMass C).toReal *
-          ∫ t : ℝ, Real.log (1 / |x - t|) ∂block) :
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C)) :
+    Real.log (1 / |x - componentBarycenter C|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂normalizedComponentBlock C := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  rw [← normalizedComponentBlock_integral_eq_barycenter R]
+  exact measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
+    (normalizedComponentBlock C) hstrict
+    (normalizedComponentBlock_ae_mem_interval R) hfirst hkernel_int
+
+/--
+Component-block Jensen inequality scaled back to the original component mass.
+
+This is the form used in the potential decomposition: the replacement block is
+`componentMass C` times the kernel evaluated at the barycenter, and the
+original block is the integral of the kernel over `componentBlock C`.
+-/
+theorem componentBlock_logKernel_replacement_le_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
+    (hstrict : StrictOutsideComponent C x)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_norm_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C)) :
     (componentMass C).toReal *
         Real.log (1 / |x - componentBarycenter C|) ≤
       ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
-  have hjensen :
-      Real.log (1 / |x - ∫ t : ℝ, t ∂block|) ≤
-        ∫ t : ℝ, Real.log (1 / |x - t|) ∂block :=
-    measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
-      block hstrict hmem hfirst hkernel_int
-  have hmass_nonneg : 0 ≤ (componentMass C).toReal :=
-    ENNReal.toReal_nonneg
-  have hscaled :
-      (componentMass C).toReal *
-          Real.log (1 / |x - ∫ t : ℝ, t ∂block|) ≤
-        (componentMass C).toReal *
-          (∫ t : ℝ, Real.log (1 / |x - t|) ∂block) :=
-    mul_le_mul_of_nonneg_left hjensen hmass_nonneg
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  have hjen :=
+    normalizedComponentBlock_logKernel_replacement_le_of_strictOutside
+      R hstrict hfirst hkernel_norm_int
+  have hnorm :
+      (∫ t : ℝ, Real.log (1 / |x - t|) ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm] at hjen
   calc
     (componentMass C).toReal *
         Real.log (1 / |x - componentBarycenter C|)
-        = (componentMass C).toReal *
-            Real.log (1 / |x - ∫ t : ℝ, t ∂block|) := by
-              rw [hbary]
-    _ ≤ (componentMass C).toReal *
-          (∫ t : ℝ, Real.log (1 / |x - t|) ∂block) := hscaled
-    _ = ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
-          hblock_kernel.symm
+        ≤ (componentMass C).toReal *
+            (((componentMass C)⁻¹).toReal *
+              ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) := by
+          exact mul_le_mul_of_nonneg_left hjen (le_of_lt hmass_toReal_pos)
+    _ = ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+          rw [ENNReal.toReal_inv]
+          field_simp [hmass_toReal_pos.ne']
 
 /--
-Component-block Jensen comparison using the canonical normalized component
-block.
+Function-level component-block Jensen wrapper.
 
-This removes the external normalized-block identification data from
-`componentBlock_logKernel_jensen_scaled_of_probability_block`; only positive
-component mass and the two integrability hypotheses for the normalized block
-remain.
+This packages the scaled Jensen theorem as the `hblock_jensen` input expected by
+`componentReplacement_objective_le_of_decomposition_jensen`.
 -/
-theorem componentBlock_logKernel_jensen_scaled_normalized
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hmass_pos : 0 < componentMass C)
-    (hstrict : StrictOutsideComponent C x)
-    (hfirst :
-      Integrable (fun t : ℝ => t)
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ))
-    (hkernel_int :
+theorem componentReplacement_blockKernel_le_original_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_norm_int : ∀ x : ℝ, StrictOutsideComponent C x →
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ)) :
-    (componentMass C).toReal *
-        Real.log (1 / |x - componentBarycenter C|) ≤
-      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
-  refine componentBlock_logKernel_jensen_scaled_of_probability_block
-    C ((componentBlockFiniteMeasure C).normalize : Measure ℝ)
-    hstrict ?_ hfirst hkernel_int ?_ ?_
-  · simpa [PositiveComponent.interval_eq] using
-      normalized_componentBlock_ae_mem_interval C hmass_pos
-  · exact componentBarycenter_eq_normalized_componentBlock_integral C hmass_pos
-  · have hscale := componentBlock_integral_eq_mass_mul_normalized C
-      (fun t : ℝ => Real.log (1 / |x - t|))
-    have hmass_eq :
-        ((componentBlockFiniteMeasure C).mass : ℝ) =
-          (componentMass C).toReal := by
-      rw [componentBlockFiniteMeasure_mass C]
-      rfl
-    simpa [hmass_eq] using hscale
-
-/--
-For a strict outside test point, the real logarithmic kernel is integrable
-against the canonical normalized component block.
-
-This is the compact-support side of the component-replacement analytic input:
-the normalized block is a probability measure supported a.e. in the compact
-closure `[C.left, C.right]`, while the singularity `t = x` lies strictly outside
-that compact interval.
--/
-lemma normalized_componentBlock_logKernel_integrable_of_strictOutside
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hmass_pos : 0 < componentMass C)
-    (hstrict : StrictOutsideComponent C x) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      ((componentBlockFiniteMeasure C).normalize : Measure ℝ) := by
-  let ν : Measure ℝ :=
-    ((componentBlockFiniteMeasure C).normalize : Measure ℝ)
-  let K : Set ℝ := Icc C.left C.right
-  have hmemK : ∀ᵐ t : ℝ ∂ν, t ∈ K := by
-    filter_upwards [normalized_componentBlock_ae_mem_interval C hmass_pos] with t ht
-    rw [PositiveComponent.interval_eq, Set.mem_Ioo] at ht
-    exact ⟨le_of_lt ht.1, le_of_lt ht.2⟩
-  have hcont :
-      ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
-    rcases hstrict with hxl | hrx
-    · exact (logKernel_continuousOn_Ici_right hxl).mono (by
-        intro t ht
-        exact ht.1)
-    · exact (logKernel_continuousOn_Iic_left hrx).mono (by
-        intro t ht
-        exact ht.2)
-  exact integrable_of_ae_mem_compact_of_continuousOn ν K
-    (fun t : ℝ => Real.log (1 / |x - t|))
-    hmemK isCompact_Icc hcont
-
-/--
-Outside-restriction log-kernel integrability from compact off-singularity
-support data.
-
-This is the precise local analytic bridge for the outside part of component
-replacement.  It deliberately does not assert unconditional integrability:
-without a local separation/off-singularity support statement, an arbitrary
-outside restriction may still see the logarithmic singularity.
--/
-lemma outsideRestriction_logKernel_integrable_of_compact_support
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (K : Set ℝ)
-    (hmemK :
-      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K)
-    (hcompact : IsCompact K)
-    (hcont : ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      ((realMeasure μ).restrict C.intervalᶜ) := by
-  exact integrable_of_ae_mem_compact_of_continuousOn
-    ((realMeasure μ).restrict C.intervalᶜ) K
-    (fun t : ℝ => Real.log (1 / |x - t|))
-    hmemK hcompact hcont
-
-/--
-Outside-restriction log-kernel integrability from positive separation from the
-test point.
-
-The compact set is constructed internally as
-`[-1,1] ∩ {t : ℝ | ε ≤ |x-t|}`.  This is the natural local condition expected
-from the component bookkeeping: once the outside part is a.e. separated from
-the test point, the log singularity is absent.
--/
-lemma outsideRestriction_logKernel_integrable_of_dist_ge
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
-    (hε : 0 < ε)
-    (hdist :
-      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
-        ε ≤ |x - t|) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      ((realMeasure μ).restrict C.intervalᶜ) := by
-  let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ {t : ℝ | ε ≤ |x - t|}
-  have hmemK :
-      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K := by
-    filter_upwards [outsideRestriction_ae_mem_unitInterval C, hdist] with t hunit hdist_t
-    exact ⟨hunit, hdist_t⟩
-  have hclosedDist : IsClosed {t : ℝ | ε ≤ |x - t|} := by
-    simpa [Function.comp_def] using
-      isClosed_le
-        (continuous_const : Continuous fun _t : ℝ => ε)
-        ((continuous_abs.comp (continuous_const.sub continuous_id)) :
-          Continuous fun t : ℝ => |x - t|)
-  have hcompact : IsCompact K := by
-    exact isCompact_Icc.inter_right hclosedDist
-  have hcont :
-      ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K := by
-    exact logKernel_continuousOn_of_dist_ge hε (by
-      intro t ht
-      exact ht.2)
-  exact outsideRestriction_logKernel_integrable_of_compact_support
-    C K hmemK hcompact hcont
-
-/--
-If the outside restriction gives zero mass to an open neighbourhood of the test
-point, then it is a.e. positively separated from that point.
--/
-lemma outsideRestriction_ae_dist_ge_of_Ioo_null
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
-    (hε : 0 < ε)
-    (hnull :
-      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
-    ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
-      ε ≤ |x - t| := by
-  have hcompl :
-      ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
-        t ∈ (Ioo (x - ε) (x + ε) : Set ℝ)ᶜ := by
-    rw [ae_iff]
-    have hset :
-        {a : ℝ | a ∉ (Ioo (x - ε) (x + ε) : Set ℝ)ᶜ} =
-          Ioo (x - ε) (x + ε) := by
-      ext t
-      simp
-    rw [hset]
-    exact hnull
-  filter_upwards [hcompl] with t ht
-  rw [Set.mem_compl_iff, Set.mem_Ioo] at ht
-  by_cases hle : t ≤ x - ε
-  · have hsub : ε ≤ x - t := by
-      linarith
-    have hnonneg : 0 ≤ x - t := le_trans (le_of_lt hε) hsub
-    rw [abs_of_nonneg hnonneg]
-    exact hsub
-  · have hlt : x - ε < t := lt_of_not_ge hle
-    have hright : x + ε ≤ t := by
-      have hnot : ¬ t < x + ε := by
-        intro ht_right
-        exact ht ⟨hlt, ht_right⟩
-      exact le_of_not_gt hnot
-    have hsub : ε ≤ t - x := by
-      linarith
-    have hnonpos : x - t ≤ 0 := by linarith
-    rw [abs_of_nonpos hnonpos]
-    simpa [sub_eq_add_neg, add_comm, add_left_comm, add_assoc] using hsub
-
-/--
-Outside-restriction log-kernel integrability from a punctured-neighbourhood
-zero-mass certificate.
--/
-lemma outsideRestriction_logKernel_integrable_of_Ioo_null
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x ε : ℝ}
-    (hε : 0 < ε)
-    (hnull :
-      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      ((realMeasure μ).restrict C.intervalᶜ) := by
-  exact outsideRestriction_logKernel_integrable_of_dist_ge C hε
-    (outsideRestriction_ae_dist_ge_of_Ioo_null C hε hnull)
-
-/--
-If a test point lies outside the topological support of the outside restriction,
-then some punctured interval around it has outside-restriction mass zero.
--/
-lemma outsideRestriction_exists_Ioo_null_of_not_mem_support
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hx :
-      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
-    ∃ ε : ℝ, 0 < ε ∧
-      ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0 := by
-  rcases Measure.notMem_support_iff_exists.mp hx with ⟨U, hU_nhds, hU_zero⟩
-  rcases Metric.mem_nhds_iff.mp hU_nhds with ⟨ε, hε, hball_sub⟩
-  refine ⟨ε, hε, ?_⟩
-  have hIoo_sub : Ioo (x - ε) (x + ε) ⊆ U := by
-    simpa [Real.ball_eq_Ioo] using hball_sub
-  exact measure_mono_null hIoo_sub hU_zero
-
-/--
-Outside-restriction log-kernel integrability from absence of the test point from
-the outside-restriction support.
--/
-lemma outsideRestriction_logKernel_integrable_of_not_mem_support
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hx :
-      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
-    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-      ((realMeasure μ).restrict C.intervalᶜ) := by
-  rcases outsideRestriction_exists_Ioo_null_of_not_mem_support C hx with
-    ⟨ε, hε, hnull⟩
-  exact outsideRestriction_logKernel_integrable_of_Ioo_null C hε hnull
-
-/-- The support of the outside restriction is contained in the closed complement
-of the component interval. -/
-lemma outsideRestriction_support_subset_interval_compl
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
-    ((realMeasure μ).restrict C.intervalᶜ).support ⊆ C.intervalᶜ := by
-  intro x hx
-  have hsubset :
-      ((realMeasure μ).restrict C.intervalᶜ).support ⊆
-        closure C.intervalᶜ ∩ (realMeasure μ).support :=
-    Measure.support_restrict_subset
-  have hxclosure : x ∈ closure C.intervalᶜ := (hsubset hx).1
-  have hclosed : IsClosed C.intervalᶜ := by
-    rw [PositiveComponent.interval_eq]
-    exact isOpen_Ioo.isClosed_compl
-  simpa [hclosed.closure_eq] using hxclosure
-
-/-- A strict inside point cannot lie in the support of the outside restriction. -/
-lemma outsideRestriction_not_mem_support_of_mem_interval
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hx : x ∈ C.interval) :
-    x ∉ ((realMeasure μ).restrict C.intervalᶜ).support := by
-  intro hsupp
-  exact (outsideRestriction_support_subset_interval_compl C hsupp) hx
-
-/--
-Strict outside points where the real-valued replacement comparison may hit the
-outside-restriction support.  This is the singular branch left after the regular
-support-exclusion argument.
--/
-def strictOutsideSupportHitSet
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
-  {x : ℝ |
-    StrictOutsideComponent C x ∧
-      x ∈ ((realMeasure μ).restrict C.intervalᶜ).support}
-
-/--
-Pointwise component-replacement comparison at a regular strict outside point.
-
-Here "regular" means the test point is not in the support of the outside
-restriction, so the common outside log-kernel contribution is integrable.  The
-component contribution is then compared by the normalized-block Jensen bridge.
--/
-lemma componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) {x : ℝ}
-    (hmass_pos : 0 < componentMass C)
-    (hstrict : StrictOutsideComponent C x)
-    (hnot :
-      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
-    componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
-  have houtside :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((realMeasure μ).restrict C.intervalᶜ) :=
-    outsideRestriction_logKernel_integrable_of_not_mem_support C hnot
-  have hkernel_norm :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) :=
-    normalized_componentBlock_logKernel_integrable_of_strictOutside
-      C hmass_pos hstrict
-  have hblock :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentBlock C) :=
-    componentBlock_integrable_of_normalized_integrable C
-      (fun t : ℝ => Real.log (1 / |x - t|)) hkernel_norm
-  have hatom :
-      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentMass C • Measure.dirac (componentBarycenter C)) :=
-    componentBarycenterAtom_logKernel_integrable C x
-  refine componentReplacement_potential_le_of_decomposition_and_block_jensen
-    (C := C) (x := x)
-    (outside :=
-      ∫ t : ℝ, Real.log (1 / |x - t|)
-        ∂((realMeasure μ).restrict C.intervalᶜ))
-    (block :=
-      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C)
-    (replacementAtom :=
+        (normalizedComponentBlock C)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
       (componentMass C).toReal *
-        Real.log (1 / |x - componentBarycenter C|))
-    ?_ ?_ ?_
-  · exact unitIntervalLogPotential_eq_outside_add_componentBlock_logKernel
-      C x houtside hblock
-  · exact componentReplacementPotential_eq_outside_add_barycenter_logKernel
-      C x houtside hatom
-  · exact componentBlock_logKernel_jensen_scaled_normalized
-      C hmass_pos hstrict
-      (normalized_componentBlock_first_moment_integrable C hmass_pos)
-      hkernel_norm
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  intro x hx
+  exact componentBlock_logKernel_replacement_le_of_strictOutside
+    R hx hfirst (hkernel_norm_int x hx)
 
 /--
-Objective non-increase for component replacement using the canonical normalized
-component block.
-
-Compared with `componentReplacement_objective_le_of_strictOutside_logKernel_jensen`,
-this theorem no longer asks the caller to provide the Jensen comparison.  The
-comparison is produced internally from the normalized component block; the
-remaining hypotheses are exactly the log-kernel integrability inputs needed to
-make the logarithmic integrals well-defined.
+Pointwise strict-outside Jensen inequality for the concrete barycenter
+replacement.  The only remaining analytic input is integrability of the
+unchanged outside part; component-block and normalized-block integrability are
+automatic for strict outside test points.
 -/
-theorem componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
+theorem componentReplacement_strictOutside_potential_le_of_outside_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    ∀ x : ℝ, StrictOutsideComponent C x →
+      componentReplacementPotential C x ≤ unitIntervalLogPotential μ x := by
+  let outsidePart : ℝ → ℝ :=
+    fun x => measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x
+  let replacementBlock : ℝ → ℝ :=
+    fun x => (componentMass C).toReal *
+      Real.log (1 / |x - componentBarycenter C|)
+  let originalBlock : ℝ → ℝ :=
+    fun x => ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C
+  refine componentReplacement_strictOutside_potential_le_of_decomposition_jensen
+    C outsidePart replacementBlock originalBlock ?_ ?_ ?_
+  · simpa [outsidePart, replacementBlock] using
+      componentReplacement_potential_le_outside_add_replacementAtom
+        C outsidePart (fun x hx => le_rfl) houtside_integrable
+  · refine unitIntervalLogPotential_original_potential_decomposition_lower
+      C outsidePart originalBlock (fun x hx => le_rfl) ?_
+      houtside_integrable
+      (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
+    intro x hx
+    simp [originalBlock]
+  · simpa [replacementBlock, originalBlock] using
+      componentReplacement_blockKernel_le_original_of_strictOutside
+        R
+        (R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+          (componentBlock_firstMoment_integrable C))
+        (fun x hx =>
+          R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+            (componentBlock_logKernel_integrable_of_strictOutside C hx))
+
+/--
+Concrete component-replacement objective wrapper.
+
+This combines the concrete outside/replacement decomposition, the concrete
+original-side decomposition, and the normalized component-block Jensen theorem
+into the abstract decomposition-plus-Jensen objective bridge.  The only
+remaining analytic assumptions are the two outside comparisons, the component
+replacement data, the first-moment integrability of the normalized block, and
+the kernel integrability obligations needed by those concrete bridge theorems.
+-/
+theorem componentReplacement_objective_le_of_concrete_decomposition_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (outsidePart : ℝ → ℝ)
+    (houtside_replacement : ∀ x : ℝ, StrictOutsideComponent C x →
+      measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x ≤
+        outsidePart x)
+    (houtside_original : ∀ x : ℝ, StrictOutsideComponent C x →
+      outsidePart x ≤
+        measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hnormalized_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C))
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  let replacementBlock : ℝ → ℝ :=
+    fun x => (componentMass C).toReal *
+      Real.log (1 / |x - componentBarycenter C|)
+  let originalBlock : ℝ → ℝ :=
+    fun x => ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C
+  refine componentReplacement_objective_le_of_decomposition_jensen
+    C outsidePart replacementBlock originalBlock ?_ ?_ ?_
+  · simpa [replacementBlock] using
+      componentReplacement_potential_le_outside_add_replacementAtom
+        C outsidePart houtside_replacement houtside_integrable
+  · refine unitIntervalLogPotential_original_potential_decomposition_lower
+      C outsidePart originalBlock houtside_original ?_
+      houtside_integrable hcomponent_block_integrable
+    intro x hx
+    simp [originalBlock]
+  · simpa [replacementBlock, originalBlock] using
+      componentReplacement_blockKernel_le_original_of_strictOutside
+        R hfirst hnormalized_block_integrable
+
+/--
+Concrete component-replacement objective wrapper with the outside part fixed to
+the concrete outside restricted potential.
+
+This removes the auxiliary `outsidePart` and its two comparison assumptions
+from `componentReplacement_objective_le_of_concrete_decomposition_jensen`.
+-/
+theorem componentReplacement_objective_le_of_concrete_outside_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hnormalized_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C))
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_concrete_decomposition_jensen
+    R (fun x => measureLogPotential ((realMeasure μ).restrict C.intervalᶜ) x)
+    ?_ ?_ houtside_integrable hcomponent_block_integrable
+    hnormalized_block_integrable hfirst
+  · intro x hx
+    exact le_rfl
+  · intro x hx
+    exact le_rfl
+
+/--
+Concrete component-replacement objective wrapper with normalized-block
+integrability discharged from component-block integrability.
+
+Remaining assumptions are the component-replacement data, outside kernel
+integrability, component-block kernel integrability, and component-block
+first-moment integrability.
+-/
+theorem componentReplacement_objective_le_of_componentBlock_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C))
+    (hcomponent_first : Integrable (fun t : ℝ => t) (componentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_concrete_outside_jensen
+    R houtside_integrable hcomponent_block_integrable ?_ ?_
+  · intro x hx
+    exact R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      (hcomponent_block_integrable x hx)
+  · exact R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      hcomponent_first
+
+/--
+Cleaner concrete component-replacement objective wrapper: first-moment
+integrability of the component block is discharged from the unit-interval
+support of `realMeasure μ`.
+-/
+theorem componentReplacement_objective_le_of_kernel_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ))
+    (hcomponent_block_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_componentBlock_integrability_jensen
+    R houtside_integrable hcomponent_block_integrable
+    (componentBlock_firstMoment_integrable C)
+
+/--
+Cleaner component-replacement objective wrapper: the only remaining analytic
+input is outside log-kernel integrability; component-block integrability is
+automatic for strict outside test points.
+-/
+theorem componentReplacement_objective_le_of_outside_integrability_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
         ((realMeasure μ).restrict C.intervalᶜ)) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_logKernel_jensen
-    C ?_
-  intro x hx
-  have houtside := hdata x hx
-  have hkernel_norm :
+  exact componentReplacement_objective_le_of_kernel_integrability_jensen
+    R houtside_integrable
+    (fun x hx => componentBlock_logKernel_integrable_of_strictOutside C hx)
+
+/--
+Primary objective nonincrease for the concrete barycenter replacement, obtained
+by combining strict-outside Jensen with the positive-set objective bridge.
+-/
+theorem componentReplacement_primaryObjective_nonincrease_of_outside_integrability
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        ((componentBlockFiniteMeasure C).normalize : Measure ℝ) :=
-    normalized_componentBlock_logKernel_integrable_of_strictOutside
-      C hmass_pos hx
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  exact componentReplacement_objective_le_of_strictOutside_potential_le C
+    (componentReplacement_strictOutside_potential_le_of_outside_integrability_jensen
+      R houtside_integrable)
+
+/--
+Outside-restricted real-measure log-kernel integrability from finite singular
+tail mass.
+
+The existing tail-mass theorem gives full unit-interval integrability over the
+subtype measure.  This bridge pushes it forward to `realMeasure μ` and then
+restricts to the outside of the component interval.
+-/
+theorem outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε x : ℝ} (hε : 0 < ε)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htailFinite : singularTailMass ε μ x < ∞) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict C.intervalᶜ) := by
+  have hunit_raw :
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |(t : ℝ) - x|))
+        (μ : Measure UnitInterval1038) :=
+    unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      (μ := μ) hε hxdiag htailFinite
+  have hunit :
+      Integrable
+        ((fun t : ℝ => Real.log (1 / |x - t|)) ∘
+          (fun t : UnitInterval1038 => (t : ℝ)))
+        (μ : Measure UnitInterval1038) := by
+    exact hunit_raw.congr (Filter.Eventually.of_forall (fun t => by
+      simp [abs_sub_comm]))
+  have hkernel_meas :
+      AEStronglyMeasurable
+        (fun t : ℝ => Real.log (1 / |x - t|))
+        (Measure.map (fun t : UnitInterval1038 => (t : ℝ))
+          (μ : Measure UnitInterval1038)) :=
+    (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+  have hreal :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (realMeasure μ) := by
+    dsimp [realMeasure]
+    exact (integrable_map_measure hkernel_meas
+      continuous_subtype_val.measurable.aemeasurable).2 hunit
+  exact hreal.restrict
+
+theorem endpointRemainder_logKernel_integrable_of_left_outside
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ} (hx : x < -1) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  have hunit :
+      Integrable
+        ((fun t : ℝ => Real.log (1 / |x - t|)) ∘
+          (fun t : UnitInterval1038 => (t : ℝ)))
+        (μ : Measure UnitInterval1038) :=
+    unitInterval_logKernel_integrable_of_left_outside (μ := μ) hx
+  have hkernel_meas :
+      AEStronglyMeasurable
+        (fun t : ℝ => Real.log (1 / |x - t|))
+        (Measure.map (fun t : UnitInterval1038 => (t : ℝ))
+          (μ : Measure UnitInterval1038)) :=
+    (Real.measurable_log.comp (measurable_const.div
+      (continuous_abs.measurable.comp
+        (measurable_const.sub measurable_id)))).aestronglyMeasurable
+  have hreal :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (realMeasure μ) := by
+    dsimp [realMeasure]
+    exact (integrable_map_measure hkernel_meas
+      continuous_subtype_val.measurable.aemeasurable).2 hunit
+  exact hreal.restrict
+
+/--
+Off-diagonal component-replacement objective wrapper.
+
+The outside restricted log-kernel only has to be integrable at strict-outside
+test points away from `diagonalAtomSet μ`; diagonal strict-outside exceptions
+are discarded by the null exceptional-set bridge in
+`replacement_objective_le_of_strictOutside_potential_le_offdiag`.
+-/
+theorem componentReplacement_objective_le_of_outside_integrability_offdiag_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (houtside_integrable : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ)) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine replacement_objective_le_of_strictOutside_potential_le_offdiag C ?_
+  intro x hxstrict hxdiag
+  have houtside_int := houtside_integrable x hxstrict hxdiag
+  have hcomponent_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) :=
+    componentBlock_logKernel_integrable_of_strictOutside C hxstrict
+  have hnormalized_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      hcomponent_int
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
   have hblock :
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
+    componentBlock_logKernel_replacement_le_of_strictOutside
+      R hxstrict hfirst hnormalized_int
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    houtside_int]
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    houtside_int hcomponent_int]
+  exact add_le_add le_rfl hblock
+
+/--
+Tail-mass component-replacement objective wrapper.
+
+Finite singular tail mass at every off-diagonal strict-outside test point
+discharges the outside restricted log-kernel integrability assumption in
+`componentReplacement_objective_le_of_outside_integrability_offdiag_jensen`.
+-/
+theorem componentReplacement_objective_le_of_outside_tailMass_offdiag_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine componentReplacement_objective_le_of_outside_integrability_offdiag_jensen
+    R ?_
+  intro x hxstrict hxdiag
+  exact outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+    C hε hxdiag (htailFinite x hxstrict hxdiag)
+
+/--
+Null-exception tail-mass component-replacement objective wrapper.
+
+Finite singular tail mass is only required at strict-outside off-diagonal test
+points outside the supplied null set `N`; endpoints, diagonal atoms, and `N` are
+discarded by
+`replacement_objective_le_of_strictOutside_potential_le_offdiag_null`.
+-/
+theorem componentReplacement_objective_le_of_outside_tailMass_offdiag_ae_jensen
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (N : Set ℝ) (hN : volume N = 0)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine replacement_objective_le_of_strictOutside_potential_le_offdiag_null
+    C hN ?_
+  intro x hxstrict hxdiag hxN
+  have houtside_int :
       Integrable (fun t : ℝ => Real.log (1 / |x - t|))
-        (componentBlock C) :=
-    componentBlock_integrable_of_normalized_integrable C
-      (fun t : ℝ => Real.log (1 / |x - t|)) hkernel_norm
-  refine ⟨houtside, hblock, componentBarycenterAtom_logKernel_integrable C x, ?_⟩
-  exact componentBlock_logKernel_jensen_scaled_normalized
-    C hmass_pos hx
-    (normalized_componentBlock_first_moment_integrable C hmass_pos)
-    hkernel_norm
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      C hε hxdiag (htailFinite x hxstrict hxdiag hxN)
+  have hcomponent_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) :=
+    componentBlock_logKernel_integrable_of_strictOutside C hxstrict
+  have hnormalized_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      hcomponent_int
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hblock :
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
+    componentBlock_logKernel_replacement_le_of_strictOutside
+      R hxstrict hfirst hnormalized_int
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    houtside_int]
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    houtside_int hcomponent_int]
+  exact add_le_add le_rfl hblock
 
 /--
-Component-replacement objective non-increase from compact outside-support
-certificates.
-
-For each strict outside test point, it suffices to provide a compact set carrying
-the outside restriction a.e. on which the logarithmic kernel is continuous.
-Lean then derives the outside integrability input and invokes the canonical
-normalized-block Jensen bridge.
+Stable public wrapper name for the null-exception tail-mass replacement
+objective theorem.
 -/
-theorem componentReplacement_objective_le_of_strictOutside_compactOutside
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hdata : ∀ x : ℝ, StrictOutsideComponent C x →
-      ∃ K : Set ℝ,
-        (∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ), t ∈ K) ∧
-        IsCompact K ∧
-        ContinuousOn (fun t : ℝ => Real.log (1 / |x - t|)) K) :
+theorem componentReplacement_objective_le_of_tailMass_null_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (N : Set ℝ) (hN : volume N = 0)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
-    C hmass_pos ?_
-  intro x hx
-  rcases hdata x hx with ⟨K, hmemK, hcompact, hcont⟩
-  exact outsideRestriction_logKernel_integrable_of_compact_support
-    C K hmemK hcompact hcont
+  exact componentReplacement_objective_le_of_outside_tailMass_offdiag_ae_jensen
+    R hε N hN htailFinite
 
-/--
-Component-replacement objective non-increase from positive separation of the
-outside restriction from every strict outside test point.
+theorem componentReplacement_objective_le_add_of_tailMass_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (N : Set ℝ) {η : ℝ≥0∞} (hN : volume N ≤ η)
+    (htailFinite : ∀ x : ℝ, StrictOutsideComponent C x →
+      x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
+    volume (PositiveSet (componentReplacementPotential C)) ≤
+      volume (PositiveSet (unitIntervalLogPotential μ)) + η := by
+  refine replacement_objective_le_add_of_strictOutside_potential_le_offdiag_exception
+    C hN ?_
+  intro x hxstrict hxdiag hxN
+  have houtside_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict C.intervalᶜ) :=
+    outside_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      C hε hxdiag (htailFinite x hxstrict hxdiag hxN)
+  have hcomponent_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (componentBlock C) :=
+    componentBlock_logKernel_integrable_of_strictOutside C hxstrict
+  have hnormalized_int :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_logKernel_integrable_of_componentBlock
+      hcomponent_int
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hblock :
+      (componentMass C).toReal *
+          Real.log (1 / |x - componentBarycenter C|) ≤
+        ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C :=
+    componentBlock_logKernel_replacement_le_of_strictOutside
+      R hxstrict hfirst hnormalized_int
+  rw [componentReplacement_potential_eq_outside_add_replacementAtom C x
+    houtside_int]
+  rw [unitIntervalLogPotential_eq_outside_add_componentBlock C x
+    houtside_int hcomponent_int]
+  exact add_le_add le_rfl hblock
 
-This is the strongest local replacement interface currently formalized: the
-caller supplies the geometric separation data, and Lean derives all
-log-kernel integrability and Jensen inputs.
--/
-theorem componentReplacement_objective_le_of_strictOutside_distSeparated
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hsep : ∀ x : ℝ, StrictOutsideComponent C x →
-      ∃ ε : ℝ, 0 < ε ∧
-        ∀ᵐ t : ℝ ∂((realMeasure μ).restrict C.intervalᶜ),
-          ε ≤ |x - t|) :
+theorem componentReplacement_objective_le_of_forall_small_tailMass_exception
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ → x ∉ N → singularTailMass ε μ x < ∞) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_normalizedBlock_integrable
-    C hmass_pos ?_
-  intro x hx
-  rcases hsep x hx with ⟨ε, hε, hdist⟩
-  exact outsideRestriction_logKernel_integrable_of_dist_ge C hε hdist
+  refine ENNReal.le_of_forall_pos_le_add ?_
+  intro η hη _
+  rcases hsmall η hη with ⟨N, hN, htailFinite⟩
+  exact componentReplacement_objective_le_add_of_tailMass_exception
+    R hε N hN htailFinite
 
 /--
-Component-replacement objective non-increase from punctured-neighbourhood
-zero-mass certificates around every strict outside test point.
+Exact objective nonincrease with the small exceptional sets generated
+internally from the singular-tail bad-set estimate.
 -/
-theorem componentReplacement_objective_le_of_strictOutside_IooNull
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hnull : ∀ x : ℝ, StrictOutsideComponent C x →
-      ∃ ε : ℝ, 0 < ε ∧
-        ((realMeasure μ).restrict C.intervalᶜ) (Ioo (x - ε) (x + ε)) = 0) :
+theorem componentReplacement_objective_le_of_singularTail_small_exceptions
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε) :
     volume (PositiveSet (componentReplacementPotential C)) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_distSeparated
-    C hmass_pos ?_
-  intro x hx
-  rcases hnull x hx with ⟨ε, hε, hzero⟩
-  exact ⟨ε, hε, outsideRestriction_ae_dist_ge_of_Ioo_null C hε hzero⟩
+  refine componentReplacement_objective_le_of_forall_small_tailMass_exception
+    R hε ?_
+  intro η hη
+  exact singularTail_exists_small_strictOutside_exception C ε η hη
 
-/--
-Component-replacement objective non-increase when every strict outside test
-point is outside the support of the outside restriction.
--/
-theorem componentReplacement_objective_le_of_strictOutside_notMemOutsideSupport
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hsupp : ∀ x : ℝ, StrictOutsideComponent C x →
-      x ∉ ((realMeasure μ).restrict C.intervalᶜ).support) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
+theorem componentReplacementProbability_positiveSetObjective_le_of_singularTail_small_exceptions
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    volume (PositiveSet
+        (unitIntervalLogPotential (componentReplacementProbability C hmass_unit))) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_IooNull
-    C hmass_pos ?_
-  intro x hx
-  exact outsideRestriction_exists_Ioo_null_of_not_mem_support C (hsupp x hx)
+  rw [unitIntervalLogPotential_componentReplacementProbability_eq
+    C hmass_unit hsupport]
+  exact componentReplacement_objective_le_of_singularTail_small_exceptions
+    R hε
 
-/--
-Component-replacement objective non-increase with the singular outside-support
-case isolated.
-
-At regular strict outside points, Lean proves the pointwise comparison from the
-support-exclusion bridge.  The only remaining input is the singular branch:
-points that are strict outside the component and lie in the support of the
-outside restriction.
--/
-theorem componentReplacement_objective_le_of_strictOutside_supportCase
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hsingular : ∀ x : ℝ, StrictOutsideComponent C x →
-      x ∈ ((realMeasure μ).restrict C.intervalᶜ).support →
-        componentReplacementPotential C x ≤ unitIntervalLogPotential μ x) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
+theorem componentReplacementProbability_positiveSetObjective_le_of_barycenter_mem_Icc
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1) :
+    volume (PositiveSet
+        (unitIntervalLogPotential
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary)))) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine componentReplacement_objective_le_of_strictOutside_potential_le
-    C ?_
-  intro x hxstrict
-  by_cases hsupp : x ∈ ((realMeasure μ).restrict C.intervalᶜ).support
-  · exact hsingular x hxstrict hsupp
-  · exact componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
-      C hmass_pos hxstrict hsupp
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  have hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 :=
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit
+  exact
+    componentReplacementProbability_positiveSetObjective_le_of_singularTail_small_exceptions
+      R hε hmass_unit hsupport
 
-/--
-Replacement positive-set inclusion with the singular support-hit branch kept as
-an explicit exceptional set.
-
-Away from the component interval, the only points where the regular
-support-exclusion comparison is not available are the strict outside points that
-lie in the outside-restriction support.  Endpoints are already a finite null
-exception in the strict-outside formulation.
--/
-lemma componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C) :
-    PositiveSet (componentReplacementPotential C) ⊆
-      PositiveSet (unitIntervalLogPotential μ) ∪
-        ({C.left, C.right} : Set ℝ) ∪
-          strictOutsideSupportHitSet C := by
-  intro x hxpos
-  by_cases hxC : x ∈ C.interval
-  · exact Or.inl (Or.inl (C.interval_subset_positiveSet hxC))
-  · rcases C.not_interval_imp_strictOutside_or_endpoint hxC with hstrict | hendpoint
-    · by_cases hsupp :
-          x ∈ ((realMeasure μ).restrict C.intervalᶜ).support
-      · exact Or.inr ⟨hstrict, hsupp⟩
-      · have hle :=
-          componentReplacement_potential_le_of_strictOutside_notMemOutsideSupport
-            C hmass_pos hstrict hsupp
-        exact Or.inl (Or.inl (lt_of_lt_of_le hxpos hle))
-    · exact Or.inl (Or.inr (by simpa [Set.mem_insert_iff] using hendpoint))
-
-/--
-Component replacement does not increase objective once the singular support-hit
-branch is Lebesgue-null.
--/
-theorem componentReplacement_objective_le_of_strictOutside_supportHit_null
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hnull : volume (strictOutsideSupportHitSet C) = 0) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
+theorem componentReplacementProbability_positiveSetObjective_le
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε) :
+    volume (PositiveSet
+        (unitIntervalLogPotential
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))))) ≤
       volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  have hsub :=
-    componentReplacement_positiveSet_subset_original_union_endpoints_union_supportHit
-      C hmass_pos
-  have hmono :
-      volume (PositiveSet (componentReplacementPotential C)) ≤
-        volume (PositiveSet (unitIntervalLogPotential μ) ∪
-          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) :=
-    measure_mono (μ := volume) hsub
-  have hpair : volume ({C.left, C.right} : Set ℝ) = 0 := by
-    apply le_antisymm
-    · calc
-        volume ({C.left, C.right} : Set ℝ) ≤
-            volume (({C.left} : Set ℝ) ∪ ({C.right} : Set ℝ)) := by
-              exact measure_mono (by
-                intro x hx
-                simp at hx ⊢
-                rcases hx with hx | hx
-                · exact Or.inr hx
-                · exact Or.inl hx)
-        _ ≤ volume ({C.left} : Set ℝ) + volume ({C.right} : Set ℝ) :=
-              measure_union_le _ _
-        _ = 0 := by simp
-    · exact bot_le
-  have hunion :
-      volume (PositiveSet (unitIntervalLogPotential μ) ∪
-          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) ≤
-        volume (PositiveSet (unitIntervalLogPotential μ)) +
-          volume ({C.left, C.right} : Set ℝ) +
-            volume (strictOutsideSupportHitSet C) := by
-    calc
-      volume (PositiveSet (unitIntervalLogPotential μ) ∪
-          ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C)
-          ≤ volume (PositiveSet (unitIntervalLogPotential μ) ∪
-              ({C.left, C.right} : Set ℝ)) +
-              volume (strictOutsideSupportHitSet C) :=
-            measure_union_le (μ := volume) _ _
-      _ ≤ (volume (PositiveSet (unitIntervalLogPotential μ)) +
-              volume ({C.left, C.right} : Set ℝ)) +
-              volume (strictOutsideSupportHitSet C) := by
-            exact add_le_add
-              (measure_union_le
-                (μ := volume)
-                (PositiveSet (unitIntervalLogPotential μ))
-                ({C.left, C.right} : Set ℝ))
-              le_rfl
-      _ = volume (PositiveSet (unitIntervalLogPotential μ)) +
-            volume ({C.left, C.right} : Set ℝ) +
-              volume (strictOutsideSupportHitSet C) := by
-            simp [add_assoc]
+  exact componentReplacementProbability_positiveSetObjective_le_of_barycenter_mem_Icc
+    R hε (componentBarycenter_mem_Icc R)
+
+theorem componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hlog_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        Integrable
+          (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+          ((componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R)) : Measure UnitInterval1038)))
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
   calc
-    volume (PositiveSet (componentReplacementPotential C))
-        ≤ volume (PositiveSet (unitIntervalLogPotential μ) ∪
-            ({C.left, C.right} : Set ℝ) ∪ strictOutsideSupportHitSet C) := hmono
-    _ ≤ volume (PositiveSet (unitIntervalLogPotential μ)) +
-          volume ({C.left, C.right} : Set ℝ) +
-            volume (strictOutsideSupportHitSet C) := hunion
-    _ = volume (PositiveSet (unitIntervalLogPotential μ)) := by
-          simp [hpair, hnull]
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)))
+        ≤ unitIntervalPositiveSetObjective
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R))) :=
+          unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R)))
+            hlog_replacement
+    _ ≤ unitIntervalPositiveSetObjective μ := by
+          simpa [unitIntervalPositiveSetObjective] using
+            componentReplacementProbability_positiveSetObjective_le R hε
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+          horiginal_positive_le_truncated
 
-/-- The singular support-hit set is contained in the support of the outside
-restriction. -/
-lemma strictOutsideSupportHitSet_subset_outsideSupport
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
-    strictOutsideSupportHitSet C ⊆
-      ((realMeasure μ).restrict C.intervalᶜ).support := by
-  intro x hx
-  exact hx.2
+theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (htail_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        singularTailMass 1
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) x < ∞)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  refine
+    componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+      R (by positivity : (0 : ℝ) < 1) ?_ horiginal_positive_le_truncated
+  intro x hxdiag
+  simpa [abs_sub_comm] using
+    unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+      (by positivity : (0 : ℝ) < 1)
+      hxdiag
+      (htail_replacement x hxdiag)
 
-/-- A null outside-restriction support makes the singular support-hit branch
-null. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hnull :
-      volume (((realMeasure μ).restrict C.intervalᶜ).support) = 0) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact measure_mono_null (strictOutsideSupportHitSet_subset_outsideSupport C)
-    hnull
+theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_null_exception_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (N : Set ℝ) (hN : volume N = 0)
+    (htail_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        x ∉ N →
+        singularTailMass 1
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) x < ∞)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)))
+        ≤ unitIntervalPositiveSetObjective
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R))) :=
+          unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable_null_exception
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R)))
+            N hN
+            (by
+              intro x hxdiag hxN
+              simpa [abs_sub_comm] using
+                unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+                  (by positivity : (0 : ℝ) < 1)
+                  hxdiag
+                  (htail_replacement x hxdiag hxN))
+    _ ≤ unitIntervalPositiveSetObjective μ := by
+          simpa [unitIntervalPositiveSetObjective] using
+            componentReplacementProbability_positiveSetObjective_le R
+              (by positivity : (0 : ℝ) < 1)
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+          horiginal_positive_le_truncated
 
-/-- A countable outside-restriction support makes the singular support-hit
-branch null. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hcount :
-      (((realMeasure μ).restrict C.intervalᶜ).support).Countable) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null C
-    (hcount.measure_zero volume)
-
-/-- It is enough for the outside-restriction support to be contained in a
-countable set. This is the form needed when the component analysis supplies a
-countable atomic carrier rather than countability of the support as a named
-set. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    {S : Set ℝ}
-    (hS_count : S.Countable)
-    (hsub : ((realMeasure μ).restrict C.intervalᶜ).support ⊆ S) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C
-    (hS_count.mono hsub)
-
-/-- It is also enough to cover the actual singular support-hit set by a
-countable carrier. This avoids any unnecessary closure assertion about the
-whole outside-restriction support. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_subset_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    {S : Set ℝ}
-    (hS_count : S.Countable)
-    (hsub : strictOutsideSupportHitSet C ⊆ S) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact (hS_count.mono hsub).measure_zero volume
-
-/-- A finite carrier for the actual singular support-hit set is enough. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_subset_finite
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    {S : Set ℝ}
-    (hS_finite : S.Finite)
-    (hsub : strictOutsideSupportHitSet C ⊆ S) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact strictOutsideSupportHitSet_volume_zero_of_subset_countable C
-    hS_finite.countable hsub
-
-/-- A concrete finite list of possible singular support-hit points is enough. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_subset_finset
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (S : Finset ℝ)
-    (hsub : strictOutsideSupportHitSet C ⊆ (S : Set ℝ)) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact strictOutsideSupportHitSet_volume_zero_of_subset_countable C
-    S.countable_toSet hsub
-
-/-- If the singular support-hit branch is empty, it is null. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_empty
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hempty : strictOutsideSupportHitSet C = ∅) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  simp [hempty]
-
-/-- If the singular support-hit branch is contained in the two component
-endpoints, it is null. -/
-lemma strictOutsideSupportHitSet_volume_zero_of_subset_endpoints
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hsub :
-      strictOutsideSupportHitSet C ⊆ ({C.left, C.right} : Set ℝ)) :
-    volume (strictOutsideSupportHitSet C) = 0 := by
-  exact strictOutsideSupportHitSet_volume_zero_of_subset_finite C
-    (by simp : ({C.left, C.right} : Set ℝ).Finite) hsub
-
-/-- Component replacement does not increase the objective if the outside
-restriction has null support. -/
-theorem componentReplacement_objective_le_of_outsideSupport_null
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hnull :
-      volume (((realMeasure μ).restrict C.intervalᶜ).support) = 0) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_null C hnull)
-
-/-- Component replacement does not increase the objective if the outside
-restriction has countable support. -/
-theorem componentReplacement_objective_le_of_outsideSupport_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hcount :
-      (((realMeasure μ).restrict C.intervalᶜ).support).Countable) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_countable C hcount)
-
-/-- Component replacement does not increase the objective if the outside
-restriction support is covered by a countable set. -/
-theorem componentReplacement_objective_le_of_outsideSupport_subset_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    {S : Set ℝ}
-    (hS_count : S.Countable)
-    (hsub : ((realMeasure μ).restrict C.intervalᶜ).support ⊆ S) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_outsideSupport_subset_countable
-      C hS_count hsub)
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is covered by a countable set. -/
-theorem componentReplacement_objective_le_of_supportHit_subset_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    {S : Set ℝ}
-    (hS_count : S.Countable)
-    (hsub : strictOutsideSupportHitSet C ⊆ S) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_subset_countable C hS_count hsub)
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is countable. -/
-theorem componentReplacement_objective_le_of_supportHit_countable
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hcount : (strictOutsideSupportHitSet C).Countable) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_supportHit_subset_countable
-    C hmass_pos hcount (subset_rfl)
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is covered by a finite set. -/
-theorem componentReplacement_objective_le_of_supportHit_subset_finite
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    {S : Set ℝ}
-    (hS_finite : S.Finite)
-    (hsub : strictOutsideSupportHitSet C ⊆ S) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_supportHit_subset_countable
-    C hmass_pos hS_finite.countable hsub
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is covered by a concrete finite list. -/
-theorem componentReplacement_objective_le_of_supportHit_subset_finset
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (S : Finset ℝ)
-    (hsub : strictOutsideSupportHitSet C ⊆ (S : Set ℝ)) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_supportHit_subset_countable
-    C hmass_pos S.countable_toSet hsub
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is empty. -/
-theorem componentReplacement_objective_le_of_supportHit_empty
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hempty : strictOutsideSupportHitSet C = ∅) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_empty C hempty)
-
-/-- Component replacement does not increase the objective if the actual
-singular support-hit branch is contained in the two component endpoints. -/
-theorem componentReplacement_objective_le_of_supportHit_subset_endpoints
-    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
-    (hmass_pos : 0 < componentMass C)
-    (hsub :
-      strictOutsideSupportHitSet C ⊆ ({C.left, C.right} : Set ℝ)) :
-    volume (PositiveSet (componentReplacementPotential C)) ≤
-      volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  exact componentReplacement_objective_le_of_strictOutside_supportHit_null
-    C hmass_pos
-    (strictOutsideSupportHitSet_volume_zero_of_subset_endpoints C hsub)
+theorem componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)))
+        ≤ unitIntervalPositiveSetObjective
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R))) :=
+          unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_tailMass_small_exceptions
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R)))
+            (by positivity : (0 : ℝ) < 1)
+    _ ≤ unitIntervalPositiveSetObjective μ := by
+          simpa [unitIntervalPositiveSetObjective] using
+            componentReplacementProbability_positiveSetObjective_le R
+              (by positivity : (0 : ℝ) < 1)
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+          horiginal_positive_le_truncated
 
 /-!
 ## Finite variance drop under barycenter replacement
@@ -8491,6 +10722,229 @@ theorem measure_barycenter_second_moment_le_original
   have h := measure_second_moment_sub_mean_sq_nonneg μ hfirst hsecond
   linarith
 
+/--
+Component-block second-moment drop under barycenter replacement, scaled back to
+the original component mass.
+-/
+theorem componentBlock_barycenter_secondMoment_le_original
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C)) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 ≤
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hle :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) ^ 2 ≤
+        ∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C :=
+    measure_barycenter_second_moment_le_original
+      (normalizedComponentBlock C) hfirst hsecond
+  rw [normalizedComponentBlock_integral_eq_barycenter R] at hle
+  have hnorm :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm] at hle
+  calc
+    (componentMass C).toReal * (componentBarycenter C) ^ 2
+        ≤ (componentMass C).toReal *
+            (((componentMass C)⁻¹).toReal *
+              ∫ t : ℝ, t ^ 2 ∂componentBlock C) := by
+          exact mul_le_mul_of_nonneg_left hle (le_of_lt hmass_toReal_pos)
+    _ = ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+          rw [ENNReal.toReal_inv]
+          field_simp [hmass_toReal_pos.ne']
+
+/-- Real-measure second-moment nonincrease for the component replacement. -/
+theorem componentReplacementMeasure_secondMoment_le_realMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) ≤
+      ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+  let f : ℝ → ℝ := fun t => t ^ 2
+  have houtside_int : Integrable f ((realMeasure μ).restrict C.intervalᶜ) :=
+    outsideComponent_secondMoment_integrable C
+  have hblock_int : Integrable f (componentBlock C) :=
+    componentBlock_secondMoment_integrable C
+  have hdirac_int :
+      Integrable f (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hreplacement :
+      (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 := by
+    rw [componentReplacementMeasure_def]
+    rw [integral_add_measure houtside_int hdirac_int]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    simp [f, smul_eq_mul]
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C =
+        realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  have horiginal :
+      (∫ t : ℝ, f t ∂realMeasure μ) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂realMeasure μ)
+          = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
+              componentBlock C) := by rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+            ∫ t : ℝ, f t ∂componentBlock C := by
+              rw [integral_add_measure houtside_int hblock_int]
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hsecond :
+      Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+      (componentBlock_secondMoment_integrable C)
+  have hblock_le :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 ≤
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C :=
+    componentBlock_barycenter_secondMoment_le_original R hfirst hsecond
+  rw [hreplacement, horiginal]
+  simpa [f, add_comm, add_left_comm, add_assoc] using
+    add_le_add_left hblock_le
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ)
+
+/--
+If the real replacement has the same second moment as the original measure,
+then the component-block barycenter inequality is an equality.
+-/
+theorem componentBlock_secondMoment_eq_of_replacement_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (heq :
+      (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) =
+        ∫ t : ℝ, t ^ 2 ∂realMeasure μ) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  let f : ℝ → ℝ := fun t => t ^ 2
+  have houtside_int : Integrable f ((realMeasure μ).restrict C.intervalᶜ) :=
+    outsideComponent_secondMoment_integrable C
+  have hblock_int : Integrable f (componentBlock C) :=
+    componentBlock_secondMoment_integrable C
+  have hdirac_int :
+      Integrable f (componentMass C • Measure.dirac (componentBarycenter C)) := by
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hreplacement :
+      (∫ t : ℝ, f t ∂componentReplacementMeasure C) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 := by
+    rw [componentReplacementMeasure_def]
+    rw [integral_add_measure houtside_int hdirac_int]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    simp [f, smul_eq_mul]
+  have hsplit :
+      (realMeasure μ).restrict C.intervalᶜ + componentBlock C =
+        realMeasure μ := by
+    unfold componentBlock
+    exact Measure.restrict_compl_add_restrict C.measurableSet_interval
+  have horiginal :
+      (∫ t : ℝ, f t ∂realMeasure μ) =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂realMeasure μ)
+          = ∫ t : ℝ, f t ∂((realMeasure μ).restrict C.intervalᶜ +
+              componentBlock C) := by rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+            ∫ t : ℝ, f t ∂componentBlock C := by
+              rw [integral_add_measure houtside_int hblock_int]
+  have hsum :
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := by
+    calc
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          (componentMass C).toReal * (componentBarycenter C) ^ 2
+          = ∫ t : ℝ, f t ∂componentReplacementMeasure C := by
+              rw [hreplacement]
+      _ = ∫ t : ℝ, f t ∂realMeasure μ := heq
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict C.intervalᶜ) +
+          ∫ t : ℝ, f t ∂componentBlock C := horiginal
+  exact add_left_cancel hsum
+
+/-- Concrete secondary objective nonincrease for the subtype replacement
+probability. -/
+theorem unitIntervalSecondMomentObjective_componentReplacement_nonincrease
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) :
+    unitIntervalSecondMomentObjective (componentReplacementProbability C hmass_unit) ≤
+      unitIntervalSecondMomentObjective μ := by
+  rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+  rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+  rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+    C hmass_unit hsupport]
+  exact componentReplacementMeasure_secondMoment_le_realMeasure R
+
+/--
+Concrete secondary equality implies equality in the component-block
+second-moment inequality.
+-/
+theorem componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (heq :
+      unitIntervalSecondMomentObjective (componentReplacementProbability C hmass_unit) =
+        unitIntervalSecondMomentObjective μ) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  have hreal :
+      (∫ t : ℝ, t ^ 2 ∂componentReplacementMeasure C) =
+        ∫ t : ℝ, t ^ 2 ∂realMeasure μ := by
+    rw [← unitIntervalSecondMomentObjective_eq_realMeasure μ]
+    rw [← heq]
+    rw [unitIntervalSecondMomentObjective_eq_realMeasure]
+    rw [realMeasure_componentReplacementProbability_eq_of_ae_mem_unitInterval
+      C hmass_unit hsupport]
+  exact componentBlock_secondMoment_eq_of_replacement_secondMoment_eq hreal
+
+/--
+Scaled component-block second-moment equality is equivalent to equality in the
+normalized probability block's variance inequality.
+-/
+theorem normalizedComponentBlock_secondMoment_eq_barycenter_sq_of_componentBlock_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C) :
+    (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+      (componentBarycenter C) ^ 2 := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  have hnorm :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm, ← heq]
+  rw [ENNReal.toReal_inv]
+  field_simp [hmass_toReal_pos.ne']
+
 theorem measure_barycenter_second_moment_eq_imp_ae_eq_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
@@ -8557,6 +11011,562 @@ lemma measure_eq_dirac_of_ae_eq_const
       rw [Measure.map_const]
     _ = Measure.dirac m := by simp
 
+lemma ae_eq_const_of_measure_eq_dirac
+    (μ : Measure ℝ) [IsProbabilityMeasure μ] {m : ℝ}
+    (h : μ = Measure.dirac m) :
+    (fun t : ℝ => t) =ᵐ[μ] fun _ : ℝ => m := by
+  rw [h]
+  rw [MeasureTheory.ae_dirac_eq]
+  exact Filter.eventually_pure.2 rfl
+
+theorem ComponentReplacement.normalizedComponentBlock_ae_eq_of_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {m : ℝ}
+    (hdirac : normalizedComponentBlock C = Measure.dirac m) :
+    (fun t : ℝ => t) =ᵐ[normalizedComponentBlock C] fun _ : ℝ => m := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  exact ae_eq_const_of_measure_eq_dirac (normalizedComponentBlock C) hdirac
+
+theorem unique_support_in_component_of_support_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {Support component : Set ℝ}
+    (hcomponent_open : IsOpen component)
+    (hSupport_nhds :
+      ∀ t : ℝ, t ∈ Support → ∀ U : Set ℝ,
+        IsOpen U → t ∈ U → realMeasure μ U ≠ 0)
+    (hzero :
+      ∀ U : Set ℝ, IsOpen U → U ⊆ component → -1 ∉ U →
+        realMeasure μ U = 0) :
+    ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1 := by
+  intro t htSupport htComponent
+  by_contra ht_ne
+  let U : Set ℝ := component ∩ ({-1} : Set ℝ)ᶜ
+  have hUopen : IsOpen U :=
+    hcomponent_open.inter (isClosed_singleton.isOpen_compl)
+  have htU : t ∈ U := by
+    exact ⟨htComponent, by simpa using ht_ne⟩
+  have hUsub : U ⊆ component := by
+    intro y hy
+    exact hy.1
+  have hendpoint_not_mem : -1 ∉ U := by
+    simp [U]
+  exact (hSupport_nhds t htSupport U hUopen htU)
+    (hzero U hUopen hUsub hendpoint_not_mem)
+
+theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0 := by
+  intro U hU hUsub hendpoint
+  have hrestrict_eq :
+      componentBlock C U = realMeasure μ U := by
+    unfold componentBlock
+    rw [Measure.restrict_apply]
+    · have hinter : U ∩ C.interval = U := by
+        ext x
+        constructor
+        · intro hx
+          exact hx.1
+        · intro hx
+          exact ⟨hx, hUsub hx⟩
+      rw [hinter]
+    · exact hU.measurableSet
+  have hdirac_zero : componentBlock C U = 0 := by
+    rw [hdirac]
+    simp [Measure.smul_apply, hendpoint]
+  rw [← hrestrict_eq]
+  exact hdirac_zero
+
+theorem unique_support_in_component_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 := by
+  exact unique_support_in_component_of_support_neighborhood_zero
+    (by simpa [PositiveComponent.interval_eq] using
+      (isOpen_Ioo : IsOpen (Ioo C.left C.right)))
+    (realMeasure_support_open_neighborhood_pos μ)
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac)
+
+/--
+Concrete normalized-support form from a selected component whose non-endpoint
+open sub-neighborhoods carry no realMeasure mass.
+-/
+theorem realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      (by simpa [PositiveComponent.interval_eq] using
+        (isOpen_Ioo : IsOpen (Ioo C.left C.right)))
+      (realMeasure_support_open_neighborhood_pos μ) hzero
+  exact support_subset_endpoint_union_nonnegative
+    (Support := (realMeasure μ).support)
+    (xMinus := C.left) (xPlus := C.right)
+    (realMeasure_support_subset_unitInterval μ)
+    (by simpa [PositiveComponent.interval_eq] using hbaseline)
+    (by
+      intro t htSupport htInterval
+      exact hunique t htSupport (by simpa [PositiveComponent.interval_eq] using htInterval))
+
+/--
+Concrete normalized-support form from endpoint atomization of the selected
+component block.
+-/
+theorem realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  exact realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+    hbaseline
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint hdirac)
+
+/--
+Endpoint atomization of the selected component produces a genuine endpoint atom
+of the real push-forward measure.
+-/
+theorem realMeasure_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    0 < realMeasure μ ({-1} : Set ℝ) := by
+  have hblock_atom : componentBlock C ({-1} : Set ℝ) = componentMass C := by
+    rw [hdirac]
+    simp [Measure.smul_apply]
+  have hle : componentBlock C ({-1} : Set ℝ) ≤ realMeasure μ ({-1} : Set ℝ) := by
+    unfold componentBlock
+    exact Measure.restrict_le_self ({-1} : Set ℝ)
+  exact lt_of_lt_of_le (by simpa [hblock_atom] using R.mass_pos) hle
+
+/--
+Endpoint atomization of the selected component produces a genuine endpoint atom
+of the original subtype probability measure.
+-/
+theorem unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    0 < (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} := by
+  have hreal :=
+    realMeasure_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hdirac
+  rw [realMeasure] at hreal
+  rw [Measure.map_apply continuous_subtype_val.measurable
+    (measurableSet_singleton (-1 : ℝ))] at hreal
+  simpa [Set.preimage, Set.mem_singleton_iff] using hreal
+
+theorem realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ C.interval = 0 := by
+  have hzero :=
+    component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  have hCopen : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  have hopen : IsOpen (C.interval ∩ ({-1} : Set ℝ)ᶜ) :=
+    hCopen.inter (isClosed_singleton.isOpen_compl)
+  have hsub : C.interval ∩ ({-1} : Set ℝ)ᶜ ⊆ C.interval := by
+    intro t ht
+    exact ht.1
+  have hnot : -1 ∉ C.interval ∩ ({-1} : Set ℝ)ᶜ := by
+    simp
+  have hzero_inter :
+      realMeasure μ (C.interval ∩ ({-1} : Set ℝ)ᶜ) = 0 :=
+    hzero (C.interval ∩ ({-1} : Set ℝ)ᶜ) hopen hsub hnot
+  rw [Measure.restrict_apply C.measurableSet_interval]
+  simpa [Set.inter_comm] using hzero_inter
+
+theorem realMeasure_ae_endpointCompl_iff_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ᵐ t ∂realMeasure μ,
+      (t ∈ ({-1} : Set ℝ)ᶜ) ↔
+        t ∈ ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ := by
+  have hzero :=
+    realMeasure_endpointRemainder_component_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  rw [Measure.restrict_apply C.measurableSet_interval] at hzero
+  rw [ae_iff]
+  have hbad :
+      {t : ℝ |
+        ¬ (t ∈ ({-1} : Set ℝ)ᶜ ↔
+          t ∈ ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ)} =
+        C.interval ∩ ({-1} : Set ℝ)ᶜ := by
+    ext t
+    by_cases ht_endpoint : t = -1
+    · simp [ht_endpoint]
+    · by_cases ht_component : t ∈ C.interval
+      · simp [ht_endpoint, ht_component]
+      · simp [ht_endpoint, ht_component]
+  simpa [hbad, Set.inter_comm] using hzero
+
+theorem realMeasure_endpointRemainder_eq_restrict_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ =
+      (realMeasure μ).restrict (({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ) := by
+  apply Measure.restrict_congr_set
+  filter_upwards [
+    realMeasure_ae_endpointCompl_iff_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac
+  ] with t ht
+  exact propext ht
+
+theorem endpointRemainder_logKernel_integrable_of_mem_atomized_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {x : ℝ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ))
+    (hxC : x ∈ C.interval) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  let A : Set ℝ := ({-1} : Set ℝ)ᶜ ∩ C.intervalᶜ
+  let S : Set ℝ := A ∩ Icc (-1 : ℝ) 1
+  have hendpoint :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ =
+        (realMeasure μ).restrict A := by
+    simpa [A] using
+      realMeasure_endpointRemainder_eq_restrict_endpointCompl_componentCompl_of_componentBlock_eq_smul_dirac_endpoint
+        hdirac
+  have hrestrict_unit :
+      (realMeasure μ).restrict A = (realMeasure μ).restrict S := by
+    apply Measure.restrict_congr_set
+    filter_upwards [realMeasure_ae_mem_unitInterval μ] with t ht
+    exact propext ⟨fun hA => ⟨hA, ht⟩, fun hS => hS.1⟩
+  have hCopen : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  let K : Set ℝ := Icc (-1 : ℝ) 1 ∩ C.intervalᶜ
+  have hK : IsCompact K := by
+    exact isCompact_Icc.inter_right hCopen.isClosed_compl
+  have hS_meas : MeasurableSet S := by
+    exact ((measurableSet_singleton (-1 : ℝ)).compl.inter
+      C.measurableSet_interval.compl).inter measurableSet_Icc
+  have hS_sub_K : S ⊆ K := by
+    intro t ht
+    exact ⟨ht.2, ht.1.2⟩
+  have haway : ∀ t : ℝ, t ∈ K → x ≠ t := by
+    intro t ht hxt
+    have htC : t ∈ C.interval := by
+      simpa [hxt] using hxC
+    exact ht.2 htC
+  have hcont : ContinuousOn f K :=
+    logKernel_continuousOn_away haway
+  have hint : IntegrableOn f S (realMeasure μ) :=
+    hcont.integrableOn_of_subset_isCompact hK hS_meas hS_sub_K
+      (measure_ne_top (realMeasure μ) _)
+  change Integrable f ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)
+  rw [hendpoint, hrestrict_unit]
+  simpa [IntegrableOn] using hint
+
+theorem endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : componentBlock C =
+      componentMass C • Measure.dirac (-1 : ℝ))
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  intro x hx
+  rcases hx with ⟨hxBase, hxNotEndpointSet⟩
+  by_cases hx_left : x < -1
+  · exact endpointRemainder_logKernel_integrable_of_left_outside hx_left
+  · have hx_ne_endpoint : x ≠ -1 := by
+      simpa using hxNotEndpointSet
+    have hx_ge_endpoint : (-1 : ℝ) ≤ x := le_of_not_gt hx_left
+    have hx_gt_endpoint : (-1 : ℝ) < x :=
+      lt_of_le_of_ne hx_ge_endpoint (Ne.symm hx_ne_endpoint)
+    have hx_component : x ∈ C.interval :=
+      hbaseline ⟨hx_gt_endpoint, hxBase.2⟩
+    exact endpointRemainder_logKernel_integrable_of_mem_atomized_component
+      hdirac hx_component
+
+theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_ne_top : componentMass C ≠ ⊤ := R.mass_ne_top
+  ext s
+  calc
+    componentBlock C s =
+        (componentMass C * (componentMass C)⁻¹) * componentBlock C s := by
+      rw [ENNReal.mul_inv_cancel hmass_ne_zero hmass_ne_top]
+      simp
+    _ = componentMass C * ((componentMass C)⁻¹ * componentBlock C s) := by
+      rw [mul_assoc]
+    _ = componentMass C * normalizedComponentBlock C s := by
+      rfl
+    _ = componentMass C * Measure.dirac (-1 : ℝ) s := by
+      rw [hdirac]
+    _ = (componentMass C • Measure.dirac (-1 : ℝ)) s := by
+      rfl
+
+def taoVariationComponentPackage_of_component_replacement_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (Support : Set ℝ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hsupport_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (hSupport_ae : ∀ᵐ t ∂realMeasure μ, t ∈ Support)
+    (hSupport_nhds :
+      ∀ t : ℝ, t ∈ Support → ∀ U : Set ℝ,
+        IsOpen U → t ∈ U → realMeasure μ U ≠ 0)
+    (hzero_component_neighborhood :
+      ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hendpoint_mass :
+      realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) where
+  mean_choice := mean_choice
+  reflected := reflected
+  translation := translation
+  component := C.interval
+  Support := Support
+  endpointMass := endpointMass
+  xMinus := xMinus
+  xPlus := xPlus
+  component_positive := C.interval_subset_positiveSet
+  component_interval := hcomponent_interval
+  baseline_inside_component := hbaseline
+  support_bounded := hsupport_bounded
+  unique_support_in_component := by
+    have hcomponent_open : IsOpen C.interval := by
+      simpa [hcomponent_interval] using (isOpen_Ioo : IsOpen (Ioo xMinus xPlus))
+    exact unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open hSupport_nhds hzero_component_neighborhood
+  right_endpoint_positive := hright_endpoint_positive
+  boundary_average := hboundary_average
+  remainder := (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ
+  remainder_support_in_support :=
+    realMeasure_endpointRemainder_support_in_support μ Support hSupport_ae
+  remainder_no_endpoint := realMeasure_endpointRemainder_no_endpoint μ
+  remainder_mass :=
+    realMeasure_endpointRemainder_mass μ hendpoint_mass hendpoint_mass_nonneg
+  remainder_mass_nonneg := hremainder_mass_nonneg
+  kernel_integrable := hkernel_integrable
+  potential_decomposition_lower :=
+    unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
+      μ hendpoint_mass hendpoint_mass_nonneg hkernel_integrable
+
+def taoVariationComponentPackage_of_realSupport_component_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hsupport_bounded : (realMeasure μ).support ⊆ Icc (-1 : ℝ) 1)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_component_replacement_data
+    μ mean_choice reflected translation C (realMeasure μ).support
+    endpointMass xMinus xPlus hcomponent_interval hbaseline hsupport_bounded
+    (realMeasure_ae_mem_support μ)
+    (realMeasure_support_open_neighborhood_pos μ)
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized)
+    hright_endpoint_positive hboundary_average
+    (realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
+      μ hunit_endpoint_mass)
+    hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+
+/-- Variant of `taoVariationComponentPackage_of_realSupport_component_atomization_data`
+where the support bound is filled automatically from the real pushforward of the
+unit-interval measure.  The remaining explicit inputs are the genuinely
+variational ones: component placement, boundary average, endpoint mass
+normalization, kernel integrability, and component atomization. -/
+def taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_realSupport_component_atomization_data
+    μ mean_choice reflected translation C endpointMass xMinus xPlus
+    hcomponent_interval hbaseline (realMeasure_support_subset_unitInterval μ)
+    hright_endpoint_positive hboundary_average hunit_endpoint_mass
+    hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+    hcomponent_atomized
+
+/-- Variant where component atomization is supplied in normalized form.  This is
+the natural output of the barycenter/secondary-minimizer rigidity argument, and
+the scaled component-block statement is derived internally. -/
+def taoVariationComponentPackage_of_unitIntervalSupport_normalized_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_data
+    μ mean_choice reflected translation C endpointMass xMinus xPlus
+    hcomponent_interval hbaseline hright_endpoint_positive hboundary_average
+    hunit_endpoint_mass hendpoint_mass_nonneg hremainder_mass_nonneg
+    hkernel_integrable
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized)
+
+/-- Canonical-endpoint-mass version of the package constructor.  The endpoint
+mass is no longer an arbitrary real parameter: it is the real value of the
+endpoint atom of the subtype measure, so its endpoint equality, nonnegativity,
+and remainder nonnegativity are filled automatically. -/
+def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_normalized_atomization_data
+    μ mean_choice reflected translation C R
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)
+    xMinus xPlus hcomponent_interval hbaseline hright_endpoint_positive
+    hboundary_average
+    (unitInterval_endpoint_atom_eq_ofReal_toReal μ)
+    (unitInterval_endpoint_atom_toReal_nonneg μ)
+    (unitInterval_endpoint_atom_remainderMass_nonneg μ)
+    hkernel_integrable hnormalized_atomized
+
+/-- Fully mechanical endpoint-remainder version of the canonical constructor:
+once the component contains the baseline interval and normalized atomization has
+identified the component block with the endpoint atom, kernel integrability on
+`BaselinePunctured` is generated internally. -/
+def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (R : ComponentReplacement μ C)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_data
+    μ mean_choice reflected translation C R xMinus xPlus hcomponent_interval
+    hbaseline hright_endpoint_positive hboundary_average
+    (endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
+      (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+        R hnormalized_atomized)
+      hbaseline)
+    hnormalized_atomized
+
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
@@ -8566,6 +11576,120 @@ theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
   exact measure_eq_dirac_of_ae_eq_const μ (∫ t : ℝ, t ∂μ)
     (measure_barycenter_second_moment_eq_imp_ae_eq_mean μ
       hfirst hsecond heq)
+
+/--
+Variance rigidity for the normalized component block: equality in the
+second-moment drop forces the normalized block to be a Dirac mass at its
+barycenter.
+-/
+theorem normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C) :
+    normalizedComponentBlock C = Measure.dirac (componentBarycenter C) := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hsecond :
+      Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+      (componentBlock_secondMoment_integrable C)
+  have hmean :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) = componentBarycenter C :=
+    normalizedComponentBlock_integral_eq_barycenter R
+  have hvar :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        (∫ t : ℝ, t ∂normalizedComponentBlock C) ^ 2 := by
+    rw [hmean]
+    exact normalizedComponentBlock_secondMoment_eq_barycenter_sq_of_componentBlock_eq
+      R heq
+  simpa [hmean] using
+    measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
+      (normalizedComponentBlock C) hfirst hsecond hvar
+
+/--
+If the normalized component block is the Dirac mass at its barycenter, then the
+barycenter lies in the selected component interval.
+-/
+theorem componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C)) :
+    componentBarycenter C ∈ C.interval := by
+  have hmem : ∀ᵐ t : ℝ ∂normalizedComponentBlock C, t ∈ C.interval :=
+    normalizedComponentBlock_ae_mem_interval R
+  rw [hdirac] at hmem
+  rw [MeasureTheory.ae_dirac_eq] at hmem
+  exact hmem
+
+/--
+If the normalized component block is a Dirac mass at the component barycenter,
+then that barycenter is a support point of the original real measure.
+-/
+theorem componentBarycenter_mem_realMeasure_support_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C)) :
+    componentBarycenter C ∈ (realMeasure μ).support := by
+  rw [Measure.mem_support_iff_forall]
+  intro U hU
+  have hcenterU : componentBarycenter C ∈ U := mem_of_mem_nhds hU
+  by_contra hnot_pos
+  have hzero_real : realMeasure μ U = 0 := by
+    exact le_antisymm (le_of_not_gt hnot_pos) bot_le
+  have hzero_block : componentBlock C U = 0 := by
+    exact le_antisymm
+      (le_trans (Measure.restrict_le_self U) (le_of_eq hzero_real)) bot_le
+  have hzero_norm : normalizedComponentBlock C U = 0 := by
+    unfold normalizedComponentBlock
+    rw [Measure.smul_apply, hzero_block]
+    simp
+  have hone_norm : normalizedComponentBlock C U = 1 := by
+    rw [hdirac]
+    simp [hcenterU]
+  exact zero_ne_one (hzero_norm.symm.trans hone_norm)
+
+/--
+Endpoint identification after normalized atomization: once the Dirac barycenter
+is known to be the only support point in the selected component, the barycenter
+is the endpoint atom `-1`.
+-/
+theorem componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hunique : ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    componentBarycenter C = -1 := by
+  exact hunique (componentBarycenter C)
+    (componentBarycenter_mem_realMeasure_support_of_normalizedComponentBlock_eq_dirac
+      hdirac)
+    (componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac R hdirac)
+
+/--
+Normalized atomization at the endpoint: moment equality gives a Dirac mass at
+the component barycenter, and endpoint uniqueness identifies that barycenter
+with `-1`.
+-/
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_componentBlock_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C)
+    (hunique : ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+  have hdirac_bary :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C) :=
+    normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_secondMoment_eq
+      R heq
+  have hbary_endpoint : componentBarycenter C = -1 :=
+    componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+      R hdirac_bary hunique
+  simpa [hbary_endpoint] using hdirac_bary
 
 /-!
 ## Coupling the variance selector to barycenter rigidity
@@ -8808,6 +11932,46 @@ theorem secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_stri
       volume (PositiveSet (componentReplacementPotential C)) ≤
         volume (PositiveSet (unitIntervalLogPotential μ0)) :=
     componentReplacement_objective_le_of_strictOutside_potential_le C houtside
+  have hb_primary : P.Primary.objective b ≤ P.Primary.objective a := by
+    rw [hobj_a, hobj_b]
+    exact hvol_le
+  exact secondary_minimizer_replacement_forces_block_dirac_ennreal ha hb_adm
+    hb_primary hb_secondary_le block hfirst hsecond
+    hsecondary_eq_to_second_moment_eq
+
+theorem secondary_minimizer_componentReplacement_forces_block_dirac_ennreal_smallException
+    {α : Type*} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α} {a b : α}
+    (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+    (hb_adm : P.Primary.Admissible b)
+    {μ0 : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ0)
+    (R : ComponentReplacement μ0 C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hobj_a :
+      P.Primary.objective a =
+        volume (PositiveSet (unitIntervalLogPotential μ0)))
+    (hobj_b :
+      P.Primary.objective b =
+        volume (PositiveSet (componentReplacementPotential C)))
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ0 → x ∉ N →
+            singularTailMass ε μ0 x < ∞)
+    (hb_secondary_le : P.secondaryObjective b ≤ P.secondaryObjective a)
+    (block : Measure ℝ) [IsProbabilityMeasure block]
+    (hfirst : Integrable (fun t : ℝ => t) block)
+    (hsecond : Integrable (fun t : ℝ => t ^ 2) block)
+    (hsecondary_eq_to_second_moment_eq :
+      P.secondaryObjective b = P.secondaryObjective a →
+        (∫ t : ℝ, t ^ 2 ∂block) = (∫ t : ℝ, t ∂block) ^ 2) :
+    block = Measure.dirac (∫ t : ℝ, t ∂block) := by
+  have hvol_le :
+      volume (PositiveSet (componentReplacementPotential C)) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ0)) :=
+    componentReplacement_objective_le_of_forall_small_tailMass_exception
+      R hε hsmall
   have hb_primary : P.Primary.objective b ≤ P.Primary.objective a := by
     rw [hobj_a, hobj_b]
     exact hvol_le
@@ -9125,60 +12289,6 @@ theorem standard_reduction_baseline_length_from_tao_endpoint_data_ennreal
       ENNReal.ofReal (Real.sqrt 2) ≤
         volume (PositiveSet (Potential (normalize a))) := by
   exact (TaoEndpointReductionInputENNReal.mk hEndpoint).exists_baseline_length
-
-/--
-Main proof-graph closure for a finite-route lower bound after standard
-normalization.
-
-This structure deliberately leaves exactly two mathematical inputs:
-
-* `endpointFromVariation`: the Tao positive-component/variation argument
-  produces endpoint-normalized data for every secondary minimizer;
-* `routeFromEndpoint`: the chosen finite-atom route consumes that endpoint data
-  and proves the requested length lower bound.
-
-The theorem below proves that no additional bookkeeping is hidden between those
-two inputs and the final lower-bound statement for secondary minimizers.
--/
-structure EndpointRouteClosureENNReal
-    {α Normalized : Type} [TopologicalSpace α]
-    (P : SecondarySelectorProblemENNReal α)
-    (normalize : α → Normalized)
-    (Potential : Normalized → ℝ → ℝ)
-    (L : ℝ≥0∞) where
-  endpointFromVariation :
-    ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
-      TaoEndpointNormalizationData (Potential (normalize a))
-  routeFromEndpoint :
-    ∀ n : Normalized, TaoEndpointNormalizationData (Potential n) →
-      L ≤ volume (PositiveSet (Potential n))
-
-/-- Every secondary minimizer satisfies the finite-route lower bound once the
-two closure inputs have been supplied. -/
-theorem EndpointRouteClosureENNReal.lower_bound
-    {α Normalized : Type} [TopologicalSpace α]
-    {P : SecondarySelectorProblemENNReal α}
-    {normalize : α → Normalized}
-    {Potential : Normalized → ℝ → ℝ}
-    {L : ℝ≥0∞}
-    (h : EndpointRouteClosureENNReal P normalize Potential L)
-    {a : α} (ha : IsSecondaryMinimizingPrimaryMinimizerENNReal P a) :
-    L ≤ volume (PositiveSet (Potential (normalize a))) :=
-  h.routeFromEndpoint (normalize a) (h.endpointFromVariation a ha)
-
-/-- Existence form of the closed proof graph.  This is the target shape used
-when the direct method has selected a secondary minimizer. -/
-theorem EndpointRouteClosureENNReal.exists_lower_bound
-    {α Normalized : Type} [TopologicalSpace α]
-    {P : SecondarySelectorProblemENNReal α}
-    {normalize : α → Normalized}
-    {Potential : Normalized → ℝ → ℝ}
-    {L : ℝ≥0∞}
-    (h : EndpointRouteClosureENNReal P normalize Potential L) :
-    ∃ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a ∧
-      L ≤ volume (PositiveSet (Potential (normalize a))) := by
-  rcases P.exists_secondary_minimizer with ⟨a, ha⟩
-  exact ⟨a, ha, h.lower_bound ha⟩
 
 theorem SecondaryMinimizerNormalization.exists_normalized_endpoint_potential
     {α Normalized : Type} [TopologicalSpace α]
@@ -9974,6 +13084,35 @@ theorem tao_endpoint_data_provider_ennreal_standard_reduction_and_baseline_lengt
     ⟨hEndpointFromVariation⟩
   exact ⟨hEndpoint.toStandardMinimizerReduction, hEndpoint.exists_baseline_length⟩
 
+def tao_endpoint_from_component_variation_package_ennreal
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackage :
+      ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+        TaoVariationComponentPackage (Potential (normalize a))) :
+    ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+      TaoEndpointNormalizationData (Potential (normalize a)) :=
+  fun a ha => (hPackage a ha).toTaoEndpointNormalizationData
+
+theorem tao_component_variation_package_standard_reduction_and_baseline_length_ennreal
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackage :
+      ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+        TaoVariationComponentPackage (Potential (normalize a))) :
+    ∃ _hReduction : StandardMinimizerReduction α
+        (fun a => IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+        (fun a => Potential (normalize a)),
+      ∃ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a ∧
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize a))) := by
+  exact tao_endpoint_data_provider_ennreal_standard_reduction_and_baseline_length
+    (tao_endpoint_from_component_variation_package_ennreal hPackage)
+
 /--
 Specialization to the truncated-sup selector.  Once a secondary minimizer for
 the truncated-sup objective is available and the replacement-rigidity hypotheses
@@ -10032,18 +13171,1365 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_bas
   exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
     D.baseline_length_le_positiveSet⟩
 
+/--
+Variant of
+`unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_baseline_from_variation`
+that no longer asks for endpoint-normalization data directly.  The remaining
+provider is the lower-level Tao component/variation package; endpoint
+normalization and the baseline-length consequence are assembled internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_baseline_from_component_package
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    {Normalized : Type}
+    {normalize : ProbabilityMeasure UnitInterval1038 → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K)
+    (hsecondary_lsc : LowerSemicontinuous secondary)
+    (hPackageFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          secondary μ ≤ secondary ν) →
+        TaoVariationComponentPackage (Potential (normalize μ))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        secondary μ ≤ secondary ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (Potential (normalize μ)),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize μ))) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
+      secondary hcore hsecondary_lsc with
+    ⟨μ, hPrimary, hSecondary⟩
+  let Pack : TaoVariationComponentPackage (Potential (normalize μ)) :=
+    hPackageFromVariation μ hPrimary hSecondary
+  let D : TaoEndpointNormalizationData (Potential (normalize μ)) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
+/--
+Final assembled standard-reduction endpoint consequence for the current concrete
+formalization layer.
+
+This theorem removes the already-closed external providers `hcore`,
+`hsecondary_lsc`, and `hEndpointFromVariation`: the compact-threshold core,
+primary lower semicontinuity, second-moment lower semicontinuity, and secondary
+minimizer existence are all generated internally.  The remaining input is the
+true Tao component/variation provider, stated at the lowest package level.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_package
+    {Normalized : Type}
+    {normalize : ProbabilityMeasure UnitInterval1038 → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackageFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        TaoVariationComponentPackage (Potential (normalize μ))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (Potential (normalize μ)),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize μ))) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer with
+    ⟨μ, hPrimary, hSecondary⟩
+  let Pack : TaoVariationComponentPackage (Potential (normalize μ)) :=
+    hPackageFromVariation μ hPrimary hSecondary
+  let D : TaoEndpointNormalizationData (Potential (normalize μ)) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
+/--
+Concrete-data version of the assembled standard-reduction endpoint consequence.
+
+Compared with
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_package`,
+the remaining provider no longer supplies a full
+`TaoVariationComponentPackage`.  It only supplies the genuine variational data:
+the selected component, its interval/baseline placement, right endpoint
+positivity, the boundary-average inequality, and normalized atomization.  The
+support facts, endpoint atom bookkeeping, endpoint-remainder mass/decomposition,
+and kernel integrability are assembled internally by the canonical constructor.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_concrete_component_data
+    (hConcreteFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_secondary_minimizer with
+    ⟨μ, hPrimary, hSecondary⟩
+  rcases hConcreteFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
+      hcomponent_interval, hbaseline, hright, hboundary, hnormalized_atomized⟩
+  let Pack : TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+    taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+      μ mean_choice reflected translation C R xMinus xPlus hcomponent_interval
+      hbaseline hright hboundary hnormalized_atomized
+  let D : TaoEndpointNormalizationData (unitIntervalLogPotential μ) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
+/--
+Moment-rigidity version of the concrete-data endpoint consequence.
+
+This pushes the remaining atomization input one step upstream: the provider no
+longer supplies `normalizedComponentBlock C = Measure.dirac (-1)`.  It supplies
+the component-block second-moment equality and the component support uniqueness;
+the endpoint Dirac atomization is derived internally by the variance-rigidity
+bridge proved above.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_moment_rigidity_data
+    (hMomentDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          ((componentMass C).toReal * (componentBarycenter C) ^ 2 =
+            ∫ t : ℝ, t ^ 2 ∂componentBlock C) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_concrete_component_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hMomentDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
+      hcomponent_interval, hbaseline, hright, hboundary, hsecondMoment_eq,
+      hunique⟩
+  refine ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
+    hcomponent_interval, hbaseline, hright, hboundary, ?_⟩
+  exact normalizedComponentBlock_eq_dirac_endpoint_of_componentBlock_secondMoment_eq
+    R hsecondMoment_eq hunique
+
+/--
+Replacement-rigidity version of the endpoint consequence.
+
+This removes the explicit component-block second-moment equality from the
+remaining provider.  The provider only supplies an admissible component
+replacement whose primary objective is no larger than the selected primary
+minimizer.  Since the selected minimizer is also second-moment minimizing among
+primary minimizers, and the barycenter replacement never increases the second
+moment, equality in the component-block second-moment inequality is derived
+internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_rigidity_data
+    (hReplacementDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ hmass_unit : componentReplacementMeasure C (Set.Icc (-1 : ℝ) 1) = 1,
+        ∃ _ : ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Set.Icc (-1 : ℝ) 1,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_moment_rigidity_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hReplacementDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, hmass_unit, hsupport,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  have hreplacement_primary_min :
+      ∀ η : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective
+            (componentReplacementProbability C hmass_unit) ≤
+          unitIntervalTruncatedPositiveSetObjective η := by
+    intro η
+    exact le_trans hprimary_replacement (hPrimary η)
+  have hsecondary_ge :
+      unitIntervalSecondMomentObjective μ ≤
+        unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) :=
+    hSecondary (componentReplacementProbability C hmass_unit)
+      hreplacement_primary_min
+  have hsecondary_le :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalSecondMomentObjective μ :=
+    unitIntervalSecondMomentObjective_componentReplacement_nonincrease
+      R hmass_unit hsupport
+  have hsecondary_eq :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) =
+        unitIntervalSecondMomentObjective μ :=
+    le_antisymm hsecondary_le hsecondary_ge
+  have hsecondMoment_eq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C :=
+    componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
+      hmass_unit hsupport hsecondary_eq
+  refine ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
+    hcomponent_interval, hbaseline, hright, hboundary, hsecondMoment_eq,
+    hunique⟩
+
+/--
+Mass-only replacement-rigidity version of the endpoint consequence.
+
+This removes the replacement-support a.e. input from the variation provider.
+Once the real replacement measure has mass `1` on `[-1,1]`, the a.e. support
+fact is derived internally from `componentReplacementMeasure_univ`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_mass_data
+    (hReplacementMassDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ hmass_unit : componentReplacementMeasure C (Set.Icc (-1 : ℝ) 1) = 1,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_rigidity_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hReplacementMassDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Barycenter-support replacement-rigidity version of the endpoint consequence.
+
+This removes the explicit replacement mass-on-`[-1,1]` input.  The provider
+only needs to show that the barycenter atom introduced by the replacement is
+still inside the normalized interval; the mass and a.e. support facts are then
+derived from the real-measure support of `μ`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_barycenter_data
+    (hReplacementBarycenterDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ hbary : componentBarycenter C ∈ Set.Icc (-1 : ℝ) 1,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_mass_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hReplacementBarycenterDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, hbary,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Component-replacement version of the endpoint consequence.
+
+This removes the explicit barycenter-in-`[-1,1]` input.  For every
+`ComponentReplacement`, the normalized component block is a probability measure
+supported a.e. on `[-1,1]`; hence its first moment, the component barycenter,
+lies in `[-1,1]`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+    (hComponentReplacementDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hbary := componentBarycenter_mem_Icc R
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_barycenter_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  let hbary := componentBarycenter_mem_Icc R
+  exact ⟨mean_choice, reflected, translation, C, R, hbary,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Objective-comparison version of the component-replacement endpoint consequence.
+
+This removes the direct truncated replacement-nonincreasing input from the
+provider.  The replacement truncated objective is derived from:
+
+* off-diagonal log-kernel integrability for the replacement probability, which
+  gives `replacement truncated ≤ replacement ordinary`;
+* the small-exception/Jensen replacement theorem, which gives
+  `replacement ordinary ≤ original ordinary`;
+* the explicit comparison `original ordinary ≤ original truncated`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_objective_comparison_data
+    (hComponentReplacementObjectiveDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            Integrable
+              (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+              ((componentReplacementProbability C hmass_unit :
+                Measure UnitInterval1038))) ∧
+          unitIntervalPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementObjectiveDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+  let hbary := componentBarycenter_mem_Icc R
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+      R (by positivity : (0 : ℝ) < 1) hlog_replacement
+      horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Tail-small version of the component-replacement endpoint consequence.
+
+This removes the explicit comparison
+`unitIntervalPositiveSetObjective μ ≤ unitIntervalTruncatedPositiveSetObjective μ`.
+It is derived internally from the pointwise tail-small condition on the original
+measure's ordinary positive set.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_small_data
+    (hComponentReplacementTailSmallDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            Integrable
+              (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+              ((componentReplacementProbability C hmass_unit :
+                Measure UnitInterval1038))) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_objective_comparison_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTailSmallDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hlog_replacement, hsmall_original, hunique⟩
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small
+      μ hsmall_original
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+
+/--
+Tail-mass version of the component-replacement endpoint consequence.
+
+This removes the replacement off-diagonal log-integrability input.  It is
+derived from finite singular-tail mass for the replacement probability at every
+off-diagonal test point.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_mass_data
+    (hComponentReplacementTailMassDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            singularTailMass 1 (componentReplacementProbability C hmass_unit) x < ∞) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_small_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTailMassDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      htail_replacement, hsmall_original, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have hlog_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+        Integrable
+          (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+          ((componentReplacementProbability C hmass_unit :
+            Measure UnitInterval1038)) := by
+    intro x hxdiag
+    simpa [abs_sub_comm] using
+      unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+        (by positivity : (0 : ℝ) < 1)
+        hxdiag
+        (htail_replacement x hxdiag)
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hlog_replacement, hsmall_original, hunique⟩
+
+/--
+Null-exception tail-small version of the component-replacement endpoint
+consequence.
+
+This removes the global pointwise original tail-small condition.  The original
+ordinary-to-truncated comparison is derived after discarding a supplied
+zero-volume exceptional set.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_mass_null_exception_data
+    (hComponentReplacementTailMassNullDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ N : Set ℝ,
+        ∃ xMinus xPlus : ℝ,
+          volume N = 0 ∧
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            singularTailMass 1 (componentReplacementProbability C hmass_unit) x < ∞) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            x ∉ N →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_objective_comparison_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTailMassNullDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, N,
+      xMinus, xPlus, hN, hcomponent_interval, hbaseline, hright, hboundary,
+      htail_replacement, hsmall_original_off_N, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have hlog_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+        Integrable
+          (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+          ((componentReplacementProbability C hmass_unit :
+            Measure UnitInterval1038)) := by
+    intro x hxdiag
+    simpa [abs_sub_comm] using
+      unitInterval_logKernel_integrable_of_notMem_diagonalAtomSet_tailMass
+        (by positivity : (0 : ℝ) < 1)
+        hxdiag
+        (htail_replacement x hxdiag)
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
+      μ N hN hsmall_original_off_N
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+
+/--
+Two-null-exception tail-mass version of the component-replacement endpoint
+consequence.
+
+Compared with
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_tail_mass_null_exception_data`,
+this also allows the replacement off-diagonal tail-mass condition to fail on a
+supplied zero-volume exceptional set.  Thus both ordinary-to-truncated
+comparisons used in the endpoint consequence are now null-exception versions.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_two_null_exception_data
+    (hComponentReplacementTwoNullDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ Nrepl Norig : Set ℝ,
+        ∃ xMinus xPlus : ℝ,
+          volume Nrepl = 0 ∧
+          volume Norig = 0 ∧
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            x ∉ Nrepl →
+            singularTailMass 1
+              (componentReplacementProbability C hmass_unit) x < ∞) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            x ∉ Norig →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementTwoNullDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, Nrepl, Norig,
+      xMinus, xPlus, hNrepl, hNorig, hcomponent_interval, hbaseline, hright,
+      hboundary, htail_replacement_off_N, hsmall_original_off_N, hunique⟩
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
+      μ Norig hNorig hsmall_original_off_N
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_null_exception_comparisons
+      R Nrepl hNrepl htail_replacement_off_N horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Replacement-small-exception endpoint consequence.
+
+The replacement probability no longer contributes any provider input: its
+ordinary-to-truncated comparison is discharged by the global singular-tail
+small-exception estimate.  The only remaining tail exception supplied by the
+variation package is the original-measure null set used for
+`ordinary original ≤ truncated original`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_small_exception_data
+    (hComponentReplacementSmallExceptionDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ Norig : Set ℝ,
+        ∃ xMinus xPlus : ℝ,
+          volume Norig = 0 ∧
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            0 < unitIntervalLogPotential μ x →
+            x ∉ diagonalAtomSet μ →
+            x ∉ Norig →
+            ∃ n : ℕ,
+              singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+                ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementSmallExceptionDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, Norig,
+      xMinus, xPlus, hNorig, hcomponent_interval, hbaseline, hright,
+      hboundary, hsmall_original_off_N, hunique⟩
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small_null_exception
+      μ Norig hNorig hsmall_original_off_N
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+      R horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Automatic-tail endpoint consequence.
+
+Both ordinary/truncated comparisons are now discharged from the singular-tail
+small-exception machinery.  The variation provider no longer supplies any
+tail-small or exceptional-set data; it only supplies the actual component
+replacement package, boundary-average inequality, and component-support
+uniqueness.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data
+    (hComponentReplacementAutoTailDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hunique⟩
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+      μ
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+      R horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Atomized-component version of the automatic-tail endpoint consequence.
+
+This removes the manually supplied component-support uniqueness input from
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data`.
+It is derived from endpoint atomization of the selected component block.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_atomization_data
+    (hComponentReplacementAutoTailAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailAtomizationDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hcomponent_atomized⟩
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    unique_support_in_component_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized⟩
+
+/--
+Normalized-atomization version of the automatic-tail endpoint consequence.
+
+This is the natural interface for the secondary-rigidity step: it supplies
+Dirac atomization for the normalized component block, and the scaled
+component-block atomization is derived internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_normalized_atomization_data
+    (hComponentReplacementAutoTailNormalizedAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_atomization_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailNormalizedAtomizationDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hnormalized_atomized⟩
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized⟩
+
+/--
+Moment-rigidity version of the automatic-tail endpoint consequence.
+
+The provider no longer supplies normalized endpoint atomization directly.  It
+supplies the component-block second-moment equality together with the endpoint
+uniqueness needed to identify the resulting barycenter Dirac mass with `-1`.
+The tail and ordinary/truncated comparisons remain fully automatic.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_moment_rigidity_data
+    (hComponentReplacementAutoTailMomentDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          ((componentMass C).toReal * (componentBarycenter C) ^ 2 =
+            ∫ t : ℝ, t ^ 2 ∂componentBlock C) ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_normalized_atomization_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementAutoTailMomentDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright,
+      hboundary, hsecondMoment_eq, hunique⟩
+  exact ⟨mean_choice, reflected, translation, C, R,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    normalizedComponentBlock_eq_dirac_endpoint_of_componentBlock_secondMoment_eq
+      R hsecondMoment_eq hunique⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
 The standard-reduction layer above is intentionally conditional.  The remaining
-mathematical work is to prove `hEndpointFromVariation` from the positive-component
-variation argument plus the translation/reflection normalization.  Concretely,
-that proof must produce the fields of `TaoEndpointNormalizationData` for each
-secondary minimizer of the truncated-sup objective: the normalized support/order
-data, uniqueness of support inside the selected positive component, the boundary
-average giving endpoint mass at least `1/2`, the endpoint-plus-remainder measure
-decomposition, kernel integrability on `BaselinePunctured`, and the resulting
-potential lower bound.  None of these fields is inferred in this file.
+mathematical work is now lower-level: prove the `TaoVariationComponentPackage`
+provider from the positive-component variation argument plus the
+translation/reflection normalization.  The package constructors above already
+infer the real support facts, endpoint atom mass bookkeeping, endpoint remainder
+mass/decomposition, component-inside support uniqueness from atomization, and
+kernel integrability on `BaselinePunctured`.  The hard inputs that still remain
+are the real positive-component selection/maximality, the admissible barycenter
+replacement and secondary rigidity producing normalized atomization, and Tao's
+boundary-average inequality.
 -/
 
 /--

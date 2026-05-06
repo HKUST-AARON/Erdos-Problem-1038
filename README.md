@@ -42,19 +42,35 @@ The exact closing arithmetic is checked in Lean:
 1.708 + (1.814600 - 1.708) = 1.814600
 ```
 
-The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. Those outer theoretical reductions are recorded as interfaces and local consequences here; they are not duplicated as a complete formalization of the original polynomial problem.
+The finite certificates are meant to be read together with the standard minimizer reduction and the usual logarithmic-potential duality/sweep framework used in the discussion of the problem. The finite route and the standard-reduction route are kept separate: the former checks concrete certificates after normalization, while the latter is the variational argument that should produce the normalized endpoint form.
 
-The repository now includes the first formal layer of the standard reduction:
-the normalized-support consequence that forces the baseline interval
+## Standard-reduction status
 
-$$
-(-\sqrt2,0)
-$$
+The current Lean files prove several downstream consequences of the Tao/natso standard reduction, but the full variational reduction is not yet closed.
 
-into the positive set, except for the atom point where a real-valued logarithmic potential would be infinite.  The remaining external part is the variational theorem that an arbitrary minimizer can be put into this normalized support/mass form.
-The component-atomization bridges in `finite_atoms/standard_reduction` use the
-narrower component input `(-1,0)`, which is the interval needed for the
-endpoint-normalized maximal-component step.
+What is already formalized:
+
+- normalized endpoint-mass data imply the baseline positive interval, up to the logarithmic pole at the endpoint;
+- the puncture at the endpoint has zero Lebesgue length;
+- once the component argument supplies the right endpoint/support data, the support-shape and endpoint-mass algebra feeds into the normalized endpoint-potential interface;
+- the finite-atom route can use this normalized endpoint-potential interface as its input.
+
+What remains to be proved:
+
+- the true lower-semicontinuity/minimizer-existence layer for the logarithmic-potential objective;
+- the Tao positive-component/variation theorem that turns an arbitrary secondary minimizer into endpoint-normalized data;
+- the selection of the actual maximal positive component and its open-left-cover/topological bookkeeping;
+- the barycenter replacement and variance-minimization argument that atomizes each positive component.
+
+In the Lean interfaces this remaining hard step is still represented by names such as
+
+```text
+TaoVariationalReductionInput
+TaoVariationalReductionInputENNReal
+EndpointRouteClosureENNReal.endpointFromVariation
+```
+
+These are not final theorems of the standard reduction. They mark the exact entry point where the remaining variational proof has to be supplied.
 
 The 1.814600 branch uses a required-domain interpretation of positivity:
 
@@ -77,16 +93,14 @@ The checked repository status is:
 
 1.814600:
   Lean/Mathlib exact geometry, block coverage, required-domain mapping,
-  non-negative finite-atom selector, route arithmetic, and tail sweep lemma.
-  Strong two-parameter forcing certificate for the (-1.708,0) handoff.
-  Lean rational recombination checks for all 5955 stronger forcing boxes.
+  non-negative finite-atom selector, route arithmetic, tail sweep lemma,
+  and route-level volume bookkeeping under the stated endpoint/forcing inputs.
   Generated 560-block required-domain certificate with Python verification.
-  Strong forcing worst margin: 2.7692109390833507e-06.
   Required-domain worst margin: 9.534343713646365e-06.
   Bad required-domain blocks: 0.
 ```
 
-The 1.814600 package is therefore a verified required-domain finite-atom package under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate. The 560 tail logarithmic positivity blocks and the stronger two-parameter forcing branch are checked by fixed certificate files and independent verifiers; they are not expanded into standalone Lean proof terms.
+The 1.814600 branch is therefore a verified required-domain finite-atom branch under the standard normalized-support reduction. It is not a full $[-1,1]$ positivity certificate, and it does not by itself prove the standard minimizer reduction.
 
 ## Repository layout
 
@@ -100,16 +114,7 @@ The five-atom tail certificate. This is the main folder for the five-atom constr
 finite_atoms/forcing_1708/
 ```
 
-The conservative two-parameter forcing branch. It supports the weaker
-`(-1.7,0)` handoff and is kept as a separately checked baseline.
-
-```text
-finite_atoms/forcing_1708_strong/
-```
-
-The stronger two-parameter forcing branch for the `(-1.708,0)` handoff used by
-the 1.814600 route. The fixed interval certificate and the exact parameter
-range are recorded inside this folder.
+The preceding two-parameter forcing branch. It contains the interval certificate data and Lean checks for the branch that supports the long interval contribution.
 
 ```text
 finite_atoms/common/
@@ -189,5 +194,4 @@ The repository does not vendor Mathlib. Use any local Lean/Mathlib workspace and
 MATHLIB_WORKSPACE=/path/to/mathlib finite_atoms/check_all.sh
 ```
 
-This runs the Lean files, the stronger forcing certificate checker, and the
-generated 560-block required-domain checker.
+This runs the Lean files and the generated 560-block required-domain checker.

@@ -1,1184 +1,4568 @@
-# Erdős Problem 1038 - 已可交付进展（Tao 关注版）
+# Erdős Problem 1038: Tao-Facing Summary
 
-## 1. 题目重写（统一形式）
+This is the short shareable summary.  The detailed attempt ledger is
+`1038_dual_two_interval_progress.md`.
 
-对非平凡首一实根在 \([-1,1]\) 的多项式 \(f\in \mathbb R[x]\)，设
+## 1. Normalization
+
+For a monic real-rooted polynomial
+
 \[
-\mu_f:=\frac1n\sum_{j=1}^n \delta_{r_j},\qquad
-f(x)=\prod_{j=1}^n (x-r_j),\ r_j\in[-1,1].
+f(x)=\prod_{j=1}^n(x-r_j),\qquad r_j\in[-1,1],
 \]
-定义
+
+set
+
 \[
-U_\mu(x):=\int_{-1}^1 \log\frac1{|x-t|}\,d\mu(t),
-\qquad
-E_\mu:=\{x:U_\mu(x)>0\}.
+\mu_f=\frac1n\sum_j\delta_{r_j},\qquad
+U_\mu(x)=\int\log\frac1{|x-t|}\,d\mu(t),\qquad
+E_\mu=\{x:U_\mu(x)>0\}.
 \]
-则
+
+Then
+
 \[
 \{x:|f(x)|<1\}=E_{\mu_f}.
 \]
-所以问题等价于
-\[
-L_+:=\sup_{\mu\in\mathcal P([-1,1])}|E_\mu|,
-\quad
-L_-:=\inf_{\mu\in\mathcal P([-1,1])}|E_\mu|.
-\]
 
----
+## 2. Supremum
 
-## 2. 上确界 \(L_+\) 已闭合（可交付）
-
-### 2.1 结果
 \[
 \boxed{L_+=2\sqrt2.}
 \]
 
-### 2.2 下界
-\[
-f(x)=x^2-1
-\quad\Longrightarrow\quad
-|f(x)|<1 \iff -\sqrt2<x<\sqrt2,
-\]
-故 \(|E_{\mu_f}|=2\sqrt2\)，所以 \(L_+\ge 2\sqrt2\)。
+The lower example is \(f(x)=x^2-1\).  The upper bound is the standard
+length-two support extremal bound, with equality at
 
-### 2.3 上界（Tao notes 风格）：\(L_+\le2\sqrt2\)
-
-有标准对偶/重排框架（见 Tao notes 中对长度2 区间上端点配置的结论）：
-- 若 \(\mu\) 支持在长度为 2 的区间上，则 \(|E_\mu|\le2\sqrt2\)；
-- 且等号仅在两点测度（每点质量 \(1/2\)）的极端构型中达到：
 \[
-\mu=\frac12\delta_{-1}+\frac12\delta_{1}
-\]
-（平移版本对应平移区间）。
-
-因为我们题设根固定在 \([-1,1]\)，可得上界直接成立：
-\[
-L_+\le2\sqrt2.
+\frac12\delta_{-1}+\frac12\delta_1.
 \]
 
-于是
+## 3. Infimum: Current Bounds
+
+The current one-cut candidate / provisional upper value is
+
 \[
-L_+=2\sqrt2.
+M_{\rm oc}=1.8344304757626617\ldots,
 \]
 
----
+with one-cut endpoints
 
-## 3. 这个阶段可立即提交给 Tao 的正文版本结构（Sup 的 proof block）
-
-可直接放进文稿的最小段落：
-
-1. 先写 monic 多项式与对数势能的等价转换（本文件 1 节）。
-2. 写 \(f(x)=x^2-1\) 给出下界。
-3. 引用/复述“长度为 2 的支撑区间上势能正位集长度上界”结论（上界）及等号形态。
-4. 结论 \(L_+=2\sqrt2\)。
-
-这样你这条工作线即为“可闭合结论”。
-
----
-
-## 3.1 可复用局部对偶块：\(\nu_0=\frac12(\delta_{-\varphi}+\delta_{\varphi-1})\)
-
-令 \(\varphi=\frac{1+\sqrt5}{2}\)，\(\varphi-1=\frac1\varphi\)。取
 \[
-\nu_0:=\frac12\delta_{-\varphi}+\frac12\delta_{\varphi-1}.
-\]
-则
-\[
-U_{\nu_0}(x)=\frac12\log\frac1{|x+\varphi|}+\frac12\log\frac1{|x-(\varphi-1)|}.
-\]
-在区间 \(x\in[0,\varphi-1]\) 上有
-\[
-U_{\nu_0}(x)
-=-\frac12\log\!\big((x+\varphi)(\varphi-1-x)\big)
-=-\frac12\log(1-x-x^2)\ge0,
-\]
-因为 \((x+\varphi)(\varphi-1-x)=1-x-x^2\le1\)，且在 \((0,\varphi-1)\) 严格小于 1。
-
-在 \(x\in[\varphi-1,1]\) 上
-\[
-U_{\nu_0}(x)
-=-\frac12\log\!\big((x+\varphi)(x-\varphi+1)\big)
-=-\frac12\log(x^2+x-1)\ge0,
-\]
-因为 \(x^2+x-1\in[0,1]\)。并且
-\[
-U_{\nu_0}(-1)=0,\qquad U_{\nu_0}(0)=0,\qquad U_{\nu_0}(1)=0.
-\]
-所以
-\[
-U_{\nu_0}(x)\ge0\quad\text{在 } \{-1\}\cup[0,1]\text{ 上成立}.
+x_L=-1.8081073680988165,\qquad x_R=0.02632310766384517.
 \]
 
-这个单元在讨论两点对偶族时可直接复用：它给出一类显式、可检查的 dual witness（只做解析计算，无需取样）。其用途主要是与“一点变分 + 区间推进”框架拼装下界，但仍不足以闭合整体 \(L_-\)。
+The current finite-certificate lower-bound status in this repository is
 
----
-
-## 4. 下确界当前状态：已有可交付 lower bound，exact inf 未闭合
-
-在 Tao/natso reduction（归一化 minimizer 满足
-\(\mu(\{-1\})\ge1/2\), \(\operatorname{supp}\mu\subseteq\{-1\}\cup[0,1]\)）之后，三原子 covering certificate 给出
 \[
-\boxed{L_-\ge1.7875.}
+\boxed{L_-\ge1.814600}
 \]
 
-具体常数为
-\[
-M=1.7875,\quad A=1.27535,\quad B=0.34971,\quad D=2.73422.
-\]
-对每个 \(a\in[-M,-\sqrt2]\)，取
-\[
-\nu_a=\delta_a+A\delta_{a+M}+B\delta_{a+D}.
-\]
-令
-\[
-V(y)=\log\frac1{|y|}
-+A\log\frac1{|y-M|}
-+B\log\frac1{|y-D|}.
-\]
-在 \(y\in[\sqrt2-1,1+M]\) 上，唯一需检查的有限点为端点和二次方程
-\[
-1312530000y^2-4316957051y+2443709125=0
-\]
-的两个根。区间检查给出
-\[
-V(\sqrt2-1)>0.1825,\quad
-V(r_1)>2.5\cdot10^{-4},\quad
-V(r_2)>2.4\cdot10^{-4},\quad
-V(1+M)>2.7\cdot10^{-4}.
-\]
-因此 \(U_{\nu_a}>0\) on \([-1,1]\)。由对偶恒等式，三点
-\[
-a,\quad a+M,\quad a+D
-\]
-至少一个落入 \(E_\mu\)。再结合
-\[
-(-\sqrt2,0)\subset E_\mu
-\]
-和三个平移区间的两两不交性，得到 \(|E_\mu|\ge M=1.7875\)。
+conditional on the standard Tao/natso minimizer reduction
 
-因此当前可写为
 \[
-1.7875\le L_-\le 1.83443047576266\ldots
+\mu(\{-1\})\ge\frac12,\qquad
+\operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-论坛 stronger numerical status:
-- 固定三原子参数
-\[
-M=1.7877,\quad A=1.27383,\quad B=0.34979,\quad D=2.73436
-\]
-通过同一有限点检查的数值验证，最小裕度约 \(2.24\cdot10^{-5}\)，但尚未写成 directed interval arithmetic 证书。
-- 四原子 \(1.8\) 路线已经拆开：固定四原子 positivity block 数值通过，但最小裕度很薄（约 \(3.5\cdot10^{-7}\)）；核心缺口是证明 \([-1.708,0]\subset E_\mu\) 的二维 family certificate。当前密集网格未发现反例，\([0,1]\) 上观测最小值约 \(1.26\cdot10^{-3}\)，但仍不是严格证明。
-- 新的保守 \(1.8\) 路线更值得推进：先用二维 family 证明 \((-1.7,0)\subset E_\mu\)（数值上 \([0,1]\) 最小裕度约 \(2.86\cdot10^{-2}\)，\(-1\) 处强制为 \(10^{-4}\)），再用高裕度四原子块补出额外 \(0.1\) 长度（数值最小裕度约 \(3.51\cdot10^{-3}\)）。这仍需 interval arithmetic，但比旧四原子块安全得多。
-- two-interval ansatz 方面，外部反馈指出必须加入 endpoint atom \(m_1\delta_1\)。该点是正确的：若
-\[
-F(z)=\frac{z+A}{(z-\ell)(z-r)(z-1)}\sqrt{(z-\alpha)(z-\beta)},\quad \beta=1-\varepsilon,
-\]
-则 \(z=1\) 的 residue 为
-\[
-m_1=\frac{(1+A)\sqrt{(1-\alpha)\varepsilon}}{(1-\ell)(1-r)}>0
-\]
-在目标参数区间内成立。
+The gate chain below gives a conditional exact-route skeleton:
 
-所以对外口径应是：
 \[
-\text{rigorous written progress: }L_-\ge1.7875,\qquad
-\text{forum-strength numerical targets: }1.7877,\ 1.8.
+\boxed{
+\text{if the remaining sign, compactness, and regularity lemmas are closed,
+then }L_- = M_{\rm oc}.
+}
 \]
 
-完整 exact infimum 仍未闭合：
+The unconditional equality is not yet proved.  The decimal is only the
+numerical evaluation of the one-cut equations defining the current one-cut
+candidate / provisional upper candidate \(M_{\rm oc}\).
+
+## 4. The \(1.814600\) Finite-Certificate Package
+
+The \(1.814600\) package is a piecewise five-atom tail certificate with
+\(K=560\) blocks.
+
+Relevant package:
+
+```text
+finite_atoms/piecewise_five_atom_181460_560/
+finite_atoms/route_181460_560/
+```
+
+The route uses the same forcing split
+
 \[
-L_-\stackrel{?}{=}1.83443047576266\ldots
+B=1.708,\qquad M=1.814600,
 \]
-关键缺口是:
 
-- 对**任意候选正集** \(E\subset\mathbb R\)，尤其非单区间形态，
-  仍缺一个全局对偶证书：存在 \(\nu\ge0\)、\(\operatorname{supp}\nu\subset\mathbb R\setminus E\) 且
-  \[
-  U_\nu\ge0\text{ on }[-1,1].
-  \]
-- 只要这一步对 \(|E|<M_*\) 可行，便可得到 \(L_-\ge M_*\)。
+so the tail contribution is
 
-这里 \(M_*\approx1.83443047576266\) 来自 one-cut 构造的上界候选（见你前述候选公式）。
+\[
+M-B=0.106600.
+\]
 
----
+The route arithmetic is
 
-## 5. 下一步一句话
+\[
+1.708+(1.814600-1.708)=1.814600.
+\]
 
-下一步优先级：
-1. 先 intervalize 新的保守 \(1.8\) 路线：\((-1.7,0)\) forcing family + 高裕度四原子块。
-2. 若 1 的二维 family 出现技术阻力，再退回固定三原子 \(1.7877\) 的 directed interval arithmetic 证书。
-3. 同步修正 exact inf 的 two-interval ansatz：加入 \(m_1\delta_1\)，再做 sign-chart reduction。
-4. 最后推进 exact inf 的 general \(E\) dual certificate。
-## 2026-05-02 update: 1.8063 lower-bound package
+### Required-domain status
 
-The lower-bound route has advanced from a grid check to a certificate-backed
-conditional theorem, and then from \(1.8\) to \(1.8063\).
+This is not a full \([-1,1]\) positivity certificate.
 
-Current status:
+Under the normalized support condition
 
-- The fixed-shift three-atom certificate improves the earlier safe \(1.7875\)
-  bound to a reproducible \(1.7877\) one-variable certificate.  The comments
-  also contain a stronger variable-weight three-atom numerical route near
-  \(1.7902\), so \(1.7877\) is not the three-atom frontier.
-- The high-margin four-atom block needed for the \(1.8\) route is verified.
-- A stronger four-atom block on \([-1.8036,-1.7]\) is now verified by both the
-  Decimal certificate and the Lean numeric checker.  In this four-atom line,
-  \(1.8038\) is already negative in the current search.
-- A still stronger five-atom block on \([-1.804,-1.7]\) is now verified by both
-  the Decimal certificate and the Lean numeric checker.
-- A five-atom block on \([-1.805,-1.7]\) is now verified by both the Decimal
-  certificate and the Lean numeric checker.
-- A five-atom block on \([-1.806,-1.7]\) is now verified by both the Decimal
-  certificate and the Lean numeric checker, though with smaller margin.
-- A five-atom block on \([-1.8063,-1.7]\) is now verified by the Decimal
-  certificate and mirrored in the Lean numeric checker.  This is the current
-  strongest local certificate-backed lower-bound block.
-- The missing two-parameter forcing family
-  \[
-  a\in[-1.7,-\sqrt2],\quad b\in[0,1.82+a],
-  \quad
-  \nu_{a,b}=\delta_a+(1.395-b)\delta_b+C(a,b)\delta_{1.071-b}
-  \]
-  is now covered by a finite interval-box verifier.
-- The duality step has been rewritten using a shifted truncated-kernel lemma,
-  so the \(\mu(\{-1\})\ge1/2\) atom is no longer hidden under a finite-energy
-  assumption.
-- Lean now runs the three-atom, four-atom through \(1.8036\), five-atom through
-  \(1.8063\), and conservative forcing interval numeric checks in
-  `1038/LeanCertificates.lean`; all pass.
-- The exact-infimum route has been restarted in
-  `1038/solve_two_interval_finite_gap.py` and §15 of
-  `1038_dual_two_interval_progress.md`: the corrected two-interval
-  finite-gap ansatz includes the endpoint atom at \(1\), solves
-  \(U(\alpha)=U(-1)=0\) for the small-\(\varepsilon\) branch, identifies the
-  \(\varepsilon=0\) limiting system
-  \((A_0,\alpha_0)\approx(1.183353601765,0.804461769731)\), and reduces the
-  next proof bottleneck to a singular/interval parameter-branch theorem in
-  \(\eta=\sqrt{\varepsilon}\).
-- The two-interval branch skeleton now has a separate verifier,
-  `1038/verify_two_interval_branch_skeleton.py`, and passes on
-  \(\varepsilon=0.002,0.001,0.0005,0.0002,0.0001,0.00005\).  This is still a
-  sampled Krawczyk skeleton, not an outward-rounded interval proof.  The
-  verifier now also rechecks stored contact residuals and can run an Arb/Acb
-  center-residual diagnostic: it computes \(U(-1)\) as an Arb ball and derives
-  \(U(\alpha)\) from the residue-log Arb ball for \(U(-1)-U(\alpha)\), avoiding
-  a direct Arb integration of the contact log singularity.  It also has an
-  Arb/Acb full-box \(U(-1)\) check in the boundary-layer variable
-  \(u=\sin(\theta/2)\), which keeps the small-\(\varepsilon\) endpoint pole at
-  \(1\) separated as \(t-1=-\varepsilon-2h u^2\).  The same primitive now
-  encloses the \(U(-1)\) directional derivatives in the local \(B,\tau\)
-  coordinates over each Krawczyk box.  A separate diagnostic primitive now
-  encloses the contact \(U(\alpha)\) derivatives in the local \(B,\tau\)
-  directions over each Krawczyk box, using split \(u=\sin(\theta/2)\) and
-  \(v=\cos(\theta/2)\) charts plus a conservative Arb tail ball at the contact
-  endpoint.  These primitives are now assembled into a diagnostic Arb interval
-  \(D_{(B,\tau)}K\) matrix with entrywise center containment.  The direct
-  \(1\times1\) full-box Krawczyk defect action remains too wide in the
-  \(\tau\) component, but the new `--arb-interval-krawczyk-check` computes the
-  center correction as an Arb upper bound for \(|C K_{\mathrm{center}}|\) and a
-  \(7\times7\) subbox diagnostic passes
-  \(\operatorname{correction}_{\mathrm{Arb}}+\max\operatorname{defect}<\operatorname{radii}\)
-  on all six rows; the worst remaining margin is \(4.163420\cdot10^{-3}\) at
-  \(\varepsilon=0.001\), \(\tau\), with the defect term dominating.  This is a
-  local interval Krawczyk inclusion diagnostic, not a full \(L_-\ge1.83\)
-  proof.
-- The corrected two-interval route now also has two split checkers:
-  `1038/verify_two_interval_sign_box.py` verifies the sign chart, positivity
-  boxes, stored-center containment, and stored sign-margin consistency, while
-  `1038/verify_two_interval_krawczyk_grid.py` stress-tests the full
-  \((B,\tau)\)-Krawczyk boxes.  Both pass on all six rows.  The sign-box checker
-  has a tamper self-test; the Krawczyk checker also has a refinement mode, and
-  grids \(11,21,41\) give zero reported drift at the printed precision.  The
-  current worst sampled Krawczyk margin is \(9.876968\cdot10^{-3}\), with worst
-  contraction
-  \(1.230325\cdot10^{-2}\).  It now also reports the intervalization budget
-  implied by the unused Krawczyk margin: with a half-margin split, the tightest
-  uniform center-\(K\) radius budget is \(2.110507\cdot10^{-3}\), and the
-  tightest uniform \(DK\)-entry budget is \(1.055254\cdot10^{-1}\) in rescaled
-  coordinates.  This supports the finite-gap branch toward the
-  \(1.8344304757\ldots\) exact route; it is not a proof of the global
-  \(L_-\ge1.83\) statement until the interval Krawczyk and general
-  \(E\)-reduction are closed.
-- `1038/FormalSkeleton.lean` now formalizes the conditional proof pipeline as
-  a Lean theorem from explicit certificate assumptions:
-  short counterexample \(\Rightarrow\) normalized baseline
-  \(\Rightarrow\) two-dimensional or four-atom case
-  \(\Rightarrow\) contradiction.
-- The two-dimensional interval certificate is now exported as fixed leaf boxes
-  in `1038/conservative_forcing_interval_certificate.json`, and the verifier
-  can re-check that JSON certificate without re-searching.
+\[
+\operatorname{supp}\mu\subseteq\{-1\}\cup[0,1],
+\]
 
-Thus, accepting the standard Tao/natso reduction
+each block only needs
+
+\[
+U_{\lambda_a}(x)>0\qquad x\in\{-1\}\cup[0,1].
+\]
+
+In \(y=x-a\), the required domains are
+
+\[
+[C-1,A-1]\cup[C,A+1].
+\]
+
+The middle gap \((A-1,C)\) corresponds to \(x\in(-1,0)\).  Some blocks are
+negative there; this is an overcheck region and is not used by the conditional
+finite-atom argument.
+
+Certificate summary:
+
+```text
+M = 1.814600
+K = 560
+overall_worst_required.value = 9.534343713646365e-06
+all_required_blocks_ok = true
+num bad required blocks = 0
+```
+
+The generated Lean chunks record the block coverage and required-domain
+logarithmic positivity.  The independent Python checker agrees with the
+required-domain margin.
+
+Public wording:
+
+> Conditional on the standard normalized minimizer reduction, the repository
+> contains a required-domain finite-atom certificate giving \(L_-\ge1.814600\).
+> This is not a proof of the exact infimum.
+
+## 5. Corrected Two-Interval Exact Route
+
+The exact route remains the corrected endpoint-atom two-interval finite-gap
+route.
+
+For
+
+\[
+E_\varepsilon=(x_L+\varepsilon,x_R)\cup(1-\varepsilon,1),
+\]
+
+write
+
+\[
+\ell=x_L+\varepsilon,\qquad r=x_R,\qquad \beta=1-\varepsilon.
+\]
+
+The active Cauchy transform is
+
+\[
+F(z)=
+\frac{z+A}{(z-\ell)(z-r)(z-1)}
+\sqrt{(z-\alpha)(z-\beta)},\qquad
+\sqrt{(z-\alpha)(z-\beta)}\sim z.
+\]
+
+The endpoint atom is forced:
+
+\[
+m_1=
+\frac{(1+A)\sqrt{(1-\alpha)\varepsilon}}{(1-\ell)(1-r)}>0.
+\]
+
+Thus the old no-endpoint-atom ansatz is retired.
+
+The fixed-epsilon skeleton supports this branch:
+
+```text
+epsilon = 0.002, 0.001, 0.0005, 0.0002, 0.0001, 0.00005
+OVERALL TWO-INTERVAL SKELETON CHECK: PASS
+(verifier integrity only, not a math proof)
+```
+
+Adjacent sampled slabs also support the branch, but sampled eta dependence is
+not a continuum proof.
+
+Four eta-uniform interval Krawczyk slabs have been closed:
+
+```text
+0.00005:0.0001   PASS
+0.0001:0.0002    PASS
+0.0002:0.0005    PASS
+0.0005:0.001     PASS
+0.001:0.002      open in this verifier
+```
+
+The open top slab should not be attacked by blindly increasing eta
+subdivisions.  It likely needs a better continuation/center model or a
+row-to-row split.
+
+## 6. Main Remaining Mathematical Gap
+
+Even if the two-interval local branch were completely certified, this would
+not prove the exact infimum.
+
+The real missing theorem is global finite-gap classification:
+
+> Every regular counterexample with \(|E|<M_{\rm oc}\) either lies on the corrected
+> one-cut/two-interval finite-gap branch, pinches or degenerates to a lower
+> genus branch, or violates positivity/interlacing.
+
+The first hard escape is a compact non-pinched \(g=2\) chamber.
+
+Current compact \(g=2\) status is now sharper:
+
+1. Regular free-period chambers are excluded by the period-transfer lineality
+   density.  After adding the free filling variable, the period row contributes
+   no independent \(\lambda\pi_0\) sign-shifter, and normal-to-lineality
+   orthogonality contradicts any nonzero oriented sign-pattern normal.
+2. Pinched and positivity-boundary limits are routed to corrected lower-genus
+   branches, with nonnegative endpoint atoms allowed.  This is a routing
+   target, not a substitute for the global lower-genus classification proof.
+3. Rank-defect non-pinched interior chambers remain open.  The current hard
+   target is an anchored Schiffer first-variation construction: add the anchor
+   row
+   \[
+   R_{\ell c}(G)=\delta W(c)
+   =
+   \int_J\log\frac1{|c-x|}G(x)\omega(x)\,dx,
+   \]
+   then construct a regularized Schiffer perturbation satisfying Proposition
+   4.1, \(V<0\) on \(Z_0\), negative boundary length derivative, and the
+   required cokernel projection.
+
+Current exact-route audit:
+
+- The one-cut upper construction is now the most stable proof-grade component:
+  Gate 6 defines \(M_{\rm oc}\) by exact equations and proves
+  \(L_-\le M_{\rm oc}\).
+- The lower bound is still open.  The first hard mouth is the compact
+  non-pinched \(g=2\) rank-defect chamber, now reduced to
+  `SchurBlockTotalPositivityLemma` / raw augmented circuit signs.
+- Boundary \(g=2\) routing still needs a compactness lemma.
+- High genus still needs a proof that outside-row freezing gives a legitimate
+  Schur complement with all global logarithmic-capacity tails accounted for.
+- Lemma R still needs the regularization/row-restoration theorem from arbitrary
+  minimizers to regular finite-gap approximants.
+
+Useful corrections already recorded:
+
+- the exact one-cut upper bound \(M_{\rm oc}\) is defined by analytical
+  equations, not by a decimal;
+- the no-endpoint-atom ansatz is wrong;
+- brute-force small-eta subdivision is not a main route;
+- whole-slab `Div2` intervalization creates artificial eta dependency;
+- the naive three-kernel compact determinant is invalid;
+- the determinant must use split kernels;
+- the pure-\(q\) Schur scalar is insufficient;
+- the rank-six Schur conclusion was dimensionally wrong;
+- regular free-period compact \(g=2\) is excluded by the free-period
+  lineality/sign contradiction;
+- rank-defect compact \(g=2\) is reduced to the raw augmented circuit
+  obstruction, not yet closed.
+
+## 7. Update Discipline and Pure Mathematical Next Steps
+
+Every future update should first update the detailed ledger
+`1038_dual_two_interval_progress.md`, then continue the proof.  The update
+should say which priority was attacked, which formula changed, what worked,
+what failed, and why.
+
+The exact-value target is the lower bound
+
+\[
+L_-\ge M_{\rm oc}.
+\]
+
+Equivalently, under the normalized minimizer reduction, there should be no
+admissible probability measure \(\mu\) with
 
 \[
 \mu(\{-1\})\ge\frac12,\qquad
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1],
+\qquad
+|E_\mu|<M_{\rm oc}.
 \]
 
-the current package proves the conditional theorem
+The theorem targets are frozen as:
 
 \[
-\boxed{|E_\mu|\ge1.8063.}
+\textbf{Theorem U:}\quad L_-\le M_{\rm oc}
 \]
 
-Forum-safe wording:
+from the one-cut upper construction, and
 
-> Conditional on the standard minimizer reduction, I can prove a \(1.8063\) lower
-> bound using a finite interval-box certificate for the two-parameter forcing
-> family.  The checker is reproducible in Python and mirrored by a Lean-executed
-> numeric certificate; it is not yet a full Mathlib formalization of the
-> logarithm inequalities.
-
-## 2026-05-02 proof rebuild: two-interval finite-gap route
-
-This is the current clean theorem chain after re-proving the two-interval line
-from the implemented ansatz.  It deliberately separates what is proved, what is
-diagnostic, and what is still missing before any \(L_-\ge1.83\) claim.
-
-### A. Corrected ansatz and endpoint atom
-
-Fix
 \[
-\ell=x_L+\varepsilon,\qquad r=x_R,\qquad \beta=1-\varepsilon,
+\textbf{Theorem L:}\quad
+\text{no normalized minimizer has }|E_\mu|<M_{\rm oc}.
 \]
-and consider
+
+Only these two statements together imply
+
 \[
-F(z)=\frac{z+A}{(z-\ell)(z-r)(z-1)}
-\sqrt{(z-\alpha)(z-\beta)},\qquad F(z)\sim 1\quad(z\to\infty)
+L_- = M_{\rm oc}.
 \]
-with
+
+The proof must not stop at the two-interval branch.  The two-interval branch is
+only the local dangerous family.  The full lower bound needs the following
+pure mathematical steps.
+
+The current route decision is to stop treating small-eta/top-slab Krawczyk
+tuning as the main line.  Those records remain useful diagnostics, but the
+exact proof needs global finite-gap classification.
+
+### Priority 1: one-cut upper construction status
+
+This gives the matching upper bound
+
 \[
-\ell<-1<r<\alpha<\beta<1,\qquad A>1.
+L_-\le M_{\rm oc}.
 \]
-The branch is chosen so that the extracted density on \((\alpha,\beta)\) is
-nonnegative in the checked sign chart.  At \(z=1\), the square root is analytic
+
+The candidate has support
+
+\[
+\{-1\}\cup[a,1],
+\]
+
+with density of the form
+
+\[
+d\mu_a(x)
+=m_a\delta_{-1}
++\frac{x+1-c_a}{\pi(x+1)\sqrt{(1-x)(x-a)}}\,1_{[a,1]}(x)\,dx.
+\]
+
+This work is now carried out in Gate 6 below: the coefficient is fixed by the
+potential level equation, the density and mass identities are verified, and the
+exterior zero structure is proved by the derivative sign table.  The resulting
+statement is:
+
+\[
+\boxed{\text{Gate 6: }L_-\le M_{\rm oc}\text{ is proof-grade.}}
+\]
+
+The formula is recorded here for reference.  In the one-cut notation
+
+\[
+s=\sqrt{2(1+a)},\qquad c_a=A(a)s,
+\]
+
+the mass identity makes the total mass automatic, and the scalar level equation
+is
+
+\[
+U_{\mu_a}(1)=0.
+\]
+
+Equivalently one may define
+
+\[
+0=
+\log\frac4{1-a}
+-A(a)\left(\log2+sJ(a)\right),
+\]
+
+where
+
+\[
+J(a)=\frac1\pi\int_a^1
+\frac{\log(1/(1-t))}
+{(t+1)\sqrt{(1-t)(t-a)}}\,dt.
+\]
+
+The decimal values \(x_L,x_R\) are numerical evaluations of the exact
+zero equations and are not definitions.  This upper construction is not the
+difficult global lower-bound classification, but it fixes the exact value that
+the lower bound must match.
+
+### Priority 2: keep the corrected two-interval branch as local model
+
+For
+
+\[
+E_\varepsilon=(\ell,r)\cup(\beta,1),
+\qquad
+\ell=x_L+\varepsilon,\qquad
+\beta=1-\varepsilon,
+\]
+
+the corrected Cauchy transform is
+
+\[
+F(z)=
+c\,\frac{z+A}{(z-\ell)(z-r)(z-1)}
+\sqrt{(z-\alpha)(z-\beta)}.
+\]
+
+Here \(c>0\) is a normalization constant.  With the standard branch convention,
+the local sign chamber is
+
+\[
+\boxed{-r<A<-\ell}
+\]
+
+under
+
+\[
+\ell<-1<r<\alpha<\beta<1.
+\]
+
+The old no-endpoint-atom model is retired because
+
+\[
+m_1=\operatorname{Res}_{z=1}F(z)
+=
+c\,\frac{(1+A)\sqrt{(1-\alpha)\varepsilon}}
+{(1-\ell)(1-r)}
+>0.
+\]
+
+The local branch proof must show, for the relevant parameter regime,
+
+\[
+m_\ell\ge0,\qquad m_r\ge0,\qquad m_1\ge0,
+\]
+
+\[
+\rho(x)=\frac1\pi
+\left|
+\frac{x+A}{(x-\ell)(x-r)(x-1)}
+\right|
+\sqrt{(x-\alpha)(\beta-x)}
+\ge0
+\quad (x\in[\alpha,\beta]),
+\]
+
 and
+
 \[
-\sqrt{(1-\alpha)(1-\beta)}=\sqrt{(1-\alpha)\varepsilon}.
+U_\lambda(x)=0\quad(x\in[\alpha,\beta]),
+\qquad
+U_\lambda(x)\ge0\quad(x\in[-1,1]).
 \]
-Therefore \(F\) has residue
+
+This branch supports the candidate \(M_{\rm oc}\), but by itself it is still a local
+certificate, not a full exact proof.
+
+### Priority 3: prove the pinching and degeneration theorem
+
+Let a finite-gap dual transform have the general form
+
 \[
-m_1=
-\operatorname{Res}_{z=1}F(z)
+F_n(z)=
+\frac{P_n(z)}{Q_n(z)}
+\sqrt{\prod_{j=1}^g(z-\alpha_{j,n})(z-\beta_{j,n})}.
+\]
+
+If a minimizing sequence leaves every compact nondegenerate chamber, some gap
+must pinch:
+
+\[
+\beta_{j,n}-\alpha_{j,n}\to0
+\quad\text{or}\quad
+\alpha_{j,n},\beta_{j,n}\to \text{endpoint/pole}.
+\]
+
+The theorem needed is:
+
+\[
+F_n\longrightarrow F_\infty
+\]
+
+where \(F_\infty\) is either a lower-genus transform already covered by the
+one-cut or corrected two-interval branch, or it has a negative density/residue
+and is inadmissible.
+
+This is the bridge from local finite-gap formulas to global exclusion.
+
+### Priority 4: exclude compact non-pinched \(g=2\) chambers
+
+This is the current hardest mathematical gap.
+
+For two zero intervals, write
+
+\[
+F(z)=\frac{P(z)}{Q(z)}
+\sqrt{(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)}.
+\]
+
+If there is an extra positive component
+
+\[
+I=(u,v),\qquad c\in(u,v),
+\]
+
+the local atom/neck variables are
+
+\[
+q,\qquad a=c-u,\qquad b=v-c,\qquad c.
+\]
+
+The KKT equations should be written as
+
+\[
+K(q,a,b,c,\xi)=0,
+\]
+
+where \(\xi\) denotes the finite-gap background jets.  The correct
+linearization is
+
+\[
+dK=A\,dy+B\,d\xi.
+\]
+
+The old rank-six Schur claim was wrong.  The correct obstruction is the
+cokernel matrix
+
+\[
+B_{\mathrm{cok}}=\ker(A^T)\,B.
+\]
+
+The goal is to prove that no nonnegative finite-gap chamber has the required
+cokernel sign pattern.  The split-kernel determinant that should replace the
+invalid three-kernel determinant is
+
+\[
+\Delta_6(x_1,\ldots,x_6)
 =
-\frac{(1+A)\sqrt{(1-\alpha)\varepsilon}}{(1-\ell)(1-r)}>0.
+\det\left[
+1,\frac1{x-u},\frac1{x-c},\frac1{x-v},
+\log\frac1{|x-u|},\log\frac1{|x-v|}
+\right]_{x=x_i}.
 \]
-Thus any positive-measure Cauchy-transform interpretation of this ansatz must
-include the endpoint atom \(m_1\delta_1\).  This part is a direct residue
-calculation and is mathematically closed.
 
-### B. Fixed-\(\varepsilon\) local branch certificate
+The required sign theorem is that, after the correct orientation factor,
 
-Let
 \[
-\eta=\sqrt{\varepsilon},\qquad
-\alpha=\alpha_0+\eta\tau,\qquad
-A=A_0+\eta(\sigma\tau+B),
+\prod_i\sigma(x_i)\Delta_6(x_1,\ldots,x_6)
 \]
-where \((A_0,\alpha_0)\) is the limiting solution and \(\sigma\) is the limiting
-null-slope recorded in the JSON skeleton.  Define
+
+has one fixed nonzero sign on the interlacing chamber.
+
+The second independent obstruction should come from the reduced Hessian
+
 \[
-K(B,\tau;\eta)
-=
-\left(
-\frac{U(\alpha)}{\eta},
-\frac{w\,U(\alpha)+U(-1)}{\eta^2}
-\right).
+M=P^TGP,
 \]
-For each stored row
+
+where \(G\) is the Schur complement of the finite-gap energy Hessian.  The
+target identities are
+
 \[
-\varepsilon\in\{0.002,0.001,0.0005,0.0002,0.0001,0.00005\},
+e_\zeta^TMe_\zeta=\lambda Q_c,
 \]
-the verifier checks:
 
-1. the sign chart \(1<A<-\ell\), \(\ell<-1<r<\alpha<\beta<1\);
-2. atom and density positivity at the stored center;
-3. Arb center residuals for \(K(B_0,\tau_0;\eta)\);
-4. Arb/Acb enclosures for the two columns of \(D_{B,\tau}K\) over the local
-   \(B,\tau\) box;
-5. the componentwise Krawczyk inequality
 \[
-|C K(B_0,\tau_0;\eta)|
-\;+\;
-\sup_X |I-C\,D_{B,\tau}K(X)|\,r
-<r,
+e_u^TMe_\zeta
+=-\frac{\lambda}{2}\Gamma(c-u),
+\qquad
+e_v^TMe_\zeta
+=\frac{\lambda}{2}\Gamma(v-c),
 \]
-with a \(7\times7\) subdivision of the local \(B,\tau\) box.
 
-Validated command:
+and the curvature clamp
 
-```bash
-.venv/bin/python 1038/verify_two_interval_branch_skeleton.py --quiet \
-  --arb-primitive-check --arb-center-residual-check --arb-box-uminus-check \
-  --arb-box-uminus-derivative-check --arb-box-contact-derivative-check \
-  --arb-box-dk-check --arb-interval-krawczyk-check \
-  --arb-box-dk-subdivisions 7,7 --self-test-tamper
-```
-
-Result:
-
-```text
-OVERALL TWO-INTERVAL SKELETON CHECK: PASS
-(6 rows; tamper self-test PASS 6 cases; verifier integrity only, not a math proof)
-```
-
-Interpretation: conditional on the correctness of the Arb primitives, this is a
-fixed-\(\varepsilon\) local branch certificate for the implemented equations.
-It is not yet a continuum theorem in \(\varepsilon\).
-
-### C. Adjacent epsilon-slab diagnostic
-
-The new slab checker works on adjacent stored rows.  On a slab
-\([\varepsilon_1,\varepsilon_2]\), it interpolates \(B_c(\eta)\) and
-\(\tau_c(\eta)\) affinely in \(\eta\), then checks boxes
 \[
-B=B_c(\eta)+u,\qquad \tau=\tau_c(\eta)+v,
-\qquad |u|,|v|\le 10^{-2}.
+\Gamma\le \frac{2\sqrt{aQ_c}}{c-u},
+\qquad
+-\Gamma\le \frac{2\sqrt{bQ_c}}{v-c}.
 \]
-It now verifies the sign chart over the full \(\eta\)-slab and all \(u,v\)
-subboxes, rejects non-adjacent slab endpoints, and reports the worst defect
-source.  In the default diagnostic mode, the center correction and \(DK\)
-dependence on \(\eta\) are still sampled, not interval-enclosed.
 
-Validated single-slab command:
+The compact \(g=2\) chamber is closed only if these formulas force either
 
-```bash
-.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
-  1038/two_interval_branch_certificate_skeleton.json \
-  --slab 0.00005:0.0001 \
-  --center affine-endpoints \
-  --uv-radii 0.01,0.01 \
-  --arb-box-dk-subdivisions 7,7 \
-  --quiet
-```
-
-Result:
-
-```text
-PASS, worst_margin=1.489253e-03,
-component=v, dominant=defect,
-status=diagnostic-not-continuum-proof
-```
-
-The five adjacent slabs also pass when run one at a time with these diagnostic
-settings:
-
-```text
-[0.00005,0.0001]  7,7   PASS, margin 1.489253e-03
-[0.0001, 0.0002]  7,14  PASS, margin 4.798109e-03
-[0.0002, 0.0005]  7,14  PASS, margin 5.666347e-03
-[0.0005, 0.001]   7,14  PASS, margin 4.632834e-03
-[0.001,  0.002]   7,14  PASS, margin 4.417884e-03
-```
-
-This is meaningful evidence for the small-\(\varepsilon\) branch, but it is
-still not a proof of a continuum branch because \(\eta\)-dependence is sampled.
-
-### D. Attempted eta-interval DK closure and current obstruction
-
-The checker now also has an experimental mode
-`--eta-interval-dk-check`, which encloses \(DK\) over eta subintervals instead
-of sampling eta.  This attacks the main missing step directly.  The naive
-interval lift currently fails because the Arb derivative boxes become much too
-wide in the \(v=\tau\) direction.
-
-Commands tried:
-
-```bash
-.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
-  1038/two_interval_branch_certificate_skeleton.json \
-  --slab 0.00005:0.0001 \
-  --center affine-endpoints \
-  --uv-radii 0.01,0.01 \
-  --arb-box-dk-subdivisions 7,7 \
-  --eta-interval-dk-check --quiet
-```
-
-Failure:
-
-```text
-margin=-3.950630e-01,
-correction=2.635876e-05,
-defect=4.050367e-01,
-component=v, dominant=defect
-```
-
-With finer eta subdivision:
-
-```bash
---arb-box-dk-subdivisions 14,7 --eta-interval-dk-check
-```
-
-Failure:
-
-```text
-margin=-2.549520e-01,
-defect=2.649256e-01,
-component=v, dominant=defect
-```
-
-The adjacent slab \([0.0001,0.0002]\) also fails in the same way:
-
-```text
-margin=-2.566466e-01,
-defect=2.665948e-01,
-component=v, dominant=defect
-```
-
-The next repair was to add a combined derivative primitive for the rescaled
-second equation.  Instead of enclosing
 \[
-dU(\alpha),\qquad dU(-1)
+Q_c<0,
 \]
-separately and then forming
-\[
-\frac{w\,dU(\alpha)+dU(-1)}{\eta^2},
-\]
-the solver now has
-`_combined_contact_minus_one_directional_derivative_acb_from_arb`, which
-integrates the derivative of \(wU(\alpha)+U(-1)\) directly.  This preserves part
-of the Lyapunov-Schmidt cancellation that was lost by separate interval
-evaluation.
 
-The improvement is real but not yet enough.  On the first slab
-\([0.00005,0.0001]\), component \(v\):
+or a violation of the residue/density/interlacing signs.
 
-```text
-direct separate derivative, 7,7:
-  defect=4.050367e-01
-
-combined derivative with corrected contact-tail bound, 7,7:
-  defect=3.039123e-01
-
-combined derivative, 14,7:
-  defect=1.626021e-01
-
-combined derivative, 28,7:
-  defect=9.184954e-02
-
-combined derivative, 56,7:
-  defect=5.670137e-02
-```
-
-With smaller \(u,v\) radius \(0.005\) and \(28,7\), the same obstruction gives
-
-```text
-radius=5.000000e-03,
-defect=4.564576e-02,
-component=v.
-```
-
-So the failure is no longer an unexplained numerical issue.  It is a quantified
-dependency problem in the eta-dependent \(v\)-column of \(D K\).  Direct
-subdivision appears to converge, but far too slowly for a proof-grade
-certificate.  The next proof step cannot be "turn epsilon into an Arb interval"
-naively, and it also cannot be solved efficiently by brute-force subdivision.
-It must use a renormalized eta expansion or a sharper analytic formula for the
-eta-dependent \(v\)-derivative box.
-
-### E. Exact remaining theorem before any \(1.83\) claim
-
-The missing theorem is:
-
-> There is an \(\varepsilon_0>0\) such that for every
-> \(0<\varepsilon\le\varepsilon_0\), the corrected endpoint-atom
-> two-interval ansatz has a solution of
-> \(U(\alpha)=U(-1)=0\) satisfying the sign chart, positivity of all extracted
-> masses/density, and the global dual potential sign conditions.
-
-Current status of its proof:
-
-1. fixed-\(\varepsilon\) local branch: diagnostic certificate closed on six rows;
-2. adjacent finite slab chain: sampled diagnostic closed on
-   \([0.00005,0.002]\);
-3. eta-interval \(DK\): attempted, but current direct Arb intervalization fails
-   from dependency blow-up in the \(\tau\) derivative component;
-4. eta-interval center \(K\): still missing, especially an interval version of
-   the contact value \(U(\alpha)\) or an equivalent residue-log primitive over
-   parameter boxes;
-5. global positivity/general \(E\) reduction: not yet proved.
-
-Therefore the honest conclusion is:
+The current refined hard mouth is one step earlier than the raw Schur
+complement:
 
 \[
 \boxed{
-\text{The two-interval route is alive and numerically coherent, but the full }
-L_-\ge1.83\text{ proof is not yet closed.}
+\text{repair the }F(c)\text{-row and then write the branch-parametrized
+second variation.}
 }
 \]
 
-The next proof action is not to add more sampled epsilon rows.  It is to replace
-the eta-dependent derivative and center-residual checks by a renormalized,
-outward-rounded eta-slab certificate.
-
-### F. 2026-05-02 hard-mouth rebuild: what actually breaks in \(K_{2,\tau}\)
-
-The first useful repair is an algebraic rescaling in the eta-interval DK
-checker.  For eta intervals the verifier now keeps the Lyapunov-Schmidt
-directions unscaled:
+The previous fully augmented template with independent
+\(\lambda_SS\) and \(\lambda_FF(c)\) rows is bookkeeping only.  The
+proof-grade convention is now:
 
 \[
-\partial_B=(1,0),\qquad \partial_\tau=(\nu,1),
+\boxed{
+S=0\text{ is derived from endpoint stationarity, while }F(c)=0
+\text{ is a finite-gap branch equation, not a free }y\text{-stationarity row.}
+}
 \]
 
-and assembles
+Use the branch-parametrized functional
 
 \[
-K_{1,s}=dG_0[s],\qquad
-K_{2,s}=\frac{w\,dG_0[s]+dG_1[s]}{\eta}.
+\begin{aligned}
+\Phi_{\rm br}(q,a,b,c,\xi;\lambda)
+={}&
+(a+b)+\ell_{\rm ext}(\xi)
++\lambda_M(q+m_{\rm ext}(\xi)-1)
++\lambda_{\rm per}\Pi(\xi)\\
++\lambda_-E_-(y,\xi)
++\lambda_+E_+(y,\xi),
+\end{aligned}
 \]
 
-This is algebraically the same as the previous
-\[
-\frac{dG_0[\eta s]}{\eta},\qquad
-\frac{w\,dG_0[\eta s]+dG_1[\eta s]}{\eta^2},
-\]
-but avoids putting an interval eta factor into the direction before the final
-division.  On the first slab \([0.00005,0.0001]\), with \(7,7\) subdivisions,
-this improves the eta-interval failure from
-
-```text
-previous combined derivative:
-  defect=3.039123e-01
-
-unscaled LS direction:
-  defect=5.341965e-02
-  margin=-4.344601e-02
-```
-
-The sampled MVP is unchanged and still passes:
-
-```text
-eta_DK_mode=sampled,
-worst_margin=1.489253e-03,
-defect=(3.866094e-04, 8.484388e-03).
-```
-
-The new failure instrumentation shows the exact remaining obstruction.  The
-worst first-slab eta-interval check is:
-
-```text
-eta=[0.0070710678118654753,0.0074894866958846928],
-u_subbox=6,
-v_subbox=6,
-component=v,
-entry[1,1] action=5.042265e-02,
-DK[1,1]=[-1.739483e+00,1.739483e+00].
-```
-
-Thus the bad term is not a general two-dimensional Krawczyk problem.  It is the
-\((K_2,\tau)\) entry, i.e.
+where
 
 \[
-\frac{w\,dU(\alpha)[\nu,1]+dU(-1)[\nu,1]}{\eta}.
-\]
-
-For a representative worst subbox after eta subdivision \(28,7\), the raw
-split is:
-
-```text
-atom contribution to H_s:
-  [-1.588679507e-01, -1.580724000e-01]
-
-full H_s:
-  [-5.720000009e-03, 5.720000009e-03]
-
-full H_s / eta:
-  radius about 8.089301605e-01.
-```
-
-So the present Arb primitive has already fixed the contact/minus-one
-combination, but it still evaluates the atom and continuous parts separately.
-The decisive cancellation is now between the endpoint atom contribution and
-the continuous density contribution.  Merely refining the quadrature
-breakpoints did not shrink this ball, and increasing \(u,v\) subdivisions did
-not help either.
-
-The hard next lemma is therefore sharper:
-
-> Build a divided residue-log primitive for
-> \[
-> \frac{H_s(A,\alpha,\eta)-H_s(A_0,\alpha_0,0)}{\eta},
-> \qquad
-> H_s=w\,dU(\alpha)[\nu,1]+dU(-1)[\nu,1],
-> \]
-> or an equivalent formula in which the endpoint atom and continuous
-> contribution are combined before interval enclosure.
-
-This is the current hard mouth of the two-interval route.  Brute-force eta or
-\(u,v\) subdivision is not an efficient path to closure.
-
-### G. Residue-log divided primitive experiment
-
-A natural next attempt was to write the differentiated full Cauchy transform
-directly in the Joukowski coordinate:
-
-\[
-F_s(z)
-=
-\frac{R(z)}{(z-\ell)(z-r)(z-1)}
-\left(
-\nu-\frac{z+A}{2(z-\alpha)}
-\right),
+E_-=q\log\frac1a+W_\xi(c-a),
 \qquad
-s=\nu\partial_A+\partial_\alpha.
+E_+=q\log\frac1b+W_\xi(c+b),
+\]
+
+\[
+S=aW_\xi'(c-a)+bW_\xi'(c+b).
+\]
+
+The branch equations are imposed separately:
+
+\[
+F_\xi(c)=0,\qquad F_\xi'(c)<0.
+\]
+
+At first order they restrict the tangent space by
+
+\[
+\delta F_\xi(c)=F_\xi'(c)\delta c+\delta_\xi F_\xi(c)=0.
+\]
+
+The reason is concrete.  If one keeps a free term
+\(\lambda_FF_\xi(c)\), then in the fixed chart
+
+\[
+F_y=(0,0,0,F_\xi'(c)),
+\]
+
+and the projected \(c\)-Euler equation becomes
+
+\[
+0=\gamma S+\lambda_FF_\xi'(c),
+\]
+
+not \(S=0\).  Since the fixed period row has \(\Pi_y=0\), this is an
+\(F\)-row obstruction, not a period obstruction.
+
+The next lemma to write is:
+
+\[
+\boxed{\textbf{Lemma Branch-Parametrized Phi-Euler-Hessian}}
+\]
+
+At every regular compact \(g=2\) extremal, after solving
+\(F_\xi(c)=0\) as a branch equation, the chosen \(\Phi_{\rm br}\) must satisfy
+
+\[
+d_y\Phi_{\rm br}=0
+\Longleftrightarrow
+E_-=E_+=S=0
+\]
+
+together with mass and period rows, while \(F(c)=0\) enters through the branch
+tangent.
+
+The density coordinate convention should also be fixed now.  The working
+choice is:
+
+\[
+d\eta(x)=G(x)\omega(x)\,dx
+\]
+
+is the real perturbation, and the six local jet coordinates are only the row
+values
+
+\[
+\xi_i=R_i(G).
+\]
+
+Thus \(H_{\xi y}\) initially means a mixed second-variation pairing
+\((G,\delta y)\), not an ordinary derivative in six free coordinates.  The
+period row remains a separate global constraint unless proved otherwise.
+
+In particular,
+
+\[
+\delta W_\xi(s)=\int_J\log\frac1{|s-x|}\,d\xi(x),
+\qquad
+\delta F_\xi(z)=\int_J\frac{d\xi(x)}{z-x}.
+\]
+
+The six local rows record only selected functionals of \(G\).  For example,
+
+\[
+\delta_\xi S=aR_u(G)+bR_v(G),
+\qquad
+\delta_\xi F(c)=-R_c(G).
+\]
+
+The endpoint rows \(R_-,R_+\) record endpoint differences, not absolute
+endpoint values.  Therefore the Schur complement must first be defined on
+actual density perturbations and only later pushed down to the finite row
+image.
+
+The fixed-chart Euler part is now clean.  With
+
+\[
+p=\log(1/a),\quad r=\log(1/b),\quad A=W'(u),\quad B=W'(v),
+\]
+
+\[
+X=q/a+A,\qquad Y=B-q/b,
+\]
+
+one has
+
+\[
+d_y\Phi_{\rm br}
+=(0,1,1,0)+\lambda_M(1,0,0,0)
++\lambda_-(p,-X,0,A)+\lambda_+(r,0,Y,B).
+\]
+
+Thus \(d_y\Phi_{\rm br}=0\) gives
+
+\[
+\lambda_-=\frac1X,\qquad \lambda_+=-\frac1Y,
+\]
+
+and the \(c\)-row gives
+
+\[
+\frac{A}{X}-\frac{B}{Y}=0.
+\]
+
+Since
+
+\[
+\frac{A}{X}-\frac{B}{Y}
+=-\frac{q(aA+bB)}{abXY},
+\]
+
+this is exactly \(S=0\) under \(q,a,b,X,Y\ne0\).  The \(q\)-row only fixes
+\(\lambda_M\); it is not an extra scalar equation.
+
+The next correction is that period cannot be used as a \(y\)-state row in the
+fixed chart.  Since \(\Pi_y=0\), the matrix
+
+\[
+(E_-,E_+,M,\Pi)_y
+\]
+
+is singular.  Period is only an admissibility condition
+
+\[
+\delta\Pi(\xi)=0.
+\]
+
+The state lift should instead use
+
+\[
+\boxed{A_{\rm st}=(E_-,E_+,M,F_\xi(c)).}
+\]
+
+Its \(y\)-Jacobian is
+
+\[
+(A_{\rm st})_y=
+\begin{pmatrix}
+p&-X&0&A\\
+r&0&Y&B\\
+1&0&0&0\\
+0&0&0&F_\xi'(c)
+\end{pmatrix},
+\]
+
+with
+
+\[
+\det (A_{\rm st})_y=-XYF_\xi'(c).
+\]
+
+Thus the state lift is regular if
+
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0.
+\]
+
+For perturbation rows \(\delta E_-,\delta E_+,\delta M,\delta F\), it gives
+
+\[
+\delta q=-\delta M,\qquad
+\delta c=-\frac{\delta F}{F_\xi'(c)},
+\]
+
+\[
+\delta a=
+\frac{\delta E_- -p\,\delta M-\frac{A}{F_\xi'(c)}\delta F}{X},
+\]
+
+\[
+\delta b=
+\frac{r\,\delta M-\delta E_+
++\frac{B}{F_\xi'(c)}\delta F}{Y}.
+\]
+
+The bordered Schur complement should be
+
+\[
+\boxed{
+G_0
+=H_{\xi\xi}
+-
+\begin{pmatrix}H_{\xi y}&A_\xi^T\end{pmatrix}
+\begin{pmatrix}
+H_{yy}&A_y^T\\
+A_y&0
+\end{pmatrix}^{-1}
+\begin{pmatrix}
+H_{y\xi}\\
+A_\xi
+\end{pmatrix}.
+}
+\]
+
+Equivalently, with the state lift
+
+\[
+T\xi=-A_y^{-1}A_\xi\xi,
+\]
+
+the density-level reduced Hessian is the symmetric bilinear form
+
+\[
+\boxed{
+G_{\rm br}(\xi,\zeta)=
+D^2\Phi_{\rm br}\big((T\xi,\xi),(T\zeta,\zeta)\big),
+\qquad
+\delta\Pi(\xi)=\delta\Pi(\zeta)=0.
+}
+\]
+
+The bordered formula agrees with this expression under
+\[
+X\ne0,\qquad Y\ne0,\qquad F_\xi'(c)\ne0.
+\]
+
+The second-variation theorem must prove
+
+\[
+\boxed{
+\xi^TG_0\xi\ge0
+\quad\text{for actual admissible }\xi\text{ satisfying }\delta\Pi(\xi)=0.
+}
+\]
+
+The next hard mouth is not yet the curvature clamp.  Since \(G_{\rm br}\) is
+defined on actual density perturbations, a naive finite-row quotient would
+need
+
+\[
+\boxed{
+\ker(\rho|_{\mathcal X_\Pi})\subset\operatorname{Rad}(G_{\rm br}),
+}
+\]
+
+where
+
+\[
+\rho(\xi)=(R_0,R_u,R_c,R_v,R_-,R_+,\Pi)(\xi),
+\qquad
+\mathcal X_\Pi=\{\xi:\Pi(\xi)=0\}.
+\]
+
+Equivalently, \(G_{\rm br}\) must descend to
+
+\[
+V=\rho(\mathcal X_\Pi)\subset\mathbb R^7.
+\]
+
+But this radical quotient is probably false as stated, because \(G_{\rm br}\)
+contains the full log-energy
+
+\[
+\mathcal E_{\log}(\xi,\xi)
+=\iint-\log|x-y|\,d\xi(x)d\xi(y),
+\]
+
+which is positive on nonzero zero-mass perturbations in the finite row kernel.
+The replacement is a Feshbach / energy-minimal lift:
+
+\[
+W^\sharp=\ker(\rho^\sharp|_{\mathcal X_\Pi}),\qquad
+\xi=Sr+w,
+\]
+
+\[
+\rho^\sharp(Sr)=r,\qquad
+\mathcal E_{\log}(Sr,w)=0\quad(w\in W^\sharp).
+\]
+
+Here the row map must be enlarged by the absolute log-potential anchor
+
+\[
+R_{\log c}(\xi)=\delta W_\xi(c)
+=\int_J\log\frac1{|c-x|}\,d\xi(x),
+\]
+
+because \(R_-,R_+\) are only differences:
+
+\[
+R_-=\delta W(c)-\delta W(u),\qquad
+R_+=\delta W(v)-\delta W(c).
+\]
+
+Thus
+
+\[
+\rho^\sharp=(R_0,R_u,R_c,R_v,R_-,R_+,R_{\log c},\Pi).
+\]
+
+The energy-minimal lift exists uniquely in the \(\mathcal E_{\log}\)-Hilbert
+completion under continuity and feasibility of \(\rho^\sharp\); it should not
+be claimed to be a smooth density without a separate regularity theorem.
+
+The Hilbert-space statement must be made on zero-mass directions.  The
+logarithmic energy is positive definite only after the mass/constant mode is
+removed.  Thus either work on
+
+\[
+H_{0,\Pi}=\{h\in H_\Pi:R_0(h)=0\},
+\]
+
+so feasible row data have \(R_0=0\), or split \(R_0\) off as a separate
+finite-dimensional coordinate before applying the minimal-lift theorem.
+Without this convention, the phrase "every \(r\in V^\sharp\) has a minimal
+log-energy lift" is too strong.
+
+The row-continuity assumption is a separated fixed-chart statement.  With
+
+\[
+J\Subset\mathbb R\setminus\{u,c,v\},
+\]
+
+zero-mass log-energy is equivalent to an \(H^{-1/2}(J)\) norm, so rows are
+continuous if their kernels lie in \(H^{1/2}(J)\).  The Cauchy rows, split
+kernels \(L_\pm\), and \(R_{\log c}\) are continuous under this separation.
+The period kernel \(\pi_0\) is continuous only if its jump lies in a gap away
+from the support; an interior step jump is not \(H^{1/2}\).
+
+The finite effective object, if the non-log part factors through
+\(\rho^\sharp\), is
+
+\[
+Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r),
+\qquad r\in V^\sharp=\rho^\sharp(\mathcal X_\Pi).
+\]
+
+Separately, one should prove a row-realization lemma.  For the eight kernels
+
+\[
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,
+\log\frac1{|c-x|},\pi_0
+\]
+
+let \(\operatorname{Rel}\) be their linear relations on the regular support.
+Smooth compactly supported density bumps realize exactly
+\(\operatorname{Rel}^{\perp}\).  Full period-zero row realization requires the
+extra determinant condition that these eight kernels are independent on
+regular support.
+This supports Chebyshev tests, but it does not by itself make the Hessian
+finite-dimensional.
+
+Until the minimal-lift or actual-density formulation is closed, the six local
+rows cannot be treated as arbitrary free Hessian coordinates.  Any cokernel
+vector is meaningful only through its action on the actual row image \(V\).
+
+After that, the next theorem is not the curvature clamp directly.  The
+log-minimal lift contributes a nonlocal term
+
+\[
+K_{\log}(r,s)=\mathcal E_{\log}(Sr,Ss),
+\]
+
+so one must first prove the effective endpoint Hessian identities for
+
+\[
+P^TQ_{\rm eff}P.
+\]
+
+Only if this effective block has the expected entries does the curvature clamp
+need exactly five reduced-Hessian identities:
+
+\[
+e_u^TMe_u=\lambda a,\qquad
+e_v^TMe_v=\lambda b,\qquad
+e_\zeta^TMe_\zeta=\lambda Q_c,
+\]
+
+\[
+e_u^TMe_\zeta=-\frac{\lambda}{2}\Gamma(c-u),
+\qquad
+e_v^TMe_\zeta=\frac{\lambda}{2}\Gamma(v-c).
+\]
+
+No \(e_u^TMe_v\) identity is needed for the clamp itself.
+
+The immediate theorem queue is therefore:
+
+1.  Prove the separated-chart Feshbach minimal-lift theorem.  This legitimizes
+    \(Q_{\rm eff}\) as the finite effective Hessian on feasible row data; it
+    does not compute the endpoint entries.
+
+    Abstract content: for a real Hilbert space \(H\), a continuous finite-rank
+    row map \(\rho^\sharp:H\to\mathbb R^m\), and
+    \(W=\ker\rho^\sharp\), one has
+
+    \[
+    H=W\oplus W^{\perp_{\mathcal E}}.
+    \]
+
+    Each feasible \(r\in V=\rho^\sharp(H)\) has a unique lift
+
+    \[
+    Sr\in W^{\perp_{\mathcal E}}\cap(\rho^\sharp)^{-1}(r),
+    \]
+
+    and any \(\xi\in H\) decomposes as
+
+    \[
+    \xi=S\rho^\sharp(\xi)+w,\qquad w\in W.
+    \]
+
+    If
+
+    \[
+    G_{\rm br}=\mathcal E_{\log}+b\circ(\rho^\sharp,\rho^\sharp),
+    \]
+
+    then
+
+    \[
+    G_{\rm br}(Sr+w,Ss+w')
+    =
+    Q_{\rm eff}(r,s)+\mathcal E_{\log}(w,w').
+    \]
+
+    Therefore \(G_{\rm br}\ge0\) on a closed feasible tangent space implies
+    \(Q_{\rm eff}\ge0\) only on the corresponding feasible row image.  If the
+    tangent object is merely a cone, the later endpoint directions must be
+    checked to lie in its lineality or in two-sided feasible directions.
+
+2.  Prove endpoint-transfer realization.  The three columns of
+
+    \[
+    P:\operatorname{span}\{e_u,e_v,e_\zeta\}\to V^\sharp
+    \]
+
+    must lie in the actual row image.  Full row surjectivity is optional; these
+    three columns are the necessary target.
+
+    The theorem should be stated narrowly:
+
+    \[
+    \textbf{EndpointTransferRealization3:}\qquad
+    P e_j\in \rho^\sharp(\mathcal X_{\Pi,\mathrm{lin}})
+    \quad(j=u,v,\zeta).
+    \]
+
+    Equivalently, construct actual perturbations
+
+    \[
+    \xi_u,\xi_v,\xi_\zeta
+    \]
+
+    in the fixed-period, zero-mass or external-mass chart such that
+
+    \[
+    \rho^\sharp(\xi_j)=P e_j.
+    \]
+
+    The columns must satisfy \(r_{0j}=0\) in the zero-mass version, the period
+    row \(r_{\Pi j}=0\), all row-relation constraints
+    \(\lambda\cdot P e_j=0\) for \(\lambda\in\operatorname{Rel}\), and the
+    relevant critical-cone lineality condition.  A formal endpoint row in the
+    ambient coordinate space is not enough.
+
+3.  Prove or replace the effective endpoint identities for
+    \(M=P^TQ_{\rm eff}P\).  The log-minimal term
+    \(K_{\log}=\mathcal E_{\log}(S\cdot,S\cdot)\) can alter the old local
+    entries, so identities for the finite Schur term \(b\) alone are not
+    enough.
+
+4.  If the old five entries survive, derive the curvature clamp.  If they do
+    not, use the actual effective entries
+
+    \[
+    m_{uu},m_{vv},m_{\zeta\zeta},m_{u\zeta},m_{v\zeta}
+    \]
+
+    and prove the corrected effective-entry clamp.
+
+5.  Prove that the resulting clamp forces the Wronskian/sign pattern
+    contradiction for the two-dimensional KKT cokernel.  The six-kernel
+    Chebyshev determinant is only a variation-diminishing tool; it does not
+    close compact \(g=2\) by itself.
+
+Stop/go rule:
+
+\[
+\boxed{\text{GO, but only on the }Q_{\rm eff}\text{ theorem queue.}}
+\]
+
+If the actual effective entries do not imply the Wronskian contradiction, stop
+the compact \(g=2\) Hessian-clamp route.  Do not return to the retired
+free-\(F(c)\) multiplier, the naive finite-row radical quotient, or a
+standalone Chebyshev determinant proof.
+
+
+### Priority 5: global closure statement
+
+The final theorem should read:
+
+> Every normalized minimizer with \(|E_\mu|<M_{\rm oc}\) either belongs to a covered
+> one-cut or corrected two-interval branch, degenerates to one of those
+> branches, or lies in a compact \(g=2\) chamber that is impossible by the
+> KKT-cokernel and reduced-Hessian obstruction.
+
+Only after this theorem and the one-cut upper construction are both written
+does the exact statement follow:
+
+\[
+\boxed{L_- = M_{\rm oc}=1.8344304757626617\ldots}.
+\]
+
+The \(Q_{\rm eff}\) work closes only one component of this global statement:
+the compact non-pinched \(g=2\) chamber.  It does not close by itself the
+one-cut upper construction, corrected \(g=1\) branch, pinching/degeneration,
+high-genus local-neck reduction, regularity removal, or standard normalized
+minimizer reduction.
+
+After the minimal-lift theorem, the next proof target is a three-column
+endpoint-transfer realization theorem, not full row surjectivity:
+
+\[
+P e_u,\ P e_v,\ P e_\zeta\in V^\sharp.
+\]
+
+Equivalently, construct actual admissible perturbations
+\(\xi_u,\xi_v,\xi_\zeta\) with
+
+\[
+\rho^\sharp(\xi_j)=P e_j,\qquad j\in\{u,v,\zeta\},
+\]
+
+in the regular separated compact \(g=2\) chart.  Only after those three
+directions are available does \(P^TQ_{\rm eff}P\) become a proof-grade object.
+
+If the three-column realization fails, the finite Hessian-clamp route must be
+downgraded immediately.  The two available fallbacks are:
+
+1.  an actual-density formulation, keeping \(G_{\rm br}\) on real density
+    perturbations and deriving the endpoint tests directly; or
+2.  a cone formulation, proving that the combinations
+
+    \[
+    Be_u+Ae_\zeta,\qquad Be_\zeta+Ae_v
+    \]
+
+    are two-sided feasible directions.  If only one-sided feasibility is
+    available, the ordinary PSD matrix clamp is not justified.
+
+Once three-column realization is proved, the next theorem becomes the true
+effective endpoint Hessian identity.  With
+
+\[
+p_j=P e_j,\qquad m_{ij}=Q_{\rm eff}(p_i,p_j),
+\]
+
+the target is
+
+\[
+m_{uu}=\lambda a,\quad m_{vv}=\lambda b,\quad
+m_{\zeta\zeta}=\lambda Q_c,
+\]
+
+\[
+m_{u\zeta}=-\frac{\lambda}{2}\Gamma(c-u),\qquad
+m_{v\zeta}=\frac{\lambda}{2}\Gamma(v-c),\qquad \lambda>0.
+\]
+
+If the log-minimal term changes these entries, replace the old clamp by the
+actual-entry clamp rather than forcing the old identities.
+
+Current audit of the three columns:
+
+The existing branch-state equations do not yet determine \(P e_u\),
+\(P e_v\), or \(P e_\zeta\).  They give only compatibility constraints after a
+specific endpoint convention has been chosen.  Thus the next missing object is
+the explicit endpoint-transfer map \(P\).
+
+Natural formal candidates are available:
+
+\[
+p_u=(0,r_{uu},0,r_{vu},r_{\log u}+X,-r_{\log u},r_{\log u},0)
+\]
+
+if \(e_u\) means \(\delta u=1\) with \(c,v,q\) fixed;
+
+\[
+p_v^0=(0,0,0,1,0,-Y,0,0)
+\]
+
+if \(e_v\) means \(\delta v=1\) with \(c,u,q\) fixed, with
+\(\partial_vL_+=k_v\) and \(R_{\log c}=0\);
+
+and
+
+\[
+p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right)
+\]
+
+if \(e_\zeta\) means moving \(c\) with \(u,v,q\) fixed, so
+\((\delta q,\delta a,\delta b,\delta c)=(0,1,-1,1)\).
+
+These are not yet proof-grade columns.  Each must still be checked against
+\(\operatorname{Rel}^{\perp}\), period-zero, the zero-mass/external-mass
+convention, and actual two-sided density realization.  Until that is done,
+\(P^TQ_{\rm eff}P\) remains a formal target.
+
+Adopt the formal convention \(P^0\) using endpoint-length orientation:
+
+\[
+e_u^0=\partial_a=-\partial_u,\qquad
+e_v^0=\partial_b=\partial_v,\qquad
+e_\zeta^0=\partial_c\text{ with }u,v,q\text{ fixed}.
+\]
+
+Then
+
+\[
+p_u^0=(0,1,0,0,-X,0,0,0),\qquad
+p_v^0=(0,0,0,1,0,-Y,0,0),
+\]
+
+\[
+p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right).
+\]
+
+This is only a formal branch-compatible convention.  Since \(\operatorname{Rel}\)
+is not yet known to vanish, the row-level checks are
+
+\[
+\lambda_u-X\lambda_-=0,\qquad
+\lambda_v-Y\lambda_+=0,
+\]
+
+\[
+F_c\lambda_c-\frac qa\,\lambda_- -\frac qb\,\lambda_+=0
+\qquad(\lambda\in\operatorname{Rel}).
+\]
+
+If these hold, an explicit bump construction in the regular support realizes
+the rows as signed smooth density perturbations.  That still does not prove
+two-sided critical-cone feasibility; positivity and lineality remain separate
+conditions before using \(P^{0T}Q_{\rm eff}P^0\).
+
+Rel audit:
+
+The seven kernels
+
+\[
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,\log\frac1{|c-x|}
+\]
+
+are independent on any nonempty regular interval separated from \(u,c,v\).
+The period kernel is the obstruction.  If \(\pi_0\) is constant on the chosen
+regular support, then \(k_\Pi\) is proportional to \(k_0\) and
+\(\operatorname{Rel}\ne0\).  If the chosen support sees two different period
+values, then \(\operatorname{Rel}=0\) and the \(P^0\) row checks are automatic.
+
+Direct singularity comparison does not naturally prove the three nontrivial
+annihilation identities unless it proves the stronger \(\operatorname{Rel}=0\)
+statement.  In a nonzero-\(\operatorname{Rel}\) case, those identities would
+be extra branch-parameter constraints, not consequences of the row relation.
+
+Stop/go: do one bounded \(P^0\) audit.  Either choose support with two period
+values and prove \(\operatorname{Rel}=0\), or verify the three displayed
+annihilation identities directly.  If neither closes, stop the finite-row
+\(P^{0T}Q_{\rm eff}P^0\) route and switch to the actual-density/cone endpoint
+test formulation.
+
+2026-05-06 refined decision:
+
+The row-identity fallback should not be treated as the main route.  The three
+identities
+
+\[
+\lambda_u=X\lambda_-,\qquad
+\lambda_v=Y\lambda_+,\qquad
+F_c\lambda_c=\frac qa\,\lambda_-+\frac qb\,\lambda_+
+\]
+
+contain branch-state constants and are not automatic singularity consequences
+of \(\lambda\in\operatorname{Rel}\).  The best next attempt is therefore:
+
+1. choose regular realization support crossing two period values;
+2. prove \(\operatorname{Rel}=0\) from seven-kernel independence plus
+   nonconstant period row;
+3. realize \(p_u^0,p_v^0,p_\zeta^0\) by actual period-zero, zero-mass signed
+   smooth perturbations;
+4. check that these are two-sided critical directions, not merely one-sided
+   cone directions.
+
+Only after these four items can \(P^{0T}Q_{\rm eff}P^0\) be used in a PSD
+curvature-clamp argument.  If item 1 or item 4 fails, the finite-row clamp
+route must be replaced by an actual-density or second-order cone formulation.
+
+The \(\operatorname{Rel}=0\) step is now reduced to a short analytic lemma.
+If a relation holds on \(J_1\cup J_2\) and
+
+\[
+\pi_0|_{J_1}=1,\qquad \pi_0|_{J_2}=-\theta_{\rm per},\qquad
+\theta_{\rm per}>0,
+\]
+
+with \(J_1,J_2\) genuine open regular pieces separated from \(u,c,v\) and with
+fixed real log branches, then the non-period part \(H\) is constant on both
+intervals.  Thus \(H'\) is
+a rational function vanishing on open sets, hence identically zero.  Its
+singular parts at \(u,c,v\) kill all non-period coefficients, and the two
+remaining equations
+
+\[
+\lambda_0+\lambda_\Pi=0,\qquad
+\lambda_0-\theta_{\rm per}\lambda_\Pi=0
+\]
+
+force \(\lambda_0=\lambda_\Pi=0\).  Therefore the row-level obstruction is
+closed whenever such a two-period support is admissible.  The remaining hard
+point is no longer \(\operatorname{Rel}\); it is actual two-sided critical
+direction realization.
+
+Next lineality criterion:
+
+In a compact non-pinched regular chamber, row-level realization upgrades to a
+two-sided critical direction if the bump support stays away from endpoints and
+active boundaries, the background density has a positive lower bound there,
+inactive inequalities have strict slack, and the active equality map has
+regular linearization.  Then the implicit-function theorem corrects both
+\(+t\) and \(-t\) perturbations by \(O(t^2)\), so the realized row vector lies
+in the lineality of the critical cone.
+
+Thus the next proof-grade task is to verify these regular-chamber assumptions
+for \(p_u^0,p_v^0,p_\zeta^0\).  If strict slack or regular equality rank fails,
+the finite-row PSD clamp cannot be used and the route must switch to a
+one-sided cone KKT formulation.
+
+2026-05-06 lineality decision:
+
+Do not switch to cone KKT yet.  In a compact non-pinched chamber, if the
+two-period support lies in positive-density regular interiors, signed compact
+bumps are two-sided and the strict inequalities
+
+\[
+a>0,\qquad b>0,\qquad q>0,\qquad F_c<0
+\]
+
+plus strict interlacing survive small \(\pm t\) perturbations.  With the active
+equalities corrected by the implicit-function theorem, the expected lemma is
+
+\[
+\operatorname{Rel}=0
++\text{ positive regular two-period support}
+\Longrightarrow
+p_u^0,p_v^0,p_\zeta^0
+\in \rho^\sharp(\operatorname{Lin} C_{\rm crit}).
+\]
+
+If this lineality lemma is accepted, the next blocker becomes the effective
+endpoint Hessian identity for \(M=P^{0T}Q_{\rm eff}P^0\), including the
+nonlocal \(K_{\log}\) term.
+
+Effective-entry audit:
+
+Let
+
+\[
+m_{ij}=Q_{\rm eff}(p_i^0,p_j^0),\qquad i,j\in\{u,v,\zeta\}.
+\]
+
+PSD only gives the actual inequalities
+
+\[
+m_{uu}B^2+2m_{u\zeta}AB+m_{\zeta\zeta}A^2\ge0
+\quad (x\in(u,c)),
+\]
+
+and
+
+\[
+m_{\zeta\zeta}B^2+2m_{v\zeta}AB+m_{vv}A^2\ge0
+\quad (x\in(c,v)).
+\]
+
+To recover the old curvature clamp, one must prove the stronger
+common-coefficient identities
+
+\[
+m_{uu}=\lambda a,\quad m_{vv}=\lambda b,\quad
+m_{\zeta\zeta}=\lambda Q_c,
+\]
+
+\[
+-\frac{2m_{u\zeta}}{c-u}
+=\frac{2m_{v\zeta}}{v-c}
+=\lambda\Gamma.
+\]
+
+If \(K_{\log}\) breaks this common coefficient and no replacement Wronskian
+argument works with unequal coefficients, the compact \(g=2\)
+Hessian-clamp route must stop.
+
+Conservative review: the old five entries should not be assumed to survive
+unchanged.  The term
+
+\[
+K_{\log}(p_i^0,p_j^0)
+=\mathcal E_{\log}(Sp_i^0,Sp_j^0)
+\]
+
+is a genuine nonlocal Gram contribution.  The next derivation is to compute or
+characterize
+
+\[
+m_{ij}
+=b(p_i^0,p_j^0)+\mathcal E_{\log}(Sp_i^0,Sp_j^0)
+\]
+
+through the Riesz/minimal-lift system on the zero-mass, fixed-period Hilbert
+space.  Continue only if this Gram contribution preserves the old common
+\(\lambda,\Gamma\) structure or if the resulting actual-entry clamp still
+forces the Wronskian sign contradiction.
+
+Concrete Feshbach form:
+
+Let \(g_i\) be the Riesz representer of the row \(\ell_i\):
+
+\[
+\mathcal E_{\log}(g_i,h)=\ell_i(h).
+\]
+
+Set
+
+\[
+C_{ij}=\ell_i(g_j)=\mathcal E_{\log}(g_i,g_j).
+\]
+
+When \(\operatorname{Rel}=0\) on the feasible row support, \(C\) is invertible
+on the row image and the minimal lift satisfies \(Sr=\sum_i\alpha_i g_i\) with
+\(C\alpha=r\).  Therefore
+
+\[
+K_{\log}(r,s)=r^TC^{-1}s,
+\]
+
+and the actual compact \(g=2\) matrix is
+
+\[
+M=P^{0T}(B+C^{-1})P^0.
+\]
+
+The next calculation is to test whether \(P^{0T}C^{-1}P^0\) preserves the
+old five-entry pattern or destroys the common \(\lambda,\Gamma\) structure.
+Equivalently, with
+
+\[
+N=P^{0T}C^{-1}P^0,
+\]
+
+the old clamp survives only if the five relevant entries of \(N\) lie in the
+same one-dimensional template:
+
+\[
+N_{uu}=\delta a,\quad N_{vv}=\delta b,\quad
+N_{\zeta\zeta}=\delta Q_c,
+\]
+
+\[
+-\frac{2N_{u\zeta}}{c-u}
+=\frac{2N_{v\zeta}}{v-c}
+=\delta\Gamma.
+\]
+
+If \(\Gamma=0\), read the off-diagonal condition as
+\(N_{u\zeta}=N_{v\zeta}=0\), and require the new scale
+\(\lambda_B+\delta>0\).  This is a codimension-four condition on the five
+relevant entries and is not automatic for a generic positive definite Gram
+correction.  It requires an extra symmetry, orthogonality, or finite-gap Euler
+identity.  If it fails, the route must use the actual-entry clamp with unequal
+cross coefficients and prove a replacement Wronskian contradiction.
+
+2026-05-06 review update:
+
+The local neck algebra gives
+
+\[
+P_c=0,\qquad \Gamma>0,\qquad Q_c<0
+\]
+
+under the compact regular signs
+
+\[
+A=W'(u)<0<B=W'(v),\qquad X=U'(u)>0,\qquad F_c<0.
+\]
+
+This is a local sign lemma, not yet an effective Hessian theorem.  It becomes
+a compact \(g=2\) contradiction only after proving
+
+\[
+m_{\zeta\zeta}
+=Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0,
+\]
+
+or after proving the stronger identity
+
+\[
+m_{\zeta\zeta}=\lambda Q_c,\qquad \lambda>0.
+\]
+
+The sign \(Q_c<0\) also shows why the old common-template route is not the
+right main target.  Since \(N=P^{0T}C^{-1}P^0\succeq0\), a nontrivial positive
+Gram correction cannot satisfy
+
+\[
+N_{uu}=\delta a,\qquad
+N_{vv}=\delta b,\qquad
+N_{\zeta\zeta}=\delta Q_c
+\]
+
+with \(a,b>0\) and \(Q_c<0\), except in the trivial zero-correction case.
+Thus the compact \(g=2\) priority is now the sharper lemma
+
+\[
+\boxed{\textbf{EffectiveNeckNegativity:}\quad
+b(p_\zeta^0,p_\zeta^0)
++(p_\zeta^0)^TC^{-1}p_\zeta^0<0.}
+\]
+
+If this fails, the diagonal shortcut is dead and the route must move to the
+actual-entry Wronskian or direct density/cone KKT formulation.
+
+Capacity reduction:
+
+Under the separated regular compact \(g=2\) assumptions, plus the corrected
+branch Euler/state-lift, Feshbach minimal lift, and two-sided realization of
+\(p_\zeta^0\), compact \(g=2\) is excluded by the single scalar inequality
+
+\[
+Q_{\rm eff}(p_\zeta^0,p_\zeta^0)<0.
+\]
+
+Equivalently, with
+
+\[
+p_\zeta^0=\left(0,0,F_c,0,-\frac qa,-\frac qb,0,0\right),
+\]
+
+define
+
+\[
+K_\zeta=(p_\zeta^0)^TC^{-1}p_\zeta^0
+=
+\inf\left\{\mathcal E_{\log}(\eta,\eta):
+\eta\in H_{0,\Pi},\ \rho^\sharp(\eta)=p_\zeta^0\right\}.
+\]
+
+The remaining hard estimate is
+
+\[
+\boxed{
+K_\zeta<-b(p_\zeta^0,p_\zeta^0).
+}
+\]
+
+If \(b(p_\zeta^0,p_\zeta^0)=\lambda_BQ_c\) with \(\lambda_B>0\), this is the
+capacity bound
+
+\[
+\boxed{
+K_\zeta<-\lambda_BQ_c.
+}
+\]
+
+This cannot be inferred from \(Q_c<0\) and \(C^{-1}\succeq0\) alone; the
+Riesz/minimal-lift problem for this specific two-cut row must be solved or
+estimated.  In Euler-Lagrange form, the minimizer satisfies a finite
+Hilbert-transform/Cauchy-transform equation on \(J_1\cup J_2\).  This is the
+exact route's current compact \(g=2\) hard mouth.
+
+Equivalent Schur-positive form:
+
+Let
+
+\[
+r=p_\zeta^0,\qquad T=-b(r,r).
+\]
+
+If \(b(r,r)=\lambda_BQ_c\) with \(\lambda_B>0\), then
+
+\[
+T=-\lambda_BQ_c>0.
+\]
+
+Since \(C\succ0\), the capacity estimate
+
+\[
+r^TC^{-1}r<T
+\]
+
+is equivalent to
+
+\[
+\boxed{
+\mathcal S_\zeta=
+\begin{pmatrix}
+C&r\\
+r^T&T
+\end{pmatrix}
+\succ0.
+}
+\]
+
+Equivalently,
+
+\[
+(\alpha^Tr)^2<T\,\alpha^TC\alpha
+\qquad(\alpha\ne0).
+\]
+
+The next named target should therefore be
+
+\[
+\boxed{\textbf{EffectiveNeckSchurPositive:}\quad
+\mathcal S_\zeta\succ0.}
+\]
+
+To attack it, construct the two-cut Riesz representers \(g_i\) of the row
+kernels, compute
+
+\[
+C_{ij}=\ell_i(g_j),
+\]
+
+and prove the augmented Gram matrix is positive definite.  The standard
+finite Hilbert-transform inversion gives the candidate \(g_i\), but branch,
+sign, mass, and period normalizations must be fixed before it is a proof.
+This use of \(\operatorname{Rel}=0\) must be in the Hilbert-functional sense,
+not only pointwise on smooth bumps; the bridge is row continuity plus density
+of smooth compactly supported perturbations in the separated-chart energy
+space.
+
+First-order cokernel audit:
+
+There is also a first-order KKT route, but it is only a reduction at this
+point.  Eliminating the four local variables from the six augmented rows gives
+a two-dimensional adjoint cokernel, not six independent moment constraints.
+Under the compact-neck stationarity \(aA+bB=0\), the explicit cokernel kernels
+can be written as
+
+\[
+K_1=
+-r-\frac abp-\frac abL_-+L_+,
+\]
+
+\[
+K_2=
+p\Gamma+\frac a{x-u}+\frac{Q_c}{x-c}
++\frac b{x-v}+\Gamma L_-,
+\]
+
+with the local sign lemma
+
+\[
+\Gamma>0,\qquad Q_c<0.
+\]
+
+This proves the conditional first-order reduction:
+
+\[
+\operatorname{span}\{K_1,K_2\}\text{ has no admissible oriented compact sign
+pattern}
+\Longrightarrow
+\text{no compact non-pinched }g=2.
+\]
+
+It does not close the chamber by itself.  The Wronskian
+
+\[
+W=K_1K_2'-K_1'K_2=C_0+C_-L_-+C_+L_+
+\]
+
+has coefficients whose signs are not forced by \(Q_c<0\) and \(\Gamma>0\)
+alone.  With \(y=x-c\),
+
+\[
+C_+(y)=
+-\frac a{(y+a)^2}
+-\frac{Q_c}{y^2}
+-\frac b{(y-b)^2}
+-\frac{\Gamma a}{y(y+a)},
+\]
+
+\[
+C_-(y)=
+\frac ab\left(
+\frac a{(y+a)^2}
++\frac{Q_c}{y^2}
++\frac b{(y-b)^2}
+\right)
++\frac{\Gamma b}{y(y-b)}.
+\]
+
+The signs of these expressions depend on more than the local inequalities.
+Thus the naked Chebyshev/Wronskian route needs an additional global oval
+inequality before it can exclude compact \(g=2\).  Until such a theorem is
+proved, the main hard mouth remains EffectiveNeckSchurPositive, or else an
+actual-entry Wronskian / cone-KKT replacement.
+
+Green/Gram-extension audit:
+
+One can formally reproduce the neck row by the distribution
+
+\[
+D_\zeta=
+F_c\partial_c\delta_c
+-\frac qa(\delta_c-\delta_u)
+-\frac qb(\delta_v-\delta_c),
+\]
+
+because
+
+\[
+\mathcal E_{\log}(D_\zeta,\eta)=p_\zeta^0(\eta)
+\]
+
+on smooth external perturbations.  This does not make
+\(\mathcal S_\zeta\) a proved Gram matrix.  \(D_\zeta\) contains point masses
+and a dipole, so it is not in \(H_{0,\Pi}\), and its self-energy requires a
+Hadamard finite-part convention.  Such a finite part is not automatically a
+positive Hilbert inner product and is not automatically the negative of the
+finite non-log block \(b(p_\zeta^0,p_\zeta^0)\).  Therefore
+RenormalizedNeckEnergyIdentity should be recorded only as heuristic
+bookkeeping unless a genuine positive extension Hilbert space and matching
+finite-part identity are proved.
+
+The reliable remaining target is the single-RHS finite-Hilbert estimate:
+
+\[
+K_\zeta=
+\inf\left\{
+\mathcal E_{\log}(\eta,\eta):
+\eta\in H_{0,\Pi},\ \rho^\sharp(\eta)=p_\zeta^0
+\right\}
+<T,
+\qquad T=-b(p_\zeta^0,p_\zeta^0).
+\]
+
+Equivalently, solve \(C\alpha=p_\zeta^0\) and prove
+
+\[
+\alpha^Tp_\zeta^0<T.
+\]
+
+In Rayleigh form, this is the trace inequality
+
+\[
+\left(
+F_c\alpha_c-\frac qa\alpha_- -\frac qb\alpha_+
+\right)^2
+<
+T\,\alpha^TC\alpha
+\qquad(\alpha\ne0).
+\]
+
+This is now the compact \(g=2\) hard mouth.  Chebyshev sign control and local
+\(Q_c<0,\Gamma>0\) do not provide this energy estimate by themselves.
+
+Constrained balayage / residue queue:
+
+The safe interpretation of the formal neck distribution \(D_\zeta\) is as a
+continuous functional on \(H_{0,\Pi}\), not as a finite-energy vector.  Its
+Riesz representer is the constrained balayage \(\mathsf B_\Pi D_\zeta\), and
+
+\[
+\|\mathsf B_\Pi D_\zeta\|_{\mathcal E}^2
+=K_\zeta=(p_\zeta^0)^TC^{-1}p_\zeta^0.
+\]
+
+Thus the remaining target can be named
+
+\[
+\boxed{\textbf{BalayageGapPositive:}\quad T-K_\zeta>0.}
+\]
+
+For computation, write the single-RHS minimizer by its Cauchy transform.  With
+
+\[
+R(z)=\sqrt{(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)},\qquad
+R(z)\sim z^2,
+\]
+
+and
+
+\[
+f_\alpha(z)=-\sum_i\alpha_i k_i'(z),
+\]
+
+the solution has the finite-gap form
+
+\[
+\boxed{
+G_\alpha(z)=f_\alpha(z)+\frac{A_\alpha(z)}{R(z)}.
+}
+\]
+
+The numerator \(A_\alpha\) cancels the polar parts at \(u,c,v\), while its
+affine freedom is fixed by zero mass and fixed period.  The row constraints
+are
+
+\[
+\int_J\frac{d\eta(x)}{x-s}=-G_\alpha(s)
+\qquad(s=u,c,v),
+\]
+
+and
+
+\[
+\int_JL_\pm(x)\,d\eta(x)
+=-\int_{\text{corresponding gap}}G_\alpha(s)\,ds.
+\]
+
+Thus, for \(p_\zeta^0\),
+
+\[
+G_\alpha(u)=0,\qquad
+G_\alpha(c)=-F_c,\qquad
+G_\alpha(v)=0,
+\]
+
+\[
+\int_u^cG_\alpha(s)\,ds=\frac qa,\qquad
+\int_c^vG_\alpha(s)\,ds=\frac qb,
+\]
+
+plus the two normalizations.  Once this system gives \(C\alpha=p_\zeta^0\),
+
+\[
+K_\zeta=\alpha^Tp_\zeta^0
+=F_c\alpha_c-\frac qa\alpha_- -\frac qb\alpha_+.
+\]
+
+The next theorem to prove is not a generic Schur slogan but the concrete
+identity
+
+\[
+\boxed{\textbf{LocalSchurTraceIdentity}_\zeta.}
+\]
+
+It must identify the branch-Hessian finite trace
+
+\[
+T=-b(p_\zeta^0,p_\zeta^0)
+\]
+
+with the polar residue trace of
+
+\[
+\Omega_\alpha(z)=\frac{A_\alpha(z)^2}{R(z)}\,dz
+\]
+
+at \(u,c,v,\infty\), using the same branch state-lift and period
+normalization.  Then residue/period positivity should give
+
+\[
+T-\alpha^Tp_\zeta^0
+=
+\int_J\frac{|A_{\alpha,+}(x)|^2}{|R_+(x)|}\,dx
++\mathcal P_{\rm per}(A_\alpha)>0,
+\]
+
+unless the row is zero, which \(p_\zeta^0\) is not.  Without
+LocalSchurTraceIdentity, this square-residue expression is not yet tied to the
+actual finite block \(b\), so compact \(g=2\) is still not excluded.
+
+Diagonal shortcut audit:
+
+Computing the currently defined corrected branch Hessian in the
+\(p_\zeta^0\) direction gives a stop signal for the diagonal shortcut.  The
+state lift is
+
+\[
+\delta y_\zeta=(\delta q,\delta a,\delta b,\delta c)=(0,1,-1,1),
+\]
+
+so \(u\) and \(v\) are fixed while \(c\) moves.  Since the proof-grade
+\(\Phi_{\rm br}\) has no independent \(\lambda_SS\) Hessian term and no free
+\(\lambda_FF(c)\) Hessian term,
+
+\[
+v_\zeta^T\nabla_y^2E_-v_\zeta=\frac q{a^2},
+\qquad
+v_\zeta^T\nabla_y^2E_+v_\zeta=\frac q{b^2}.
 \]
 
 With
+
 \[
-z=c+\kappa(w+w^{-1}),\qquad
-R=\kappa(w-w^{-1}),
+\lambda_-=\frac1X,\qquad \lambda_+=-\frac1Y,\qquad
+Y=-\frac abX,
 \]
-the differential \(F_s(z(w))z'(w)\,dw\) is rational in \(w\).  At fixed
-parameters this gives
+
+the endpoint finite contribution is
 
 \[
-d_sU(\alpha)=-P(-1),\qquad
-d_sU(-1)=-P(w_{-1}),
+\boxed{
+H_{\rm ep}(p_\zeta^0,p_\zeta^0)
+=\frac{q(a+b)}{a^2bX}>0.
+}
 \]
-where \(P\) is a finite residue-log primitive over the six preimages of
-\(\ell,r,1\).  A new experimental solver routine,
-`_combined_directional_derivative_residue_log_from_arb`, implements this
-fixed-parameter formula.  Numeric checks against `analytic_G_derivative` agree
-to floating integration error.
 
-The endpoint \(1\) pair has to be written in the stable form
+The endpoint mixed \(y\)-density terms vanish because
 
 \[
-\rho_1^-=\frac{\sqrt{1-\alpha}-\eta}{\sqrt{1-\alpha}+\eta},
+\delta c-\delta a=0,\qquad \delta c+\delta b=0.
+\]
+
+Thus, under the current corrected fixed-chart branch functional and without an
+additional explicitly defined finite non-log term,
+
+\[
+b_{\rm br}(p_\zeta^0,p_\zeta^0)>0.
+\]
+
+This is incompatible with the hoped-for identification
+
+\[
+b(p_\zeta^0,p_\zeta^0)=\lambda_BQ_c,\qquad \lambda_B>0,\quad Q_c<0.
+\]
+
+Therefore \(p_\zeta^0\) is not a negative diagonal Hessian direction in the
+current convention:
+
+\[
+Q_{\rm eff}(p_\zeta^0,p_\zeta^0)
+=b_{\rm br}(p_\zeta^0,p_\zeta^0)+K_\zeta>0.
+\]
+
+Record this as
+
+\[
+\boxed{\textbf{DiagonalShortcutFails}_\zeta.}
+\]
+
+The route should now switch to first-order KKT separation / cone KKT unless a
+new, explicit MixedSchurTraceIdentity is defined and proved.  The first-order
+replacement target is the convex-hull form of the sign obstruction:
+
+\[
+\boxed{
+0\in\operatorname{int}\operatorname{conv}
+\{(\sigma K_1(x),\sigma K_2(x)):x\in J_1\cup J_2\}.
+}
+\]
+
+This OvalConvexityLemma would rule out any nonzero cokernel combination with
+the admissible oriented sign pattern.
+
+Period quotient / free-period audit:
+
+The positive-quadrature route must not be read as a fixed-period tangent
+argument without an additional quotient lemma.  If
+
+\[
+G_\Pi=\sigma h_\Pi,\qquad h_\Pi>0,
+\]
+
+then, with
+
+\[
+\pi_0|_{J_1}=1,\qquad
+\pi_0|_{J_2}=-\theta_{\rm per},\qquad
+\sigma|_{J_1}=-1,\quad \sigma|_{J_2}=1,
+\]
+
+one has
+
+\[
+\pi_0\sigma<0
+\]
+
+on both ovals, hence
+
+\[
+\Pi(G_\Pi)<0.
+\]
+
+So \(G_\Pi\) is not a fixed-period tangent density.  The first-order route
+therefore needs a
+
+\[
+\boxed{\textbf{PeriodQuotientLemma}}
+\]
+
+showing that \(K_1,K_2\) already represent the full fixed-period quotient
+cokernel, or else proving the stronger exclusion with an added period
+multiplier
+
+\[
+\theta_1K_1+\theta_2K_2+\lambda\pi_0.
+\]
+
+The positive period density can still be used in a free-period lift by adding a
+period/filling variable \(\tau\) and compensating
+
+\[
+\dot\tau+\Pi(G_\Pi)=0.
+\]
+
+In that free-period chart the quotient part is a direct linear-algebra check.
+The extended local/period system is
+
+\[
+\begin{pmatrix}A&0\\0&1\end{pmatrix}
+\begin{pmatrix}\dot y\\\dot\tau\end{pmatrix}
++
+\begin{pmatrix}B\\\Pi\end{pmatrix}G=0.
+\]
+
+An extended left-cokernel \((\kappa,\kappa_\Pi)\) satisfies
+
+\[
+\kappa^TA=0,\qquad \kappa_\Pi=0.
+\]
+
+Thus the period row is absorbed by \(\tau\), and no extra pointwise sign
+multiplier \(\lambda\pi_0\) remains.  The free-period normal space is still
+\(\operatorname{span}\{K_1,K_2\}\).
+
+The strong sufficient condition for positive quadrature is the six local rows:
+
+\[
+A\dot y_\Pi+B G_\Pi=0.
+\]
+
+Equivalently, for the two cokernel kernels,
+
+\[
+\int_JK_i(x)G_\Pi(x)\omega(x)\,dx=0,\qquad i=1,2.
+\]
+
+Writing
+
+\[
+C_\Pi(s)=\int_J\frac{G_\Pi(x)\omega(x)}{x-s}\,dx,\qquad
+M_\Pi=\int_JG_\Pi(x)\omega(x)\,dx,
+\]
+
+this becomes
+
+\[
+\left(-r-\frac abp\right)M_\Pi
+-\frac ab\int_u^cC_\Pi(s)\,ds
++\int_c^vC_\Pi(s)\,ds=0,
+\tag{P1}
+\]
+
+\[
+p\Gamma M_\Pi
++aC_\Pi(u)
++Q_cC_\Pi(c)
++bC_\Pi(v)
++\Gamma\int_u^cC_\Pi(s)\,ds=0.
+\tag{P2}
+\]
+
+The next concrete target is therefore
+
+\[
+\boxed{\textbf{FreePeriodResidueAnnihilation}.}
+\]
+
+It must write the normalized real period-transfer differential, prove its
+boundary density is \(G_\Pi=\sigma h_\Pi\) with \(h_\Pi>0\), and verify the
+needed residue/period calculation.  This was an earlier proof target; Gates
+1--2 below supersede the unnecessary \((P1),(P2)\) route by the free-period
+quotient and the actual-normal lineality argument.
+
+This target is stronger than required in the regular free-period case.  If the
+actual KKT normal is
+
+\[
+K_\theta=\theta_1K_1+\theta_2K_2
+\]
+
+and it has the admissible oriented sign pattern \(\sigma K_\theta\ge0\), then
+regular free-period lineality \(G_\Pi=\sigma h_\Pi\), \(h_\Pi>0\), gives
+
+\[
+0=\int_JK_\theta G_\Pi\omega
+=\int_J\sigma K_\theta h_\Pi\omega.
+\]
+
+The right side is strictly positive unless \(K_\theta\equiv0\), which is ruled
+out by strict Chebyshev independence of the six-kernel span.  Hence regular
+free-period compact non-pinched \(g=2\) is excluded without proving (P1),(P2)
+for \(K_1,K_2\) separately.
+
+The former compact \(g=2\) hard case was rank-defect.  Let
+
+\[
+r_\Pi=\left(\int_JK_1G_\Pi\omega,\int_JK_2G_\Pi\omega\right).
+\]
+
+For any oriented sign-pattern normal,
+
+\[
+\theta\cdot r_\Pi
+=\int_JK_\theta G_\Pi\omega
+=\int_J\sigma K_\theta h_\Pi\omega>0.
+\]
+
+The later anchored Schiffer reduction replaces the old ConeOrientationTable
+target by the raw augmented circuit sign theorem.  Current audit: Gate 1 has
+not yet proved the required Schur-block orientation sign; it has reduced the
+rank-defect compact \(g=2\) interior case to
+`SchurBlockTotalPositivityLemma`.  Gate 2 then connects that reduced LP to
+Proposition 4.1 once the sign theorem is supplied.
+
+Current compact \(g=2\) status:
+
+1. regular free-period non-pinched chambers are excluded by the lineality/sign
+   contradiction above;
+2. pinching or positivity-boundary limits should be sent to the boundary
+   reduction, where the genus-two radical loses a pair of branch points and
+   any pole/zero collision creates only a nonnegative endpoint atom in the
+   corrected lower-genus branch;
+3. the remaining unclosed case is a rank-defect non-pinched interior point,
+   pending the Schiffer/cone-descent orientation table.
+
+So the honest statement is: regular free-period compact \(g=2\) is killed,
+boundary cases are routed to lower genus, and rank-defect compact \(g=2\)
+remains open until the cone orientation table is proved.
+
+Anchored rank-defect update:
+
+The six local rows \(R_0,R_u,R_c,R_v,R_-,R_+\) are not enough to apply the
+first-variation length formula, because \(R_-\) and \(R_+\) encode endpoint
+potential differences rather than absolute endpoint values.  The rank-defect
+Schiffer table must add
+
+\[
+R_{\ell c}(G)=\delta W(c)
+=\int_J\log\frac1{|c-x|}G(x)\omega(x)\,dx.
+\]
+
+Then
+
+\[
+\delta W(u)=R_{\ell c}-R_-,
 \qquad
-\rho_1^+=\frac{\sqrt{1-\alpha}+\eta}{\sqrt{1-\alpha}-\eta},
+\delta W(v)=R_{\ell c}+R_+.
 \]
 
-instead of using \(\sqrt{y^2-4}\), because \(y\to2\) at the endpoint layer.
-The left-side inner preimages also have to be written as reciprocals of the
-outer preimages to avoid enclosing zero.
-
-I then added an experimental eta-divided version,
-`_combined_directional_derivative_residue_log_divided_from_arb`, which subtracts
-the \(\eta=0\) residue-log terms for the \(\ell,r\) poles and treats the
-endpoint \(1\) pair after division by eta.  At fixed floating parameters this
-matches the current \(H_s/\eta\) value.  However, when inserted into the first
-eta slab as an interval box, it fails worse than the old combined quadrature:
-
-```text
-residue-log divided, first slab, 7,7:
-  defect=3.423855e-01,
-  DK[1,1]=[-1.010000e+01, 1.010000e+01]
-
-old combined contact/minus-one primitive, first slab, 7,7:
-  defect=5.341965e-02,
-  DK[1,1]=[-1.739483e+00, 1.739483e+00]
-```
-
-So the residue-log direction is mathematically right but the current
-implementation still splits too many residue-log terms before enclosing the
-box.  The remaining cancellation is not just endpoint atom versus continuous
-density; it also sits across the \(\ell,r,1\) residue-log terms after the
-\(\eta=0\) subtraction.  The active verifier is therefore kept on the stronger
-combined contact/minus-one primitive, with the residue-log divided routine left
-as an experimental prototype.
-
-The next proof-level implementation should not sum six separately boxed
-residue-log terms.  It should form the single rational primitive numerator over
-a common denominator, cancel removable factors, and only then take the eta
-divided difference.
-
-### H. Paired smooth-pole experiment
-
-The next attempted reduction paired the two large smooth-pole terms on each
-Joukowski sheet before taking the eta divided difference:
+For the neck interval \((u,v)\), with \(U'(u)=X>0\),
+\(U'(v)=Y<0\), and \(Y=-aX/b\), the checked boundary derivative is
 
 \[
-a_\ell\log|x-\rho_\ell|+a_r\log|x-\rho_r|
+\boxed{
+aX\,\delta L_{uv}
+=(a+b)R_{\ell c}-aR_-+bR_+.
+}
+\tag{ND}
+\]
+
+Thus the next rank-defect target is the anchored semi-infinite feasibility
+problem
+
+\[
+\boxed{
+R_0=0,\qquad
+R_c=0,\qquad
+(a+b)R_{\ell c}-aR_-+bR_+<0,\qquad
+V|_{Z_0}<0.
+}
+\tag{LP}
+\]
+
+The perturbation must have the regularized form
+
+\[
+V_{\rm Sch}^{(\rho)}
+=U_{\nu_\Pi}
++\sum_m s_mV_{{\rm Schiffer},m}^{(\rho)}
++\sum_\ell t_\ell V_{{\rm local},\ell},
+\]
+
+and the proof must verify Proposition 4.1 regularity, interior-zero protection,
+negative total boundary derivative, and positive pairing with every oriented
+sign-pattern normal after quotienting by equality-row corrections.  If this LP
+fails, the Farkas dual produces an additional boundary/\(Z_0\) multiplier that
+must be routed back to the excluded regular KKT normal or to pinching/lower
+genus.
+
+State-lift audit:
+
+The LP above is the regularity-safe slice because it imposes \(R_0=R_c=0\)
+before applying the boundary length formula.  If one instead applies the
+branch state-lift first, then under the current convention
+\(\delta M=R_0\), \(\delta F=-R_c\), \(Y=-aX/b\), and the stationarity relation
+\(aA+bB=0\), the neck derivative becomes
+
+\[
+\boxed{
+aX\,\delta L_{uv}^{\rm lift}
+=(a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0.
+}
+\tag{SL-ND}
+\]
+
+Thus the documented LP is a sufficient condition, while the weaker
+state-lifted inequality
+
+\[
+(a+b)R_{\ell c}-aR_-+bR_+-(ap+br)R_0<0
+\]
+
+is only available after a separate atom-state regularity check.  The formal
+\(\delta q,\delta c\) corrections can create singular atom-weight or
+atom-motion terms near \(c\), so they cannot be fed into Proposition 4.1
+without proving admissibility of the finite-\(\varepsilon\) perturbation.
+
+Farkas fallback is the next target, but it also needs a clean formulation:
+LP failure may first be an equality-row reachability failure rather than a
+boundary/\(Z_0\) obstruction, and the separation argument must specify the
+topological vector space in which endpoint values, \(R_{\ell c}\), and
+restriction to \(Z_0\) are continuous.  After those safeguards, the fallback
+dual is governed by the local-correction table, the regularized Schiffer
+endpoint table, and the \(Z_0\)-pairing table.
+
+Reduced LP update:
+
+The equality rows can be eliminated without atom-state variations.  Pick two
+smooth density bumps \(\psi_1,\psi_2\) in positive-density regular interiors,
+away from \(u,c,v\), branch endpoints, and the \(Z_0\)-boundary, such that
+
+\[
+M=
+\begin{pmatrix}
+R_0(\psi_1)&R_0(\psi_2)\\
+R_c(\psi_1)&R_c(\psi_2)
+\end{pmatrix}
+\]
+
+is invertible.  This is achieved by shrinking the bumps to two distinct points
+\(x_1,x_2\ne c\), since the determinant tends to
+
+\[
+\frac1{x_2-c}-\frac1{x_1-c}\ne0.
+\]
+
+For a density seed \(G\), set
+
+\[
+E(G)=\binom{R_0(G)}{R_c(G)},\qquad
+\widehat G=G-\sum_{j=1}^2(M^{-1}E(G))_j\psi_j.
+\]
+
+Then \(R_0(\widehat G)=R_c(\widehat G)=0\).  With
+
+\[
+\beta=
+\binom{B_{\rm safe}(\psi_1)}
+      {B_{\rm safe}(\psi_2)},
+\]
+
+the reduced boundary functional is
+
+\[
+\boxed{
+B_{\rm red}(G)
+=B_{\rm safe}(G)-\beta^TM^{-1}E(G).
+}
+\tag{Bred}
+\]
+
+Thus the safe rank-defect target becomes
+
+\[
+\boxed{
+B_{\rm red}(G)<0,\qquad
+\widehat V<0\quad\text{on }Z_0.
+}
+\tag{RLP}
+\]
+
+If this reduced LP is feasible for a regularized Schiffer-period seed, the
+rank-defect chamber is ruled out.  If it is infeasible, Farkas gives a reduced
+dual
+
+\[
+\eta B_{\rm red}(G)+\int_{Z_0}\widehat V\,d\zeta\ge0,
+\qquad \eta\ge0,\quad \zeta\ge0.
+\]
+
+For the actual finite seed class
+
+\[
+\mathcal I=\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\},
+\]
+
+this dual must remain finite-dimensional.  Define
+
+\[
+b_j=B_{\rm red}(G_j),\qquad
+f_j=\widehat V_{G_j}|_{Z_0}.
+\]
+
+With the period seed fixed and the four endpoint Schiffer coefficients varied,
+the affine reduced LP is
+
+\[
+b_\Pi+\sum_\gamma s_\gamma b_\gamma<0,
+\qquad
+f_\Pi+\sum_\gamma s_\gamma f_\gamma<0\quad\text{on }Z_0.
+\]
+
+If this affine system is infeasible, finite-dimensional Farkas gives
+\(\eta\ge0\) and \(\zeta\ge0\) on \(Z_0\) such that
+
+\[
+\eta b_\gamma+\int_{Z_0}f_\gamma\,d\zeta=0
+\quad(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2),
+\]
+
+\[
+\eta b_\Pi+\int_{Z_0}f_\Pi\,d\zeta\ge0.
+\]
+
+By conic Carathéodory in \(\mathbb R^5\), \(\zeta\) may be replaced by an
+atomic measure with at most five atoms:
+
+\[
+\zeta_*=\sum_{k=1}^{N}w_k\delta_{x_k},
+\qquad
+1\le N\le5,\quad w_k>0,\quad x_k\in Z_0.
+\]
+
+Thus the next obstruction is finite:
+
+\[
+\eta b_\gamma+\sum_{k=1}^{N}w_k f_\gamma(x_k)=0,
+\qquad
+\eta b_\Pi+\sum_{k=1}^{N}w_k f_\Pi(x_k)\ge0.
+\]
+
+The required next theorem is `AtomicFallbackExclusion`: show this finite atomic
+certificate is impossible unless the candidate is already on a pinching,
+positivity-boundary, or lower-genus degeneration.
+
+Boundary-neutral corrector simplification:
+
+The equality-correction bumps may be chosen so that they do not change the
+boundary functional.  Since
+
+\[
+B_{\rm safe}(G)=aV_G(u)+bV_G(v),
+\]
+
+unit bumps at regular interior points have limiting rows
+
+\[
+\left(
+1,\frac1{x-c},
+a\log\frac1{|u-x|}+b\log\frac1{|v-x|}
+\right).
+\]
+
+The logarithmic row is not affine in \((x-c)^{-1}\) on a regular interval, so
+three interior bumps can be chosen with independent
+\((R_0,R_c,B_{\rm safe})\)-rows.  Taking two signed combinations in the
+kernel of \(B_{\rm safe}\) gives smooth correctors \(\psi_1,\psi_2\) with
+
+\[
+B_{\rm safe}(\psi_1)=B_{\rm safe}(\psi_2)=0,
+\]
+
+while the \(2\times2\) matrix of \((R_0,R_c)\)-rows remains invertible.  These
+are signed smooth correctors supported in positive-density interiors, so they
+remain regularity-safe for small amplitudes.
+
+With this choice,
+
+\[
+\boxed{
+B_{\rm red}(G)=B_{\rm safe}(G)=aV_G(u)+bV_G(v).
+}
+\]
+
+Only the \(Z_0\)-functions still need equality correction:
+
+\[
+f_j(x)=V_{G_j}(x)
+-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E(G_j).
+\]
+
+Thus the reduced Schiffer table simplifies to
+
+\[
+b_j=aV_{G_j}(u)+bV_{G_j}(v),
+\qquad
+f_j=\widehat V_{G_j}|_{Z_0}.
+\]
+
+The finite fallback can now be checked by positive circuits.  With
+
+\[
+F(x)=
+\begin{pmatrix}
+f_{\alpha_1}(x)\\
+f_{\beta_1}(x)\\
+f_{\alpha_2}(x)\\
+f_{\beta_2}(x)
+\end{pmatrix},
+\quad
+b=
+\begin{pmatrix}
+b_{\alpha_1}\\
+b_{\beta_1}\\
+b_{\alpha_2}\\
+b_{\beta_2}
+\end{pmatrix},
+\quad
+\tau=f_\Pi,\quad \tau_*=b_\Pi,
+\]
+
+`AtomicFallbackExclusion` is the assertion that every positive relation
+
+\[
+\eta b+\sum_k w_kF(x_k)=0
+\]
+
+has negative lifted value
+
+\[
+\eta\tau_*+\sum_k w_k\tau(x_k)<0.
+\]
+
+Equivalently, prove the determinant signs:
+
+\[
+\tau_*-\tau_X^TF_X^{-1}b<0
+\]
+
+for every four-point circuit with \(w=-F_X^{-1}b>0\), and
+
+\[
+\sum_{i=1}^5w_i\tau(x_i)<0
+\]
+
+for every five-point positive circuit with \(\eta=0\).  Degenerate
+determinants must reduce to smaller circuits or to boundary routing.  This
+criterion is now the immediate finite-dimensional rank-defect test.
+
+Converting this fallback into a finite-Hilbert equation is conditional: the
+allowed seed class must be dense enough, after equality correction, to test all
+smooth compactly supported density perturbations on \(J\).  Under that
+additional density/closure hypothesis, the fallback kernel satisfies
+
+\[
+\operatorname{p.v.}\int_J\frac{d\zeta(s)}{x-s}
++\eta\left(\frac a{x-u}+\frac b{x-v}\right)
+=\frac{\Lambda_c}{(x-c)^2}.
+\tag{PV}
+\]
+
+The PV route is therefore only an optional conditional fallback.  The immediate
+task is to compute the reduced Schiffer table
+
+\[
+b_j=aV_{G_j}(u)+bV_{G_j}(v),
+\qquad
+f_j=V_{G_j}-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_j),
+\]
+
+and then prove `AtomicFallbackExclusion`.
+
+There is one required normalization step before that table is meaningful.  The
+current ledger has not yet defined the endpoint Schiffer seeds
+
+\[
+G_\gamma^{(\rho)},\quad V_\gamma^{(\rho)}
+\qquad
+(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2).
+\]
+
+For
+
+\[
+F(z)=\frac{P(z)}{Q(z)}R(z),\qquad
+R(z)^2=\prod_\delta(z-\delta),
+\]
+
+the raw coordinate derivative is
+
+\[
+\partial_\gamma R(z)=-\frac{R(z)}{2(z-\gamma)},
+\qquad
+\delta_\gamma F_{\rm raw}(z)
+=-\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+\]
+
+if \(P,Q\) are frozen.  But this raw variation generally changes the infinity
+normalization, residues, period/filling row, pole data, and the branch row
+\(F(c)\).  Therefore the admissible seed must first be normalized by a finite
+linear correction
+
+\[
+\delta_\gamma F(z)
 =
-a_\ell\log\left|\frac{x-\rho_\ell}{x-\rho_r}\right|
-+(a_\ell+a_r)\log|x-\rho_r|.
+\frac{\Delta_\gamma P(z)}{Q(z)}R(z)
+-\frac{P(z)R(z)}{2Q(z)(z-\gamma)}
+-\frac{P(z)R(z)}{Q(z)^2}\Delta_\gamma Q(z),
 \]
 
-This is implemented as the experimental routine
-`_combined_directional_derivative_residue_log_pair_divided_from_arb`.
-At fixed floating parameters it agrees with the analytic Jacobian values:
+with the chart specifying which corrections are allowed and which rows are
+held fixed.  Only after this normalization is fixed can one compute
+\(V_\gamma(u),V_\gamma(v),E(G_\gamma)\), and \(V_\gamma|_{Z_0}\).  The
+convention below fixes this seed definition; determinant signs still cannot be
+checked before the resulting table is actually computed.
 
-```text
-epsilon=0.001:
-  target=-4.5549324580472417e-01,
-  pair-divided ball contains the target
-
-epsilon=0.0001:
-  target=-4.332281104077063e-01,
-  midpoint error about 6.5e-14
-
-epsilon=0.00005:
-  target=-4.29937165414466e-01,
-  midpoint error about 4.0e-13
-```
-
-However, on the first eta interval of the first slab, it still fails badly.  In
-the eta-only version of the worst subbox, with \(u,v\) fixed at the subbox
-center and only eta interval-enclosed, the old combined quadrature gives
-
-```text
-old combined primitive:
-  DK[1,1] radius about 1.7536248
-```
-
-whereas the paired residue-log divided prototype gives
-
-```text
-paired residue-log divided:
-  DK[1,1] radius about 9.0700000
-```
-
-The component diagnosis shows the remaining wide term is not the raw
-\(\ell/r\) cancellation itself.  It is the eta divided variation of the paired
-residue sum on the outer sheet:
-
-```text
-((a_ell+a_r)-(a_ell0+a_r0))/eta:
-  radius about 0.8395
-
-multiplied by log|x-rho_r0|:
-  contributes radius about 2.37
-```
-
-Putting \(a_\ell+a_r\) over a common denominator improves almost nothing:
-
-```text
-naive pair-sum divided radius:   0.839499
-common-denominator divided radius: 0.839051
-```
-
-So the next obstruction is sharper than pairing residues.  The interval engine
-must not form
+We now fix the convention.  Write
 
 \[
-\frac{f(\eta)-f(0)}{\eta}
-\]
-by evaluating \(f(\eta)\) and \(f(0)\) as two unrelated balls.  It needs a
-first-order eta Taylor model, affine arithmetic, or an explicitly derived
-divided formula for the paired residue sums themselves.
-
-Current best active checker therefore remains the combined contact/minus-one
-primitive with the unscaled LS direction:
-
-```text
-first slab eta-interval, 7,7:
-  DK[1,1]=[-1.739483, 1.739483],
-  defect=5.341965e-02.
-```
-
-The paired residue-log prototype is useful as a localization tool, but it is
-not yet a better verifier.
-
-### I. Tao note calibration and the first hard number after reading it
-
-The uploaded Tao note `erdos-1038-2 terry tao.pdf` is directly aligned with
-this exact-infimum line.  Its Section 4 writes the Hilbert-transform/Cauchy
-transform ansatz for the one-cut candidate, identifies the numerical endpoint
-data
-
-```text
-x_L = -1.8081073680988165
-x_R =  0.02632310766384517
-M_* = x_R - x_L = 1.8344304757626617
-```
-
-and ends with Problem 4.1: for small \(\varepsilon>0\), construct a positive
-dual measure supported on
-
-\[
-[-1.808+\varepsilon,0.026]\cup[a,1-\varepsilon]
+D_\gamma(z)=\frac{D(z)}{z-\gamma}.
 \]
 
-with nonnegative potential on \([-1,1]\).  This is exactly the corrected
-two-interval branch implemented here, with the endpoint atom at \(1\) included.
-
-The existing solver is therefore not a side route to \(1.8\); it is the local
-model for the conjectural exact value \(M_*=1.8344304757626617\ldots\).  The
-finite-atom \(1.8063\) certificate remains a lower-bound route, while this
-two-interval route is the candidate exact-value route if the global dual
-reduction can be closed.
-
-After adding the DK-focused diagnostic mode
-
-```bash
-.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
-  1038/two_interval_branch_certificate_skeleton.json \
-  --slab 0.00005:0.0001 \
-  --center affine-endpoints \
-  --uv-radii 0.01,0.01 \
-  --arb-box-dk-subdivisions 1,2 \
-  --dk11-eta-radius-report 8,16,32,64 \
-  --dk11-sample-grid 2
-```
-
-the first small-\(\varepsilon\) slab reports:
-
-```text
-eta_subdivisions=8
-  max_interval_radius=1.711198e+00
-  max_sample_radius=2.384146e-03
-  max_radius_inflation=7.295353e+02
-
-eta_subdivisions=64
-  max_interval_radius=7.396337e-01
-  max_sample_radius=2.207919e-03
-  max_radius_inflation=3.429966e+02
-  worst_interval=[-7.396337e-01,7.396337e-01]
-  worst_sample=[-4.342351e-01,-4.299223e-01]
-```
-
-With a coarser \(u,v\) split, even \(\eta\)-subdivision 256 still shows the
-same dependency loss:
-
-```text
-eta_subdivisions=256
-  max_interval_radius=6.367800e-01
-  max_sample_radius=2.189095e-03
-  max_radius_inflation=2.980689e+02
-```
-
-But on the actual worst \(7\times7\) subbox, direct targeted checks show the
-old combined primitive does converge toward the true value when \(\eta\) is
-cut finely:
-
-```text
-N=7:   DK[1,1]=[-1.739483,  1.739483], true≈-0.433834
-N=112: DK[1,1]=[-0.560453, -0.287014], true≈-0.433603
-N=224: DK[1,1]=[-0.521138, -0.326786], true≈-0.433595
-N=448: DK[1,1]=[-0.501622, -0.346586], true≈-0.433583
-```
-
-This gives the first hard post-Tao diagnostic number: the analytic branch is
-stable near \(-0.43\), while the current interval evaluator can inflate the
-same entry by \(300\)-\(700\times\) depending on the box.  Thus the failure is
-not absence of a numerical branch; it is the eta-divided interval enclosure.
-
-The next code-level cut is now precise.  In
-`solve_two_interval_finite_gap.py`,
-`_combined_directional_derivative_residue_log_pair_divided_from_arb` still
-forms terms of the shape
-
-```python
-((sum_residue - sum_residue0) / eta) * log_abs(base0)
-```
-
-with `sum_residue = a_ell + a_r`.  This evaluates the two residues at
-\(\eta>0\) and \(\eta=0\) as unrelated Arb balls.  The next implementation
-should parameterize \(B,\tau,A,\alpha,\ell,\beta,c,\kappa\) as functions of
-\(\eta\) on each slab and compute divided quantities directly:
+The raw endpoint motion has fixed-cut numerator
 
 \[
-\delta q=\frac{q-q_0}{\eta},\quad
-\delta c=\frac{c-c_0}{\eta},\quad
-\delta\kappa=\frac{\kappa-\kappa_0}{\eta},
+H_\gamma^{\rm raw}(z)=-\frac12P(z)Q(z)D_\gamma(z),
+\qquad
+\delta_\gamma F_{\rm raw}(z)
+=\frac{H_\gamma^{\rm raw}(z)}{Q(z)^2R(z)}.
+\]
+
+Let \(\mathcal N\) be the finite list of normalization rows required in the
+chosen Schiffer chart: unwanted off-cut principal parts, forbidden Laurent
+terms at infinity, and the selected period/filling convention.  Do not include
+\(R_0\) or \(R_c\), because those rows are corrected later by the
+boundary-neutral bumps.  Choose a finite correction numerator space
+\(\mathcal H_{\rm norm}\) such that
+
+\[
+\mathcal N:\mathcal H_{\rm norm}\to\operatorname{im}\mathcal N
+\]
+
+is an isomorphism.  Define \(H_\gamma^{\rm corr}\in\mathcal H_{\rm norm}\) by
+
+\[
+\mathcal N(H_\gamma^{\rm corr})=\mathcal N(H_\gamma^{\rm raw}),
+\]
+
+and set
+
+\[
+\boxed{
+H_\gamma=H_\gamma^{\rm raw}-H_\gamma^{\rm corr},
+\qquad
+\delta_\gamma F(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}.
+}
+\]
+
+This proves existence and uniqueness of the normalized endpoint seed in the
+chosen chart by finite-dimensional linear algebra.  The Plemelj formula then
+defines \(G_\gamma\) through
+
+\[
+\delta_\gamma F(z)=
+\int_J\frac{G_\gamma(x)\omega(x)}{z-x}\,dx,
+\]
+
+and
+
+\[
+V_\gamma(s)=
+\int_J\log\frac1{|s-x|}G_\gamma(x)\omega(x)\,dx.
+\]
+
+The endpoint singularity is only \(O(|x-\gamma|^{-1/2})\), hence integrable.
+Cutting it off in a \(\rho\)-neighborhood changes all smooth rows and
+logarithmic potentials by \(O(\sqrt\rho|\log\rho|)\).  Thus
+\(V_\gamma^{(\rho)}(u),V_\gamma^{(\rho)}(v),E(G_{\gamma,\rho})\), and
+\(V_\gamma^{(\rho)}|_{Z_0}\) have the limits needed for the reduced Schiffer
+table.  The table entries are now well-defined as
+
+\[
+b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+\qquad
+f_\gamma=
+V_\gamma-(U_{\psi_1},U_{\psi_2})M^{-1}E(G_\gamma).
+\]
+
+The equality rows are read from the normalized Cauchy transform:
+
+\[
+R_0(G_\gamma)=[z^{-1}]_\infty\,\delta_\gamma F(z),
+\qquad
+R_c(G_\gamma)=-\delta_\gamma F(c),
+\]
+
+and for \(s,t\notin J\),
+
+\[
+V_\gamma(t)-V_\gamma(s)
+=-\int_s^t\delta_\gamma F(y)\,dy.
+\]
+
+The absolute endpoint values \(V_\gamma(u),V_\gamma(v)\) are the logarithmic
+integrals defining \(V_\gamma\).  Hence the reduced table is computable from
+the normalized rational function \(\delta_\gamma F\).
+
+The reduced Schiffer seed table is therefore:
+
+\[
+C_j(z):=\int_J\frac{G_j(x)\omega(x)}{z-x}\,dx,\qquad
+E_j=\binom{R_0(G_j)}{R_c(G_j)}.
 \]
 
 \[
-\delta\rho=
-\frac{\delta q-\delta c-\delta\kappa(\rho_0+\rho_0^{-1})}
-{\kappa(1-1/(\rho\rho_0))},
+\boxed{
+\begin{array}{c|c|c|c|c}
+j & C_j(z) & E_j & b_j & f_j(x)\\ \hline
+\Pi
+&
+\displaystyle C_\Pi(z)=\frac{H_\Pi(z)}{Q(z)^2R(z)}
+&
+\displaystyle \binom{[z^{-1}]_\infty C_\Pi}{-C_\Pi(c)}
+&
+\displaystyle aV_\Pi(u)+bV_\Pi(v)
+&
+\displaystyle V_\Pi(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\Pi
+\\[1.2em]
+\gamma\in\{\alpha_1,\beta_1,\alpha_2,\beta_2\}
+&
+\displaystyle C_\gamma(z)=\frac{H_\gamma(z)}{Q(z)^2R(z)}
+&
+\displaystyle \binom{[z^{-1}]_\infty C_\gamma}{-C_\gamma(c)}
+&
+\displaystyle aV_\gamma(u)+bV_\gamma(v)
+&
+\displaystyle V_\gamma(x)-(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}E_\gamma
+\end{array}
+}
 \]
 
-then apply the quotient rule to the residue
+where
 
 \[
-a_q=
-\frac{\kappa(\rho-\rho^{-1})}{D_q}
-\left(d_A-\frac{q+A}{2(q-\alpha)}d_\alpha\right)
+H_\gamma
+=
+-\frac12PQD_\gamma-H_\gamma^{\rm corr},
+\qquad
+\mathcal N(H_\gamma^{\rm corr})
+=
+\mathcal N\!\left(-\frac12PQD_\gamma\right).
 \]
 
-so that \(\delta a_q\) is formed directly, rather than as
-\((a_q-a_{q,0})/\eta\).  This is the most likely next implementation to move
-the eta-interval enclosure from the current diagnostic stage toward a real
-continuum Krawczyk certificate.
+This table gives the \(F,b,\tau,\tau_*\) used in the positive-circuit test:
 
-## J. Eta-Divided Residue Kernel Attempt
+\[
+F=(f_{\alpha_1},f_{\beta_1},f_{\alpha_2},f_{\beta_2})^T,
+\quad
+b=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T,
+\quad
+\tau=f_\Pi,\quad \tau_*=b_\Pi.
+\]
 
-The first eta-divided residue-log implementation is now in code behind an
-explicit diagnostic switch:
+To compute the endpoint columns, choose a basis \(B_1,\ldots,B_r\) of
+\(\mathcal H_{\rm norm}\) and independent normalization rows
+\(\mathcal N_1,\ldots,\mathcal N_r\).  Let
 
-```bash
-.venv/bin/python 1038/verify_two_interval_epsilon_slabs.py \
-  1038/two_interval_branch_certificate_skeleton.json \
-  --slab 0.00005:0.0001 \
-  --center affine-endpoints \
-  --uv-radii 0.01,0.01 \
-  --arb-box-dk-subdivisions 1,2 \
-  --dk11-eta-radius-report 16 \
-  --dk11-sample-grid 2 \
-  --eta-interval-dk-kernel residue-log
-```
+\[
+A_{im}=\mathcal N_i(B_m),\qquad
+n_\gamma=(\mathcal N_i(-\tfrac12PQD_\gamma))_{i=1}^r,
+\qquad
+h_\gamma=A^{-1}n_\gamma.
+\]
 
-It does two things that the previous prototype did not do:
+Then
 
-1. constructs \(A,\alpha\) from the same Arb \(\eta\)-box via
-   \(A=A_0+\eta(\nu\tau+B)\), \(\alpha=\alpha_0+\eta\tau\);
-2. replaces the explicit subtraction quotients in the paired residue-log
-   primitive by eta-divided preimage, branch-value, residue, and log-ratio
-   quotients.
+\[
+H_\gamma=-\frac12PQD_\gamma-\sum_{m=1}^r(h_\gamma)_mB_m.
+\]
 
-At point values, this kernel matches the analytic Jacobian.  For example, at
-\(\varepsilon=10^{-4}\) it gives
+For any numerator \(H\), define
 
-```text
-residue-log DK[1,1] = -0.4332281104105087...
-analytic DK[1,1]    = -0.4332281104058441...
-```
+\[
+C_H=\frac{H}{Q^2R},\qquad
+E(H)=\binom{[z^{-1}]_\infty C_H}{-C_H(c)},
+\]
 
-But as an interval kernel it is not yet the right closure.  On the first
-small-\(\varepsilon\) slab, with the same \(u,v\) radii, it reports:
+\[
+b(H)=aV_H(u)+bV_H(v),
+\qquad
+f_H=V_H-(U_{\psi_1},U_{\psi_2})M^{-1}E(H).
+\]
 
-```text
-kernel=acb, eta_subdivisions=16
-  max_interval_radius=1.173797e+00
-  worst_sample=[-4.343975e-01,-4.299223e-01]
+By linearity,
 
-kernel=residue-log, eta_subdivisions=16
-  max_interval_radius=2.180000e+00
-  worst_sample=[-4.373654e-01,-4.328054e-01]
-```
+\[
+E_\gamma=E(-\tfrac12PQD_\gamma)-\sum_m(h_\gamma)_mE(B_m),
+\]
 
-So the new formula is algebraically consistent but still too wide.  The
-remaining obstruction is exactly the phrase "common rational expression": the
-implementation divides each preimage/residue/log factor, then adds them.  It
-has not yet combined the full paired smooth contribution into one rational-log
-expression before Arb evaluation.  That next step must cancel the removable
-\(\eta\)-factors across the whole \(\ell/r\) pair first, and only then enclose
-the resulting expression.
+\[
+b_\gamma=b(-\tfrac12PQD_\gamma)-\sum_m(h_\gamma)_mb(B_m),
+\]
 
-For this reason the production default remains the older `acb` kernel; the
-`residue-log` kernel is kept as a checked diagnostic path, not as a claimed
-tightening.
+\[
+f_\gamma=f_{-\frac12PQD_\gamma}-\sum_m(h_\gamma)_mf_{B_m}.
+\]
 
-## K. Remote Slab Matrix After Eta Refinement
+Thus the table is reduced to one invertible normalization matrix \(A\), four
+raw normalization vectors \(n_\gamma\), and the basis rows
+\(E(B_m),b(B_m),f_{B_m}\).  This is the computable finite-dimensional form of
+the endpoint Schiffer table.
 
-The remote 24-core machine was used as a parallel diagnostic runner for the
-current adjacent epsilon slabs.  A small driver,
-`parallel_slab_diagnostics.py`, now fans out radius-report jobs; it does not
-change the verifier or the certificate logic.
+In the free-period fixed-\(Q\) chart this becomes explicit.  Assume
 
-The key continuum check is the actual interval Krawczyk pass/fail matrix, not
-the radius report.  With the production `acb` kernel, affine endpoint centers,
-and `--eta-interval-dk-check`, the first two small epsilon slabs now close if
-the eta subdivision is increased to 224 and the \(u,v\) radius is reduced to
-`0.0003,0.0003`:
+\[
+Q(z)=\prod_{k=1}^d(z-p_k),
+\qquad
+p_k\notin J\cup\{u,c,v\},\qquad Q'(p_k)\ne0.
+\]
 
-```text
-slab=0.00005:0.0001, radius=0.0003, eta=224
-  PASS, worst_margin=1.476235e-04
+The only normalization rows are pole-cancellation rows
 
-slab=0.0001:0.0002, radius=0.0003, eta=224
-  PASS, worst_margin=1.354100e-04
-```
+\[
+\mathcal N_{k,0}(H)=H(p_k),\qquad
+\mathcal N_{k,1}(H)=H'(p_k).
+\]
 
-The next three adjacent slabs did not close under the same certification
-setup.  At eta 224 the failures were:
+Let
 
-```text
-slab=0.0002:0.0005, radius=0.0003
-  FAIL, margin=-5.605783e-04, dominant=defect
+\[
+L_k(z)=\prod_{\ell\ne k}\frac{z-p_\ell}{p_k-p_\ell}.
+\]
 
-slab=0.0005:0.001, radius=0.0003
-  FAIL, margin=-5.999470e-04, dominant=defect
+Use the Hermite basis
 
-slab=0.001:0.002, radius=0.0003
-  FAIL, margin=-4.228079e-04, dominant=correction
-```
+\[
+B_{k,0}(z)=\bigl(1-2L_k'(p_k)(z-p_k)\bigr)L_k(z)^2,
+\qquad
+B_{k,1}(z)=(z-p_k)L_k(z)^2.
+\]
 
-Increasing eta further does help, but it does not by itself close the
-remaining slabs.  The high-eta remote run gave:
+Then the normalization matrix is the identity:
 
-```text
-slab=0.0002:0.0005, radius=0.0003, eta=448
-  FAIL, margin=-5.174021e-04, dominant=defect
+\[
+B_{k,0}(p_\ell)=\delta_{k\ell},\quad B'_{k,0}(p_\ell)=0,\qquad
+B_{k,1}(p_\ell)=0,\quad B'_{k,1}(p_\ell)=\delta_{k\ell}.
+\]
 
-slab=0.0005:0.001, radius=0.0003, eta=448
-  FAIL, margin=-1.375342e-04, dominant=correction
+For
 
-slab=0.0005:0.001, radius=0.0003, eta=896
-  FAIL, margin=-2.202244e-05, dominant=correction
+\[
+H_\gamma^{raw}=-\frac12PQD_\gamma,
+\]
 
-slab=0.001:0.002, radius=0.0003, eta=448
-  FAIL, margin=-4.060184e-04, dominant=correction
+\[
+H_\gamma^{raw}(p_k)=0,\qquad
+(H_\gamma^{raw})'(p_k)
+=-\frac12P(p_k)Q'(p_k)D_\gamma(p_k).
+\]
 
-slab=0.001:0.002, radius=0.0003, eta=896
-  FAIL, margin=-3.434002e-04, dominant=correction
+Thus
 
-slab=0.001:0.002, radius=0.0006, eta=896
-  FAIL, margin=-2.656767e-04, dominant=correction
-```
+\[
+\boxed{
+H_\gamma(z)
+=
+-\frac12P(z)Q(z)D_\gamma(z)
++
+\frac12\sum_{k=1}^d
+P(p_k)Q'(p_k)D_\gamma(p_k)B_{k,1}(z).
+}
+\]
 
-The single `slab=0.0002:0.0005, eta=896` job was terminated after the other
-high-eta jobs completed because it was the only remaining long-running
-process and the eta 448 result was still clearly defect-dominated.  This is
-enough to identify the next obstruction: the route is no longer blocked
-uniformly by the first eta singularity.  Two slabs close.  The third still
-needs a tighter DK/defect enclosure, while the top two slabs need a better
-center/radius strategy or a refined continuation step because the Krawczyk
-correction is comparable with, or larger than, the allowed box radius.
+This \(H_\gamma\) satisfies \(H_\gamma(p_k)=H_\gamma'(p_k)=0\), so
+\(H_\gamma/(Q^2R)\) has no off-cut pole at the fixed \(Q\)-zeros.  If \(d=0\),
+the correction sum is empty.
 
-## L. Four Of Five Adjacent Slabs Closed By Tuning
+The endpoint column then simplifies.  The correct decay input is
+\(\deg P\le d-3\), not necessarily equality.  Therefore
 
-The next remote-only tuning pass was run after the section K matrix.  It did
-not change the center model; it only tuned the Krawczyk box radius and eta
-subdivision count in the existing `affine-endpoints` verifier.
+\[
+\frac{H_\gamma^{raw}}{Q^2R}=O(z^{-2}),\qquad
+\frac{B_{k,1}}{Q^2R}=O(z^{-3}),
+\]
 
-The third slab, which previously failed by about \(5\times 10^{-4}\), closes
-in a narrow radius window:
+so
 
-```text
-slab=0.0002:0.0005, radius=0.00028, eta=1344
-  PASS, worst_margin=6.622592e-06
+\[
+\boxed{
+R_0(G_\gamma)=0,\qquad
+R_c(G_\gamma)=-C_\gamma(c)
+=-\frac{H_\gamma(c)}{Q(c)^2R(c)}.
+}
+\]
 
-slab=0.0002:0.0005, radius=0.00029, eta=1344
-  PASS, worst_margin=1.640791e-05
-```
+With zero total mass, normalize \(V_\gamma(\infty)=0\).  Since
+\(V_\gamma'=-C_\gamma\),
 
-The fourth slab also closes once the radius is increased enough to absorb the
-sampled center correction but not so much that the DK defect dominates:
+\[
+\boxed{
+V_\gamma(s)=\int_s^\infty C_\gamma(y)\,dy
+\qquad(s\notin J).
+}
+\]
 
-```text
-slab=0.0005:0.001, radius=0.0004, eta=896
-  PASS, worst_margin=7.475216e-05
+Thus
 
-slab=0.0005:0.001, radius=0.0004, eta=1344
-  PASS, worst_margin=7.527316e-05
+\[
+\boxed{
+b_\gamma=
+a\int_u^\infty C_\gamma(y)\,dy+
+b\int_v^\infty C_\gamma(y)\,dy.
+}
+\]
 
-slab=0.0005:0.001, radius=0.0006, eta=1344
-  PASS, worst_margin=2.686209e-04
+Let
 
-slab=0.0005:0.001, radius=0.0008, eta=1344
-  PASS, worst_margin=3.580990e-05
-```
+\[
+e_2=\binom01,\qquad
+A_c(x)=(U_{\psi_1}(x),U_{\psi_2}(x))M^{-1}e_2.
+\]
 
-Together with section K, this gives a four-slab diagnostic closure:
+Since \(E_\gamma=(0,-C_\gamma(c))^T\), the equality-corrected \(Z_0\)-column is
 
-```text
-0.00005:0.0001   PASS, radius=0.0003,  eta=224
-0.0001:0.0002    PASS, radius=0.0003,  eta=224
-0.0002:0.0005    PASS, radius=0.00029, eta=1344
-0.0005:0.001     PASS, radius=0.0006,  eta=1344
-0.001:0.002      open in this verifier
-```
+\[
+\boxed{
+f_\gamma(x)=V_\gamma(x)+C_\gamma(c)A_c(x).
+}
+\]
 
-The remaining top slab was improved but not closed:
+The period-transfer column in the same chart is
 
-```text
-slab=0.001:0.002, radius=0.0008,  eta=1344
-  FAIL, margin=-2.030082e-04, dominant=defect
+\[
+\boxed{
+H_\Pi=\kappa Q^2,\qquad C_\Pi=\frac{\kappa}{R}.
+}
+\]
 
-slab=0.001:0.002, radius=0.00065, eta=2688
-  FAIL, margin=-1.115617e-04, dominant=correction
+Choose the sign of \(\kappa\) so that the boundary density has the oriented
+positive period-transfer form
 
-slab=0.001:0.002, radius=0.0009,  eta=2688
-  FAIL, margin=-1.682608e-04, dominant=defect
-```
+\[
+G_\Pi=\sigma h_\Pi,\qquad h_\Pi>0.
+\]
 
-Seven `eta=4096` top-slab jobs in the radius window
-`0.00060..0.00070` were terminated after more than fifteen minutes without
-producing a result.  That is a useful negative signal: the last slab should
-not be attacked by simply increasing eta subdivisions.  The next mathematical
-cut is to add a better continuation/center model for the top slab, or split
-the row-to-row continuation before applying the same Krawczyk box.
+Since \(R(z)\sim z^2\),
+
+\[
+R_0(G_\Pi)=0,\qquad R_c(G_\Pi)=-C_\Pi(c)=-\frac{\kappa}{R(c)}.
+\]
+
+Thus
+
+\[
+E_\Pi=\binom{0}{-C_\Pi(c)}.
+\]
+
+With \(V_\Pi(\infty)=0\),
+
+\[
+V_\Pi(s)=\int_s^\infty C_\Pi(y)\,dy
+=\kappa\int_s^\infty\frac{dy}{R(y)}.
+\]
+
+Thus
+
+\[
+b_\Pi=aV_\Pi(u)+bV_\Pi(v),
+\]
+
+\[
+f_\Pi=V_\Pi-(U_{\psi_1},U_{\psi_2})M^{-1}E_\Pi.
+\]
+
+Now remove the auxiliary bump potential from the circuit test.  Define
+
+\[
+\rho_j:=R_c(G_j)=-C_j(c).
+\]
+
+All seed columns have zero mass row, so
+
+\[
+f_j=V_j-\rho_jA_c.
+\]
+
+Let
+
+\[
+V_S=(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2})^T,
+\qquad
+\rho_S=(\rho_{\alpha_1},\rho_{\beta_1},\rho_{\alpha_2},\rho_{\beta_2})^T.
+\]
+
+A corrected positive circuit gives
+
+\[
+\eta b+\sum_k w_k(V_S(x_k)-\rho_SA_c(x_k))=0.
+\]
+
+With
+
+\[
+\lambda=\sum_k w_kA_c(x_k),
+\]
+
+this becomes the raw augmented relation
+
+\[
+\boxed{
+\eta b+\sum_k w_kV_S(x_k)-\lambda\rho_S=0.
+}
+\]
+
+The lifted value becomes
+
+\[
+\boxed{
+\eta b_\Pi+\sum_k w_kV_\Pi(x_k)-\lambda\rho_\Pi.
+}
+\]
+
+Therefore it is enough to prove the stronger raw test: every such relation,
+for arbitrary real \(\lambda\), has strictly negative lifted value.  This
+criterion is independent of the chosen equality-correction bumps.
+
+The exact missing sign theorem is:
+
+\[
+\boxed{\textbf{RawAugmentedCircuitSign}}
+\]
+
+If
+
+\[
+\eta b+\sum_k w_kV_S(x_k)-\lambda\rho_S=0,
+\qquad
+\eta\ge0,\quad w_k>0,\quad x_k\in Z_0,\quad \lambda\in\mathbb R,
+\]
+
+then
+
+\[
+\boxed{
+\eta b_\Pi+\sum_k w_kV_\Pi(x_k)-\lambda\rho_\Pi<0.
+}
+\tag{RAS}
+\]
+
+Equivalently, the extended family
+
+\[
+\mathcal T=
+(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2},-\rho)
+\]
+
+with lift \(V_\Pi\) must be an oriented raw augmented Chebyshev system on
+\(Z_0\).  Differentiating the determinant identities gives
+
+\[
+V_j'(x)=-C_j(x),
+\qquad
+C_\Pi=\kappa/R,\qquad
+C_\gamma=H_\gamma/(Q^2R).
+\]
+
+Thus the desired determinant proof must control the two-cut Cauchy/rational
+columns generated by the Hermite-normalized numerators \(H_\gamma\) and the
+period numerator \(\kappa Q^2\).  The existing six-kernel Chebyshev determinant
+only applies to the local jet kernels
+
+\[
+1,\ (x-u)^{-1},\ (x-c)^{-1},\ (x-v)^{-1},\ L_-,\ L_+,
+\]
+
+so it does not by itself prove `RawAugmentedCircuitSign`.
+
+The formal proof attempt differentiates the determinant in a moving point.
+Using
+
+\[
+V_j'(x)=-C_j(x),
+\]
+
+and multiplying the differentiated row by \(Q(x)^2R(x)\), the endpoint columns
+become
+
+\[
+\begin{aligned}
+&-H_{\alpha_1}(x),\quad -H_{\beta_1}(x),\\
+&-H_{\alpha_2}(x),\quad -H_{\beta_2}(x),
+\end{aligned}
+\]
+
+while the lifted period derivative becomes
+
+\[
+-\kappa Q(x)^2.
+\]
+
+Thus the missing lemma is a two-cut oriented determinant statement for the
+Hermite-corrected columns
+
+\[
+H_{\alpha_1},H_{\beta_1},H_{\alpha_2},H_{\beta_2},\kappa Q^2.
+\]
+
+The current documents do not prove this sign identity.  The obstruction is the
+Hermite pole-cancellation correction
+
+\[
+\frac12\sum_kP(p_k)Q'(p_k)D_\gamma(p_k)B_{k,1},
+\]
+
+which is not shown to be a positive Cauchy average of the six local jet
+kernels.  Therefore the determinant-sign proof stops at this exact point.
+
+There is also a sharper fixed-\(Q\) audit.  In the \(g=2\) decay normalization
+\(\deg P=d-3\), while \(\deg D_\gamma=3\).  Hence
+\(\deg H_\gamma^{\rm raw}\le2d\), and the Hermite correction has degree at most
+\(2d-1\).  Since the normalization enforces
+
+\[
+H_\gamma(p_k)=H_\gamma'(p_k)=0
+\quad(k=1,\ldots,d),
+\]
+
+one has \(Q^2\mid H_\gamma\).  Therefore \(H_\gamma=q_\gamma Q^2\) with
+constant \(q_\gamma\).  Comparing leading coefficients gives
+
+\[
+\boxed{
+H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+=-\frac12\operatorname{lc}(P)\,Q^2
+}
+\]
+
+under the monic convention for \(Q\).  Thus the endpoint columns currently
+written in the fixed-\(Q\) Hermite table are all proportional to
+\(C_\Pi=\kappa/R\).  The endpoint Schiffer table is therefore degenerate, not
+just missing a sign proof.
+
+The repaired endpoint seed must use the full moving-chart Schiffer variation
+
+\[
+\delta_\gamma F
+=
+\frac{\Delta_\gamma P}{Q}R
+-\frac{PR}{2Q(z-\gamma)}
+-\frac{PR}{Q^2}\Delta_\gamma Q.
+\]
+
+Equivalently,
+
+\[
+\boxed{
+H_\gamma^{\rm rep}
+=
+QD\,\Delta_\gamma P
+-PD\,\Delta_\gamma Q
+-\frac12PQD_\gamma,
+\qquad
+C_\gamma^{\rm rep}=\frac{H_\gamma^{\rm rep}}{Q^2R}.
+}
+\]
+
+The pair \((\Delta_\gamma P,\Delta_\gamma Q)\) is determined by the finite
+moving-chart linear system fixing zero mass, the chosen free-period/filling
+normalization, the pole/residue gauge, and regularity in the separated
+non-pinched chart.  The branch row \(R_c\) remains outside this system because
+it is corrected by the boundary-neutral bump pair.  The collapsed fixed-\(Q\)
+conditions \(H(p_k)=H'(p_k)=0\) are not used as the endpoint seed table unless
+they are embedded in a larger moving-\(Q\) system.
+
+The repaired reduced column is
+
+\[
+\boxed{
+b_\gamma=aV_\gamma(u)+bV_\gamma(v),
+\qquad
+f_\gamma=V_\gamma-\rho_\gamma A_c,
+\qquad
+\rho_\gamma=-C_\gamma^{\rm rep}(c).
+}
+\]
+
+The next Gate 1 check is now the noncollapse condition
+
+\[
+\operatorname{rank}
+\{C_{\alpha_1}^{\rm rep},C_{\beta_1}^{\rm rep},
+C_{\alpha_2}^{\rm rep},C_{\beta_2}^{\rm rep}\}
+=4
+\quad\text{modulo }C_\Pi,
+\]
+
+followed by the raw augmented determinant sign proof.
+
+In a regular moving Schiffer chart, this rank condition passes by chart
+injectivity.  Indeed, the differential
+
+\[
+(\dot\alpha_1,\dot\beta_1,\dot\alpha_2,\dot\beta_2,\dot\tau)
+\mapsto
+\sum_\gamma\dot\gamma\,C_\gamma^{\rm rep}+\dot\tau C_\Pi
+\]
+
+is injective by the definition of a regular non-pinched endpoint chart after
+the moving-chart rows have been imposed.  If it is not injective, the point is a
+chart-rank degeneration and is routed to boundary/lower genus, not to the
+rank-defect interior.
+
+Gate 1 subcheck status:
+
+\[
+\boxed{
+\textbf{Rank subcheck: PASS.}\quad
+\text{Endpoint columns do not collapse in the regular moving chart.}
+}
+\]
+
+The algebraic reductions are usable, and the repaired moving-chart table
+removes the fixed-\(Q\) endpoint-column collapse.
+
+Why the rank check alone was insufficient: rank says the
+endpoint columns do not collapse modulo \(C_\Pi\); the raw augmented circuit
+test asks that every positive relation in the first four coordinates has
+negative \(V_\Pi\)-lift.  Full rank alone does not imply this.  For example,
+in an abstract four-dimensional model one may take
+
+\[
+F(x_i)=e_i,\qquad b=-(1,1,1,1),
+\]
+
+so \(b+\sum_iF(x_i)=0\) is a positive circuit with full-rank endpoint columns.
+The lifted sign is positive if \(\tau_*=1,\tau(x_i)=0\), and negative if
+\(\tau_*=-1,\tau(x_i)=0\).  The rank data are identical.  Therefore Gate 1
+cannot close from chart injectivity alone.
+
+To close it one must prove the actual two-cut determinant orientation for the
+repaired Schiffer columns
+
+\[
+H_{\alpha_1}^{\rm rep},H_{\beta_1}^{\rm rep},
+H_{\alpha_2}^{\rm rep},H_{\beta_2}^{\rm rep},\kappa Q^2
+\]
+
+together with the equality row \(\rho_j=-C_j^{\rm rep}(c)\).  The current note
+still defines the repaired columns through the abstract moving-chart system, so
+that determinant identity has not yet been established.
+
+The explicit Gate 1 repair attempt is now:
+
+\[
+H_\gamma^{\rm rep}
+=-\frac12PQD_\gamma-BA^{-1}r_\gamma,
+\]
+
+where \(A X_\gamma=-r_\gamma\) is the finite moving-chart system for
+\((\Delta_\gamma P,\Delta_\gamma Q)\).  The rows of \(A\) are the zero-mass
+row, the free-period/filling convention, the moving-\(Q\) gauge,
+pole/residue-state rows, and regular chart rows; \(R_c\) is excluded because
+it is corrected by the bump pair.  If \(A\) is singular, the point is routed to
+boundary/lower genus.
+
+For any raw augmented determinant, the repaired endpoint columns satisfy the
+Schur-complement identity
+
+\[
+\det L(H_\Gamma^{\rm rep})
+=
+\frac{
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}}
+{\det A},
+\]
+
+up to the fixed column-order sign.  After differentiating in a moving point
+and multiplying by \(Q(x)^2R(x)\), the endpoint rows are
+\(-H_\gamma^{\rm rep}(x)\) and the period lift is \(-\kappa Q(x)^2\).
+
+The real-pole part is now closed in the regular positive chart.  Since
+\(F\) is the Cauchy transform of a positive dual measure, every \(Q\)-pole is
+a real atom with positive residue; on each complementary real interval
+
+\[
+F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0,
+\]
+
+so zeros, branch endpoints, and poles interlace.  Non-real, multiple,
+zero-residue, or colliding poles are boundary/lower-genus cases.
+
+The remaining missing sign theorem is the Schur-block orientation:
+
+\[
+\boxed{
+\text{confluent Cauchy sign of the Schur block}
+\Rightarrow
+\text{RawAugmentedCircuitSign}.
+}
+\]
+
+The document currently has the correct formal Schur-complement identity, but
+not yet a proof-grade sign computation.  To close this gate one still must
+expand the Schur numerator as an explicit signed product,
+
+\[
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}
+=
+(\text{positive row/column factors})
+\cdot
+(\text{ordered Cauchy/Vandermonde product}),
+\]
+
+and then sign every factor.  In particular, it remains to prove that the
+moving-chart rows, free-period/filling convention, moving-\(Q\) gauge rows,
+pole/residue-state rows, and equality row are all compatible with one ordered
+real Cauchy/confluent Cauchy orientation.  Choosing \(\det A>0\) fixes a chart
+orientation; it does not by itself prove the sign of every augmented Schur
+minor.
+
+\[
+\boxed{
+\textbf{Gate 1 status: BLOCKED at SchurBlockTotalPositivityLemma.}\quad
+\text{Rank-defect is reduced to the raw augmented circuit obstruction.}
+}
+\]
+
+This is a genuine obstruction, not just a missing citation.  The repaired
+moving chart currently proves noncollapse and invertibility, but those are rank
+statements.  A positive-circuit sign is a strictly stronger oriented-cone
+statement.  In the finite-dimensional model
+
+\[
+F(x_i)=e_i,\qquad b=-(1,1,1,1),
+\]
+
+the endpoint block is full rank and \(b+\sum_iF(x_i)=0\) is a positive
+circuit; changing only the lifted scalar \(\tau_*\) flips the lifted sign.
+Therefore rank, Schur-complement form, and \(\det A>0\) do not determine
+`RawAugmentedCircuitSign`.
+
+The precise theorem still needed is an explicit block determinant formula
+
+\[
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}
+=
+(\text{positive factors})
+\cdot
+(\text{ordered Cauchy/Vandermonde product})
+\]
+
+with the product sign fixed for every admissible raw augmented circuit.  Until
+that theorem is proved from an explicit moving Schiffer chart, Gate 1 remains
+blocked and the compact \(g=2\) rank-defect chamber remains open.
+
+The algebraic part of this reduction is now separated from the analytic row
+realization.  If the full block
+
+\[
+\mathcal M=
+\begin{pmatrix}
+A&R\\
+B&C
+\end{pmatrix}
+\]
+
+is an oriented sign-regular Cauchy/confluent Cauchy block and \(\det A>0\),
+then its Schur complement \(S=C-BA^{-1}R\) inherits the required minor signs by
+Sylvester's determinant identity:
+
+\[
+\det S[I,J]
+=
+\frac{
+\det
+\begin{pmatrix}
+A&R_{\*,J}\\
+B_{I,\*}&C_{I,J}
+\end{pmatrix}}
+{\det A}.
+\]
+
+Thus the remaining Gate 1 problem is exactly
+`TPRowRealizationLemma`: write the actual moving-chart rows \(\ell_r\) and
+prove that, after positive row/column factors, they form the ordered
+sign-regular block required above.  Once that lemma is proved, Schur-block
+total positivity and RawAugmentedCircuitSign follow formally.
+
+The row-realization toolbox is now fixed.  Ordered Cauchy rows have signed
+determinants by the Cauchy product formula; confluent pole rows inherit the
+same sign by differentiating and taking coalescing-node limits; positive
+averages of ordered Cauchy rows preserve the sign by multilinearity and
+Fubini/Cauchy-Binet.  Therefore the zero-mass row, real pole evaluation and
+derivative rows, moving point evaluation rows, and equality row \(\rho\) are
+already compatible with the TP block.  The only remaining Gate 1 row audit is
+to prove that the period/filling row is a positive Cauchy average and that any
+additional regular chart rows are replaced by, or proved equivalent to, this
+canonical TP gauge.
+
+That row audit is now reduced in the canonical free-period chart.  The
+period/filling constraint is quotiented by the filling variable \(\tau\), so it
+does not enter \(A\) as an equality row; the period direction remains only as
+the lift column \(C_\Pi=\kappa/R\).  The regular chart conditions are open
+inequalities, not equality rows, and failure of any of them routes to Gate 3.
+Thus the canonical Gate 1 rows are only the infinity/zero-mass row and the
+real pole-state evaluation/confluent derivative rows, plus the raw circuit
+evaluation and equality rows.  These rows are all covered by the TP row
+toolbox.
+
+So the row side of Gate 1 is now closed in the canonical gauge.  The remaining
+Gate 1 obstruction is column-side:
+
+\[
+\boxed{\textbf{EndpointPeriodColumnOrientationLemma}}
+\]
+
+which must sign the full canonical block containing the four raw endpoint
+columns \(PQD_\gamma\) and the period lift column \(Q^2\).  Only after this
+column-orientation lemma is proved does RawAugmentedCircuitSign follow.
+
+There is one important refinement.  The column sign cannot be checked from the
+rows alone.  If the correction space is the old fixed-\(Q\) Hermite
+pole-cancellation space, the endpoint columns collapse back to a multiple of
+the period column.  Therefore the final Gate 1 datum is the actual moving
+correction column basis
+
+\[
+B_\nu=QD\,\Delta P_\nu-PD\,\Delta Q_\nu.
+\]
+
+The remaining theorem is
+
+\[
+\boxed{\textbf{MovingCorrectionColumnOrientationLemma}}
+\]
+
+for the full block whose correction columns are \(B_\nu\), endpoint columns are
+\(-\frac12PQD_\gamma\), and period lift is \(\kappa Q^2\).  Once this full
+moving block has the required ordered sign, Sylvester transfer gives
+SchurBlockTotalPositivityLemma and then RawAugmentedCircuitSign.  Without this
+moving correction column determinant, Gate 1 remains open.
+
+The moving-column algebra now gives a sharper audit.  In the monic \(Q\)-chart,
+
+\[
+QD\Delta P-PD\Delta Q=D(Q\Delta P-P\Delta Q),
+\]
+
+and, since \(\gcd(P,Q)=1\),
+
+\[
+(\Delta P,\Delta Q)\mapsto Q\Delta P-P\Delta Q
+\]
+
+is an isomorphism from
+
+\[
+\mathbb R[z]_{\le d-3}\oplus\mathbb R[z]_{\le d-1}
+\]
+
+onto \(\mathbb R[z]_{\le 2d-3}\).  Thus the actual moving correction image is
+
+\[
+\boxed{D\mathbb R[z]_{\le 2d-3}.}
+\]
+
+For the raw endpoint columns \(E_\gamma=PQD_\gamma\), endpoint interpolation
+gives
+
+\[
+\boxed{
+\mathbb R[z]_{\le 2d+1}
+=
+D\mathbb R[z]_{\le 2d-3}
+\oplus
+\operatorname{span}\{E_{\alpha_1},E_{\beta_1},E_{\alpha_2},E_{\beta_2}\}.
+}
+\]
+
+Since \(Q^2\in\mathbb R[z]_{\le 2d}\), the period numerator satisfies
+
+\[
+\boxed{
+Q^2
+=
+DW_Q
++
+\sum_\gamma
+\frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}\,PQD_\gamma,
+\qquad
+W_Q\in\mathbb R[z]_{\le 2d-3}.
+}
+\]
+
+Therefore, modulo the actual moving correction image, the period lift is
+already an endpoint interpolation class.  A purely first-order
+endpoint-period determinant cannot be the missing nonzero total-positive block
+in this quotient.  Gate 1 does not close by determinant orientation alone.
+The proof-grade continuation is the second-variation effective endpoint
+Hessian:
+
+\[
+\boxed{\textbf{EffectiveEndpointHessianLemma}}
+\]
+
+which must compute the finite form
+
+\[
+Q_{\rm eff}
+=
+P_{\rm ep}^{T}
+\bigl(B_{\rm loc}+C_{\log}^{-1}\bigr)
+P_{\rm ep}
+\]
+
+after the minimal moving correction has been eliminated, and prove that every
+nonnegative atomic Farkas certificate produces an endpoint direction \(h\) with
+
+\[
+h^TQ_{\rm eff}h<0.
+\]
+
+This is the current Gate 1 hard mouth.  The row-realization and moving-column
+interpolation audits are now explicit; the remaining sign is second-order.
+
+Gate 1 data dictionary.  The fixed-\(Q\) Hermite endpoint table is audit-only.
+The proof-grade columns are
+
+\[
+C_\Pi=\kappa/R,\qquad
+C_\gamma=H_\gamma^{\rm rep}/(Q^2R)
+\quad(\gamma=\alpha_1,\beta_1,\alpha_2,\beta_2).
+\]
+
+For every seed \(j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\}\),
+
+\[
+\rho_j=-C_j(c),\qquad
+V_j(s)=\int_s^\infty C_j(y)\,dy,\qquad
+b_j=aV_j(u)+bV_j(v).
+\]
+
+We use
+
+\[
+V_S=(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2})^T,
+\quad
+b_S=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T,
+\quad
+\rho_S=(\rho_{\alpha_1},\rho_{\beta_1},\rho_{\alpha_2},\rho_{\beta_2})^T.
+\]
+
+The exact second-order replacement is now the following finite statement.  For
+each minimal raw augmented atomic certificate
+
+\[
+\mathfrak c=(\eta;\,w_k,x_k;\lambda)
+\]
+
+with
+
+\[
+\eta b_S+\sum_kw_kV_S(x_k)-\lambda\rho_S=0
+\]
+
+on the four endpoint Schiffer columns, define the endpoint-row vector
+
+\[
+r_{\mathfrak c}
+=
+\eta p_b+\sum_kw_kp(x_k)-\lambda p_\rho
+\in V^\sharp.
+\]
+
+The first-order route wanted to prove the lifted scalar
+
+\[
+\eta b_\Pi+\sum_kw_kV_\Pi(x_k)-\lambda\rho_\Pi<0.
+\]
+
+After the moving-column interpolation audit, the proof-grade replacement is
+
+\[
+\boxed{\textbf{QeffNegativeCertificate:}\quad
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})<0
+\text{ for every non-boundary minimal certificate.}}
+\]
+
+This statement is sufficient.  The separated-chart minimal-lift theorem gives
+\(\xi_{\mathfrak c}=Sr_{\mathfrak c}\) with
+\(\rho^\sharp(\xi_{\mathfrak c})=r_{\mathfrak c}\) and with no row-kernel
+energy cross term.  Hence
+
+\[
+G_{\rm br}(\xi_{\mathfrak c},\xi_{\mathfrak c})
+=
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c}).
+\]
+
+If `QeffNegativeCertificate` holds, the rank-defect atomic fallback gives a
+two-sided feasible tangent with negative second variation, contradicting the
+second-order necessary condition for a compact non-pinched regular minimizer.
+Thus Gate 1 is now reduced to a finite \(Q_{\rm eff}\) sign computation, with
+zero-vector, support-collision, and chart-rank degeneracies routed to Gate 3.
+
+This finite computation can be stated without ambiguity.  Choose a basis
+\(q_1,\ldots,q_m\) of the endpoint-row image and write
+
+\[
+r_{\mathfrak c}=\sum_\mu\alpha_\mu(\mathfrak c)q_\mu.
+\]
+
+Let
+
+\[
+\mathcal H_{\mu\nu}=b(q_\mu,q_\nu)+(C^{-1})_{\mu\nu},
+\]
+
+where \(C\) is the Riesz Gram matrix of the row representers.  Then
+
+\[
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})
+=
+\alpha(\mathfrak c)^T\mathcal H\alpha(\mathfrak c).
+\]
+
+Let \(\mathcal C_{\rm at}\) be the cone of all coordinate vectors
+\(\alpha(\mathfrak c)\) coming from non-boundary atomic certificates, and set
+
+\[
+\Lambda_{\rm at}
+=
+\max_{\alpha\in \mathcal C_{\rm at}\cap S^{m-1}}
+\alpha^T\mathcal H\alpha.
+\]
+
+By conic Carathéodory, \(N\le5\); after excluding support collision and
+chart-rank boundary, the normalized certificate set is compact.  Hence
+
+\[
+\boxed{
+\text{QeffNegativeCertificate}
+\Longleftrightarrow
+\Lambda_{\rm at}<0.
+}
+\]
+
+This is now the precise remaining Gate 1 computation: calculate the matrix
+\(\mathcal H\) and prove the cone maximum is strictly negative.
+
+Equivalently, split
+
+\[
+\mathcal H=B_{\rm at}+N_{\log},\qquad N_{\log}=C^{-1}.
+\]
+
+On the normalized certificate cone define
+
+\[
+\mu_{\rm loc}
+=
+\min_{\alpha\in\mathcal C_{\rm at}\cap S^{m-1}}
+\left(-\alpha^TB_{\rm at}\alpha\right),
+\qquad
+\nu_{\log}
+=
+\max_{\alpha\in\mathcal C_{\rm at}\cap S^{m-1}}
+\alpha^TN_{\log}\alpha.
+\]
+
+Then
+
+\[
+\mu_{\rm loc}>\nu_{\log}
+\Longrightarrow
+\Lambda_{\rm at}<0.
+\]
+
+For pointwise verification one may avoid \(C^{-1}\): for each certificate
+vector \(\alpha\), with \(T_{\rm loc}(\alpha)=-\alpha^TB_{\rm at}\alpha\),
+
+\[
+\alpha^T(B_{\rm at}+C^{-1})\alpha<0
+\]
+
+is equivalent to the Schur condition
+
+\[
+\begin{pmatrix}
+C&\alpha\\
+\alpha^T&T_{\rm loc}(\alpha)
+\end{pmatrix}\succ0.
+\]
+
+So the next concrete Gate 1 calculation is to compute or certify
+\(B_{\rm at}\), \(C\), and \(\mathcal C_{\rm at}\), then prove either
+\(\Lambda_{\rm at}<0\) directly or the stronger local-margin versus
+capacity-load inequality above.
+
+The row Gram \(C\) is now reduced to a finite-Hilbert formula.  In the
+separated two-cut chart
+
+\[
+J=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+\qquad
+R^2=\prod_{r=1}^2(z-\alpha_r)(z-\beta_r),
+\]
+
+for a row kernel \(k_\mu\), set \(f_\mu=-k_\mu'\).  If
+\(\operatorname{PP}_\mu\) is the principal part of \(R f_\mu\) at all off-cut
+poles, then the Riesz representer has Cauchy transform
+
+\[
+C_\mu(z)
+=
+f_\mu(z)
+-
+\frac{\operatorname{PP}_\mu(z)}{R(z)}
++
+\frac{A_\mu+B_\mu z}{R(z)}.
+\]
+
+The two constants \(A_\mu,B_\mu\) are fixed by zero mass and fixed period:
+
+\[
+[z^{-1}]_\infty C_\mu=0,\qquad \Pi(C_\mu)=0.
+\]
+
+The density is the jump
+
+\[
+dg_\mu(x)
+=
+\frac{C_{\mu,-}(x)-C_{\mu,+}(x)}{2\pi i}\,dx,
+\]
+
+and hence
+
+\[
+\boxed{
+C_{\mu\nu}
+=
+\int_J k_\mu(x)\,
+\frac{C_{\nu,-}(x)-C_{\nu,+}(x)}{2\pi i}\,dx.
+}
+\]
+
+Thus the capacity-load matrix is no longer abstract.  The remaining concrete
+work is to plug the actual endpoint-certificate row kernels into this formula,
+evaluate \(C\), and compare it against \(B_{\rm at}\) on
+\(\mathcal C_{\rm at}\).
+
+The actual separated-chart row kernels are
+
+\[
+1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},
+\quad
+L_-,\quad L_+,\quad \log\frac1{|c-x|}.
+\]
+
+With \(f=-k'\), their principal parts for \(R f\) are:
+
+\[
+\operatorname{PP}_{(x-s)^{-1}}
+=
+\frac{R(s)}{(z-s)^2}+\frac{R'(s)}{z-s},
+\quad s\in\{u,c,v\},
+\]
+
+\[
+\operatorname{PP}_{L_-}
+=
+-\frac{R(u)}{z-u}+\frac{R(c)}{z-c},
+\qquad
+\operatorname{PP}_{L_+}
+=
+-\frac{R(c)}{z-c}+\frac{R(v)}{z-v},
+\]
+
+\[
+\operatorname{PP}_{\log(1/|c-x|)}
+=
+\frac{R(c)}{z-c}.
+\]
+
+The constant row has zero principal part.  The period coordinate is not an
+arbitrary interior step kernel; it is handled by \(\Pi(C_\mu)=0\), or by a
+gap-supported \(H^{1/2}\) kernel.  If the period jump enters the active support,
+this separated Riesz-Gram chart is invalid and the case is routed to boundary.
+
+The normalization constants are explicit.  With
+
+\[
+\widetilde C_\mu=f_\mu-\operatorname{PP}_\mu/R,
+\qquad
+m(T)=[z^{-1}]_\infty T,\quad p(T)=\Pi(T),
+\]
+
+\[
+\begin{pmatrix}
+m(R^{-1})&m(zR^{-1})\\
+p(R^{-1})&p(zR^{-1})
+\end{pmatrix}
+\binom{A_\mu}{B_\mu}
+=
+-
+\binom{m(\widetilde C_\mu)}{p(\widetilde C_\mu)}.
+\]
+
+Since \(R(z)\sim z^2\), the first row is \((0,1)\).  Writing
+\(\pi_0=p(R^{-1})\), \(\pi_1=p(zR^{-1})\),
+\(m_\mu=m(\widetilde C_\mu)\), and \(p_\mu=p(\widetilde C_\mu)\), one gets
+
+\[
+B_\mu=-m_\mu,\qquad
+A_\mu=\frac{-p_\mu+m_\mu\pi_1}{\pi_0}
+\]
+
+provided \(\pi_0\ne0\).  If \(\pi_0=0\), the period normalization degenerates
+and the point must be treated as chart-rank boundary or reparametrized.
+
+The unnormalized transforms are explicit.  The constant row gives
+\(\widetilde C_0=0\), so it is removed from the zero-mass Gram basis.  For
+\(s\in\{u,c,v\}\),
+
+\[
+\widetilde C_s
+=
+\frac{R(z)-R(s)-R'(s)(z-s)}
+{(z-s)^2R(z)}.
+\]
+
+For the split log rows,
+
+\[
+\widetilde C_-
+=
+-\frac1{z-u}+\frac1{z-c}
+-
+\frac1R\left(-\frac{R(u)}{z-u}+\frac{R(c)}{z-c}\right),
+\]
+
+\[
+\widetilde C_+
+=
+-\frac1{z-c}+\frac1{z-v}
+-
+\frac1R\left(-\frac{R(c)}{z-c}+\frac{R(v)}{z-v}\right).
+\]
+
+For the anchor row,
+
+\[
+\widetilde C_{\log c}
+=
+\frac1{z-c}-\frac{R(c)}{(z-c)R(z)}.
+\]
+
+The mass coefficients are
+
+\[
+m(\widetilde C_s)=m(\widetilde C_-)=m(\widetilde C_+)=0,
+\qquad
+m(\widetilde C_{\log c})=1.
+\]
+
+Thus \(B_\mu=0\) for all Cauchy and split-log rows, while
+\(B_{\log c}=-1\).  The remaining \(A_\mu\)'s are one-dimensional period
+evaluations through the formula above.
+
+In particular, putting \(p_\mu=p(\widetilde C_\mu)\), the final normalized
+transforms are
+
+\[
+C_s=\widetilde C_s-\frac{p_s}{\pi_0R}\quad(s=u,c,v),
+\qquad
+C_\pm=\widetilde C_\pm-\frac{p_\pm}{\pi_0R},
+\]
+
+and
+
+\[
+C_{\log c}
+=
+\widetilde C_{\log c}
++
+\frac1R\left(\frac{-p_{\log c}+\pi_1}{\pi_0}-z\right).
+\]
+
+Equivalently \(C_\mu=N_\mu/R\), where
+
+\[
+N_s=
+\frac{R(z)-R(s)-R'(s)(z-s)}{(z-s)^2}
+-\frac{p_s}{\pi_0},
+\]
+
+\[
+N_-=
+-\frac{R(z)-R(u)}{z-u}
++\frac{R(z)-R(c)}{z-c}
+-\frac{p_-}{\pi_0},
+\]
+
+\[
+N_+=
+-\frac{R(z)-R(c)}{z-c}
++\frac{R(z)-R(v)}{z-v}
+-\frac{p_+}{\pi_0},
+\]
+
+and
+
+\[
+N_{\log c}
+=
+\frac{R(z)-R(c)}{z-c}
++\frac{-p_{\log c}+\pi_1}{\pi_0}
+-z.
+\]
+
+With
+
+\[
+d\Omega_R(x)=\frac{R_-(x)^{-1}-R_+(x)^{-1}}{2\pi i}\,dx,
+\]
+
+the Riesz density and Gram entries are
+
+\[
+dg_\mu(x)=N_\mu(x)d\Omega_R(x),
+\qquad
+C_{\nu\mu}=\int_J k_\nu(x)N_\mu(x)d\Omega_R(x).
+\]
+
+Thus the remaining Gate 1 sign is no longer an abstract PV or density-closure
+issue.  It is the finite matrix test
+
+\[
+\alpha^T(B_{\rm at}+C^{-1})\alpha<0
+\quad
+\text{for all nonzero }\alpha\in\mathcal C_{\rm at},
+\]
+
+or equivalently
+
+\[
+\begin{pmatrix}
+C&\alpha\\
+\alpha^T&-\alpha^TB_{\rm at}\alpha
+\end{pmatrix}\succ0
+\quad(\alpha\in\mathcal C_{\rm at}).
+\]
+
+The finite local block \(B_{\rm at}\) is also explicit.  With
+\(\lambda_-=1/X\), \(\lambda_+=-1/Y\),
+
+\[
+D^2E_-[\delta y]^2
+=
+-\frac2a\delta q\,\delta a+\frac q{a^2}(\delta a)^2
++A_2(\delta c-\delta a)^2,
+\]
+
+\[
+D^2E_+[\delta y]^2
+=
+-\frac2b\delta q\,\delta b+\frac q{b^2}(\delta b)^2
++B_2(\delta c+\delta b)^2,
+\]
+
+and
+
+\[
+B_{\rm at}^{(y)}
+=
+\lambda_-D^2E_-+\lambda_+D^2E_+.
+\]
+
+For a row
+
+\[
+r=(r_0,r_u,r_c,r_v,r_-,r_+,r_{\log},r_\Pi),
+\]
+
+the branch-state lift is
+
+\[
+\delta q=-r_0,\qquad
+\delta c=r_c/F_c,
+\]
+
+\[
+\delta a=
+\frac{-\ell_-r_0+A\,r_c/F_c+r_{\log}-r_-}{X},
+\]
+
+\[
+\delta b=
+\frac{-r_++\ell_+r_0-B\,r_c/F_c-r_{\log}}{Y}.
+\]
+
+Thus
+
+\[
+B_{\rm at}(r,r')=B_{\rm at}^{(y)}[T_y r,T_y r'].
+\]
+
+In the formal endpoint-length state basis
+\((e_u^0,e_v^0,e_\zeta^0)\), this gives
+
+\[
+B_{\rm at}^0=
+\begin{pmatrix}
+\dfrac{q/a^2+A_2}{X}&0&\dfrac{q}{a^2X}\\[0.8em]
+0&-\dfrac{q/b^2+B_2}{Y}&\dfrac{q}{b^2Y}\\[0.8em]
+\dfrac{q}{a^2X}&\dfrac{q}{b^2Y}&
+\dfrac{q}{a^2X}-\dfrac{q}{b^2Y}
+\end{pmatrix}.
+\]
+
+The positive \(e_\zeta^0\) diagonal explains why the diagonal shortcut did
+not work.  Gate 1 now depends on the coupled Schur test using both this local
+block and the Riesz Gram matrix \(C\).
+
+For an actual atomic Farkas certificate one must also include the point rows
+\(x_k\in Z_0\).  The raw certificate kernel is
+
+\[
+k_{\mathfrak c}(t)
+=
+\eta\left(a\log\frac1{|u-t|}+b\log\frac1{|v-t|}\right)
++\sum_k w_k\log\frac1{|x_k-t|}
+-\lambda\frac1{t-c},
+\]
+
+so
+
+\[
+f_{\mathfrak c}(z)
+=
+\eta\left(\frac a{z-u}+\frac b{z-v}\right)
++\sum_k\frac{w_k}{z-x_k}
+-\frac{\lambda}{(z-c)^2}.
+\]
+
+The off-cut principal parts at \(u,v,c\) are explicit:
+
+\[
+\eta a\frac{R(u)}{z-u}
++\eta b\frac{R(v)}{z-v}
+-\lambda\left(
+\frac{R(c)}{(z-c)^2}+\frac{R'(c)}{z-c}
+\right).
+\]
+
+The \(x_k\)-terms are on-cut singularities, so they must be handled by
+symmetric regularized rows
+
+\[
+k_{x,\varepsilon}(t)
+=
+\frac12\log\frac1{|x+i\varepsilon-t|}
++\frac12\log\frac1{|x-i\varepsilon-t|}
+\]
+
+and the limit \(\varepsilon\downarrow0\).  For \(\varepsilon>0\) the point
+principal part is
+
+\[
+\frac{w_k}{2}
+\left(
+\frac{R(x_k+i\varepsilon)}{z-(x_k+i\varepsilon)}
++\frac{R(x_k-i\varepsilon)}{z-(x_k-i\varepsilon)}
+\right).
+\]
+
+Thus the final Gate 1 sign check is the regularized atomic Schur limit:
+
+\[
+\liminf_{\varepsilon\downarrow0}
+\left[
+B_{\rm at}(r_{\mathfrak c,\varepsilon},r_{\mathfrak c,\varepsilon})
++N_{\log,\varepsilon}(r_{\mathfrak c,\varepsilon},r_{\mathfrak c,\varepsilon})
+\right]<0
+\]
+
+for every normalized non-boundary atomic certificate.  The fixed \(C\)-matrix
+above is the off-cut subblock; the point rows enter through this regularized
+limit.
+
+The point-row limit has a positive blow-up.  For \(x\) in the interior of
+\(Z_0\cap J\),
+
+\[
+\mathcal E_{\log}(g_{x,\varepsilon},g_{x,\varepsilon})
+=
+\log\frac1\varepsilon+O(1),
+\]
+
+while separated cross terms are \(O(1)\).  Hence for positive atomic weights,
+
+\[
+\mathcal E_{\log}\left(\sum_k w_kg_{x_k,\varepsilon},
+\sum_k w_kg_{x_k,\varepsilon}\right)
+=
+\left(\sum_\chi W_\chi^2\right)\log\frac1\varepsilon+O(1),
+\]
+
+with \(W_\chi>0\) for every nonempty cluster.  Thus a certificate with a
+nonzero \(Z_0\)-atomic part cannot be excluded by a finite negative
+\(Q_{\rm eff}\) lift: the point-row Riesz load diverges with positive sign,
+while \(B_{\rm at}\) remains finite.  Gate 1 therefore splits into:
+
+\[
+\zeta=0:\ \text{finite off-cut Schur test};
+\qquad
+\zeta\ne0:\ \text{prove a no-}Z_0\text{-atom theorem or return to raw sign}.
+\]
+
+The no-atom branch is finite.  If \(\zeta=0\), the certificate equations reduce
+to
+
+\[
+\eta b_S-\lambda\rho_S=0.
+\]
+
+In the nondegenerate interior, \(\eta>0\), so after normalization
+
+\[
+b_S=\Lambda\rho_S.
+\]
+
+Hence no-atom fallback exists only on the collinearity locus
+\(b_S\in\mathbb R\rho_S\).  When it exists, the lifted value is
+
+\[
+\Theta_\Pi^0=\eta(b_\Pi-\Lambda\rho_\Pi).
+\]
+
+Thus the no-atom subcase is excluded by the explicit finite test
+
+\[
+b_S=\Lambda\rho_S\Rightarrow b_\Pi-\Lambda\rho_\Pi<0.
+\]
+
+Equivalently, with
+
+\[
+\Delta_{\gamma\gamma'}=b_\gamma\rho_{\gamma'}-b_{\gamma'}\rho_\gamma,
+\]
+
+the no-atom branch is absent if some \(\Delta_{\gamma\gamma'}\ne0\).  If all
+minors vanish and \(\rho_S\ne0\), then
+
+\[
+\Lambda=b_\gamma/\rho_\gamma
+\]
+
+for any nonzero \(\rho_\gamma\), and the branch is excluded by
+
+\[
+b_\Pi-\frac{b_\gamma}{\rho_\gamma}\rho_\Pi<0.
+\]
+
+If all minors vanish and \(\rho_S=b_S=0\), this is a repaired-column row-rank
+boundary mode, not an interior no-atom certificate.
+
+The remaining Gate 1 branch is exactly the \(\zeta\ne0\) branch: it requires a
+no-\(Z_0\)-atom theorem for the reduced Farkas fallback, or a direct raw
+first-order sign proof with the \(Z_0\)-atoms included.
+
+The atom branch has an exact cone-envelope formulation.  Define
+
+\[
+\mathcal V_Z(x)=\binom{V_S(x)}{V_\Pi(x)}
+\]
+
+and
+
+\[
+\Phi_Z(y)=
+\sup\left\{
+\sum_kw_kV_\Pi(x_k):
+\sum_kw_kV_S(x_k)=y,\quad w_k>0,\ x_k\in Z_0
+\right\}.
+\]
+
+By conic Carathéodory, at most five points are needed.  For \(\eta>0\), after
+normalizing \(\eta=1\), the \(Z_0\)-atomic obstruction exists exactly when
+
+\[
+\Phi_Z(-b_S+\Lambda\rho_S)\ge -b_\Pi+\Lambda\rho_\Pi
+\]
+
+for some real \(\Lambda\).  Therefore the atom branch is excluded exactly by
+
+\[
+\Phi_Z(-b_S+\Lambda\rho_S)<-b_\Pi+\Lambda\rho_\Pi
+\qquad(\Lambda\in\mathbb R).
+\]
+
+The homogeneous case \(\eta=0\) is the analogous condition
+
+\[
+\Phi_Z(\lambda\rho_S)<\lambda\rho_\Pi
+\qquad(\lambda\ne0).
+\]
+
+So the remaining hard statement is not a vague no-atom claim; it is this
+lifted cone-envelope inequality for the explicit \(Z_0\)-columns.
+
+The same criterion has a dual form.  Assuming the conic hull has no positive
+lift recession ray
+
+\[
+\sum_kw_kV_S(x_k)=0,\qquad \sum_kw_kV_\Pi(x_k)>0,
+\]
+
+finite-dimensional conic duality gives
+
+\[
+\Phi_Z(y)=
+\inf_{\theta\in\mathbb R^4}
+\left\{
+\theta\cdot y:\theta\cdot V_S(x)\ge V_\Pi(x)\ \forall x\in Z_0
+\right\}.
+\]
+
+Thus for every \(\Lambda\) it is enough to construct
+\(\theta_\Lambda\) with
+
+\[
+\theta_\Lambda\cdot V_S(x)\ge V_\Pi(x)\quad(x\in Z_0)
+\]
+
+and
+
+\[
+\theta_\Lambda\cdot(-b_S+\Lambda\rho_S)
+<-b_\Pi+\Lambda\rho_\Pi.
+\]
+
+The homogeneous case is the same with
+
+\[
+\theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi.
+\]
+
+For any \(\theta\), set
+
+\[
+G_\theta(x)=\theta\cdot V_S(x)-V_\Pi(x).
+\]
+
+Then \(G_\theta\ge0\) on \(Z_0\) is the required dual majorant, and
+
+\[
+G_\theta'(x)=-\theta\cdot C_S(x)+C_\Pi(x).
+\]
+
+Using the repaired columns,
+
+\[
+Q(x)^2R(x)G_\theta'(x)
+=
+P_\theta(x),
+\qquad
+P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}.
+\]
+
+Thus the remaining proof is a one-dimensional sign problem for \(P_\theta\)
+plus endpoint/contact values of \(G_\theta\).  If the required alternation
+system for \(P_\theta\) degenerates, the case routes to Gate 3; if it has no
+sign table, the \(Z_0\)-atomic branch is a concrete obstruction rather than a
+closed case.
+
+The strict lifted gap has to be checked with the same residual.  With
+\[
+G_\theta=\theta\cdot V_S-V_\Pi
+\]
+define
+\[
+G_\theta^{(b)}=\theta\cdot b_S-b_\Pi
+=aG_\theta(u)+bG_\theta(v),
+\qquad
+G_\theta^{(c)}=\theta\cdot\rho_S-\rho_\Pi.
+\]
+Then the \(\eta>0\) strict dual inequality is equivalent to
+\[
+G_{\theta_\Lambda}^{(b)}
+-\Lambda G_{\theta_\Lambda}^{(c)}>0,
+\]
+and the homogeneous strict dual inequality is equivalent to
+\[
+\lambda G_{\theta_\lambda}^{(c)}<0.
+\]
+Thus Gate 1 still reduces to a finite explicit task: construct the dual
+majorants, prove the \(P_\theta\)-sign tables on \(Z_0\), and verify these
+strict residual inequalities.  Equality is not an interior closure; it routes
+to Gate 3 contact/boundary degeneration or remains a concrete Gate 1
+obstruction.
+
+Gate 2 is the first-variation interface.  If the reduced LP produces an
+equality-corrected perturbation with
+
+\[
+R_0=R_c=0,\qquad
+B_{\rm safe}<0,\qquad
+\widehat V<0\quad\text{on }Z_0,
+\]
+
+then the regularized Schiffer cutoffs and smooth bump correctors satisfy the
+regularity hypotheses of Proposition 4.1.  The \(Z_0\)-negativity prevents new
+positive components, and
+
+\[
+aX\,\delta L_{uv}=a\widehat V(u)+b\widehat V(v)=B_{\rm safe}<0.
+\]
+
+Thus the one-sided length derivative is negative and the candidate is not a
+minimizer.
+
+\[
+\boxed{
+\textbf{Gate 2 result: PASS.}
+}
+\]
+
+Hence the first-variation interface is closed, but the rank-defect conclusion
+still depends on Gate 1 supplying reduced LP feasibility:
+
+\[
+\boxed{
+\text{RawAugmentedCircuitSign}
+\Rightarrow
+\text{compact }g=2\text{ rank-defect chamber ruled out.}
+}
+\]
+
+Gate 3 is the boundary-routing proof obligation.  The
+compactification uses coefficient convergence of \(D,Q\), weak convergence of
+positive pole and endpoint atoms, \(L^1_{\rm loc}\) convergence of densities on
+non-colliding cut interiors, Hausdorff convergence of \(Z_0\), and local
+uniform convergence of potentials off the limiting support.  If none of the
+following failures occurs, all discriminants, resultants, residues, density
+signs, chart determinants, and anchor distances stay nonzero, so the point is
+still in the regular non-pinched \(g=2\) chart.  Hence the boundary modes are
+exhaustive:
+
+\[
+\begin{array}{c|c}
+\text{mode} & \text{route} \\ \hline
+\text{branch pinching} & \text{lower genus or endpoint atom} \\
+Q\text{-pole collision / multiple pole} & \text{merged atom or lower pole stratum} \\
+\text{density sign loss / residue zero} & \text{positivity boundary or atom deletion} \\
+\text{endpoint atom creation} & \text{corrected }g=1\text{ / one-cut face} \\
+Z_0\text{-collision or closure} & \text{active-set boundary / lower genus} \\
+c\text{ hitting a forbidden set} & \text{anchor singular boundary}
+\end{array}
+\]
+
+Branch pinching is handled by writing
+\(D_n=(z-\alpha_n)(z-\beta_n)\widetilde D_n\).  Away from the collision point,
+\(R_n/(z-\gamma)\to\widetilde R\).  The mass on the shrinking cut has weak
+limit \(m_\gamma\delta_\gamma\), \(m_\gamma\ge0\); if \(m_\gamma=0\) the genus
+drops, and if \(m_\gamma>0\) one gets the corrected endpoint-atom lower-genus
+problem.  Colliding \(Q\)-poles merge positive Stieltjes atoms; zero residues
+delete atoms; leaving the real interlacing class is density-sign loss.  A
+vanishing density either cancels a branch factor or makes the regular chart
+rank drop.  Endpoint atom creation is therefore already branch pinching or
+pole-endpoint collision.  If \(Z_0\) collides with a boundary, Gate 2 remains
+stable after regularization or a component pinches.  If \(c\) hits an endpoint,
+pole, atom, or active zero, the anchor rows are singular and the state is in
+the listed boundary/state-lift stratum.
+
+\[
+\boxed{
+\textbf{Gate 3 status: proof route identified, compactness proof still required.}\quad
+\text{The boundary cases are routed, but the compactness lemma is not yet
+proof-grade.}
+}
+\]
+
+To upgrade Gate 3 to PASS, the proof must still supply coefficient
+convergence, weak convergence of atoms, \(L^1_{\rm loc}\) density convergence,
+Hausdorff closure of active zero sets, local uniform convergence of potentials,
+and a check that endpoint atoms or pole collisions do not create a new
+counterexample stratum.  The remaining global gates are high-genus local-neck
+reduction, Lemma R, and the one-cut upper construction.
+
+Gate 4 gives the intended regular compact high-genus local-neck
+lemma.  For a regular non-pinched chamber with \(g\ge3\), let \(K\) be the
+actual KKT normal after the free-period quotient.  If \(K\) projected to zero
+on every adjacent two-cut block, overlapping adjacent blocks would force
+\(K=0\) on every cut, contradicting the nontrivial separating normal.
+Therefore some adjacent block has a nonzero normal projection:
+
+\[
+J_i\cup J_{i+1}
+= [\alpha_i,\beta_i]\cup[\alpha_{i+1},\beta_{i+1}].
+\]
+
+Freeze all rows outside this block.  The outside row matrix on smooth signed
+bumps supported in outside positive-density interiors is invertible by the
+regular chart hypothesis; if it is not, the full chart has dropped rank and
+Gate 3 applies.  The Schur complement corrector
+\[
+\widehat G_{\rm loc}=G_{\rm loc}-\Psi_{\rm out}R_{\rm out}(G_{\rm loc})
+\]
+kills all frozen rows and is supported away from the neck.  The remaining rows
+are precisely the \(g=2\) neck rows for endpoint columns
+\(\alpha_i,\beta_i,\alpha_{i+1},\beta_{i+1}\).
+
+The free-period quotient remains harmless in high genus: the filling variables
+\(\tau_1,\ldots,\tau_{g-1}\) force all period multipliers in an extended
+left-cokernel to vanish, so no independent pointwise sign-shifter is created.
+
+The intended local block has three outcomes:
+
+1. regular, giving the same positive-lineality/KKT-normal contradiction as the
+   regular \(g=2\) case;
+2. rank-defect non-pinched, giving the Gate 1 reduced LP and the Gate 2
+   first-variation descent;
+3. degenerate, routed by Gate 3 to lower genus, corrected \(g=1\), one-cut, or
+   an already excluded \(g=2\) case.
+
+\[
+\boxed{
+\textbf{Gate 4 status: proof route identified, global Schur complement proof
+still required.}\quad
+\text{The high-genus local-neck reduction is not yet proof-grade.}
+}
+\]
+
+To upgrade Gate 4 to PASS, the proof must show that freezing outside rows and
+using outside bump correctors gives a legitimate Schur complement whose local
+rows are exactly the \(g=2\) neck rows, with the non-local logarithmic-capacity
+tails fully accounted for.  If the Schur complement loses rank or changes
+orientation, the case must be routed to Gate 3 boundary/lower genus.  Thus,
+conditional on the Gate 1, Gate 3, and Gate 4 proof obligations, the
+high-genus chambers are reduced to the one-cut/lower-genus branch or the local
+\(g=2\) obstruction.
+
+Gate 5 is the non-regular minimizer regularization proof obligation.
+Let \(\mu\) be a compactified normalized minimizer with
+\(|E_\mu|<M_{\rm oc}\).  Split multiple poles, separate coincident endpoints,
+replace persistent zero residues by small positive residues, and add a small
+smooth positive density floor on active cuts, compensating the added mass from
+an existing positive atom or density interval.  The raw approximants converge
+weakly to \(\mu\), their potentials converge locally uniformly off the
+limiting support, and their Cauchy transforms converge in \(C^1\) near
+non-colliding boundaries; hence \(|E_{\mu_\epsilon^{raw}}|\to |E_\mu|\).
+
+If the finite row Jacobian is invertible, the implicit function theorem
+restores mass, filling, pole-state, active-zero, endpoint, and anchor rows by
+an \(O(\epsilon)\) correction.  Positivity and the strict inequality
+\(|E_{\mu_\epsilon}|<M_{\rm oc}\) persist, giving a regular finite-gap
+counterexample, contradicted by Gates 1--4.  If no invertible Jacobian exists,
+some regular-chart determinant tends to zero; by Gate 3 this is precisely
+branch pinching, pole collision, residue zero, density sign loss,
+\(Z_0\)-collision, or anchor singularity.
+
+The Proposition 4.1 inequalities are open under this approximation:
+\(C^1\) convergence preserves boundary derivatives, uniform convergence near
+\(Z_0\) preserves strict negativity, and the density floor preserves compact
+lower bounds.
+
+\[
+\boxed{
+\textbf{Gate 5 status: proof route identified, Lemma R still required.}\quad
+\text{The regularization and row-restoration argument is not yet proof-grade.}
+}
+\]
+
+To upgrade Gate 5 to PASS, the proof must still define the compactified
+finite-gap charts and row-restoration map, prove the needed IFT hypotheses,
+show positivity and strict length defect survive the correction, and prove that
+Jacobian degeneration is exactly a Gate 3 boundary/lower-genus collapse.
+
+Gate 6 defines the one-cut upper construction by equations.  For \(a\in(-1,1)\),
+set
+
+\[
+s(a)=\sqrt{2(1+a)},\qquad
+J(a)=\frac1\pi\int_a^1
+\frac{\log(1/(1-t))}
+{(t+1)\sqrt{(1-t)(t-a)}}\,dt,
+\]
+
+and choose
+
+\[
+A(a)=\frac{\log(4/(1-a))}{\log2+s(a)J(a)}.
+\]
+
+Then
+
+\[
+d\mu_a
+=A(a)\delta_{-1}
++
+\frac{x+1-A(a)s(a)}
+{\pi(x+1)\sqrt{(1-x)(x-a)}}\,\mathbf1_{[a,1]}(x)\,dx.
+\]
+
+The standard mass identity gives \(\mu_a(\mathbb R)=1\), and
+\(0<A(a)<\sqrt{(1+a)/2}\) gives positivity.  The admissible set is nonempty;
+for instance \(a=1/2\) gives
+\[
+A(1/2)=\frac{\log8}{\log(7+4\sqrt3)}<\frac{\sqrt3}{2}.
+\]
+With
+
+\[
+R_a(z)=\sqrt{(z-a)(z-1)},\qquad R_a(z)\sim z,\quad R_a(z)<0\ (z<a),
+\]
+
+the exterior derivative is
+
+\[
+U_a'(z)=
+-\frac{z+1-A(a)s(a)}{(z+1)R_a(z)}.
+\]
+
+This gives the monotonicity table on
+\((-\infty,-1)\), \((-1,A(a)s(a)-1)\), and \((A(a)s(a)-1,a)\).  Since
+\(A(a)<\sqrt{(1+a)/2}\), the middle minimum is strictly below zero, so there
+are exactly two exterior zeros
+\[
+x_L(a)<-1<x_R(a)<A(a)s(a)-1<a,
+\]
+and
+
+\[
+E_{\mu_a}=(x_L(a),x_R(a))
+\quad\text{up to endpoints}.
+\]
+
+Define
+
+\[
+M_{\rm oc}
+=\inf_a \bigl(x_R(a)-x_L(a)\bigr)
+\]
+
+over this exact admissible one-cut parameter set.  The decimal is only a
+numerical evaluation of these equations.  Every admissible \(a\) gives
+\(|E_{\mu_a}|=x_R(a)-x_L(a)\), so an infimizing sequence gives
+
+\[
+\boxed{
+\textbf{Gate 6 result: PROOF-GRADE PASS.}\quad
+L_-\le M_{\rm oc}.
+}
+\]
+
+The remaining step is final theorem assembly, but it is conditional until Gate
+1, Gate 3, Gate 4, and Gate 5 are upgraded to proof-grade lemmas.
+
+Gate 7 assembles the conditional theorem.  If the remaining proof obligations
+are closed, Gates 1--5 imply the lower bound: any normalized minimizer with
+\(|E_\mu|<M_{\rm oc}\) either regularizes to a regular finite-gap
+counterexample, excluded by Gates 1--4, or collapses to a Gate 3
+boundary/lower-genus branch.  The only surviving branch is the one-cut branch,
+and \(M_{\rm oc}\) is defined as its exact infimum.  Under those conditional
+inputs,
+
+\[
+L_-\ge M_{\rm oc}.
+\]
+
+Gate 6 gives the admissible one-cut construction with length \(M_{\rm oc}\),
+so
+
+\[
+L_-\le M_{\rm oc}.
+\]
+
+Therefore
+
+\[
+\boxed{
+\textbf{Gate 7 assembly: CONDITIONAL.}\quad
+\text{If the remaining proof obligations are closed, then }L_- = M_{\rm oc}.
+}
+\]
+
+Again, \(M_{\rm oc}\) is defined by the one-cut equations, not by the decimal.
+
+## 8. Forum Positioning
+
+Separate the two messages:
+
+1. Finite-certificate progress:
+
+   > Conditional on the standard normalized minimizer reduction, a
+   > required-domain 560-block five-atom certificate gives
+   > \(L_-\ge1.814600\).
+
+2. Exact route:
+
+   > The corrected endpoint-atom two-interval finite-gap route supports the
+   > current one-cut candidate / provisional upper candidate, with the exact
+   > value still defined by the one-cut equations rather than by the decimal.
+
+Do not write "Erdős 1038 solved."  Do not merge the \(1.814600\) finite
+certificate with the exact-value claim.
