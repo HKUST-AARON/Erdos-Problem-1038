@@ -8625,9 +8625,153 @@ theorem queue.
     \(\eta=0\).  Degenerate determinants again reduce to smaller support
     circuits or to the pinching/positivity-boundary routing.
 
-    The remaining, still unproved, part is not definitional: one must prove the
-    raw augmented positive-circuit signs, equivalently (C4),(C5) for the
-    corrected columns.
+    Raw augmented circuit sign proof checkpoint.
+
+    The determinant sign theorem needed here is the following statement.
+
+    \[
+    \boxed{\textbf{RawAugmentedCircuitSign}}
+    \]
+
+    For every finite family \(x_k\in Z_0\), weights \(w_k>0\),
+    \(\eta\ge0\), and arbitrary real \(\lambda\), if
+
+    \[
+    \eta b+\sum_k w_kV_S(x_k)-\lambda\rho_S=0,
+    \tag{RAC}
+    \]
+
+    then
+
+    \[
+    \boxed{
+    \eta b_\Pi+\sum_k w_kV_\Pi(x_k)-\lambda\rho_\Pi<0.
+    }
+    \tag{RAS}
+    \]
+
+    This is stronger than the corrected circuit sign test because every
+    corrected circuit produces a real number
+    \(\lambda=\sum_k w_kA_c(x_k)\).  Hence
+    `RawAugmentedCircuitSign` would remove the arbitrary equality-correction
+    potential \(A_c\) from the proof.
+
+    In raw variables the relevant extended family is
+
+    \[
+    \mathcal T
+    =
+    \left(
+    V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2},-\rho
+    \right),
+    \qquad
+    \text{lift }V_\Pi.
+    \tag{Traw}
+    \]
+
+    Thus the desired sign theorem is an extended Chebyshev/oriented-circuit
+    statement: every positive circuit in the first four coordinates of
+    \(\mathcal T\), with the fifth direction \(-\rho\) allowed with arbitrary
+    signed coefficient \(\lambda\), has negative \(V_\Pi\)-lift.
+
+    The determinant forms are as follows.
+
+    * If \(\eta>0\), normalize \(\eta=1\).  For a minimal support
+      \(X=(x_1,\ldots,x_N)\subset Z_0\), the raw relation is
+
+      \[
+      [\,V_S(x_1)\ \cdots\ V_S(x_N)\ -\rho_S\,]
+      \binom{w}{\lambda}
+      =
+      -b,
+      \qquad
+      w_i>0.
+      \tag{RAC4}
+      \]
+
+      Since the signed \(\rho_S\)-column is present, the minimal-support
+      determinant cases are not identical to the corrected four-point test:
+      when \(N=3\) and the displayed \(4\times4\) matrix is invertible, the
+      coefficients are forced; when \(N=4\), there is a one-dimensional affine
+      family and only its positive circuit endpoints need be checked.  The
+      required lifted sign is
+
+      \[
+      b_\Pi+\sum_{i=1}^{N}w_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
+      \tag{RAC4lift}
+      \]
+
+    * If \(\eta=0\), the raw relation is
+
+      \[
+      [\,V_S(x_1)\ \cdots\ V_S(x_N)\ -\rho_S\,]
+      \binom{w}{\lambda}
+      =
+      0,
+      \qquad
+      w_i>0,
+      \tag{RAC5}
+      \]
+
+      with minimal support \(N\le5\).  The required lifted sign is
+
+      \[
+      \sum_{i=1}^{N}w_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
+      \tag{RAC5lift}
+      \]
+
+      Degenerate determinants either reduce to smaller support circuits or
+      route to pinching / positivity-boundary / lower-genus degeneration.
+
+    Differentiating these determinants gives the correct analytic target.
+    For every seed \(j\),
+
+    \[
+    V_j'(x)=-C_j(x),
+    \qquad
+    C_\Pi(x)=\frac{\kappa}{R(x)},\qquad
+    C_\gamma(x)=\frac{H_\gamma(x)}{Q(x)^2R(x)}.
+    \tag{Cseed}
+    \]
+
+    After multiplication by the common denominator \(Q(x)^2R(x)\), the
+    differentiated endpoint columns are the fixed-\(Q\) Hermite-normalized
+    numerators \(H_\gamma\), while the period column is \(\kappa Q^2\).  A
+    successful sign proof must therefore establish a two-cut strict
+    Chebyshev/variation-diminishing theorem for these integrated Schiffer
+    potentials together with the constant equality row \(-\rho\).
+
+    The existing six-kernel determinant in Section 9.10 does not prove this
+    theorem.  It proves the oriented strict Chebyshev property for the local
+    jet kernels
+
+    \[
+    1,\quad (x-u)^{-1},\quad (x-c)^{-1},\quad (x-v)^{-1},\quad L_-,\quad L_+,
+    \]
+
+    but the raw augmented family \(\mathcal T\) consists of integrated
+    fixed-\(Q\) Schiffer potentials and the equality row \(\rho_j=-C_j(c)\).
+    The differentiation step reduces the problem to rational/Cauchy columns,
+    but no signed determinant identity has yet been proved for the
+    Hermite-corrected numerators \(H_\gamma\) and the period numerator
+    \(\kappa Q^2\).  Consequently the rank-defect proof remains incomplete until
+    `RawAugmentedCircuitSign` is proved.
+
+    Therefore the current honest conclusion is:
+
+    \[
+    \boxed{
+    \text{RawAugmentedCircuitSign}
+    \Rightarrow
+    \text{reduced LP feasible}
+    \Rightarrow
+    \text{rank-defect compact }g=2\text{ excluded.}
+    }
+    \]
+
+    If this sign theorem fails, the displayed raw augmented circuit is the
+    precise obstruction; one must not replace it by the conditional PV equation
+    or claim \(L_-=M_*\) has been proved.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
