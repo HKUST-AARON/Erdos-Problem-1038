@@ -9984,6 +9984,35 @@ theorem tao_endpoint_data_provider_ennreal_standard_reduction_and_baseline_lengt
     ⟨hEndpointFromVariation⟩
   exact ⟨hEndpoint.toStandardMinimizerReduction, hEndpoint.exists_baseline_length⟩
 
+def tao_endpoint_from_component_variation_package_ennreal
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackage :
+      ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+        TaoVariationComponentPackage (Potential (normalize a))) :
+    ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+      TaoEndpointNormalizationData (Potential (normalize a)) :=
+  fun a ha => (hPackage a ha).toTaoEndpointNormalizationData
+
+theorem tao_component_variation_package_standard_reduction_and_baseline_length_ennreal
+    {α Normalized : Type} [TopologicalSpace α]
+    {P : SecondarySelectorProblemENNReal α}
+    {normalize : α → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hPackage :
+      ∀ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a →
+        TaoVariationComponentPackage (Potential (normalize a))) :
+    ∃ _hReduction : StandardMinimizerReduction α
+        (fun a => IsSecondaryMinimizingPrimaryMinimizerENNReal P a)
+        (fun a => Potential (normalize a)),
+      ∃ a : α, IsSecondaryMinimizingPrimaryMinimizerENNReal P a ∧
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize a))) := by
+  exact tao_endpoint_data_provider_ennreal_standard_reduction_and_baseline_length
+    (tao_endpoint_from_component_variation_package_ennreal hPackage)
+
 /--
 Specialization to the truncated-sup selector.  Once a secondary minimizer for
 the truncated-sup objective is available and the replacement-rigidity hypotheses
