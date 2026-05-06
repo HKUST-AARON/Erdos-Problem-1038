@@ -10030,6 +10030,49 @@ theorem componentReplacementProbability_positiveSetObjective_le
   exact componentReplacementProbability_positiveSetObjective_le_of_barycenter_mem_Icc
     R hε (componentBarycenter_mem_Icc R)
 
+theorem componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hlog_replacement :
+      ∀ x : ℝ,
+        x ∉ diagonalAtomSet
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) →
+        Integrable
+          (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+          ((componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R)) : Measure UnitInterval1038)))
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R))) ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability C
+          (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)))
+        ≤ unitIntervalPositiveSetObjective
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R))) :=
+          unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
+            (componentReplacementProbability C
+              (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+                (componentBarycenter_mem_Icc R)))
+            hlog_replacement
+    _ ≤ unitIntervalPositiveSetObjective μ := by
+          simpa [unitIntervalPositiveSetObjective] using
+            componentReplacementProbability_positiveSetObjective_le R hε
+    _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+          horiginal_positive_le_truncated
+
 /-!
 ## Finite variance drop under barycenter replacement
 
@@ -13145,6 +13188,93 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       hprimary_replacement, hunique⟩
   let hbary := componentBarycenter_mem_Icc R
   exact ⟨mean_choice, reflected, translation, C, R, hbary,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
+
+/--
+Objective-comparison version of the component-replacement endpoint consequence.
+
+This removes the direct truncated replacement-nonincreasing input from the
+provider.  The replacement truncated objective is derived from:
+
+* off-diagonal log-kernel integrability for the replacement probability, which
+  gives `replacement truncated ≤ replacement ordinary`;
+* the small-exception/Jensen replacement theorem, which gives
+  `replacement ordinary ≤ original ordinary`;
+* the explicit comparison `original ordinary ≤ original truncated`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_objective_comparison_data
+    (hComponentReplacementObjectiveDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        let hmass_unit :=
+          componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+            (componentBarycenter_mem_Icc R)
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ x : ℝ,
+            x ∉ diagonalAtomSet (componentReplacementProbability C hmass_unit) →
+            Integrable
+              (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+              ((componentReplacementProbability C hmass_unit :
+                Measure UnitInterval1038))) ∧
+          unitIntervalPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentReplacementObjectiveDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hlog_replacement, horiginal_positive_le_truncated, hunique⟩
+  let hbary := componentBarycenter_mem_Icc R
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    componentReplacementProbability_truncatedObjective_le_of_objective_comparisons
+      R (by positivity : (0 : ℝ) < 1) hlog_replacement
+      horiginal_positive_le_truncated
+  exact ⟨mean_choice, reflected, translation, C, R,
     xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
     hprimary_replacement, hunique⟩
 
