@@ -3052,6 +3052,58 @@ theorem unitIntervalLogPotential_original_potential_decomposition_lower
     (houtside_integrable x hx) (hblock_integrable x hx)]
   exact add_le_add (houtside_le x hx) (hblock_le x hx)
 
+theorem unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp : realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p)
+    (hp_nonneg : 0 ≤ p)
+    (hrem_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      p * Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|)
+          ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) ≤
+        unitIntervalLogPotential μ x := by
+  intro x hx
+  let f : ℝ → ℝ := fun t => Real.log (1 / |x - t|)
+  have hsplit :
+      (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ +
+          (realMeasure μ).restrict ({-1} : Set ℝ) =
+        realMeasure μ := by
+    exact Measure.restrict_compl_add_restrict (measurableSet_singleton (-1 : ℝ))
+  have hendpoint_integrable :
+      Integrable f ((realMeasure μ).restrict ({-1} : Set ℝ)) := by
+    rw [Measure.restrict_singleton]
+    exact (integrable_dirac (by simp [f])).smul_measure (measure_ne_top _ _)
+  have hendpoint_eq :
+      (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)) =
+        p * Real.log (1 / |x + 1|) := by
+    rw [Measure.restrict_singleton]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    rw [hp]
+    simp [f, smul_eq_mul, ENNReal.toReal_ofReal hp_nonneg]
+  have hEq :
+      unitIntervalLogPotential μ x =
+        (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+          p * Real.log (1 / |x + 1|) := by
+    calc
+      unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
+        exact unitIntervalLogPotential_eq_realMeasure μ x
+      _ = measureLogPotential
+          ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ +
+            (realMeasure μ).restrict ({-1} : Set ℝ)) x := by
+        rw [hsplit]
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+            (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)) := by
+        unfold measureLogPotential
+        exact integral_add_measure (hrem_integrable x hx) hendpoint_integrable
+      _ = (∫ t : ℝ, f t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) +
+            p * Real.log (1 / |x + 1|) := by
+        rw [hendpoint_eq]
+  rw [hEq]
+  linarith
+
 theorem componentReplacement_potential_le_outside_add_replacementAtom
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (outsidePart : ℝ → ℝ)
