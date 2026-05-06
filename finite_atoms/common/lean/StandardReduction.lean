@@ -1967,6 +1967,17 @@ theorem realMeasure_endpointRemainder_mass
     simpa using (ENNReal.ofReal_sub (1 : ℝ) hp_nonneg_left)
   rw [hsub, ← hofReal]
 
+theorem realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
+    (μ : ProbabilityMeasure UnitInterval1038) {p : ℝ}
+    (hp :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} = ENNReal.ofReal p) :
+    realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal p := by
+  rw [realMeasure]
+  rw [Measure.map_apply continuous_subtype_val.measurable
+    (measurableSet_singleton (-1 : ℝ))]
+  simpa [Set.preimage, Set.mem_singleton_iff] using hp
+
 /-- Real points carrying positive mass for the pushed-forward unit-interval measure. -/
 def diagonalAtomSet (μ : ProbabilityMeasure UnitInterval1038) : Set ℝ :=
   {x : ℝ | 0 < (μ : Measure UnitInterval1038) {t : UnitInterval1038 | (t : ℝ) = x}}
