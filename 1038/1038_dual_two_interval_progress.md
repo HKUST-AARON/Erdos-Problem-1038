@@ -9408,6 +9408,81 @@ theorem queue.
     \tag{Gate1Conditional}
     \]
 
+    Gate 1 no-go at the current level of hypotheses.
+
+    The current hypotheses cannot be massaged into a proof of
+    SchurBlockTotalPositivityLemma.  This is not just a missing paragraph; it
+    is an algebraic underdetermination.
+
+    The data currently proved for the repaired moving chart are:
+
+    1. the endpoint columns are not collapsed modulo the period column;
+    2. the normalization matrix \(A\) is invertible in the regular chart;
+    3. the repaired columns are Schur-complement columns
+       \(H_\gamma^{\rm rep}=H_\gamma^{\rm raw}-BA^{-1}r_\gamma\);
+    4. the real \(Q\)-poles are separated/interlaced in a positive regular
+       chart.
+
+    None of these data determines the sign of an augmented positive circuit.
+    A finite-dimensional model already shows the gap.  Let
+
+    \[
+    F(x_i)=e_i\in\mathbb R^4,\qquad b=-(1,1,1,1),\qquad
+    \rho=0.
+    \]
+
+    Then
+
+    \[
+    b+\sum_{i=1}^4F(x_i)=0
+    \]
+
+    is a positive circuit and the endpoint block has full rank.  If the lifted
+    values are
+
+    \[
+    \tau_*=1,\qquad \tau(x_i)=0,
+    \]
+
+    the lifted value is \(+1\).  If instead \(\tau_*=-1\), the same endpoint
+    rank data gives lifted value \(-1\).  Thus rank and Schur-complement
+    invertibility do not determine the sign.
+
+    The same issue appears in determinant language.  The identity
+    (Gate1BlockDet) is valid for every invertible \(A\).  But unless the rows
+    \(\ell_r\), the pole-state gauge, and the evaluation rows are proved to be
+    an ordered total-positive Cauchy/confluent Cauchy system with positive
+    transition factors, the numerator determinant in (Gate1BlockDet) can have
+    either sign under orientation-preserving changes of the unreduced row
+    model.  The convention \(\det A>0\) fixes a basis orientation; it does not
+    sign all augmented Schur minors.
+
+    Therefore Gate 1 cannot be completed from the present assumptions.  The
+    exact theorem still needed is stronger and more concrete:
+
+    \[
+    \boxed{
+    \begin{gathered}
+    \det
+    \begin{pmatrix}
+    A&r_\Gamma\\
+    LB&L(H_\Gamma^{\rm raw})
+    \end{pmatrix}
+    =
+    (\text{positive factors})
+    \cdot
+    (\text{explicit ordered Cauchy/Vandermonde product}),\\
+    \text{with the product sign fixed for every admissible raw augmented
+    circuit.}
+    \end{gathered}
+    }
+    \tag{Gate1NeededTheorem}
+    \]
+
+    Until (Gate1NeededTheorem) is proved from an explicit moving Schiffer chart,
+    the strongest honest Gate 1 result is the reduction to the raw augmented
+    circuit obstruction, not rank-defect exclusion.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

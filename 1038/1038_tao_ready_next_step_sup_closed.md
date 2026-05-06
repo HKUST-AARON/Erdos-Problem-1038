@@ -3281,6 +3281,38 @@ minor.
 }
 \]
 
+This is a genuine obstruction, not just a missing citation.  The repaired
+moving chart currently proves noncollapse and invertibility, but those are rank
+statements.  A positive-circuit sign is a strictly stronger oriented-cone
+statement.  In the finite-dimensional model
+
+\[
+F(x_i)=e_i,\qquad b=-(1,1,1,1),
+\]
+
+the endpoint block is full rank and \(b+\sum_iF(x_i)=0\) is a positive
+circuit; changing only the lifted scalar \(\tau_*\) flips the lifted sign.
+Therefore rank, Schur-complement form, and \(\det A>0\) do not determine
+`RawAugmentedCircuitSign`.
+
+The precise theorem still needed is an explicit block determinant formula
+
+\[
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}
+=
+(\text{positive factors})
+\cdot
+(\text{ordered Cauchy/Vandermonde product})
+\]
+
+with the product sign fixed for every admissible raw augmented circuit.  Until
+that theorem is proved from an explicit moving Schiffer chart, Gate 1 remains
+blocked and rank-defect \(g=2\) is not excluded.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
