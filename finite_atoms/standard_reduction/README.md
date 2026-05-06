@@ -194,16 +194,28 @@ obligations from compact support and endpoint separation:
 boundary_average_of_boundary_potential_nonpos_auto_integrable
 boundary_average_of_component_right_cover_auto_integrable
 CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover
+CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region
 ```
 
-The public constructor
+The constructor
+`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region`
+is the direct maximal-component-facing entry point.  It consumes the
+right-region identity
+
+```lean
+component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus
+```
+
+and derives both component positivity and right-cover from it.  The lower-level
+constructor
 `CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover`
-is the intended entry point.  It no longer asks callers to separately provide
+remains available when a proof already has the cover statement directly.  These
+constructors no longer ask callers to separately provide
 integrability of `|xPlus - t|`, `Real.log |xPlus - t|`, the endpoint-remainder
 distance integral, the boundary-average inequality, or the baseline kernel
 integrability.  The remaining analytic inputs are the genuine ones:
 `∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|`, local continuity at the endpoint, and
-maximal-component coverage.
+the right-region component identity.
 
 At the relaxed-minimizer interface, the same file defines
 

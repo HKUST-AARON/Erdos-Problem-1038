@@ -252,6 +252,39 @@ theorem no_right_positive_of_component_right_cover
   exact not_lt_of_ge (le_of_lt hy) hycomp.2
 
 /--
+Right-region component equality supplies the right-cover property.
+
+This is the minimal topological interface for the later maximal-component
+selection step: once the chosen component is identified with all positive
+points to the right of `xMinus`, the right-cover hypothesis used by the
+endpoint package is automatic.
+-/
+private theorem right_cover_of_component_eq_positiveSet_inter_Ioi
+    {U : ℝ → ℝ} {component : Set ℝ} {xMinus xPlus : ℝ}
+    (right_region_eq :
+      component = PositiveSet U ∩ Ioi xMinus)
+    (component_interval : component = Ioo xMinus xPlus) :
+    ∀ y : ℝ, xMinus < y → y ∈ PositiveSet U → y ∈ Ioo xMinus xPlus := by
+  intro y hy hpos
+  have hycomponent : y ∈ component := by
+    rw [right_region_eq]
+    exact ⟨hpos, hy⟩
+  simpa [component_interval] using hycomponent
+
+/--
+Right-region component equality also supplies positivity on the chosen
+component.
+-/
+private theorem component_positive_of_component_eq_positiveSet_inter_Ioi
+    {U : ℝ → ℝ} {component : Set ℝ} {xMinus : ℝ}
+    (right_region_eq :
+      component = PositiveSet U ∩ Ioi xMinus) :
+    component ⊆ PositiveSet U := by
+  intro y hy
+  rw [right_region_eq] at hy
+  exact hy.1
+
+/--
 The full component-order information gives the sharper normalized support
 shape used in Tao's endpoint-mass boundary estimate: after normalization, every
 selected support point is either the endpoint atom `-1` or lies to the right of
@@ -1315,6 +1348,46 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cove
     support_bounded unique_support_in_component right_endpoint_positive
     hboundary support_contains_real_support
     (endpointRemainder_kernel_integrable_of_normalized_support μ hsupport_norm)
+
+/--
+Canonical unit-potential package from a right-region component equality.
+
+This is the preferred maximal-component-facing constructor.  Instead of asking
+separately for component positivity and right-cover, it consumes the sharper
+statement that the selected component is exactly the positive set to the right
+of `xMinus`.
+-/
+def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (right_region_eq :
+      component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) :=
+  CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover μ
+    mean_choice reflected translation component Support xMinus xPlus ε
+    (component_positive_of_component_eq_positiveSet_inter_Ioi right_region_eq)
+    component_interval baseline_inside_component support_bounded
+    unique_support_in_component right_endpoint_positive hcont
+    (right_cover_of_component_eq_positiveSet_inter_Ioi right_region_eq
+      component_interval)
+    support_contains_real_support hε hdist_lower
 
 /--
 Canonical component-package form of the variation input for relaxed
