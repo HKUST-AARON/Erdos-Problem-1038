@@ -12164,6 +12164,88 @@ theorem queue.
     Without one of these two chart-specific sign proofs, writing
     "Gate 1 PASS" would be a logical error.
 
+    First-order quotient obstruction.
+
+    There is an even sharper obstruction to closing Gate 1 by a purely
+    first-order endpoint-period determinant.  It comes from the moving-column
+    algebra already proved above.
+
+    Let
+
+    \[
+    \mathcal I_{\rm mov}=D\mathbb R[z]_{\le 2d-3}
+    \]
+
+    be the moving correction image and set
+
+    \[
+    E_\gamma=PQD_\gamma.
+    \]
+
+    In the quotient
+
+    \[
+    \mathcal Q_{\rm ep}
+    =
+    \mathbb R[z]_{\le 2d+1}/\mathcal I_{\rm mov},
+    \]
+
+    the endpoint classes \([E_\gamma]\) form the branch-endpoint interpolation
+    basis.  Indeed, evaluation at the four branch endpoints gives
+
+    \[
+    E_\gamma(\delta)=0\quad(\delta\ne\gamma),
+    \qquad
+    E_\gamma(\gamma)=P(\gamma)Q(\gamma)D_\gamma(\gamma)\ne0.
+    \]
+
+    Hence every class in \(\mathcal Q_{\rm ep}\) is represented by its four
+    endpoint values.  In particular,
+
+    \[
+    \boxed{
+    [Q^2]
+    =
+    \sum_\gamma
+    \frac{Q(\gamma)}
+    {P(\gamma)D_\gamma(\gamma)}
+    [E_\gamma].
+    }
+    \tag{G1PeriodInEndpointQuotient}
+    \]
+
+    This identity is independent of the choice of basis in the moving
+    correction image.  It says that the period lift is not a new separated
+    first-order column in the endpoint interpolation quotient; it is already a
+    linear combination of the endpoint Schiffer classes.
+
+    Therefore a strict first-order lifted orientation cannot be obtained from
+    quotient rank or Schur-complement algebra alone.  Any strict margin in
+    (G1AffineMarginTarget) must use information outside this quotient:
+
+    - the actual non-quotient evaluation/contact pattern of \(G_\theta\) on
+      \(Z_0\);
+    - a signed determinant/product formula for the fully repaired
+      \(P_\theta\)-alternation system;
+    - or second-variation data beyond the first-order endpoint-period
+      quotient.
+
+    Thus the present hard mouth is resolved negatively at the level of
+    first-order quotient algebra:
+
+    \[
+    \boxed{
+    \text{first-order endpoint-period quotient data alone cannot close Gate 1.}
+    }
+    \tag{G1NoFirstOrderQuotientClosure}
+    \]
+
+    The remaining possible completions are precisely the two non-quotient
+    alternatives above: a genuine MovingSchifferMajorantSignTheorem using the
+    full \(Z_0\)-alternation/contact structure, or a second-variation theorem
+    that handles the rank-defect fallback without relying on strict
+    first-order lift orientation.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

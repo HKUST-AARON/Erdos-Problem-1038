@@ -4334,6 +4334,24 @@ and the actual moving-chart system \(AX_\gamma=-r_\gamma\), either through an
 explicit signed determinant/product formula for the \(P_\theta\)-alternation
 system or through a direct solution of the two-cut extremal majorant problem.
 
+There is now also a structural no-go for closing Gate 1 by quotient rank alone.
+In the moving correction quotient
+\[
+\mathbb R[z]_{\le 2d+1}/D\mathbb R[z]_{\le 2d-3},
+\]
+the raw endpoint classes \(E_\gamma=PQD_\gamma\) form the endpoint
+interpolation basis, and
+\[
+[Q^2]=
+\sum_\gamma
+\frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}[E_\gamma].
+\]
+So the period lift is already in the endpoint span modulo moving corrections.
+Any strict first-order margin must therefore use the actual \(Z_0\)
+contact/alternation structure of \(P_\theta\), not merely rank,
+Schur-complement algebra, or the endpoint quotient.  If that sign theorem is
+not proved, the route must switch to genuinely second-order data.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
