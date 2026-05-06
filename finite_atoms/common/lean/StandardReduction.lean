@@ -3371,6 +3371,57 @@ def componentReplacementMeasure
   (realMeasure μ).restrict C.intervalᶜ +
     componentMass C • Measure.dirac (componentBarycenter C)
 
+theorem componentReplacementMeasure_univ
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
+    componentReplacementMeasure C Set.univ = 1 := by
+  have hsplit :
+      ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+          ((realMeasure μ).restrict C.interval) Set.univ =
+        (realMeasure μ) Set.univ := by
+    have h :=
+      congrArg (fun m : Measure ℝ => m Set.univ)
+        (Measure.restrict_compl_add_restrict
+          (μ := realMeasure μ) C.measurableSet_interval)
+    simpa using h
+  calc
+    componentReplacementMeasure C Set.univ
+        = ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+            componentMass C := by
+              simp [componentReplacementMeasure]
+    _ = ((realMeasure μ).restrict C.intervalᶜ) Set.univ +
+            ((realMeasure μ).restrict C.interval) Set.univ := by
+              simp [componentMass]
+    _ = (realMeasure μ) Set.univ := hsplit
+    _ = 1 := by
+      rw [realMeasure]
+      rw [Measure.map_apply continuous_subtype_val.measurable MeasurableSet.univ]
+      simp
+
+theorem componentReplacementMeasure_ae_mem_Icc_of_mass_unit
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1) :
+    ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 := by
+  rw [ae_iff]
+  have hcompl :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) +
+          componentReplacementMeasure C (Icc (-1 : ℝ) 1) =
+        componentReplacementMeasure C Set.univ := by
+    rw [← measure_union_add_inter
+      (μ := componentReplacementMeasure C)
+      (s := (Icc (-1 : ℝ) 1)ᶜ) (t := Icc (-1 : ℝ) 1)]
+    · simp
+    · exact (measurableSet_Icc : MeasurableSet (Icc (-1 : ℝ) 1))
+  have hsum :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) + 1 = 1 := by
+    simpa [hmass_unit, componentReplacementMeasure_univ C] using hcompl
+  have hle :
+      componentReplacementMeasure C ((Icc (-1 : ℝ) 1)ᶜ) + 1 ≤
+        (0 : ℝ≥0∞) + 1 := by
+    simpa [hsum]
+  exact bot_unique ((ENNReal.add_le_add_iff_right
+    (by simp : (1 : ℝ≥0∞) ≠ ∞)).mp hle)
+
 /--
 Subtype probability measure obtained from the real replacement measure once its
 mass on the normalized interval is known to be one.
@@ -12688,6 +12739,72 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   refine ⟨mean_choice, reflected, translation, C, R, xMinus, xPlus,
     hcomponent_interval, hbaseline, hright, hboundary, hsecondMoment_eq,
     hunique⟩
+
+/--
+Mass-only replacement-rigidity version of the endpoint consequence.
+
+This removes the replacement-support a.e. input from the variation provider.
+Once the real replacement measure has mass `1` on `[-1,1]`, the a.e. support
+fact is derived internally from `componentReplacementMeasure_univ`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_mass_data
+    (hReplacementMassDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ _ : ComponentReplacement μ C,
+        ∃ hmass_unit : componentReplacementMeasure C (Set.Icc (-1 : ℝ) 1) = 1,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          unitIntervalTruncatedPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) ≤
+            unitIntervalTruncatedPositiveSetObjective μ ∧
+          (∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_replacement_rigidity_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hReplacementMassDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+      xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+      hprimary_replacement, hunique⟩
+  exact ⟨mean_choice, reflected, translation, C, R, hmass_unit,
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit,
+    xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
+    hprimary_replacement, hunique⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
