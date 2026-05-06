@@ -8824,6 +8824,44 @@ def taoVariationComponentPackage_of_component_replacement_data
     unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
       μ hendpoint_mass hendpoint_mass_nonneg hkernel_integrable
 
+def taoVariationComponentPackage_of_realSupport_component_atomization_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hsupport_bounded : (realMeasure μ).support ⊆ Icc (-1 : ℝ) 1)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_component_replacement_data
+    μ mean_choice reflected translation C (realMeasure μ).support
+    endpointMass xMinus xPlus hcomponent_interval hbaseline hsupport_bounded
+    (realMeasure_ae_mem_support μ)
+    (realMeasure_support_open_neighborhood_pos μ)
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized)
+    hright_endpoint_positive hboundary_average
+    (realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
+      μ hunit_endpoint_mass)
+    hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
