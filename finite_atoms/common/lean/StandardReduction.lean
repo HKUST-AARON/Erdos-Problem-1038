@@ -9846,6 +9846,32 @@ theorem componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
       C hmass_unit hsupport]
   exact componentBlock_secondMoment_eq_of_replacement_secondMoment_eq hreal
 
+/--
+Scaled component-block second-moment equality is equivalent to equality in the
+normalized probability block's variance inequality.
+-/
+theorem normalizedComponentBlock_secondMoment_eq_barycenter_sq_of_componentBlock_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C) :
+    (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+      (componentBarycenter C) ^ 2 := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  have hnorm :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm, ← heq]
+  rw [ENNReal.toReal_inv]
+  field_simp [hmass_toReal_pos.ne']
+
 theorem measure_barycenter_second_moment_eq_imp_ae_eq_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
     (hfirst : Integrable (fun t : ℝ => t) μ)
@@ -10392,6 +10418,41 @@ theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
   exact measure_eq_dirac_of_ae_eq_const μ (∫ t : ℝ, t ∂μ)
     (measure_barycenter_second_moment_eq_imp_ae_eq_mean μ
       hfirst hsecond heq)
+
+/--
+Variance rigidity for the normalized component block: equality in the
+second-moment drop forces the normalized block to be a Dirac mass at its
+barycenter.
+-/
+theorem normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_secondMoment_eq
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (heq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C) :
+    normalizedComponentBlock C = Measure.dirac (componentBarycenter C) := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  have hfirst :
+      Integrable (fun t : ℝ => t) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_firstMoment_integrable_of_componentBlock
+      (componentBlock_firstMoment_integrable C)
+  have hsecond :
+      Integrable (fun t : ℝ => t ^ 2) (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_secondMoment_integrable_of_componentBlock
+      (componentBlock_secondMoment_integrable C)
+  have hmean :
+      (∫ t : ℝ, t ∂normalizedComponentBlock C) = componentBarycenter C :=
+    normalizedComponentBlock_integral_eq_barycenter R
+  have hvar :
+      (∫ t : ℝ, t ^ 2 ∂normalizedComponentBlock C) =
+        (∫ t : ℝ, t ∂normalizedComponentBlock C) ^ 2 := by
+    rw [hmean]
+    exact normalizedComponentBlock_secondMoment_eq_barycenter_sq_of_componentBlock_eq
+      R heq
+  simpa [hmean] using
+    measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
+      (normalizedComponentBlock C) hfirst hsecond hvar
 
 /-!
 ## Coupling the variance selector to barycenter rigidity
