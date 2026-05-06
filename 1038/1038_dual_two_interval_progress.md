@@ -3900,38 +3900,116 @@ The next useful lemma is:
 \boxed{\textbf{Lemma Log-Energy Positive Kernel and Minimal Row Lift.}}
 \]
 
-Prove
+The sign convention is correct.  For compactly supported finite-energy
+zero-mass signed measures,
+
+\[
+\widehat{-\log|x|}(t)=\frac{\pi}{|t|}+c\delta_0,
+\]
+
+and the \(\delta_0\) term disappears because \(\widehat\mu(0)=0\).  Hence
+
+\[
+\mathcal E_{\log}(\mu,\mu)
+=\frac12\int_{\mathbb R}\frac{|\widehat\mu(t)|^2}{|t|}\,dt.
+\]
+
+Therefore
 
 \[
 \mathcal E_{\log}(w,w)>0
 \qquad (0\ne w\in W),
 \]
 
-and, for every actual row vector
+provided \(w\) has zero total mass and finite logarithmic energy.
+
+The row map used for the non-log part must be enlarged.  The current rows
+\(R_-,R_+\) are differences:
 
 \[
-r\in V=\rho(\mathcal X_\Pi),
+R_-=\delta W(c)-\delta W(u),\qquad
+R_+=\delta W(v)-\delta W(c).
 \]
 
-construct an \(\mathcal E_{\log}\)-minimal lift \(Sr\in\mathcal X_\Pi\)
-satisfying
+The state lift needs \(\delta W(u)\) and \(\delta W(v)\).  These are determined
+only after adding the common anchor
 
 \[
-\rho(Sr)=r,\qquad
-\mathcal E_{\log}(Sr,w)=0\quad\forall w\in W.
+R_{\log c}(\xi)=\delta W_\xi(c)
+=\int_J\log\frac1{|c-x|}\,d\xi(x).
 \]
+
+Therefore replace \(\rho\) by
+
+\[
+\boxed{
+\rho^\sharp=(R_0,R_u,R_c,R_v,R_-,R_+,R_{\log c},\Pi).
+}
+\]
+
+Then
+
+\[
+\delta E_-=R_{\log c}-R_-,
+\qquad
+\delta E_+=R_{\log c}+R_+,
+\]
+
+\[
+\delta M=R_0,\qquad
+\delta F(c)=-R_c,\qquad
+\delta S=aR_u+bR_v.
+\]
+
+No higher derivative rows are needed in the fixed-chart branch-parametrized
+Schur calculation.
+
+Let
+
+\[
+W^\sharp=\ker(\rho^\sharp|_{\mathcal X_\Pi}).
+\]
+
+For every actual row vector
+
+\[
+r\in V^\sharp=\rho^\sharp(\mathcal X_\Pi),
+\]
+
+construct an \(\mathcal E_{\log}\)-minimal lift \(Sr\) in the energy
+completion of \(\mathcal X_\Pi\), satisfying
+
+\[
+\rho^\sharp(Sr)=r,\qquad
+\mathcal E_{\log}(Sr,w)=0\quad\forall w\in W^\sharp.
+\]
+
+This is a Hilbert-space projection statement in the energy completion
+
+\[
+H_\Pi=\overline{\mathcal T_\Pi}^{\|\cdot\|_E},
+\qquad
+\|h\|_E^2=\mathcal E_{\log}(h,h).
+\]
+
+Assume the admissible tangent is closed in \(H_\Pi\), \(\rho^\sharp\) extends
+continuously to \(H_\Pi\), the target row vector is feasible, and the
+functional \(h\mapsto\mathcal E_{\log}(S_0,h)\) is continuous.  Then
+Riesz/Lax-Milgram on \(\ker\rho^\sharp\) gives a unique energy-minimizing
+completed lift.  The lift need not be a smooth density unless a separate
+regularity theorem is proved.
 
 If the non-log part factors through the row map,
 
 \[
-G_{\rm br}=\mathcal E_{\log}+B_\rho,\qquad
-B_\rho(\xi,\zeta)=b(\rho\xi,\rho\zeta),
+G_{\rm br}=\mathcal E_{\log}+B_{\rho^\sharp},\qquad
+B_{\rho^\sharp}(\xi,\zeta)=b(\rho^\sharp\xi,\rho^\sharp\zeta),
 \]
 
 then every perturbation decomposes as
 
 \[
-\xi=Sr+w,\qquad r=\rho(\xi),\quad w\in W,
+\xi=Sr+w,\qquad r=\rho^\sharp(\xi),\quad w\in W^\sharp,
 \]
 
 and
@@ -3946,7 +4024,7 @@ The finite object is therefore the effective form
 
 \[
 Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r)
-\qquad (r\in V),
+\qquad (r\in V^\sharp),
 \]
 
 not a naive quotient of \(G_{\rm br}\) by \(\ker\rho\).
@@ -3956,12 +4034,13 @@ If this minimal-lift reduction is not proved, the compact proof must keep
 the functional
 
 \[
-\xi\mapsto \lambda\cdot\rho(\xi)
+\xi\mapsto \lambda\cdot\rho^\sharp(\xi)
 =\int K_\lambda(x)\,d\xi(x).
 \]
 
-In that formulation \(\lambda\) is meaningful only modulo \(V^\perp\).  A
-nonzero ambient row vector that vanishes on \(V\) is not a real obstruction.
+In that formulation \(\lambda\) is meaningful only modulo
+\((V^\sharp)^\perp\).  A nonzero ambient row vector that vanishes on
+\(V^\sharp\) is not a real obstruction.
 
 There is still a separate finite-row realization lemma, which is useful for
 first-variation and Chebyshev tests but does not replace the minimal-lift
@@ -3969,20 +4048,21 @@ lemma.  For kernels
 
 \[
 k_0=1,\quad k_u=(x-u)^{-1},\quad k_c=(x-c)^{-1},\quad
-k_v=(x-v)^{-1},\quad k_-=L_-,\quad k_+=L_+,\quad k_\Pi=\pi_0,
+k_v=(x-v)^{-1},\quad k_-=L_-,\quad k_+=L_+,\quad
+k_{\log c}=\log\frac1{|c-x|},\quad k_\Pi=\pi_0,
 \]
 
 define
 
 \[
 \operatorname{Rel}
-=\left\{\lambda\in\mathbb R^7:
+=\left\{\lambda:
 \sum_i\lambda_i k_i=0\text{ on }J\right\}.
 \]
 
 Then smooth compactly supported density perturbations realize exactly
-\(\operatorname{Rel}^\perp\).  If the seven kernels are independent, every
-period-zero local row vector is realizable.  This follows by choosing bump
+\(\operatorname{Rel}^\perp\).  If the enlarged kernels are independent, every
+period-zero enlarged row vector is realizable.  This follows by choosing bump
 functions near points where the kernel evaluation matrix has full rank.
 
 But realization alone does not make \(G_{\rm br}\) finite-dimensional.  It only
@@ -3991,13 +4071,13 @@ guarantees that row test directions are actual density directions.
 This is the next hard mouth.  One may not treat
 
 \[
-(R_0,R_u,R_c,R_v,R_-,R_+)
+(R_0,R_u,R_c,R_v,R_-,R_+,R_{\log c})
 \]
 
 as arbitrary free coordinates until a realization theorem proves the needed
-directions are actually in \(V\).  The hidden constraints include period,
-Cauchy boundary relations, endpoint-difference anchoring, and the fact that
-\(R_-,R_+\) are differences rather than absolute endpoint values.
+directions are actually in \(V^\sharp\).  The hidden constraints include
+period, Cauchy boundary relations, endpoint-difference anchoring, and the fact
+that \(R_-,R_+\) are differences rather than absolute endpoint values.
 
 ### 10.17e Curvature-clamp Hessian identity package
 

@@ -883,20 +883,45 @@ which is positive on nonzero zero-mass perturbations in the finite row kernel.
 The replacement is a Feshbach / energy-minimal lift:
 
 \[
-W=\ker(\rho|_{\mathcal X_\Pi}),\qquad
+W^\sharp=\ker(\rho^\sharp|_{\mathcal X_\Pi}),\qquad
 \xi=Sr+w,
 \]
 
 \[
-\rho(Sr)=r,\qquad
-\mathcal E_{\log}(Sr,w)=0\quad(w\in W).
+\rho^\sharp(Sr)=r,\qquad
+\mathcal E_{\log}(Sr,w)=0\quad(w\in W^\sharp).
 \]
 
-The finite effective object, if the non-log part factors through rows, is
+Here the row map must be enlarged by the absolute log-potential anchor
+
+\[
+R_{\log c}(\xi)=\delta W_\xi(c)
+=\int_J\log\frac1{|c-x|}\,d\xi(x),
+\]
+
+because \(R_-,R_+\) are only differences:
+
+\[
+R_-=\delta W(c)-\delta W(u),\qquad
+R_+=\delta W(v)-\delta W(c).
+\]
+
+Thus
+
+\[
+\rho^\sharp=(R_0,R_u,R_c,R_v,R_-,R_+,R_{\log c},\Pi).
+\]
+
+The energy-minimal lift exists uniquely in the \(\mathcal E_{\log}\)-Hilbert
+completion under continuity and feasibility of \(\rho^\sharp\); it should not
+be claimed to be a smooth density without a separate regularity theorem.
+
+The finite effective object, if the non-log part factors through
+\(\rho^\sharp\), is
 
 \[
 Q_{\rm eff}(r)=\mathcal E_{\log}(Sr,Sr)+b(r,r),
-\qquad r\in V.
+\qquad r\in V^\sharp=\rho^\sharp(\mathcal X_\Pi).
 \]
 
 Separately, one should prove a row-realization lemma: smooth compactly
@@ -904,10 +929,11 @@ supported density bumps realize all row vectors in
 \(\operatorname{Rel}^{\perp}\), and if the seven kernels
 
 \[
-1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,\pi_0
+1,(x-u)^{-1},(x-c)^{-1},(x-v)^{-1},L_-,L_+,
+\log\frac1{|c-x|},\pi_0
 \]
 
-are independent, every period-zero six-row vector is actually realizable.
+are independent, every period-zero enlarged row vector is actually realizable.
 This supports Chebyshev tests, but it does not by itself make the Hessian
 finite-dimensional.
 
