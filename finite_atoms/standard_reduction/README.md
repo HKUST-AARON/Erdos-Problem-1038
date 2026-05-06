@@ -213,9 +213,11 @@ remains available when a proof already has the cover statement directly.  These
 constructors no longer ask callers to separately provide
 integrability of `|xPlus - t|`, `Real.log |xPlus - t|`, the endpoint-remainder
 distance integral, the boundary-average inequality, or the baseline kernel
-integrability.  The remaining analytic inputs are the genuine ones:
-`∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|`, local continuity at the endpoint, and
-the right-region component identity.
+integrability.  In the right-region constructor, no endpoint-continuity input is
+needed: the identity above directly implies `xPlus` is not in the positive set.
+The remaining analytic input at this point is the genuine separation statement
+`∀ᵐ t ∂realMeasure μ, ε ≤ |xPlus - t|`, together with the right-region
+component identity.
 
 At the relaxed-minimizer interface, the same file defines
 

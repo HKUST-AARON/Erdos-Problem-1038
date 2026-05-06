@@ -284,6 +284,52 @@ private theorem component_positive_of_component_eq_positiveSet_inter_Ioi
   rw [right_region_eq] at hy
   exact hy.1
 
+/-- Normalized support shape from component order and selected-support containment. -/
+private theorem realMeasure_support_subset_normalized_of_component_order
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
+  refine support_subset_endpoint_union_nonnegative
+    (xMinus := xMinus) (xPlus := xPlus)
+    (fun t ht => support_bounded (support_contains_real_support ht)) ?_ ?_
+  · intro y hy
+    have hycomp : y ∈ component := baseline_inside_component hy
+    simpa [component_interval] using hycomp
+  · intro t htSupport htComp
+    exact unique_support_in_component t (support_contains_real_support htSupport)
+      (by simpa [component_interval] using htComp)
+
+/--
+Right-region equality puts the right endpoint outside the positive set, without
+any continuity assumption.  If `xPlus` were positive, then since
+`xMinus < xPlus` it would belong to the right-region component, contradicting
+the interval representation `(xMinus,xPlus)`.
+-/
+private theorem not_mem_positiveSet_of_component_eq_positiveSet_inter_Ioi
+    {U : ℝ → ℝ} {component : Set ℝ} {xMinus xPlus : ℝ}
+    (hxMinus_lt_xPlus : xMinus < xPlus)
+    (right_region_eq :
+      component = PositiveSet U ∩ Ioi xMinus)
+    (component_interval : component = Ioo xMinus xPlus) :
+    xPlus ∉ PositiveSet U := by
+  intro hpos
+  have hx_component : xPlus ∈ component := by
+    rw [right_region_eq]
+    exact ⟨hpos, hxMinus_lt_xPlus⟩
+  have hx_interval : xPlus ∈ Ioo xMinus xPlus := by
+    rw [component_interval] at hx_component
+    exact hx_component
+  exact (lt_irrefl xPlus) hx_interval.2
+
 /--
 The full component-order information gives the sharper normalized support
 shape used in Tao's endpoint-mass boundary estimate: after normalization, every
@@ -445,6 +491,31 @@ theorem endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order
   · have htEq : t = -1 := by simpa using htEndpoint
     exact False.elim (htNe htEq)
   · exact htIcc
+
+/-- Endpoint-remainder right support from component order and selected-support containment. -/
+private theorem endpointRemainder_ae_mem_Icc_xPlus_one_of_component_order
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus : ℝ)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support) :
+    ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1 :=
+  endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order μ
+    support_contains_real_support support_bounded
+    (by
+      intro y hy
+      have hycomp : y ∈ component := baseline_inside_component hy
+      simpa [component_interval] using hycomp)
+    (by
+      intro t htSupport htComp
+      exact unique_support_in_component t htSupport
+        (by simpa [component_interval] using htComp))
 
 /--
 Distance-integral upper bound for the canonical endpoint remainder once its
@@ -1273,16 +1344,64 @@ theorem boundary_average_of_component_right_cover_auto_integrable
     (realMeasure_distance_integrable μ xPlus)
     (realMeasure_logAbs_integrable_of_dist_ge μ hε hdist_lower)
     (endpointRemainder_distance_integrable_of_ae_mem_Icc μ
-      (endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order μ
-        support_contains_real_support support_bounded
-        (by
-          intro y hy
-          have hycomp : y ∈ component := baseline_inside_component hy
-          simpa [component_interval] using hycomp)
-        (by
-          intro t htSupport htComp
-          exact unique_support_in_component t htSupport
-            (by simpa [component_interval] using htComp))))
+      (endpointRemainder_ae_mem_Icc_xPlus_one_of_component_order μ
+        component Support xMinus xPlus component_interval
+        baseline_inside_component support_bounded unique_support_in_component
+        support_contains_real_support))
+
+/--
+Right-region component bridge with the standard distance/log integrability
+obligations discharged automatically.
+
+Compared with the right-cover bridge, this version does not require endpoint
+continuity: the right-region identity itself proves that `xPlus` is not in the
+positive set.
+-/
+private theorem boundary_average_of_component_right_region_auto_integrable
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (component : Set ℝ)
+    (Support : Set ℝ)
+    (xMinus xPlus ε : ℝ)
+    (right_region_eq :
+      component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus)
+    (component_interval : component = Ioo xMinus xPlus)
+    (baseline_inside_component : Ioo (-1 : ℝ) 0 ⊆ component)
+    (support_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (unique_support_in_component :
+      ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
+    (right_endpoint_positive : 0 < xPlus)
+    (support_contains_real_support :
+      (realMeasure μ).support ⊆ Support)
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  have hxMinus_lt_xPlus : xMinus < xPlus := by
+    have hbase : (-1 / 2 : ℝ) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+    have hcomp : (-1 / 2 : ℝ) ∈ component :=
+      baseline_inside_component hbase
+    have hIoo : (-1 / 2 : ℝ) ∈ Ioo xMinus xPlus := by
+      simpa [component_interval] using hcomp
+    exact lt_trans hIoo.1 hIoo.2
+  exact boundary_average_of_right_endpoint_not_positive μ
+    (le_of_lt right_endpoint_positive)
+    (endpointRemainder_ae_mem_Icc_xPlus_one_of_component_order μ
+      component Support xMinus xPlus component_interval
+      baseline_inside_component support_bounded unique_support_in_component
+      support_contains_real_support)
+    (not_mem_positiveSet_of_component_eq_positiveSet_inter_Ioi
+      hxMinus_lt_xPlus right_region_eq component_interval)
+    hε hdist_lower
+    (realMeasure_distance_integrable μ xPlus)
+    (realMeasure_logAbs_integrable_of_dist_ge μ hε hdist_lower)
+    (endpointRemainder_distance_integrable_of_ae_mem_Icc μ
+      (endpointRemainder_ae_mem_Icc_xPlus_one_of_component_order μ
+        component Support xMinus xPlus component_interval
+        baseline_inside_component support_bounded unique_support_in_component
+        support_contains_real_support))
 
 /--
 Canonical unit-potential package from the right-cover maximal-component
@@ -1332,16 +1451,11 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cove
       right_endpoint_positive hcont hcover support_contains_real_support
       hε hdist_lower
   have hsupport_norm :
-      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 := by
-    refine support_subset_endpoint_union_nonnegative
-      (xMinus := xMinus) (xPlus := xPlus)
-      (fun t ht => support_bounded (support_contains_real_support ht)) ?_ ?_
-    · intro y hy
-      have hycomp : y ∈ component := baseline_inside_component hy
-      simpa [component_interval] using hycomp
-    · intro t htSupport htComp
-      exact unique_support_in_component t (support_contains_real_support htSupport)
-        (by simpa [component_interval] using htComp)
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 :=
+    realMeasure_support_subset_normalized_of_component_order μ
+      component Support xMinus xPlus component_interval
+      baseline_inside_component support_bounded unique_support_in_component
+      support_contains_real_support
   exact CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential μ
     mean_choice reflected translation component Support xMinus xPlus
     component_positive component_interval baseline_inside_component
@@ -1373,21 +1487,34 @@ def CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_regi
     (unique_support_in_component :
       ∀ t : ℝ, t ∈ Support → t ∈ component → t = -1)
     (right_endpoint_positive : 0 < xPlus)
-    (hcont : ContinuousAt (unitIntervalLogPotential μ) xPlus)
     (support_contains_real_support :
       (realMeasure μ).support ⊆ Support)
     (hε : 0 < ε)
     (hdist_lower :
       ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|) :
-    CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) :=
-  CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover μ
-    mean_choice reflected translation component Support xMinus xPlus ε
+    CanonicalEndpointVariationPackageData μ (unitIntervalLogPotential μ) := by
+  have hboundary :
+      1 ≤
+        (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+          (1 - xPlus) *
+            (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) :=
+    boundary_average_of_component_right_region_auto_integrable μ
+      component Support xMinus xPlus ε right_region_eq component_interval
+      baseline_inside_component support_bounded unique_support_in_component
+      right_endpoint_positive support_contains_real_support hε hdist_lower
+  have hsupport_norm :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1 :=
+    realMeasure_support_subset_normalized_of_component_order μ
+      component Support xMinus xPlus component_interval
+      baseline_inside_component support_bounded unique_support_in_component
+      support_contains_real_support
+  exact CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential μ
+    mean_choice reflected translation component Support xMinus xPlus
     (component_positive_of_component_eq_positiveSet_inter_Ioi right_region_eq)
     component_interval baseline_inside_component support_bounded
-    unique_support_in_component right_endpoint_positive hcont
-    (right_cover_of_component_eq_positiveSet_inter_Ioi right_region_eq
-      component_interval)
-    support_contains_real_support hε hdist_lower
+    unique_support_in_component right_endpoint_positive hboundary
+    support_contains_real_support
+    (endpointRemainder_kernel_integrable_of_normalized_support μ hsupport_norm)
 
 /--
 Canonical component-package form of the variation input for relaxed
