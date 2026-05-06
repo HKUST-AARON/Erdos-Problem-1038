@@ -2792,16 +2792,61 @@ structure ComponentReplacement
   mass_pos : 0 < componentMass C
   mass_ne_top : componentMass C ≠ ⊤
 
+/--
+The component block normalized to total mass one.
+
+This is the measure to which the existing measure-level Jensen theorem applies.
+The normalization is only useful under `ComponentReplacement.mass_pos` and
+`ComponentReplacement.mass_ne_top`.
+-/
+def normalizedComponentBlock
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
+  (componentMass C)⁻¹ • componentBlock C
+
 lemma componentBlock_univ
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     componentBlock C Set.univ = componentMass C := by
   simp [componentBlock, componentMass]
+
+lemma normalizedComponentBlock_univ
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    normalizedComponentBlock C Set.univ = 1 := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  simp [normalizedComponentBlock, componentBlock_univ,
+    ENNReal.inv_mul_cancel hmass_ne_zero R.mass_ne_top]
+
+theorem ComponentReplacement.normalizedComponentBlock_isProbabilityMeasure
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    IsProbabilityMeasure (normalizedComponentBlock C) :=
+  ⟨normalizedComponentBlock_univ R⟩
+
+lemma normalizedComponentBlock_integral_eq_barycenter
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) :
+    (∫ t : ℝ, t ∂normalizedComponentBlock C) = componentBarycenter C := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  unfold normalizedComponentBlock componentBarycenter
+  rw [integral_smul_measure]
+  rw [ENNReal.toReal_inv]
+  rw [smul_eq_mul]
+  field_simp [hmass_toReal_pos.ne']
 
 lemma componentBlock_ae_mem_interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
     ∀ᵐ t : ℝ ∂componentBlock C, t ∈ C.interval := by
   unfold componentBlock
   exact ae_restrict_mem₀ C.measurableSet_interval.nullMeasurableSet
+
+lemma normalizedComponentBlock_ae_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (_R : ComponentReplacement μ C) :
+    ∀ᵐ t : ℝ ∂normalizedComponentBlock C, t ∈ C.interval := by
+  exact (componentBlock_ae_mem_interval C).filter_mono
+    (Measure.ae_mono' Measure.smul_absolutelyContinuous)
 
 lemma componentMass_ne_top
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) :
@@ -7420,6 +7465,71 @@ theorem measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
       hxl hmem hfirst hkernel_int
   · exact measure_barycenter_logKernel_replacement_le_of_mem_Ioo_left μ
       hrx hmem hfirst hkernel_int
+
+/--
+Component-block Jensen inequality in normalized form.
+
+After normalizing the restricted component block to a probability measure, the
+existing measure-level Jensen theorem applies directly.  The conclusion is the
+pointwise block inequality before multiplying back by the component mass.
+-/
+theorem normalizedComponentBlock_logKernel_replacement_le_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
+    (hstrict : StrictOutsideComponent C x)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C)) :
+    Real.log (1 / |x - componentBarycenter C|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂normalizedComponentBlock C := by
+  letI : IsProbabilityMeasure (normalizedComponentBlock C) :=
+    R.normalizedComponentBlock_isProbabilityMeasure
+  rw [← normalizedComponentBlock_integral_eq_barycenter R]
+  exact measure_barycenter_logKernel_replacement_le_of_strictOutside_Ioo
+    (normalizedComponentBlock C) hstrict
+    (normalizedComponentBlock_ae_mem_interval R) hfirst hkernel_int
+
+/--
+Component-block Jensen inequality scaled back to the original component mass.
+
+This is the form used in the potential decomposition: the replacement block is
+`componentMass C` times the kernel evaluated at the barycenter, and the
+original block is the integral of the kernel over `componentBlock C`.
+-/
+theorem componentBlock_logKernel_replacement_le_of_strictOutside
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {x : ℝ}
+    (hstrict : StrictOutsideComponent C x)
+    (hfirst : Integrable (fun t : ℝ => t) (normalizedComponentBlock C))
+    (hkernel_norm_int : Integrable
+      (fun t : ℝ => Real.log (1 / |x - t|)) (normalizedComponentBlock C)) :
+    (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|) ≤
+      ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+  have hmass_ne_zero : componentMass C ≠ 0 := ne_of_gt R.mass_pos
+  have hmass_toReal_pos : 0 < (componentMass C).toReal :=
+    ENNReal.toReal_pos hmass_ne_zero R.mass_ne_top
+  have hjen :=
+    normalizedComponentBlock_logKernel_replacement_le_of_strictOutside
+      R hstrict hfirst hkernel_norm_int
+  have hnorm :
+      (∫ t : ℝ, Real.log (1 / |x - t|) ∂normalizedComponentBlock C) =
+        ((componentMass C)⁻¹).toReal *
+          ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+    unfold normalizedComponentBlock
+    rw [integral_smul_measure]
+    rw [smul_eq_mul]
+  rw [hnorm] at hjen
+  calc
+    (componentMass C).toReal *
+        Real.log (1 / |x - componentBarycenter C|)
+        ≤ (componentMass C).toReal *
+            (((componentMass C)⁻¹).toReal *
+              ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C) := by
+          exact mul_le_mul_of_nonneg_left hjen (le_of_lt hmass_toReal_pos)
+    _ = ∫ t : ℝ, Real.log (1 / |x - t|) ∂componentBlock C := by
+          rw [ENNReal.toReal_inv]
+          field_simp [hmass_toReal_pos.ne']
 
 /-!
 ## Finite variance drop under barycenter replacement
