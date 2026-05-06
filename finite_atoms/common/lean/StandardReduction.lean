@@ -10735,18 +10735,75 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_bas
   exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
     D.baseline_length_le_positiveSet⟩
 
+/--
+Variant of
+`unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_baseline_from_variation`
+that no longer asks for endpoint-normalization data directly.  The remaining
+provider is the lower-level Tao component/variation package; endpoint
+normalization and the baseline-length consequence are assembled internally.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_normalized_endpoint_baseline_from_component_package
+    (secondary : ProbabilityMeasure UnitInterval1038 → ℝ)
+    {Normalized : Type}
+    {normalize : ProbabilityMeasure UnitInterval1038 → Normalized}
+    {Potential : Normalized → ℝ → ℝ}
+    (hcore : ∀ μ : ProbabilityMeasure UnitInterval1038,
+      ∀ η : NNReal, 0 < η →
+        ∃ truncN thresholdN : ℕ, ∃ K : Set ℝ,
+          volume (unitIntervalTruncatedPositiveSet μ) ≤
+            volume K + (η : ℝ≥0∞) ∧
+          K ⊆ {x : ℝ |
+            unitIntervalPositiveTruncationScale thresholdN <
+              unitIntervalTruncatedPotential
+                (unitIntervalPositiveTruncationScale truncN) μ x} ∧
+          IsCompact K)
+    (hsecondary_lsc : LowerSemicontinuous secondary)
+    (hPackageFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          secondary μ ≤ secondary ν) →
+        TaoVariationComponentPackage (Potential (normalize μ))) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        secondary μ ≤ secondary ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (Potential (normalize μ)),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (Potential (normalize μ))) := by
+  rcases unitIntervalTruncatedPositiveSetObjective_exists_secondary_minimizer_of_compact_threshold_core
+      secondary hcore hsecondary_lsc with
+    ⟨μ, hPrimary, hSecondary⟩
+  let Pack : TaoVariationComponentPackage (Potential (normalize μ)) :=
+    hPackageFromVariation μ hPrimary hSecondary
+  let D : TaoEndpointNormalizationData (Potential (normalize μ)) :=
+    Pack.toTaoEndpointNormalizationData
+  exact ⟨μ, hPrimary, hSecondary, D.toNormalizedEndpointPotential,
+    D.baseline_length_le_positiveSet⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
 The standard-reduction layer above is intentionally conditional.  The remaining
-mathematical work is to prove `hEndpointFromVariation` from the positive-component
-variation argument plus the translation/reflection normalization.  Concretely,
-that proof must produce the fields of `TaoEndpointNormalizationData` for each
-secondary minimizer of the truncated-sup objective: the normalized support/order
-data, uniqueness of support inside the selected positive component, the boundary
-average giving endpoint mass at least `1/2`, the endpoint-plus-remainder measure
-decomposition, kernel integrability on `BaselinePunctured`, and the resulting
-potential lower bound.  None of these fields is inferred in this file.
+mathematical work is now lower-level: prove the `TaoVariationComponentPackage`
+provider from the positive-component variation argument plus the
+translation/reflection normalization.  The package constructors above already
+infer the real support facts, endpoint atom mass bookkeeping, endpoint remainder
+mass/decomposition, component-inside support uniqueness from atomization, and
+kernel integrability on `BaselinePunctured`.  The hard inputs that still remain
+are the real positive-component selection/maximality, the admissible barycenter
+replacement and secondary rigidity producing normalized atomization, and Tao's
+boundary-average inequality.
 -/
 
 /--
