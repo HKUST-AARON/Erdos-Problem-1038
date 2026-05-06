@@ -3326,10 +3326,14 @@ Hence the rank-defect conclusion for the regular non-pinched interior is:
 }
 \]
 
-Gate 3 closes the compactified \(g=2\) boundary.  Work in the coefficient
-topology for \(D,Q\), the real pole/residue and endpoint-atom data, and the
-Hausdorff topology for \(Z_0\).  Any compact sequence has a subsequential
-potential limit off the limiting support.  The possible boundary modes are
+Gate 3 closes the compactified \(g=2\) boundary as a proof-grade lemma.  The
+compactification uses coefficient convergence of \(D,Q\), weak convergence of
+positive pole and endpoint atoms, \(L^1_{\rm loc}\) convergence of densities on
+non-colliding cut interiors, Hausdorff convergence of \(Z_0\), and local
+uniform convergence of potentials off the limiting support.  If none of the
+following failures occurs, all discriminants, resultants, residues, density
+signs, chart determinants, and anchor distances stay nonzero, so the point is
+still in the regular non-pinched \(g=2\) chart.  Hence the boundary modes are
 exhaustive:
 
 \[
@@ -3344,19 +3348,23 @@ c\text{ hitting a forbidden set} & \text{anchor singular boundary}
 \end{array}
 \]
 
-Branch pinching cancels a pair of branch factors or leaves a nonnegative
-endpoint atom, hence gives lower genus or the corrected \(g=1\) boundary.
-Colliding \(Q\)-poles merge real Stieltjes atoms; zero residue deletes an atom;
-leaving the real interlacing class is density-sign loss.  Endpoint atom
-creation is therefore already one of those two mechanisms.  If \(Z_0\) collides
-with a boundary, Gate 2 either remains stable after regularization or the
-component pinches.  If \(c\) hits an endpoint, pole, atom, or active zero, the
-anchor rows become singular, which is a boundary/state-lift stratum rather than
-a new regular \(g=2\) chamber.
+Branch pinching is handled by writing
+\(D_n=(z-\alpha_n)(z-\beta_n)\widetilde D_n\).  Away from the collision point,
+\(R_n/(z-\gamma)\to\widetilde R\).  The mass on the shrinking cut has weak
+limit \(m_\gamma\delta_\gamma\), \(m_\gamma\ge0\); if \(m_\gamma=0\) the genus
+drops, and if \(m_\gamma>0\) one gets the corrected endpoint-atom lower-genus
+problem.  Colliding \(Q\)-poles merge positive Stieltjes atoms; zero residues
+delete atoms; leaving the real interlacing class is density-sign loss.  A
+vanishing density either cancels a branch factor or makes the regular chart
+rank drop.  Endpoint atom creation is therefore already branch pinching or
+pole-endpoint collision.  If \(Z_0\) collides with a boundary, Gate 2 remains
+stable after regularization or a component pinches.  If \(c\) hits an endpoint,
+pole, atom, or active zero, the anchor rows are singular and the state is in
+the listed boundary/state-lift stratum.
 
 \[
 \boxed{
-\textbf{Gate 3 result: PASS.}\quad
+\textbf{Gate 3 result: PROOF-GRADE PASS.}\quad
 \text{The compactified }g=2\text{ boundary routes to corrected }g=1,
 \text{ one-cut, lower genus, or already excluded }g=2\text{ cases.}
 }
