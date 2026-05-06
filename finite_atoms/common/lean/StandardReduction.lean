@@ -10,6 +10,7 @@ import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
 import Mathlib.MeasureTheory.Measure.Portmanteau
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.MeasureTheory.Measure.Prokhorov
+import Mathlib.MeasureTheory.Measure.Support
 import Mathlib.Topology.Semicontinuity.Basic
 
 /-!
@@ -1905,6 +1906,21 @@ lemma realMeasure_ae_mem_unitInterval
   exact (ae_map_iff
     continuous_subtype_val.measurable.aemeasurable measurableSet_Icc).2
     (Filter.Eventually.of_forall (fun t : UnitInterval1038 => t.2))
+
+theorem realMeasure_ae_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ᵐ t ∂realMeasure μ, t ∈ (realMeasure μ).support := by
+  exact Measure.support_mem_ae
+
+theorem realMeasure_support_open_neighborhood_pos
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → ∀ U : Set ℝ,
+      IsOpen U → t ∈ U → realMeasure μ U ≠ 0 := by
+  intro t ht U hU htU hzero
+  have hsubset :
+      U ⊆ (realMeasure μ).supportᶜ :=
+    Measure.subset_compl_support_of_isOpen (μ := realMeasure μ) hU hzero
+  exact hsubset htU ht
 
 theorem realMeasure_endpointRemainder_support_in_support
     (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
