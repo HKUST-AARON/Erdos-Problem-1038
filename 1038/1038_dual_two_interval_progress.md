@@ -78,7 +78,7 @@ conditional on the standard Tao/natso normalized minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The gate chain below gives a closed proof skeleton whose target conclusion is
+The gate chain below gives a conditional proof skeleton whose target conclusion is
 
 \[
 L_-=M_{\rm oc}
@@ -86,15 +86,20 @@ L_-=M_{\rm oc}
 
 in the normalization used throughout this ledger.
 
-Thus the current exact-route status is:
+Thus the current exact-route status is not an unconditional equality.  The
+honest status is:
 
 \[
 \boxed{
-L_-=M_{\rm oc}=1.8344304757626617\ldots
+\text{conditional skeleton: if the remaining sign/compactness/regularity
+lemmas are closed, then }L_-=M_{\rm oc}.
 }
 \]
 
-where the decimal is only the numerical evaluation of the one-cut equations.
+The decimal \(1.8344304757626617\ldots\) is only the numerical evaluation of
+the current one-cut candidate / provisional upper candidate.  It must not be
+presented as a completed proof of the original problem until the open gates
+below are upgraded to proof-grade lemmas.
 
 ### 0.1 Frozen Exact-Route Statements
 
@@ -161,9 +166,11 @@ If Theorem U and Theorem L are proved in the same normalization, then
 \boxed{L_-=M_{\rm oc}=1.8344304757626617\ldots}.
 \]
 
-Current audit: the ledger contains a complete route skeleton, but Gates 3--6
-still need expansion into stand-alone proof-grade lemmas before this final
-boxed equality can be treated as an unconditional proof.
+Current audit: the ledger contains a route skeleton, but Gate 1
+\(\text{SchurBlockTotalPositivityLemma}\), Gate 3 boundary compactness, and
+Gate 5/Lemma R still need expansion into stand-alone proof-grade lemmas before
+this final boxed equality can be treated as an unconditional proof.  Gate 6 is
+the current proof-grade upper construction.
 
 ### 0.2 Current Review Decision
 
@@ -2341,8 +2348,8 @@ L_-\ge M_{\rm oc}.
 Status update:
 
 - this was the earlier interface form of Lemma R;
-- Gate 5 below now supplies the regularity-removal proof used in the final
-  assembly;
+- Gate 5 below records the regularity-removal route, but it still needs a
+  proof-grade Lemma R before final assembly;
 - the historical warning is kept only to explain why Lemma R had to be made
   explicit before claiming the exact infimum.
 
@@ -9293,138 +9300,114 @@ theorem queue.
     \tag{Gate1QPoles}
     \]
 
-    Canonical Schur-block orientation.
+    Schur-block orientation audit.
 
-    We now fix the remaining row-gauge ambiguity.  The moving-chart rows
-    \(\ell_r\) are chosen in the canonical total-positive gauge:
+    The moving-chart construction above repairs the fixed-\(Q\) collapse and
+    gives the necessary rank subcheck: the endpoint Schiffer columns need not
+    be proportional to the period column in a regular moving chart.  This is
+    not yet the same as the sign theorem needed for rank-defect exclusion.
+    Full rank only says the endpoint columns span the required directions; it
+    does not determine the lifted sign of every positive circuit.
 
-    - for each real \(Q\)-pole \(p\), use the ordered pole-state rows obtained
-      by evaluating the numerator and its first confluent derivative at \(p\),
-      multiplied by the positive residue normalization;
-    - use the zero-mass row as the Cauchy row at infinity;
-    - in the free-period quotient, no independent period sign-shifter row is
-      added; if a filling convention is retained, it is written as a positive
-      Cauchy average of the same ordered real rows;
-    - the equality row \(\rho_j=-C_j^{\rm rep}(c)\) is the ordered evaluation
-      row at \(c\).
-
-    The row order is the real order of the nodes, with confluent derivative
-    rows placed immediately after their base node.  The orientation of the
-    chart is fixed by requiring
+    The missing proof-grade statement is the following independent lemma.
 
     \[
-    \det A>0.
-    \tag{Gate1OrientationGauge}
+    \boxed{
+    \textbf{SchurBlockTotalPositivityLemma.}
+    }
     \]
 
-    This is only a choice of basis for the same moving Schiffer chart; changing
-    to another row basis with positive determinant does not affect the oriented
-    circuit sign, while a negative determinant row change is by definition an
-    orientation reversal and is not the canonical gauge.
-
-    With this gauge, (Gate1BlockDet) is a confluent Cauchy determinant.  For
-    distinct ordered target nodes \(t_1<\cdots<t_N\) and ordered source nodes
-    \(s_1<\cdots<s_M\), the ordinary Cauchy determinant has sign
+    In a regular positive moving Schiffer chart, with repaired columns
+    \(H_\gamma^{\rm rep}=H_\gamma^{\rm raw}+BA^{-1}r_\gamma\), one must prove
+    that every raw augmented circuit
 
     \[
-    \det\!\left(\frac1{t_i-s_j}\right)
+    \eta b+\sum_iw_iV_S(x_i)-\lambda\rho_S=0,\qquad
+    \eta\ge0,\quad w_i>0,
+    \]
+
+    has the negative lifted orientation
+
+    \[
+    \eta b_\Pi+\sum_iw_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
+    \tag{RAS}
+    \]
+
+    The current ledger has the correct formal Schur-complement identity,
+
+    \[
+    \det L(H_\Gamma^{\rm rep})
     =
     \frac{
-    \prod_{i<i'}(t_{i'}-t_i)\,
-    \prod_{j<j'}(s_j-s_{j'})
-    }{
-    \prod_{i,j}(t_i-s_j)
-    }.
-    \tag{CauchySign}
+    \det
+    \begin{pmatrix}
+    A&r_\Gamma\\
+    LB&L(H_\Gamma^{\rm raw})
+    \end{pmatrix}}
+    {\det A},
+    \tag{Gate1BlockDet}
     \]
 
-    Confluent rows are obtained by differentiating this identity and taking
-    limits as adjacent source nodes coalesce.  The limiting factors are
-    products of positive factorials and positive powers of ordered spacings, so
-    no sign change is introduced beyond the fixed column-order sign.  Since
-    all \(Q\)-poles are real separated/interlaced by (Gate1QPoles), all
-    denominators in (CauchySign) have fixed sign on each oval.  The branch sign
-    of \(R\) is already fixed by the period-transfer orientation
-    \(G_\Pi=\sigma h_\Pi\), \(h_\Pi>0\), and \(\kappa\) is chosen with that
-    convention.  Therefore the Schur block in (Gate1BlockDet) has one fixed
-    nonzero oriented sign in every nondegenerate circuit case.
-
-    Degenerate determinants have only three possible meanings:
-
-    1. the circuit support was not minimal, in which case one deletes a
-       dependent point and repeats the argument with smaller support;
-    2. a pole, endpoint, or moving point collided, which is a pinching /
-       boundary / lower-genus case;
-    3. the canonical matrix \(A\) lost rank, which is the chart-rank
-       degeneration already routed out of the regular non-pinched interior.
-
-    Thus, in the regular non-pinched interior, the augmented family
+    but this is not yet a determinant sign proof.  To close Gate 1, the
+    numerator must be expanded as
 
     \[
-    (V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2},-\rho)
+    \det
+    \begin{pmatrix}
+    A&r_\Gamma\\
+    LB&L(H_\Gamma^{\rm raw})
+    \end{pmatrix}
+    =
+    (\text{positive row/column factors})
+    \cdot
+    (\text{explicit ordered Cauchy/Vandermonde product}),
+    \tag{NeededSchurProduct}
     \]
 
-    with lift \(V_\Pi\) is an oriented raw augmented Chebyshev system on
-    \(Z_0\).
+    and every factor must be signed.  In particular, the proof must verify:
 
-    RawAugmentedCircuitSign proof.
+    - the moving-chart rows \(\ell_r\) are actual ordered real Cauchy or
+      confluent Cauchy rows up to positive factors;
+    - the free-period/filling convention is either quotiented out or is a
+      positive average of those same ordered rows;
+    - moving-\(Q\) gauge rows and pole/residue-state rows do not change the
+      oriented circuit sign;
+    - \(\det A>0\) is only an orientation convention, not by itself a proof of
+      all augmented Schur minors.
 
-    If \(\eta>0\), normalize \(\eta=1\).  The affine raw relation
-
-    \[
-    b+\sum_iw_iV_S(x_i)-\lambda\rho_S=0,\qquad w_i>0,
-    \]
-
-    is a positive circuit of the oriented augmented system.  By the fixed
-    orientation just proved, its lifted value has the negative orientation:
-
-    \[
-    b_\Pi+\sum_iw_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
-    \]
-
-    If \(\eta=0\), the homogeneous relation
-
-    \[
-    \sum_iw_iV_S(x_i)-\lambda\rho_S=0,\qquad w_i>0,
-    \]
-
-    is a homogeneous positive circuit of the same oriented system, so
-
-    \[
-    \sum_iw_iV_\Pi(x_i)-\lambda\rho_\Pi<0.
-    \]
-
-    Therefore (RAS) holds in all nondegenerate regular interior cases.  By the
-    finite-dimensional Farkas/Carathéodory alternative, no atomic fallback
-    exists; hence the reduced LP is feasible.
+    Therefore the rigorous status is:
 
     \[
     \boxed{
-    \textbf{Gate 1 result: PASS.}\quad
-    \text{RawAugmentedCircuitSign holds in the canonical regular chart.}
+    \textbf{Gate 1 status: BLOCKED at SchurBlockTotalPositivityLemma.}
     }
-    \tag{Gate1Pass}
+    \tag{Gate1Blocked}
     \]
 
-    Therefore the Gate 1 conclusion is:
+    What is currently proved is the reduction
 
     \[
     \boxed{
-    \text{RawAugmentedCircuitSign holds}
+    \text{rank-defect }g=2
+    \text{ reduced to the raw augmented circuit obstruction.}
+    }
+    \tag{Gate1ReductionOnly}
+    \]
+
+    The conditional implication remains valid:
+
+    \[
+    \boxed{
+    \text{SchurBlockTotalPositivityLemma}
+    \Rightarrow
+    \text{RawAugmentedCircuitSign}
     \Rightarrow
     \text{reduced LP feasible.}
     }
+    \tag{Gate1Conditional}
     \]
 
-    Together with the Gate 2 interface below this gives
-
-    \[
-    \boxed{
-    \text{rank-defect compact }g=2\text{ excluded.}
-    }
-    \]
-
-    The conditional PV equation is not used in this closure.
+    The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
 
@@ -9627,20 +9610,24 @@ theorem queue.
     \tag{G3route}
     \]
 
-    Thus:
+    Thus the intended boundary route is:
 
     \[
     \boxed{
-    \textbf{Gate 3 result: PROOF-GRADE PASS.}\quad
-    \text{The compactified }g=2\text{ boundary leaves no new counterexample.}
+    \textbf{Gate 3 status: proof route identified, compactness proof still required.}
     }
     \]
 
-    Combining Gates 1--3, regular compact \(g=2\), rank-defect compact
-    non-pinched \(g=2\), and boundary \(g=2\) are all routed out of the
-    lower-bound obstruction.  The remaining global gates are the
-    high-genus local-neck reduction, regularity removal, and the one-cut upper
-    construction.
+    To upgrade Gate 3 to proof-grade PASS, the boundary compactness lemma must
+    still be written with coefficient convergence, weak convergence of atoms,
+    \(L^1_{\rm loc}\) convergence of densities, Hausdorff closure of active
+    zero sets, local uniform convergence of potentials, and a proof that
+    endpoint atoms/pole collisions do not create a new counterexample stratum.
+    Until that lemma is supplied, Gate 3 remains a routed proof obligation, not
+    a closed theorem.
+
+    The remaining global gates are the high-genus local-neck reduction,
+    regularity removal, and the one-cut upper construction.
 
     Gate 4: HighGenusLocalNeckReduction.
 
@@ -9864,21 +9851,24 @@ theorem queue.
     density floor preserves compact lower bounds.  Hence no minimizer escapes
     the regular finite-gap exclusion by a loss of admissibility in the limit.
 
-    Hence:
+    Hence the intended regularization route is:
 
     \[
     \boxed{
-    \textbf{Gate 5 result: PROOF-GRADE PASS.}\quad
-    \text{Every minimizing counterexample regularizes, or collapses to a
-    Gate 3 lower-genus/boundary branch.}
+    \textbf{Gate 5 status: proof route identified, Lemma R still required.}\quad
+    \text{The row-restoration/regularization argument is not yet proof-grade.}
     }
-    \tag{LemmaRPass}
+    \tag{LemmaRStatus}
     \]
 
-    Combining Gates 1--5, the lower-bound side has no counterexample in the
-    compactified finite-gap class except the one-cut branch that supplies the
-    provisional upper candidate.  The remaining task is to write that one-cut
-    construction with exact defining equations and verify its admissibility.
+    To upgrade this to PASS, the compactified finite-gap charts, the
+    row-restoration map, the IFT topology, preservation of positivity and
+    strict length defect, and the equivalence between Jacobian degeneration and
+    Gate 3 boundary collapse must be proved explicitly.  Until then, Lemma R
+    is a proof obligation rather than a closed regularity-removal theorem.
+
+    The remaining task on the upper side is to write the one-cut construction
+    with exact defining equations and verify its admissibility.
 
     Gate 6: One-cut upper construction.
 
@@ -10059,12 +10049,15 @@ theorem queue.
     }
     \]
 
-    The last gate is now only the theorem assembly: Gates 1--5 give the lower
-    exclusion, and Gate 6 gives the matching one-cut upper construction.
+    The last gate is theorem assembly, but it is conditional: Gates 1--5 give
+    the lower exclusion only after the open Gate 1, Gate 3, and Gate 5 proof
+    obligations are closed.  Gate 6 gives the matching one-cut upper
+    construction.
 
     Gate 7: Final theorem assembly.
 
-    Gates 1--5 prove the lower-bound exclusion.  Indeed, assume for
+    Conditional on the remaining Gate 1, Gate 3, and Gate 5 lemmas, Gates
+    1--5 prove the lower-bound exclusion.  Indeed, assume for
     contradiction that there is an admissible normalized minimizer with
 
     \[
@@ -10080,7 +10073,7 @@ theorem queue.
     one-cut, lower genus, or an already excluded stratum.  The only remaining
     branch is the one-cut branch defining \(M_{\rm oc}\), and by definition of
     \(M_{\rm oc}\) no admissible one-cut element has length below
-    \(M_{\rm oc}\).  This contradiction gives
+    \(M_{\rm oc}\).  Under those conditional inputs, this contradiction gives
 
     \[
     \boxed{
@@ -10098,18 +10091,21 @@ theorem queue.
     \tag{G7upper}
     \]
 
-    Therefore
+    Therefore the final assembly is still conditional:
 
     \[
     \boxed{
-    \textbf{Gate 7 result: PASS.}\quad
+    \textbf{Gate 7 assembly: CONDITIONAL.}\quad
+    \text{If Gates 1, 3, 5, and 6 are upgraded to proof-grade lemmas, then }
     L_-=M_{\rm oc}.
     }
-    \tag{G7final}
+    \tag{G7conditional}
     \]
 
-    Here \(M_{\rm oc}\) is the exact one-cut value defined by (G6A)--(G6M);
-    the decimal \(1.8344304757626617\ldots\) is only its numerical evaluation.
+    Here \(M_{\rm oc}\) is the value defined by the one-cut equations
+    (G6A)--(G6M); the decimal \(1.8344304757626617\ldots\) is only its
+    numerical evaluation.  The unconditional equality must not be asserted
+    before the remaining proof obligations above are closed.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be

@@ -65,16 +65,18 @@ conditional on the standard Tao/natso minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The gate chain below gives the exact-route theorem
+The gate chain below gives a conditional exact-route skeleton:
 
 \[
 \boxed{
-L_-=M_{\rm oc}.
+\text{if the remaining sign, compactness, and regularity lemmas are closed,
+then }L_-=M_{\rm oc}.
 }
 \]
 
-The decimal is only the numerical evaluation of the one-cut equations defining
-\(M_{\rm oc}\).
+The unconditional equality is not yet proved.  The decimal is only the
+numerical evaluation of the one-cut equations defining the current one-cut
+candidate / provisional upper candidate \(M_{\rm oc}\).
 
 ## 4. The \(1.814600\) Finite-Certificate Package
 
@@ -2164,12 +2166,12 @@ For any oriented sign-pattern normal,
 =\int_J\sigma K_\theta h_\Pi\omega>0.
 \]
 
-The later anchored Schiffer reduction replaces the old
-ConeOrientationTable target by the raw augmented circuit sign theorem.  In the
-canonical total-positive moving chart, Gate 1 proves this sign theorem and
-Gate 2 connects the resulting reduced LP to Proposition 4.1.  Thus the
-rank-defect compact \(g=2\) interior case is excluded in the current proof
-queue.
+The later anchored Schiffer reduction replaces the old ConeOrientationTable
+target by the raw augmented circuit sign theorem.  Current audit: Gate 1 has
+not yet proved the required Schur-block orientation sign; it has reduced the
+rank-defect compact \(g=2\) interior case to
+`SchurBlockTotalPositivityLemma`.  Gate 2 then connects that reduced LP to
+Proposition 4.1 once the sign theorem is supplied.
 
 Current compact \(g=2\) status:
 
@@ -3252,8 +3254,7 @@ F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0,
 so zeros, branch endpoints, and poles interlace.  Non-real, multiple,
 zero-residue, or colliding poles are boundary/lower-genus cases.
 
-The remaining missing sign theorem is therefore only the Schur-block
-orientation:
+The remaining missing sign theorem is the Schur-block orientation:
 
 \[
 \boxed{
@@ -3263,31 +3264,33 @@ orientation:
 }
 \]
 
-Fix the remaining row-gauge by choosing the canonical total-positive row
-system: ordered real pole evaluation/confluent derivative rows, the zero-mass
-row at infinity, the free-period quotient convention, and the equality
-evaluation row at \(c\).  Orient the chart by \(\det A>0\).  In this gauge the
-Schur block is a confluent Cauchy determinant.  The ordinary Cauchy formula
+The document currently has the correct formal Schur-complement identity, but
+not yet a proof-grade sign computation.  To close this gate one still must
+expand the Schur numerator as an explicit signed product,
 
 \[
-\det\left(\frac1{t_i-s_j}\right)
+\det
+\begin{pmatrix}
+A&r_\Gamma\\
+LB&L(H_\Gamma^{raw})
+\end{pmatrix}
 =
-\frac{\prod_{i<i'}(t_{i'}-t_i)\prod_{j<j'}(s_j-s_{j'})}
-{\prod_{i,j}(t_i-s_j)}
+(\text{positive row/column factors})
+\cdot
+(\text{ordered Cauchy/Vandermonde product}),
 \]
 
-has fixed sign on the ordered two-cut configuration; confluent derivative rows
-are limits of this determinant and introduce only positive factorial and
-spacing factors.  The branch sign is fixed by
-\(G_\Pi=\sigma h_\Pi,\ h_\Pi>0\), and \(\kappa\) is chosen accordingly.
-Therefore the Schur block has fixed oriented sign, and
-`RawAugmentedCircuitSign` holds for all nondegenerate circuits.  Degenerate
-determinants reduce support or route to boundary/lower genus.
+and then sign every factor.  In particular, it remains to prove that the
+moving-chart rows, free-period/filling convention, moving-\(Q\) gauge rows,
+pole/residue-state rows, and equality row are all compatible with one ordered
+real Cauchy/confluent Cauchy orientation.  Choosing \(\det A>0\) fixes a chart
+orientation; it does not by itself prove the sign of every augmented Schur
+minor.
 
 \[
 \boxed{
-\textbf{Gate 1 result: PASS.}\quad
-\text{RawAugmentedCircuitSign holds in the canonical regular chart.}
+\textbf{Gate 1 status: BLOCKED at SchurBlockTotalPositivityLemma.}\quad
+\text{Rank-defect is reduced to the raw augmented circuit obstruction.}
 }
 \]
 
@@ -3317,15 +3320,18 @@ minimizer.
 }
 \]
 
-Hence the rank-defect conclusion for the regular non-pinched interior is:
+Hence the first-variation interface is closed, but the rank-defect conclusion
+still depends on Gate 1 supplying reduced LP feasibility:
 
 \[
 \boxed{
+\text{RawAugmentedCircuitSign}
+\Rightarrow
 \text{rank-defect compact }g=2\text{ excluded.}
 }
 \]
 
-Gate 3 closes the compactified \(g=2\) boundary as a proof-grade lemma.  The
+Gate 3 is the boundary-routing proof obligation.  The
 compactification uses coefficient convergence of \(D,Q\), weak convergence of
 positive pole and endpoint atoms, \(L^1_{\rm loc}\) convergence of densities on
 non-colliding cut interiors, Hausdorff convergence of \(Z_0\), and local
@@ -3363,17 +3369,20 @@ the listed boundary/state-lift stratum.
 
 \[
 \boxed{
-\textbf{Gate 3 result: PROOF-GRADE PASS.}\quad
-\text{The compactified }g=2\text{ boundary routes to corrected }g=1,
-\text{ one-cut, lower genus, or already excluded }g=2\text{ cases.}
+\textbf{Gate 3 status: proof route identified, compactness proof still required.}\quad
+\text{The boundary cases are routed, but the compactness lemma is not yet
+proof-grade.}
 }
 \]
 
-Thus Gates 1--3 remove the regular interior, rank-defect interior, and boundary
-\(g=2\) compact cases.  The remaining global gates are high-genus local-neck
+To upgrade Gate 3 to PASS, the proof must still supply coefficient
+convergence, weak convergence of atoms, \(L^1_{\rm loc}\) density convergence,
+Hausdorff closure of active zero sets, local uniform convergence of potentials,
+and a check that endpoint atoms or pole collisions do not create a new
+counterexample stratum.  The remaining global gates are high-genus local-neck
 reduction, Lemma R, and the one-cut upper construction.
 
-Gate 4 removes regular compact high-genus chambers as a proof-grade local-neck
+Gate 4 gives the intended regular compact high-genus local-neck
 lemma.  For a regular non-pinched chamber with \(g\ge3\), let \(K\) be the
 actual KKT normal after the free-period quotient.  If \(K\) projected to zero
 on every adjacent two-cut block, overlapping adjacent blocks would force
@@ -3417,10 +3426,11 @@ g\ge3\text{ regular compact chambers contain a local }g=2
 }
 \]
 
-Thus Gates 1--4 remove all regular finite-gap compact chambers except the
-one-cut/lower-genus branch still handled by the upper/lower assembly.
+Thus, conditional on the Gate 1 and Gate 3 proof obligations, Gate 4 removes
+all regular finite-gap compact chambers except the one-cut/lower-genus branch
+still handled by the upper/lower assembly.
 
-Gate 5 removes non-regular minimizers as a proof-grade regularization lemma.
+Gate 5 is the non-regular minimizer regularization proof obligation.
 Let \(\mu\) be a compactified normalized minimizer with
 \(|E_\mu|<M_{\rm oc}\).  Split multiple poles, separate coincident endpoints,
 replace persistent zero residues by small positive residues, and add a small
@@ -3446,14 +3456,15 @@ lower bounds.
 
 \[
 \boxed{
-\textbf{Gate 5 result: PROOF-GRADE PASS.}\quad
-\text{Every minimizing counterexample regularizes or collapses to a covered
-boundary/lower-genus branch.}
+\textbf{Gate 5 status: proof route identified, Lemma R still required.}\quad
+\text{The regularization and row-restoration argument is not yet proof-grade.}
 }
 \]
 
-Thus Gates 1--5 give the lower-bound exclusion for the compactified finite-gap
-class, pending only the exact one-cut upper construction and final assembly.
+To upgrade Gate 5 to PASS, the proof must still define the compactified
+finite-gap charts and row-restoration map, prove the needed IFT hypotheses,
+show positivity and strict length defect survive the correction, and prove that
+Jacobian degeneration is exactly a Gate 3 boundary/lower-genus collapse.
 
 Gate 6 defines the one-cut upper construction by equations.  For \(a\in(-1,1)\),
 set
@@ -3532,13 +3543,16 @@ L_-\le M_{\rm oc}.
 }
 \]
 
-The remaining step is final theorem assembly.
+The remaining step is final theorem assembly, but it is conditional until Gate
+1, Gate 3, and Gate 5 are upgraded to proof-grade lemmas.
 
-Gate 7 assembles the theorem.  Gates 1--5 imply the lower bound: any
-normalized minimizer with \(|E_\mu|<M_{\rm oc}\) either regularizes to a
-regular finite-gap counterexample, excluded by Gates 1--4, or collapses to a
-Gate 3 boundary/lower-genus branch.  The only surviving branch is the one-cut
-branch, and \(M_{\rm oc}\) is defined as its exact infimum.  Hence
+Gate 7 assembles the conditional theorem.  If the remaining proof obligations
+are closed, Gates 1--5 imply the lower bound: any normalized minimizer with
+\(|E_\mu|<M_{\rm oc}\) either regularizes to a regular finite-gap
+counterexample, excluded by Gates 1--4, or collapses to a Gate 3
+boundary/lower-genus branch.  The only surviving branch is the one-cut branch,
+and \(M_{\rm oc}\) is defined as its exact infimum.  Under those conditional
+inputs,
 
 \[
 L_-\ge M_{\rm oc}.
@@ -3555,8 +3569,8 @@ Therefore
 
 \[
 \boxed{
-\textbf{Gate 7 result: PASS.}\quad
-L_-=M_{\rm oc}.
+\textbf{Gate 7 assembly: CONDITIONAL.}\quad
+\text{If the remaining proof obligations are closed, then }L_-=M_{\rm oc}.
 }
 \]
 
