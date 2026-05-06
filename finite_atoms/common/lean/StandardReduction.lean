@@ -7848,6 +7848,75 @@ theorem unitInterval_diagonalAtom_or_log_error_lt_of_tailMass
       (unitInterval_log_error_lt_of_tailMass_and_ae_ne
         hε hδ htail (ae_ne_of_notMem_diagonalAtomSet hxdiag))
 
+theorem mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ} {n : ℕ}
+    (hpos : 0 < unitIntervalLogPotential μ x)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (htail :
+      singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+        ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  have hhalf_pos : 0 < unitIntervalLogPotential μ x / 2 := by
+    positivity
+  have herror :
+      |unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x -
+        unitIntervalLogPotential μ x| <
+        unitIntervalLogPotential μ x / 2 :=
+    unitInterval_log_error_lt_of_tailMass_and_ae_ne
+      (unitIntervalPositiveTruncationScale_pos n)
+      hhalf_pos htail (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+  have hlower :
+      -(unitIntervalLogPotential μ x / 2) <
+        unitIntervalTruncatedPotential
+            (unitIntervalPositiveTruncationScale n) μ x -
+          unitIntervalLogPotential μ x :=
+    (abs_lt.mp herror).1
+  refine ⟨n, ?_⟩
+  linarith
+
+theorem positiveSet_subset_truncatedPositiveSet_union_diagonal_of_tailMass_small
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    PositiveSet (unitIntervalLogPotential μ) ⊆
+      unitIntervalTruncatedPositiveSet μ ∪ diagonalAtomSet μ := by
+  intro x hx
+  by_cases hxdiag : x ∈ diagonalAtomSet μ
+  · exact Or.inr hxdiag
+  · rcases hsmall x hx hxdiag with ⟨n, htail⟩
+    exact Or.inl
+      (mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+        hx hxdiag htail)
+
+theorem unitIntervalPositiveSetObjective_le_truncatedObjective_of_tailMass_small
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hsmall : ∀ x : ℝ,
+      0 < unitIntervalLogPotential μ x →
+      x ∉ diagonalAtomSet μ →
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+          ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    unitIntervalPositiveSetObjective μ ≤
+      unitIntervalTruncatedPositiveSetObjective μ := by
+  calc
+    unitIntervalPositiveSetObjective μ
+        = volume (PositiveSet (unitIntervalLogPotential μ)) := rfl
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ ∪ diagonalAtomSet μ) :=
+        measure_mono
+          (positiveSet_subset_truncatedPositiveSet_union_diagonal_of_tailMass_small
+            μ hsmall)
+    _ ≤ volume (unitIntervalTruncatedPositiveSet μ) +
+          volume (diagonalAtomSet μ) :=
+        measure_union_le _ _
+    _ = volume (unitIntervalTruncatedPositiveSet μ) := by
+        simp [diagonalAtomSet_volume_zero μ]
+    _ = unitIntervalTruncatedPositiveSetObjective μ := rfl
+
 theorem unitInterval_log_error_eventually_on_compact_of_tailMass_and_ae_ne
     (μ : ProbabilityMeasure UnitInterval1038) {ε δ : ℝ} {K : Set ℝ}
     (hε : 0 < ε) (hδ : 0 < δ)
