@@ -192,6 +192,57 @@ theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac
       hendpoint_component
   exact hendpoint_eq.symm
 
+/--
+If the selected component contains the whole baseline interval `(-1,0)`, then
+its left endpoint is at or to the left of `-1`, and its right endpoint is at or
+to the right of `0`.
+-/
+theorem component_endpoint_order_of_baseline_inside
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    C.left ≤ (-1 : ℝ) ∧ (0 : ℝ) ≤ C.right := by
+  constructor
+  · by_contra hnot
+    have hleft_gt : (-1 : ℝ) < C.left := lt_of_not_ge hnot
+    have hleft_lt_zero : C.left < 0 := by
+      have hhalf_mem : ((-1 / 2 : ℝ)) ∈ C.interval := by
+        exact hbaseline (by norm_num)
+      rw [PositiveComponent.interval_eq] at hhalf_mem
+      exact lt_trans hhalf_mem.1 (by norm_num)
+    let y : ℝ := ((-1 : ℝ) + C.left) / 2
+    have hy_base : y ∈ Ioo (-1 : ℝ) 0 := by
+      constructor
+      · dsimp [y]
+        linarith
+      · dsimp [y]
+        linarith
+    have hy_comp : y ∈ C.interval := hbaseline hy_base
+    rw [PositiveComponent.interval_eq] at hy_comp
+    have hy_lt_left : y < C.left := by
+      dsimp [y]
+      linarith
+    linarith [hy_comp.1, hy_lt_left]
+  · by_contra hnot
+    have hright_lt : C.right < 0 := lt_of_not_ge hnot
+    have hright_gt_neg_half : (-1 / 2 : ℝ) < C.right := by
+      have hhalf_mem : ((-1 / 2 : ℝ)) ∈ C.interval := by
+        exact hbaseline (by norm_num)
+      rw [PositiveComponent.interval_eq] at hhalf_mem
+      exact hhalf_mem.2
+    let y : ℝ := C.right / 2
+    have hy_base : y ∈ Ioo (-1 : ℝ) 0 := by
+      constructor
+      · dsimp [y]
+        linarith
+      · dsimp [y]
+        linarith
+    have hy_comp : y ∈ C.interval := hbaseline hy_base
+    rw [PositiveComponent.interval_eq] at hy_comp
+    have hright_lt_y : C.right < y := by
+      dsimp [y]
+      linarith
+    linarith [hy_comp.2, hright_lt_y]
+
 /-! ### Endpoint support shape and boundary average -/
 
 /-- Neighborhood form of the one-sided boundary exclusion argument. -/

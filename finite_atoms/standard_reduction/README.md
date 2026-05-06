@@ -293,6 +293,18 @@ removes the direct `componentBarycenter = -1` input at the proof level.  After
 atomization, if `-1` is a real support point lying in the selected component
 interval, the barycenter is the normalized endpoint.
 
+The theorem
+
+```lean
+component_endpoint_order_of_baseline_inside
+```
+
+derives the correct endpoint-order consequence from the baseline inclusion
+`(-1,0) ⊆ component.interval`: the component's left endpoint is at or to the
+left of `-1`, and its right endpoint is at or to the right of `0`.  It does not
+claim `(-1) ∈ component.interval`, which would be false for an open interval
+with left endpoint exactly `-1`.
+
 ## Check command
 
 From the repository root:
