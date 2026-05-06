@@ -151,11 +151,15 @@ potential sign through Jensen's logarithmic inequality:
 ```lean
 endpointRemainder_boundary_distance_of_potential_nonpos
 boundary_average_of_boundary_potential_nonpos
+boundary_average_of_right_endpoint_not_positive
 ```
 
 Thus the `boundary_average` field can be obtained from a nonpositive boundary
 potential value at `xPlus`, standard distance/log integrability and separation
 hypotheses, and the canonical endpoint-remainder support-order theorem above.
+For a genuine maximal positive component, the latest bridge replaces the
+nonpositive boundary-potential input by the more natural topological statement
+that the right endpoint is not in the positive set.
 
 At the relaxed-minimizer interface, the same file defines
 

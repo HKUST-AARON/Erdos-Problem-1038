@@ -532,6 +532,40 @@ theorem boundary_average_of_boundary_potential_nonpos
     hrem_dist_int
 
 /--
+Boundary-average constructor from the natural right-endpoint bookkeeping:
+the endpoint is not in the positive set.
+
+For an actual maximal positive component, the remaining topological step is to
+prove `xPlus ∉ PositiveSet (unitIntervalLogPotential μ)`.  Once that is
+available, this theorem supplies the boundary-average field through the
+Jensen/log bridge above.
+-/
+theorem boundary_average_of_right_endpoint_not_positive
+    (μ : ProbabilityMeasure UnitInterval1038) {xPlus ε : ℝ}
+    (hxPlus_nonneg : 0 ≤ xPlus)
+    (hrem_support :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Icc xPlus 1)
+    (hnot_positive :
+      xPlus ∉ PositiveSet (unitIntervalLogPotential μ))
+    (hε : 0 < ε)
+    (hdist_lower :
+      ∀ᵐ t : ℝ ∂realMeasure μ, ε ≤ |xPlus - t|)
+    (hdist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (realMeasure μ))
+    (hlog_int :
+      Integrable (fun t : ℝ => Real.log |xPlus - t|) (realMeasure μ))
+    (hrem_dist_int :
+      Integrable (fun t : ℝ => |xPlus - t|) (endpointRemainder μ)) :
+    1 ≤
+      (xPlus + 1) * ((realMeasure μ) (({-1} : Set ℝ))).toReal +
+        (1 - xPlus) *
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  refine boundary_average_of_boundary_potential_nonpos
+    μ hxPlus_nonneg hrem_support ?_ hε hdist_lower hdist_int hlog_int
+    hrem_dist_int
+  exact le_of_not_gt hnot_positive
+
+/--
 On the baseline punctured interval, the log kernel is integrable against the
 canonical endpoint remainder once the normalized support shape
 `support ⊆ {-1} ∪ [0,1]` is known.
