@@ -11643,6 +11643,77 @@ theorem queue.
     That is not a formal consequence of finite-dimensional Farkas.  The
     correct proof target is the lifted strict inequality above.
 
+    Cone-envelope duality.
+
+    Let
+
+    \[
+    K_Z=\operatorname{cone}\{\mathcal V_Z(x):x\in Z_0\}\subset\mathbb R^5.
+    \]
+
+    Since \(Z_0\) is compact and \(\mathcal V_Z\) is continuous in the regular
+    chart, the relevant cone section is closed after excluding the only
+    possible positive-lift recession ray
+
+    \[
+    \sum_kw_kV_S(x_k)=0,\qquad \sum_kw_kV_\Pi(x_k)>0.
+    \tag{G1PositiveLiftRecession}
+    \]
+
+    If such a recession ray exists, the cone-envelope inequality fails
+    outright and gives an explicit atomic obstruction.  Otherwise standard
+    finite-dimensional conic duality gives
+
+    \[
+    \boxed{
+    \Phi_Z(y)
+    =
+    \inf_{\theta\in\mathbb R^4}
+    \left\{
+    \theta\cdot y:
+    \theta\cdot V_S(x)\ge V_\Pi(x)\quad(x\in Z_0)
+    \right\}.
+    }
+    \tag{G1PhiDual}
+    \]
+
+    Hence the \(\eta>0\) atomic branch is excluded if, for every
+    \(\Lambda\in\mathbb R\), one constructs \(\theta_\Lambda\in\mathbb R^4\)
+    such that
+
+    \[
+    \boxed{
+    \theta_\Lambda\cdot V_S(x)\ge V_\Pi(x)
+    \quad(x\in Z_0),
+    }
+    \tag{G1ThetaMajorantEta}
+    \]
+
+    and
+
+    \[
+    \boxed{
+    \theta_\Lambda\cdot(-b_S+\Lambda\rho_S)
+    <
+    -b_\Pi+\Lambda\rho_\Pi.
+    }
+    \tag{G1ThetaStrictEta}
+    \]
+
+    Similarly, the homogeneous branch is excluded if, for every
+    \(\lambda\ne0\), one constructs \(\theta_\lambda\) with the same majorant
+    property and
+
+    \[
+    \boxed{
+    \theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi.
+    }
+    \tag{G1ThetaStrictHom}
+    \]
+
+    This is now the exact Step 3 target: the atom branch is a family of scalar
+    potential majorants on \(Z_0\), not an unstructured measure problem.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

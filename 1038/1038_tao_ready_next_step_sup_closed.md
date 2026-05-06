@@ -4170,6 +4170,43 @@ The homogeneous case \(\eta=0\) is the analogous condition
 So the remaining hard statement is not a vague no-atom claim; it is this
 lifted cone-envelope inequality for the explicit \(Z_0\)-columns.
 
+The same criterion has a dual form.  Assuming the conic hull has no positive
+lift recession ray
+
+\[
+\sum_kw_kV_S(x_k)=0,\qquad \sum_kw_kV_\Pi(x_k)>0,
+\]
+
+finite-dimensional conic duality gives
+
+\[
+\Phi_Z(y)=
+\inf_{\theta\in\mathbb R^4}
+\left\{
+\theta\cdot y:\theta\cdot V_S(x)\ge V_\Pi(x)\ \forall x\in Z_0
+\right\}.
+\]
+
+Thus for every \(\Lambda\) it is enough to construct
+\(\theta_\Lambda\) with
+
+\[
+\theta_\Lambda\cdot V_S(x)\ge V_\Pi(x)\quad(x\in Z_0)
+\]
+
+and
+
+\[
+\theta_\Lambda\cdot(-b_S+\Lambda\rho_S)
+<-b_\Pi+\Lambda\rho_\Pi.
+\]
+
+The homogeneous case is the same with
+
+\[
+\theta_\lambda\cdot(\lambda\rho_S)<\lambda\rho_\Pi.
+\]
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
