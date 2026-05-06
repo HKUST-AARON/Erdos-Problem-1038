@@ -247,6 +247,72 @@ theorem endpointRemainder_mass_nonneg
     ENNReal.toReal_nonneg
   linarith
 
+/-- The endpoint atom log-kernel is integrable for every test point. -/
+lemma endpointAtom_logKernel_integrable
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      (((realMeasure μ) (({-1} : Set ℝ))) •
+        Measure.dirac (-1 : ℝ)) := by
+  exact (integrable_dirac
+    (a := (-1 : ℝ))
+    (f := fun t : ℝ => Real.log (1 / |x - t|))
+    (by simp)).smul_measure (measure_ne_top (realMeasure μ) (({-1} : Set ℝ)))
+
+/--
+Exact potential decomposition into the endpoint atom at `-1` plus the canonical
+endpoint remainder.
+-/
+theorem unitIntervalLogPotential_eq_endpointAtom_add_endpointRemainder
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ)
+    (hrem :
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        (endpointRemainder μ)) :
+    unitIntervalLogPotential μ x =
+      ((realMeasure μ) (({-1} : Set ℝ))).toReal *
+          Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂endpointRemainder μ) := by
+  let f : ℝ → ℝ := fun t : ℝ => Real.log (1 / |x - t|)
+  have hatom :
+      Integrable f
+        (((realMeasure μ) (({-1} : Set ℝ))) •
+          Measure.dirac (-1 : ℝ)) :=
+    endpointAtom_logKernel_integrable μ x
+  have hsum :
+      endpointRemainder μ +
+          ((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ) =
+        realMeasure μ := by
+    calc
+      endpointRemainder μ +
+          ((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ)
+          = (realMeasure μ).restrict (({-1} : Set ℝ)ᶜ) +
+              (realMeasure μ).restrict ({-1} : Set ℝ) := by
+              rw [endpointRemainder, Measure.restrict_singleton]
+      _ = realMeasure μ := by
+              exact Measure.restrict_compl_add_restrict
+                (μ := realMeasure μ) (s := ({-1} : Set ℝ))
+                (measurableSet_singleton (-1 : ℝ))
+  calc
+    unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
+      rw [unitIntervalLogPotential_eq_realMeasure]
+    _ = ∫ t : ℝ, f t ∂realMeasure μ := rfl
+    _ = ∫ t : ℝ, f t ∂(endpointRemainder μ +
+          ((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ)) := by
+          rw [hsum]
+    _ = (∫ t : ℝ, f t ∂endpointRemainder μ) +
+          (∫ t : ℝ, f t
+            ∂(((realMeasure μ) (({-1} : Set ℝ))) • Measure.dirac (-1 : ℝ))) := by
+          exact integral_add_measure hrem hatom
+    _ = (∫ t : ℝ, f t ∂endpointRemainder μ) +
+          ((realMeasure μ) (({-1} : Set ℝ))).toReal *
+            Real.log (1 / |x + 1|) := by
+          rw [integral_smul_measure]
+          rw [integral_dirac]
+          simp [f, sub_eq_add_neg, smul_eq_mul, mul_comm]
+    _ = ((realMeasure μ) (({-1} : Set ℝ))).toReal *
+          Real.log (1 / |x + 1|) +
+        (∫ t : ℝ, Real.log (1 / |x - t|) ∂endpointRemainder μ) := by
+          ring
+
 /--
 Data needed to use the canonical endpoint remainder in
 `TaoVariationComponentPackage`.
@@ -265,6 +331,24 @@ structure CanonicalEndpointRemainderData
   potential_decomposition_lower : ∀ x : ℝ, x ∈ BaselinePunctured →
     ((realMeasure μ) (({-1} : Set ℝ))).toReal * Real.log (1 / |x + 1|) +
       (∫ t : ℝ, Real.log (1 / |x - t|) ∂endpointRemainder μ) ≤ U x
+
+/--
+For the unmodified unit-interval potential, canonical endpoint-remainder data
+only needs support containment and log-kernel integrability; the potential
+decomposition is an equality.
+-/
+def CanonicalEndpointRemainderData.of_unitIntervalLogPotential
+    (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
+    (hSupport : (realMeasure μ).support ⊆ Support)
+    (hkernel : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (endpointRemainder μ)) :
+    CanonicalEndpointRemainderData μ Support (unitIntervalLogPotential μ) where
+  support_contains_real_support := hSupport
+  kernel_integrable := hkernel
+  potential_decomposition_lower := by
+    intro x hx
+    rw [unitIntervalLogPotential_eq_endpointAtom_add_endpointRemainder
+      μ x (hkernel x hx)]
 
 /--
 Build endpoint-normalization data from component data and the canonical

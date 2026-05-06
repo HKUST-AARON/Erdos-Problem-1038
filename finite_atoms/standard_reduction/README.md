@@ -80,7 +80,10 @@ mass identity, and mass nonnegativity once the selected support contains the
 actual topological support and the endpoint mass is identified with the mass at
 `-1`.  The remaining inputs for this remainder bridge are the genuine analytic
 ones: log-kernel integrability and the endpoint-plus-remainder potential lower
-bound.
+bound.  For the unmodified potential `unitIntervalLogPotential μ`, the
+endpoint-plus-remainder decomposition is now proved as an equality, so the
+canonical-remainder data only needs support containment and log-kernel
+integrability.
 
 ## Check command
 
