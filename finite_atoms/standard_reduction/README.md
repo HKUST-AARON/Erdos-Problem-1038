@@ -73,6 +73,15 @@ and the barycenter has been normalized to `-1`.  The remaining upstream input
 in this layer is the actual Tao variation data selecting the positive component
 and providing the replacement/secondary-objective hypotheses.
 
+The same file now also provides the canonical endpoint-remainder construction:
+the remainder is `realMeasure μ` restricted to the complement of `{-1}`.  This
+automatically supplies the a.e. support-in-support field, endpoint exclusion,
+mass identity, and mass nonnegativity once the selected support contains the
+actual topological support and the endpoint mass is identified with the mass at
+`-1`.  The remaining inputs for this remainder bridge are the genuine analytic
+ones: log-kernel integrability and the endpoint-plus-remainder potential lower
+bound.
+
 ## Check command
 
 From the repository root:

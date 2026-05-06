@@ -172,6 +172,125 @@ theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
   exact unique_support_in_component_of_componentBlock_eq_dirac
     C hSupport_subset hblock t htSupport htComp
 
+/-! ### Canonical endpoint remainder -/
+
+/--
+The canonical endpoint remainder after normalization: remove the endpoint atom
+at `-1` from the pushed-forward unit-interval measure.
+-/
+def endpointRemainder (μ : ProbabilityMeasure UnitInterval1038) : Measure ℝ :=
+  (realMeasure μ).restrict (({-1} : Set ℝ)ᶜ)
+
+/--
+The canonical endpoint remainder is a.e. supported on any selected support set
+which contains the topological support of the original pushed-forward measure.
+-/
+theorem endpointRemainder_ae_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) {Support : Set ℝ}
+    (hSupport_subset : (realMeasure μ).support ⊆ Support) :
+    ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ Support := by
+  have hsupport_ae :
+      ∀ᵐ t : ℝ ∂realMeasure μ, t ∈ (realMeasure μ).support :=
+    Measure.support_mem_ae
+  exact (ae_restrict_of_ae hsupport_ae).mono fun t ht =>
+    hSupport_subset ht
+
+/-- The canonical endpoint remainder excludes the endpoint atom a.e. -/
+theorem endpointRemainder_ae_ne_endpoint
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    ∀ᵐ t : ℝ ∂endpointRemainder μ, t ≠ -1 := by
+  have hmem :
+      ∀ᵐ t : ℝ ∂endpointRemainder μ, t ∈ (({-1} : Set ℝ)ᶜ) :=
+    ae_restrict_mem (measurableSet_singleton (-1 : ℝ)).compl
+  exact hmem.mono fun t ht hEq => ht (by simp [hEq])
+
+/--
+Mass of the canonical endpoint remainder in real-valued endpoint-mass
+coordinates.
+-/
+theorem endpointRemainder_mass
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    endpointRemainder μ Set.univ =
+      ENNReal.ofReal (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+  have hprob :
+      (realMeasure μ).real (({-1} : Set ℝ)) +
+          (realMeasure μ).real (({-1} : Set ℝ)ᶜ) = 1 :=
+    probReal_add_probReal_compl (μ := realMeasure μ)
+      (measurableSet_singleton (-1 : ℝ))
+  have hcompl_real :
+      (realMeasure μ).real (({-1} : Set ℝ)ᶜ) =
+        1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal := by
+    dsimp [Measure.real] at hprob ⊢
+    linarith
+  calc
+    endpointRemainder μ Set.univ =
+        (realMeasure μ) (({-1} : Set ℝ)ᶜ) := by
+          simp [endpointRemainder]
+    _ = ENNReal.ofReal ((realMeasure μ).real (({-1} : Set ℝ)ᶜ)) := by
+          exact (ENNReal.ofReal_toReal
+            (measure_ne_top (realMeasure μ) (({-1} : Set ℝ)ᶜ))).symm
+    _ = ENNReal.ofReal
+          (1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal) := by
+          rw [hcompl_real]
+
+/-- The canonical endpoint mass coordinate has nonnegative complement mass. -/
+theorem endpointRemainder_mass_nonneg
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    0 ≤ 1 - ((realMeasure μ) (({-1} : Set ℝ))).toReal := by
+  have hprob :
+      (realMeasure μ).real (({-1} : Set ℝ)) +
+          (realMeasure μ).real (({-1} : Set ℝ)ᶜ) = 1 :=
+    probReal_add_probReal_compl (μ := realMeasure μ)
+      (measurableSet_singleton (-1 : ℝ))
+  dsimp [Measure.real] at hprob ⊢
+  have hnonneg : 0 ≤ ((realMeasure μ) (({-1} : Set ℝ)ᶜ)).toReal :=
+    ENNReal.toReal_nonneg
+  linarith
+
+/--
+Data needed to use the canonical endpoint remainder in
+`TaoVariationComponentPackage`.
+
+This removes the need to supply the remainder measure, its support in the
+selected support, endpoint exclusion, mass, and mass nonnegativity separately.
+The analytic log-integrability and endpoint-plus-remainder lower bound remain
+explicit because they depend on the chosen normalized potential presentation.
+-/
+structure CanonicalEndpointRemainderData
+    (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
+    (U : ℝ → ℝ) where
+  support_contains_real_support : (realMeasure μ).support ⊆ Support
+  kernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (endpointRemainder μ)
+  potential_decomposition_lower : ∀ x : ℝ, x ∈ BaselinePunctured →
+    ((realMeasure μ) (({-1} : Set ℝ))).toReal * Real.log (1 / |x + 1|) +
+      (∫ t : ℝ, Real.log (1 / |x - t|) ∂endpointRemainder μ) ≤ U x
+
+/--
+Build endpoint-normalization data from component data and the canonical
+endpoint remainder.
+-/
+def TaoComponentReductionData.toTaoEndpointNormalizationData_of_endpointRemainder
+    {μ : ProbabilityMeasure UnitInterval1038} {U : ℝ → ℝ}
+    (D : TaoComponentReductionData)
+    (hendpointMass :
+      D.endpointMass = ((realMeasure μ) (({-1} : Set ℝ))).toReal)
+    (Hrem : CanonicalEndpointRemainderData μ D.Support U) :
+    TaoEndpointNormalizationData U :=
+  D.toTaoEndpointNormalizationData_of_remainder_ae_support
+    (endpointRemainder μ)
+    (endpointRemainder_ae_mem_support μ Hrem.support_contains_real_support)
+    (endpointRemainder_ae_ne_endpoint μ)
+    (by
+      rw [endpointRemainder_mass μ, hendpointMass])
+    (by
+      rw [hendpointMass]
+      exact endpointRemainder_mass_nonneg μ)
+    Hrem.kernel_integrable
+    (by
+      intro x hx
+      simpa [hendpointMass] using Hrem.potential_decomposition_lower x hx)
+
 /--
 A component whose barycenter replacement is known not to increase objective by
 countability of the singular strict-outside support-hit branch.
