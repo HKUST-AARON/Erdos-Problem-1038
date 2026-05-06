@@ -172,6 +172,26 @@ theorem unique_support_in_component_endpoint_of_componentBlock_eq_dirac
   exact unique_support_in_component_of_componentBlock_eq_dirac
     C hSupport_subset hblock t htSupport htComp
 
+/--
+If component-block atomization has been proved and the normalized endpoint
+`-1` is a support point inside the component, then the component barycenter is
+the normalized endpoint.
+-/
+theorem componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hblock :
+      componentBlock C =
+        componentMass C • Measure.dirac (componentBarycenter C))
+    (hendpoint_support : (-1 : ℝ) ∈ (realMeasure μ).support)
+    (hendpoint_component : (-1 : ℝ) ∈ C.interval) :
+    componentBarycenter C = -1 := by
+  have hendpoint_eq :
+      (-1 : ℝ) = componentBarycenter C :=
+    unique_support_in_component_of_componentBlock_eq_dirac
+      C (fun _ ht => ht) hblock (-1) hendpoint_support
+      hendpoint_component
+  exact hendpoint_eq.symm
+
 /-! ### Endpoint support shape and boundary average -/
 
 /-- Neighborhood form of the one-sided boundary exclusion argument. -/

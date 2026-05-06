@@ -283,6 +283,16 @@ the countable-support-hit normalized rigidity package.  It uses
 `CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac`
 internally.
 
+The theorem
+
+```lean
+componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac
+```
+
+removes the direct `componentBarycenter = -1` input at the proof level.  After
+atomization, if `-1` is a real support point lying in the selected component
+interval, the barycenter is the normalized endpoint.
+
 ## Check command
 
 From the repository root:
