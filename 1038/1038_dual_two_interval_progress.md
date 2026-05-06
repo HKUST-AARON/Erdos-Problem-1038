@@ -10060,6 +10060,110 @@ theorem queue.
     points collide, or the row image leaves the separated chart are exactly
     the Gate 3 boundary modes.
 
+    Finite matrix form of the remaining sign audit.
+
+    Fix a basis \(q_1,\ldots,q_m\) of the endpoint-row image
+    \(V_{\rm ep}\subset V^\sharp\) after the zero-mass, free-period, and
+    boundary-neutral equality conventions.  Write every certificate row as
+
+    \[
+    r_{\mathfrak c}=\sum_{\mu=1}^m\alpha_\mu(\mathfrak c)q_\mu.
+    \tag{G1alpha}
+    \]
+
+    In this basis the effective endpoint Hessian is the symmetric matrix
+
+    \[
+    \boxed{
+    \mathcal H_{\mu\nu}
+    =
+    b(q_\mu,q_\nu)
+    +
+    (C^{-1})_{\mu\nu},
+    }
+    \tag{G1Hmatrix}
+    \]
+
+    where \(C_{\mu\nu}=\mathcal E_{\log}(g_\mu,g_\nu)\) is the Riesz Gram
+    matrix for the row representers and \(b\) is the finite non-log
+    branch-state Hessian in the same row coordinates.  Thus
+
+    \[
+    Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})
+    =
+    \alpha(\mathfrak c)^T\mathcal H\,\alpha(\mathfrak c).
+    \tag{G1QeffMatrix}
+    \]
+
+    The atomic certificate cone is the finite-dimensional cone
+
+    \[
+    \mathcal C_{\rm at}
+    =
+    \left\{
+    \alpha(\mathfrak c):
+    \eta b_S+\sum_kw_kV_S(x_k)-\lambda\rho_S=0,\
+    \eta\ge0,\ w_k>0,\ x_k\in Z_0
+    \right\}.
+    \tag{G1Cat}
+    \]
+
+    After excluding the boundary cases \(r_{\mathfrak c}=0\), support
+    collision, and chart-rank loss, normalize
+
+    \[
+    \|\alpha(\mathfrak c)\|=1.
+    \]
+
+    The normalized certificate set
+
+    \[
+    \mathcal C_{\rm at}^{1}
+    =
+    \mathcal C_{\rm at}\cap S^{m-1}
+    \tag{G1Cat1}
+    \]
+
+    is compact in the non-boundary separated chart: by conic Carathéodory
+    \(N\le5\), \(Z_0\) is compact, and the excluded degeneracies are precisely
+    the cases where the support falls to a smaller circuit or exits the chart.
+
+    Therefore the remaining Gate 1 sign is exactly the scalar finite
+    optimization
+
+    \[
+    \boxed{
+    \Lambda_{\rm at}
+    =
+    \max_{\alpha\in\mathcal C_{\rm at}^{1}}
+    \alpha^T\mathcal H\alpha.
+    }
+    \tag{G1LambdaAt}
+    \]
+
+    We have proved the equivalence:
+
+    \[
+    \boxed{
+    \text{QeffNegativeCertificate}
+    \Longleftrightarrow
+    \Lambda_{\rm at}<0.
+    }
+    \tag{G1LambdaCriterion}
+    \]
+
+    Indeed, if \(\Lambda_{\rm at}<0\), then every normalized non-boundary
+    certificate has negative \(Q_{\rm eff}\)-value, and homogeneity gives
+    (G1QeffCert).  Conversely, if (G1QeffCert) holds but
+    \(\Lambda_{\rm at}\ge0\), compactness gives a normalized certificate
+    attaining a nonnegative value, contradicting (G1QeffCert).
+
+    Thus the card point is now a finite matrix inequality on the explicit cone
+    \(\mathcal C_{\rm at}\).  No density closure, PV equation, or first-order
+    determinant orientation remains hidden in Gate 1.  To finish Gate 1 one
+    must compute \(\mathcal H\) and prove \(\Lambda_{\rm at}<0\), or exhibit an
+    optimizer with \(\Lambda_{\rm at}\ge0\) as a concrete obstruction.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

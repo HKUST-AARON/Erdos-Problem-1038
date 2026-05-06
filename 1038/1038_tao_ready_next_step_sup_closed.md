@@ -3536,6 +3536,51 @@ second-order necessary condition for a compact non-pinched regular minimizer.
 Thus Gate 1 is now reduced to a finite \(Q_{\rm eff}\) sign computation, with
 zero-vector, support-collision, and chart-rank degeneracies routed to Gate 3.
 
+This finite computation can be stated without ambiguity.  Choose a basis
+\(q_1,\ldots,q_m\) of the endpoint-row image and write
+
+\[
+r_{\mathfrak c}=\sum_\mu\alpha_\mu(\mathfrak c)q_\mu.
+\]
+
+Let
+
+\[
+\mathcal H_{\mu\nu}=b(q_\mu,q_\nu)+(C^{-1})_{\mu\nu},
+\]
+
+where \(C\) is the Riesz Gram matrix of the row representers.  Then
+
+\[
+Q_{\rm eff}(r_{\mathfrak c},r_{\mathfrak c})
+=
+\alpha(\mathfrak c)^T\mathcal H\alpha(\mathfrak c).
+\]
+
+Let \(\mathcal C_{\rm at}\) be the cone of all coordinate vectors
+\(\alpha(\mathfrak c)\) coming from non-boundary atomic certificates, and set
+
+\[
+\Lambda_{\rm at}
+=
+\max_{\alpha\in \mathcal C_{\rm at}\cap S^{m-1}}
+\alpha^T\mathcal H\alpha.
+\]
+
+By conic Carathéodory, \(N\le5\); after excluding support collision and
+chart-rank boundary, the normalized certificate set is compact.  Hence
+
+\[
+\boxed{
+\text{QeffNegativeCertificate}
+\Longleftrightarrow
+\Lambda_{\rm at}<0.
+}
+\]
+
+This is now the precise remaining Gate 1 computation: calculate the matrix
+\(\mathcal H\) and prove the cone maximum is strictly negative.
+
 Gate 2 is the first-variation interface.  If the reduced LP produces an
 equality-corrected perturbation with
 
