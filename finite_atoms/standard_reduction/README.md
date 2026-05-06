@@ -25,17 +25,20 @@ existence part of the standard reduction.
 unitIntervalPositiveSetObjective
 ```
 
-and proves that compact off-diagonal singular-tail stability implies:
+and proves that the diagonal-safe one-sided compact-core input implies:
 
 - lower semicontinuity of the true objective;
 - existence of a relaxed objective minimizer.
 
-The remaining analytic input at this layer is named explicitly as
-`CompactTailMassStability`.
+The preferred remaining analytic input at this layer is named
+`OneSidedCompactCore`.  This avoids the too-strong requirement that singular
+tail mass be uniformly stable under arbitrary weak perturbations.  A legacy
+wrapper `CompactTailMassStability` is still present because older internal
+bridges consume it, but it is not the preferred proof target.
 
 `lean/MinimizerExistence.lean` packages the minimizer consequence as a named
-`RelaxedMinimizer` object.  This is the object that the later variation and
-normalization layers should consume.
+`RelaxedMinimizer` object.  Its preferred constructor is
+`exists_relaxed_minimizer_of_oneSidedCompactCore`.
 
 `lean/VariationEndpoint.lean` isolates the hard endpoint input as
 `EndpointFromVariation`.  Given endpoint-normalized data for the potential

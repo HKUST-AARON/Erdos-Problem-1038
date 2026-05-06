@@ -73,6 +73,19 @@ theorem exists_relaxed_minimizer_with_endpoint_data
   rcases MinimizerExistence.exists_relaxed_minimizer Hstab with ⟨M⟩
   exact ⟨⟨M, Hvar.endpointData M⟩⟩
 
+/--
+Preferred diagonal-safe variant: construct a relaxed minimizer from the
+one-sided compact-core input, then attach endpoint data.
+-/
+theorem exists_relaxed_minimizer_with_endpoint_data_of_oneSidedCompactCore
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : EndpointFromVariation) :
+    Nonempty (Σ M : MinimizerExistence.RelaxedMinimizer,
+      TaoEndpointNormalizationData (RelaxedPotential M)) := by
+  rcases MinimizerExistence.exists_relaxed_minimizer_of_oneSidedCompactCore
+      Hcore with ⟨M⟩
+  exact ⟨⟨M, Hvar.endpointData M⟩⟩
+
 /-- Baseline-length existence form after the variation endpoint input. -/
 theorem exists_baseline_length
     (Hstab : LowerSemicontinuity.CompactTailMassStability)
@@ -81,6 +94,17 @@ theorem exists_baseline_length
       ENNReal.ofReal (Real.sqrt 2) ≤
         volume (PositiveSet (RelaxedPotential M)) := by
   rcases exists_relaxed_minimizer_with_endpoint_data Hstab Hvar with ⟨⟨M, D⟩⟩
+  exact ⟨M, D.baseline_length_le_positiveSet⟩
+
+/-- Baseline-length existence form using the preferred diagonal-safe core. -/
+theorem exists_baseline_length_of_oneSidedCompactCore
+    (Hcore : LowerSemicontinuity.OneSidedCompactCore)
+    (Hvar : EndpointFromVariation) :
+    ∃ M : MinimizerExistence.RelaxedMinimizer,
+      ENNReal.ofReal (Real.sqrt 2) ≤
+        volume (PositiveSet (RelaxedPotential M)) := by
+  rcases exists_relaxed_minimizer_with_endpoint_data_of_oneSidedCompactCore
+      Hcore Hvar with ⟨⟨M, D⟩⟩
   exact ⟨M, D.baseline_length_le_positiveSet⟩
 
 end

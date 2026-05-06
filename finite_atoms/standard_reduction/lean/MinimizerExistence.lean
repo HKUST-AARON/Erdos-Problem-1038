@@ -34,6 +34,18 @@ theorem exists_relaxed_minimizer
   rcases LowerSemicontinuity.exists_minimizer H with ⟨μ, hμ⟩
   exact ⟨⟨μ, hμ⟩⟩
 
+/--
+Construct a relaxed minimizer from the diagonal-safe one-sided compact-core
+input.  This is the preferred public entry point, since it does not require
+tail-mass stability under arbitrary weak perturbations at future diagonal atoms.
+-/
+theorem exists_relaxed_minimizer_of_oneSidedCompactCore
+    (H : LowerSemicontinuity.OneSidedCompactCore) :
+    Nonempty RelaxedMinimizer := by
+  rcases LowerSemicontinuity.exists_minimizer_of_oneSidedCompactCore H with
+    ⟨μ, hμ⟩
+  exact ⟨⟨μ, hμ⟩⟩
+
 /-- Extract the usual minimizer inequality from the packaged object. -/
 theorem RelaxedMinimizer.objective_le
     (M : RelaxedMinimizer) (ν : ProbabilityMeasure UnitInterval1038) :
