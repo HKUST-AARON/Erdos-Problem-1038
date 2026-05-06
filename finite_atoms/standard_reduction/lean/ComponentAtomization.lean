@@ -122,6 +122,19 @@ lemma support_smul_dirac_subset_singleton (c : ℝ≥0∞) (a : ℝ) :
     exact ht ({a}ᶜ : Set ℝ) hU_mem
   simp [hzero] at hpos
 
+/-- A point carrying positive singleton mass lies in the topological support. -/
+private theorem mem_support_of_singleton_mass_pos
+    (μ : Measure ℝ) {a : ℝ}
+    (hmass : 0 < μ ({a} : Set ℝ)) :
+    a ∈ μ.support := by
+  rw [Measure.mem_support_iff_forall]
+  intro U hU
+  have haU : a ∈ U := mem_of_mem_nhds hU
+  have hsingleton_subset : ({a} : Set ℝ) ⊆ U := by
+    intro x hx
+    simpa using hx ▸ haU
+  exact lt_of_lt_of_le hmass (measure_mono hsingleton_subset)
+
 /--
 If the selected support is contained in the topological support of the actual
 measure, then component-block atomization forces every selected support point
