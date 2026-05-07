@@ -18418,21 +18418,18 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_normalized_atomization_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_atomization_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentReplacementAugmentedSpanRightGapNormalizedAtomizationDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hbaseline, hright_gap, hnormalized_atomized⟩
-  have hendpoint_unit_pos :
-      0 < (μ : Measure UnitInterval1038)
-        {t : UnitInterval1038 | (t : ℝ) = -1} :=
-    unitInterval_endpoint_atom_pos_of_normalizedComponentBlock_eq_dirac_endpoint
-      R hnormalized_atomized
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap, hnormalized_atomized⟩
+    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hbaseline, hright_gap,
+      componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+        R hnormalized_atomized⟩
 
 /--
 Augmented-span/right-gap provider where normalized atomization is derived from
