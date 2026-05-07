@@ -335,6 +335,12 @@ Useful corrections already recorded:
   for \(P_\theta/(Q^2R)\) between contacts, and the strict residual check.
   Contact collisions, endpoint/pole hits, or denominator sign loss route to
   Gate 3.
+- `ContactPatternVerification` is now the concrete Gate 1 workload: enumerate
+  contacts on \(Z_L\cup Z_R\) by endpoint/interior type, solve the finite
+  \(G=0\), \(P=0\) contact systems, certify the interval sign table for
+  \(P_\theta/(Q^2R)\), and prove the affine or homogeneous residual is strict.
+  No solution is harmless; degeneration routes to Gate 3; a regular
+  non-strict residual is a real Gate 1 obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

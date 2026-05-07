@@ -12769,6 +12769,132 @@ theorem queue.
     any nondegenerate pattern gives a concrete Gate 1 obstruction; a
     degeneracy routes to Gate 3.
 
+    Contact-pattern ledger.
+
+    We now spell out the finite enumeration implied by
+    FiniteContactMajorantReduction.  Write the active zero set as the disjoint
+    union of its regular components
+
+    \[
+    Z_0=Z_L\cup Z_R,
+    \qquad
+    Z_\nu=[s_\nu^-,s_\nu^+]\quad(\nu=L,R),
+    \]
+
+    after deleting empty components.  Endpoint contact means contact at one of
+    the four points \(s_\nu^\pm\); interior contact means contact in
+    \((s_\nu^-,s_\nu^+)\).
+
+    A contact pattern is the data
+
+    \[
+    \mathfrak p=
+    \bigl(m_L^-,m_L^0,m_L^+;m_R^-,m_R^0,m_R^+;\epsilon\bigr),
+    \]
+
+    where \(m_\nu^\pm\in\{0,1\}\) records whether the endpoint \(s_\nu^\pm\)
+    is active, \(m_\nu^0\) is the number of interior contacts on \(Z_\nu\),
+    and \(\epsilon\in\{\mathrm{aff},\mathrm{hom}\}\) records whether the
+    finite-\(\Lambda\) affine branch or the homogeneous/projective branch is
+    being tested.  The total contact count is
+
+    \[
+    |\mathfrak p|=
+    m_L^-+m_L^0+m_L^++m_R^-+m_R^0+m_R^+.
+    \]
+
+    The admissible counts are
+
+    \[
+    |\mathfrak p|\le4\quad(\epsilon=\mathrm{aff}),
+    \qquad
+    |\mathfrak p|\le5\quad(\epsilon=\mathrm{hom}).
+    \]
+
+    For each interior contact introduce a variable \(x_i\) constrained to the
+    corresponding open component.  For each endpoint contact the point is
+    fixed.  The contact equations are:
+
+    \[
+    G_\theta(x_i)=0
+    \quad\text{for every contact,}
+    \tag{G1ContactEq}
+    \]
+
+    and
+
+    \[
+    P_\theta(x_i)=0
+    \quad\text{for every interior contact.}
+    \tag{G1StationaryEq}
+    \]
+
+    Endpoint contacts instead carry the one-sided derivative sign:
+
+    \[
+    \pm\,\frac{P_\theta(s_\nu^\pm)}{Q(s_\nu^\pm)^2R(s_\nu^\pm)}\ge0,
+    \tag{G1EndpointContactSign}
+    \]
+
+    with the sign chosen so that \(G_\theta\) increases into the component
+    from a left endpoint and decreases into the component toward a right
+    endpoint.  Between consecutive contacts on each component the sign of
+    \(P_\theta/(Q^2R)\) must force \(G_\theta\) to stay nonnegative; this is
+    the interval sign-table condition.
+
+    The unknowns for an affine pattern are
+
+    \[
+    \theta\in\mathbb R^4,\qquad
+    \Lambda\in\mathbb R,\qquad
+    \{x_i\}_{\text{interior contacts}},
+    \]
+
+    together with optional positive normal-cone weights if one wants to solve
+    the KKT form rather than the contact form.  The output inequality is
+
+    \[
+    L_\Lambda(\theta)=G_\theta^{(b)}-\Lambda G_\theta^{(c)}>0.
+    \tag{G1PatternAffineResidual}
+    \]
+
+    For homogeneous/projective patterns, replace \(\Lambda\) by the projective
+    direction \(\lambda=\pm1\) and certify the appropriate side of
+    \(G_\theta^{(c)}\):
+
+    \[
+    G_\theta^{(c)}<0\quad(\lambda>0),
+    \qquad
+    G_\theta^{(c)}>0\quad(\lambda<0).
+    \tag{G1PatternHomResidual}
+    \]
+
+    A pattern is regular if all interior contacts are distinct and stay inside
+    their assigned components, no contact hits a \(Q\)-pole or branch endpoint
+    except by an endpoint-contact label, \(Q^2R\) has separated sign on every
+    open subinterval between contacts, and the moving-chart matrix \(A\)
+    remains invertible.  Failure of any regularity condition routes to Gate 3.
+
+    Therefore the actual Gate 1 computational/proof obligation is the finite
+    statement:
+
+    \[
+    \boxed{\textbf{ContactPatternVerification}.}
+    }
+    \]
+
+    For every regular pattern \(\mathfrak p\), every solution of
+    (G1ContactEq), (G1StationaryEq), and the interval sign-table conditions
+    satisfies the strict residual (G1PatternAffineResidual) or
+    (G1PatternHomResidual).  If the pattern has no solution, it is harmless;
+    if it degenerates, it routes to Gate 3; if it has a regular solution with
+    non-strict or wrong residual, that solution is a genuine Gate 1
+    obstruction.
+
+    This is the most concrete form of the main line so far: enumerate
+    \(\mathfrak p\), solve finite equations, verify interval sign tables and
+    residuals.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
