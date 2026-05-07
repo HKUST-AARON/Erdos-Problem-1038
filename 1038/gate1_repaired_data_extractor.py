@@ -988,7 +988,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "Q_poles": [
                 "p_1<...<p_d",
                 "Q(z)=prod_k (z-p_k)",
-                "d is the chart Q-degree; cubic d=3 is the current compact g=2 numerical target",
+                "d is the chart Q-degree; off-cut F(c)=0 with positive mass requires d>=4",
             ],
             "P_coefficients": [
                 "P coefficients in the chart degree range fixed by mass_decay_normalization",
@@ -1151,6 +1151,7 @@ def compact_g2_executable_solver_template_payload() -> dict[str, Any]:
             "P_coefficients": {
                 "names": ["P_0", "P_1", "..."],
                 "degree_rule": "deg P <= deg Q - 3 for compact g=2",
+                "regular_branch_note": "off-cut F(c)=0 and positive mass require deg Q >= 4",
                 "initial_values": "TODO: numeric list",
             },
             "neck_and_boundary": {
@@ -1445,6 +1446,17 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
     if missing_executable_blocks:
         blocking_errors.append("missing executable compact-chart solver blocks")
 
+    derived_constraints = {
+        "minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass": 4,
+        "reason": (
+            "For compact g=2, deg P <= deg Q - 3.  If c is off-cut and not a "
+            "Q-pole, F(c)=P(c)R(c)/Q(c)=0 forces P(c)=0.  A cubic Q gives "
+            "deg P <= 0, hence P is constant; P(c)=0 then forces P=0 and "
+            "zero mass.  Therefore a regular positive-mass branch chart with "
+            "F(c)=0 requires deg Q >= 4 unless c is a routed degeneration."
+        ),
+    }
+
     can_generate_chart = not blocking_errors
     return {
         "path": str(spec_path),
@@ -1457,9 +1469,10 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         "missing_solver_fields": missing_solver_fields,
         "required_residual_maps": required_residual_maps,
         "missing_residual_maps": missing_residual_maps,
+        "derived_constraints": derived_constraints,
         "missing_executable_blocks": missing_executable_blocks,
         "next_action": (
-            "implement executable_solver with numeric unknown_layout, residual_maps, "
+            "implement executable_solver with deg(Q)>=4 unknown_layout, residual_maps, "
             "initial_guess, inequality_checks, acceptance_tests, and chart_json_export"
             if not can_generate_chart
             else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
@@ -4477,6 +4490,7 @@ def main() -> int:
         print(f"  errors = {audit['blocking_errors']}")
         print(f"  missing solver fields = {audit['missing_solver_fields']}")
         print(f"  missing residual maps = {audit['missing_residual_maps']}")
+        print(f"  derived constraints = {audit['derived_constraints']}")
         for block in audit["missing_executable_blocks"]:
             print(f"  block = {block['name']}, status = {block['status']}")
             print(f"    required = {block['required']}")

@@ -18465,3 +18465,45 @@ Thus the current executable pipeline now has three gates:
 
 Only a candidate passing all three should be sent to repaired extraction and
 LRLR contact verification.
+
+## Gate 1 compact degree correction
+
+The executable solver audit now records an additional derived constraint:
+
+```text
+minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass = 4
+```
+
+The reason is elementary but important.  In the compact \(g=2\) chart,
+
+\[
+F(z)=\frac{P(z)R(z)}{Q(z)},\qquad \deg P\le \deg Q-3 .
+\]
+
+If \(c\) is off-cut and not a \(Q\)-pole, then \(Q(c)R(c)\ne0\).  Hence the
+branch equation
+
+\[
+F(c)=0
+\]
+
+forces
+
+\[
+P(c)=0.
+\]
+
+For a cubic \(Q\), \(\deg Q=3\), the decay rule gives \(\deg P\le0\).  Thus
+\(P\) is constant, and \(P(c)=0\) forces \(P\equiv0\), i.e. zero mass.  This is
+not a regular positive-mass compact chart.
+
+Therefore the earlier phrase "cubic compact target" cannot be the executable
+regular branch target when \(F(c)=0\) is imposed off-cut.  The next numeric
+solver must use
+
+\[
+\boxed{\deg Q\ge4}
+\]
+
+unless it deliberately routes \(c\) hitting a pole/cut as a Gate 3
+degeneration.  The solver template has been updated accordingly.

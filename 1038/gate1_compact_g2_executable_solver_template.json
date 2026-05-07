@@ -150,7 +150,8 @@
           "P_0",
           "P_1",
           "..."
-        ]
+        ],
+        "regular_branch_note": "off-cut F(c)=0 and positive mass require deg Q >= 4"
       },
       "Q_poles": {
         "constraints": [
@@ -259,7 +260,7 @@
     "Q_poles": [
       "p_1<...<p_d",
       "Q(z)=prod_k (z-p_k)",
-      "d is the chart Q-degree; cubic d=3 is the current compact g=2 numerical target"
+      "d is the chart Q-degree; off-cut F(c)=0 with positive mass requires d>=4"
     ],
     "branch_endpoints": [
       "alpha_1",
