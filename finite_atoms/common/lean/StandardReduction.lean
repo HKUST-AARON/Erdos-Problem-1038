@@ -9709,6 +9709,33 @@ theorem exists_baseline_Icc_neighborhood_subset_truncatedPositiveSet
       hsub_base htruncε hcont hpos hno_diag htail
 
 /--
+Pointwise baseline consequence of the local compact bridge: if the analytic
+local hypotheses hold around a baseline point, then that point itself lies in
+the truncated positive set.
+-/
+theorem mem_unitIntervalTruncatedPositiveSet_of_baseline_local_compact_data
+    {μ : ProbabilityMeasure UnitInterval1038} {x truncε : ℝ}
+    (hx : x ∈ Ioo (-1 : ℝ) 0)
+    (htruncε : 0 < truncε)
+    (hlocal :
+      ∀ a b : ℝ,
+        x ∈ Icc a b →
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+        ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+        (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+        Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+        (∀ threshold : ℝ, 0 < threshold →
+          (∀ y : ℝ, y ∈ Icc a b →
+            threshold < unitIntervalLogPotential μ y) →
+          ∀ y : ℝ, y ∈ Icc a b →
+            singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2))) :
+    x ∈ unitIntervalTruncatedPositiveSet μ := by
+  rcases exists_baseline_Icc_neighborhood_subset_truncatedPositiveSet
+      hx htruncε hlocal with
+    ⟨a, b, hxab, _hsub_base, hsub_trunc⟩
+  exact hsub_trunc hxab
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
