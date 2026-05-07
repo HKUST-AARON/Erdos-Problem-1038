@@ -7692,6 +7692,38 @@ theorem exists_positiveComponent_containing_baseline_of_truncated_baseline
   · rw [hinterval]
   · rw [hright]
 
+/--
+Right-positive version of the baseline constructor.  If the truncated-positive
+interval reaches past `0`, then the resulting ordinary positive component has a
+strictly positive right endpoint, exactly the endpoint sign needed by the
+boundary-average bridge.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_truncated_spanning
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {δ : ℝ} (hδ : 0 < δ)
+    (hspan_trunc :
+      Ioo (-1 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hspan_no_diag :
+      Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hleft_right : (-1 : ℝ) < δ := by linarith
+  rcases exists_positiveComponent_of_truncated_interval_disjoint_diagonal
+      μ hlog_int hleft_right hspan_trunc hspan_no_diag with
+    ⟨C, hleft, hright, hinterval⟩
+  refine ⟨C, hinterval, ?_, ?_⟩
+  · rw [hinterval]
+    intro x hx
+    exact ⟨hx.1, lt_trans hx.2 hδ⟩
+  · rw [hright]
+    exact hδ
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
