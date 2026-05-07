@@ -9763,6 +9763,36 @@ theorem unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
     hx htruncε (hlocal x hx)
 
 /--
+The local compact baseline data already contains off-diagonal information on a
+compact neighbourhood of each baseline point.  Therefore the entire baseline
+interval is disjoint from the diagonal atom set; this removes a redundant
+global diagonal-policy input from the selected-component path.
+-/
+theorem baseline_disjoint_diagonalAtomSet_of_local_compact_data
+    {μ : ProbabilityMeasure UnitInterval1038} {truncε : ℝ}
+    (hlocal :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+          (∀ threshold : ℝ, 0 < threshold →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2))) :
+    Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ) := by
+  rw [Set.disjoint_left]
+  intro x hx hxdiag
+  rcases exists_baseline_Icc_neighborhood hx with
+    ⟨a, b, hxab, hsub_base⟩
+  rcases hlocal x hx a b hxab hsub_base with
+    ⟨_hcont, _hpos, hno_diag, _htail⟩
+  exact hno_diag.le_bot ⟨hxab, hxdiag⟩
+
+/--
 Selected component from local compact baseline data plus truncated positivity at
 `0`.  This feeds the whole-baseline local compact bridge directly into the
 right-positive component constructor with split off-diagonal checks.
@@ -9806,6 +9836,47 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_da
     exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_offDiagonal_parts
       μ hlog_int hbaseline hzero
       hbaseline_no_diag hzero_no_diag hright_no_diag
+
+/--
+Same as
+`exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_data_and_zero`,
+but the baseline off-diagonal condition is derived from the local compact data
+instead of being supplied separately.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_data_and_zero_auto_baseline_offDiagonal
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε : ℝ} (htruncε : 0 < truncε)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+          (∀ threshold : ℝ, 0 < threshold →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2)))
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ)
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hright_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_data_and_zero
+      μ hlog_int htruncε hbaseline_local hzero
+      (baseline_disjoint_diagonalAtomSet_of_local_compact_data hbaseline_local)
+      hzero_no_diag hright_no_diag
 
 /--
 Selected component from local compact baseline data plus ordinary positivity
