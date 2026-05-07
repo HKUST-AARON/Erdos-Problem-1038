@@ -9601,6 +9601,35 @@ theorem unitIntervalTruncatedPositiveSet_interval_subset_of_threshold_tailMass
     (htail x hx)
 
 /--
+Compact-subinterval version of the ordinary-to-truncated bridge.  On a compact
+interval, continuity plus pointwise positivity produces a uniform positive
+threshold; if the singular tail is controlled at that threshold, the compact
+interval lies in the truncated positive set.
+-/
+theorem unitIntervalTruncatedPositiveSet_Icc_subset_of_continuous_positive_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {a b truncε : ℝ}
+    (htruncε : 0 < truncε)
+    (hcont : ContinuousOn (unitIntervalLogPotential μ) (Icc a b))
+    (hpos :
+      ∀ x : ℝ, x ∈ Icc a b → 0 < unitIntervalLogPotential μ x)
+    (hno_diag : Disjoint (Icc a b) (diagonalAtomSet μ))
+    (htail :
+      ∀ threshold : ℝ, 0 < threshold →
+        (∀ x : ℝ, x ∈ Icc a b →
+          threshold < unitIntervalLogPotential μ x) →
+        ∀ x : ℝ, x ∈ Icc a b →
+          singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    Icc a b ⊆ unitIntervalTruncatedPositiveSet μ := by
+  rcases continuousOn_positive_Icc_exists_strict_lower_threshold
+      hcont hpos with
+    ⟨threshold, hthreshold, hthreshold_le⟩
+  intro x hx
+  exact mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+    htruncε hthreshold (hthreshold_le x hx)
+    (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
+    (htail threshold hthreshold hthreshold_le x hx)
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
