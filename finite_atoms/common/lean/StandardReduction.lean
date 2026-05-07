@@ -14653,6 +14653,18 @@ theorem realMeasure_mem_support_of_singleton_pos
     measure_mono hsingleton_subset
   exact lt_of_lt_of_le hpos hle
 
+theorem notMem_diagonalAtomSet_of_not_mem_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hnot_support : x ∉ (realMeasure μ).support) :
+    x ∉ diagonalAtomSet μ := by
+  intro hxdiag
+  have hreal_pos : 0 < realMeasure μ ({x} : Set ℝ) := by
+    rw [realMeasure]
+    rw [Measure.map_apply continuous_subtype_val.measurable
+      (measurableSet_singleton x)]
+    simpa [diagonalAtomSet, Set.preimage, Set.mem_singleton_iff] using hxdiag
+  exact hnot_support (realMeasure_mem_support_of_singleton_pos hreal_pos)
+
 theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (hdirac : componentBlock C =
@@ -22338,6 +22350,63 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_aug, hnot_support, hzero⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_continuous_replacement_rigidity_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < δ ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Ioo C.right (C.right + δ) ∩
+              unitIntervalAugmentedPositiveSet μ =
+            ∅ ∧
+          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
+          C.right ∉ (realMeasure μ).support ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_off_diagonal_continuous_replacement_rigidity_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, haug_gap, hright_cont, hnot_support, hzero⟩
+  exact
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, haug_gap,
+      notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support,
+      hright_cont, hnot_support, hzero⟩
+
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_closure_excluded_not_support_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanClosureExcludedNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation :
       ∀ μ : ProbabilityMeasure UnitInterval1038,
@@ -22681,6 +22750,62 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hbaseline, haug_gap, hnot_aug, hnot_support, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_open_augmented_gap_continuous_replacement_rigidity_zero_neighborhood_data
+    (hAugmentedMaximalComponentReplacementAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < δ ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Ioo C.right (C.right + δ) ∩
+              unitIntervalAugmentedPositiveSet μ =
+            ∅ ∧
+          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
+          C.right ∉ (realMeasure μ).support ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_open_augmented_gap_off_diagonal_continuous_replacement_rigidity_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentReplacementAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hbaseline, haug_gap, hright_cont, hnot_support, hzero⟩
+  exact
+    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hbaseline, haug_gap,
+      notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support,
+      hright_cont, hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_closure_excluded_not_support_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentReplacementAugmentedSpanClosureExcludedNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation :
