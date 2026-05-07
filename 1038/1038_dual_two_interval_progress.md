@@ -16580,9 +16580,14 @@ theorem queue.
     c\in[-0.36,-0.35]
     \]
 
-    at the sampled resolution.  Repeating the same test with the omitted pole
-    on the right exterior, \(p=3\), finds the symmetric narrow window near
-    \(c\approx0.35\).  On the nonsymmetric diagnostic model
+    at the sampled resolution; the machine-readable output now groups such
+    consecutive fixed anchors as `fixed_windows`, including the sampled
+    endpoint values and the minimum projective-product margin.  In this dense
+    symmetric run the fixed window has sample endpoints \(-0.36\) and
+    \(-0.35\), fixed sign \(+1\), and sampled minimum
+    \(|I_{\rm gap}L_\rho|\approx6.1\cdot10^{-8}\).  Repeating the same test
+    with the omitted pole on the right exterior, \(p=3\), finds the symmetric
+    narrow window near \(c\approx0.35\).  On the nonsymmetric diagnostic model
 
     \[
     \Gamma=(-3,-1.2,0.7,2.5),\qquad p=3.5,

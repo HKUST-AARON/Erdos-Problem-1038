@@ -2216,6 +2216,34 @@ def lrlr_anchor_sweep_audit(
         else:
             info["split"] += 1
 
+    fixed_windows = []
+    records_by_interval: dict[str, list[dict[str, Any]]] = {}
+    for record in c_records:
+        records_by_interval.setdefault(str(record["interval"]), []).append(record)
+    for interval, records in records_by_interval.items():
+        ordered = sorted(records, key=lambda item: float(item["c"]))
+        run: list[dict[str, Any]] = []
+        for record in ordered + [{"fixed_nonzero": False}]:
+            if record.get("fixed_nonzero"):
+                run.append(record)
+                continue
+            if run:
+                signs = sorted({str(item["fixed_sign"]) for item in run})
+                fixed_windows.append(
+                    {
+                        "interval": interval,
+                        "left_sample": float(run[0]["c"]),
+                        "right_sample": float(run[-1]["c"]),
+                        "sample_count": len(run),
+                        "fixed_signs": signs,
+                        "min_abs_projective_product": min(
+                            float(item["min_abs_projective_product"]) for item in run
+                        ),
+                        "min_abs_row_value": min(float(item["min_abs_row_value"]) for item in run),
+                    }
+                )
+                run = []
+
     return {
         "model": "LRLR anchor rho-row sweep",
         "gammas": gammas,
@@ -2228,6 +2256,7 @@ def lrlr_anchor_sweep_audit(
         "tested_anchor_count": len(c_records),
         "fixed_anchor_count": len(fixed_records),
         "by_interval": by_interval,
+        "fixed_windows": fixed_windows,
         "fixed_anchors_preview": fixed_records[:10],
         "skipped": skipped[:20],
         "anchors": c_records,
@@ -3509,6 +3538,7 @@ def main() -> int:
         print(f"  tested anchors = {audit['tested_anchor_count']}")
         print(f"  fixed anchors = {audit['fixed_anchor_count']}")
         print(f"  by interval = {audit['by_interval']}")
+        print(f"  fixed windows = {audit['fixed_windows'][:5]}")
         for record in audit["fixed_anchors_preview"][:5]:
             print(
                 "  fixed c = "

@@ -934,11 +934,13 @@ Useful corrections already recorded:
   \(I_{\rm gap}(F)L_\rho(F)\) has a fixed projective sign on the sampled LRLR
   kernel.  In the symmetric diagnostic model, exterior anchors split, but a
   narrow middle-gap window near \(c\in[-0.36,-0.35]\) has fixed positive sign
-  at sampled resolution; the right-omitted and nonsymmetric diagnostics show
-  the same phenomenon with the fixed anchor again in the middle gap.  This is
-  not a Gate 1 proof, but it changes the next check on a real compact chart:
-  first test whether its actual anchor \(c\) lies in an interval-certified
-  LRLR \(\rho\)-window.  If not, the route moves to affine
+  at sampled resolution.  The command now reports such runs as
+  `fixed_windows`; in the dense symmetric run the sampled window endpoints are
+  \(-0.36,-0.35\) with minimum product margin about \(6.1\cdot10^{-8}\).  The
+  right-omitted and nonsymmetric diagnostics show the same phenomenon with the
+  fixed anchor again in the middle gap.  This is not a Gate 1 proof, but it
+  changes the next check on a real compact chart: first test whether its actual
+  anchor \(c\) lies in an interval-certified LRLR \(\rho\)-window.  If not, the route moves to affine
   \(b-\Lambda\rho\) contact verification.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
