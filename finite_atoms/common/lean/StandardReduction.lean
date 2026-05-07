@@ -11633,6 +11633,37 @@ theorem exists_componentReplacement_probability_data_of_support_mem_interval
   exists_componentReplacement_probability_data_of_componentMass_pos
     (componentMass_pos_of_support_mem_interval htSupport htInterval)
 
+/--
+Support-point version of ordinary positive-objective nonincrease for the
+barycenter replacement.  This combines support-derived component mass,
+replacement construction, potential equality, and the small-exception Jensen
+machinery.  It deliberately proves the ordinary positive-set objective
+inequality; the truncated-primary inequality still requires the separate
+ordinary/truncated comparison hypotheses.
+-/
+theorem exists_componentReplacement_positiveSetObjective_nonincrease_of_support_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {t : ℝ}
+    (htSupport : t ∈ (realMeasure μ).support)
+    (htInterval : t ∈ C.interval)
+    {ε : ℝ} (hε : 0 < ε) :
+    ∃ R : ComponentReplacement μ C,
+    ∃ hmass_unit : componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1,
+      unitIntervalLogPotential
+          (componentReplacementProbability C hmass_unit) =
+        componentReplacementPotential C ∧
+      volume (PositiveSet
+          (unitIntervalLogPotential
+            (componentReplacementProbability C hmass_unit))) ≤
+        volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  rcases exists_componentReplacement_probability_data_of_support_mem_interval
+      htSupport htInterval with
+    ⟨R, hmass_unit, _hbary, hsupport, hpotential_eq⟩
+  refine ⟨R, hmass_unit, hpotential_eq, ?_⟩
+  rw [hpotential_eq]
+  exact componentReplacement_objective_le_of_singularTail_small_exceptions
+    R hε
+
 theorem realMeasure_mem_support_of_singleton_pos
     {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
     (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
