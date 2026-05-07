@@ -915,6 +915,13 @@ Useful corrections already recorded:
   fields are missing.  The next compact-chart handoff is therefore:
   contract audit, then full-pair gauge-choice audit, then LRLR rho/affine row
   interpretation.
+- New template command: `--write-chart-template --write-json PATH`.  Without
+  `--toy-g2` it writes the current compact \(g=2\) handoff schema with TODO
+  placeholders and provenance slots for the missing equations.  With
+  `--toy-g2` it writes a complete synthetic chart that passes
+  `--audit-chart-contract` and can be fed to the full-pair gauge-choice audit.
+  This fixes the expected output shape for any future
+  `CompactG2MovingChartEquations` solver.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

@@ -755,14 +755,71 @@ def toy_g2_chart_source() -> dict[str, Any]:
         "P": P.tolist(),
         "Q": Q.tolist(),
         "gammas": gammas,
+        "row_gauge": {"kind": "full_pair_pole_gauge", "omit_q_pole_index": 0},
         "c": -0.4,
         "kappa": 1.0,
         "u": 2.2,
         "v": 3.0,
         "a": 0.4,
         "b": 0.6,
+        "Z0": [[-2.4, -1.3], [0.7, 1.8]],
         "contact_points": [2.1, 2.35, 2.7, 3.2],
         "right_exterior_grid": {"start": 2.05, "stop": 4.0, "count": 6},
+    }
+
+
+def compact_g2_chart_template_payload(toy: bool = False) -> dict[str, Any]:
+    """Return the current compact g=2 chart handoff template."""
+    if toy:
+        payload = toy_g2_chart_source()
+        payload["schema"] = "gate1_compact_g2_chart_v1"
+        payload["proof_grade"] = False
+        payload["notes"] = [
+            "Synthetic smoke chart only.",
+            "Use to test extractor plumbing, not as a Gate 1 proof input.",
+        ]
+        return payload
+    return {
+        "schema": "gate1_compact_g2_chart_v1",
+        "proof_grade": False,
+        "notes": [
+            "Replace every TODO with proof-grade compact non-pinched g=2 chart data.",
+            "Run --audit-chart-contract before any Gate 1 interpretation.",
+            "Run --audit-full-pair-gauge-choices before LRLR residual claims.",
+        ],
+        "P": ["TODO: ascending coefficients of P"],
+        "Q": ["TODO: ascending coefficients of monic Q with real simple poles"],
+        "gammas": [
+            "TODO: alpha_1",
+            "TODO: beta_1",
+            "TODO: alpha_2",
+            "TODO: beta_2",
+        ],
+        "row_gauge": {
+            "kind": "full_pair_pole_gauge",
+            "omit_q_pole_index": "TODO: exterior omitted Q-pole index",
+        },
+        "c": "TODO: off-cut anchor c",
+        "u": "TODO: right-exterior boundary point u",
+        "v": "TODO: right-exterior boundary point v",
+        "a": "TODO: positive boundary weight a",
+        "b": "TODO: positive boundary weight b",
+        "kappa": "TODO: period orientation kappa",
+        "Z0": [
+            ["TODO: Z0 left component start", "TODO: Z0 left component end"],
+            ["TODO: Z0 right component start", "TODO: Z0 right component end"],
+        ],
+        "contact_points": [],
+        "right_exterior_grid": {
+            "start": "TODO: grid start > beta_2",
+            "stop": "TODO: grid stop",
+            "count": 6,
+        },
+        "equation_provenance": {
+            "CompactG2MovingChartEquations": "TODO: reference exact equations or ledger lemma",
+            "TPSquareMovingChartGaugeLemma": "TODO: reference selected full-pair gauge proof",
+            "period_filling_convention": "TODO: reference kappa/filling convention",
+        },
     }
 
 
@@ -2711,6 +2768,7 @@ def main() -> int:
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--audit-chart-contract", action="store_true", help="check the current Gate 1 chart JSON contract")
+    parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
     parser.add_argument(
         "--audit-full-pair-gauge-choices",
@@ -2771,6 +2829,18 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.write_chart_template:
+        if not args.write_json:
+            parser.error("--write-chart-template requires --write-json")
+        payload = compact_g2_chart_template_payload(toy=args.toy_g2)
+        with open(args.write_json, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+        print("Gate 1 compact g=2 chart template")
+        print(f"  toy = {args.toy_g2}")
+        print(f"  wrote {args.write_json}")
+        print("  next = run --audit-chart-contract on the written JSON")
+        return 0
 
     if args.audit_chart_contract:
         if not args.chart_json:

@@ -16453,6 +16453,47 @@ theorem queue.
     `--audit-chart-contract`, then `--audit-full-pair-gauge-choices`, and only
     then the LRLR residual signs should be interpreted.
 
+    Compact chart handoff template.
+
+    The extractor now writes the current compact \(g=2\) chart handoff
+    template:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --write-chart-template --write-json PATH
+    ```
+
+    The non-toy template contains every required field with explicit `TODO`
+    placeholders and provenance slots for `CompactG2MovingChartEquations`,
+    `TPSquareMovingChartGaugeLemma`, and the period/filling convention.  It is
+    intentionally not contract-ready until those placeholders are replaced by
+    numeric proof-grade chart data.
+
+    The toy smoke variant
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py --toy-g2 \
+      --write-chart-template --write-json PATH
+    ```
+
+    writes a synthetic complete chart.  It passes `--audit-chart-contract`
+    with
+
+    \[
+    \texttt{extractor\_ready}
+    =
+    \texttt{lrlr\_ready}
+    =
+    \texttt{global\_gate1\_contract\_ready}
+    =
+    \texttt{True},
+    \]
+
+    and can then be fed directly to `--audit-full-pair-gauge-choices`.  This
+    closes the engineering handoff loop: a future compact-chart solver must
+    output a JSON file of exactly this form, after replacing the toy or TODO
+    data by the actual compact non-pinched \(g=2\) solution.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
