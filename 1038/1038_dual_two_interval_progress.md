@@ -17985,3 +17985,61 @@ Z0_boundary_row_selection
 
 plus provenance.  Therefore the next executable task is to specify exactly how
 the chart exports \(Z_0,u,c,v,a,b\) for the Gate 1 residual rows.
+
+The \(Z_0\) boundary-row block is now also a contract.  The chart must export
+the regular contact set as
+
+\[
+Z_0=Z_L\cup Z_R,\qquad Z_\nu=[s_\nu^-,s_\nu^+],
+\]
+
+after deleting empty components.  The two components are compact real
+intervals disjoint from \(c,u,v\), \(Q\)-poles, and branch singularities,
+except for explicitly routed endpoint-contact degeneracies.  The endpoint-neck
+variables are exported with
+
+\[
+u=c-a,\qquad v=c+b,\qquad a>0,\quad b>0.
+\]
+
+For every seed
+
+\[
+j\in\{\Pi,\alpha_1,\beta_1,\alpha_2,\beta_2\},
+\]
+
+the residual rows are exactly
+
+\[
+\boxed{
+\rho_j=-C_j(c),\qquad b_j=aV_j(u)+bV_j(v).
+}
+\]
+
+Here \(V_j(s)=\int_s^\infty C_j(y)\,dy\) is evaluated with the real continuous
+boundary value on the relevant \(Z_0\) component.  Therefore the homogeneous
+Gate 1 off-row is \(\rho\), and the affine residual row is the pencil
+
+\[
+b-\Lambda\rho.
+\]
+
+Any collision of \(Z_0\) with a moving boundary, \(c,u,v\), a \(Q\)-pole, a
+branch endpoint, or any loss of \(a,b>0\), is not solved inside the regular
+chart; it is routed to Gate 3.
+
+Rerunning the equation-spec audit now gives:
+
+```text
+block = equation:Z0_boundary_row_selection, ready = True
+solver ready = False
+errors = ['equation spec does not declare proof_grade=true',
+          "not-ready blocks: ['provenance']"]
+```
+
+Thus all mathematical equation blocks in the compact \(g=2\) chart spec are
+now ready contracts.  The chart is still not proof-grade: the remaining blocker
+is provenance, namely replacing the remaining TODO theorem references
+(`CompactG2MovingChartEquations`, `TPSquareMovingChartGaugeLemma`, and Gate 3
+degeneration routes) by exact ledger theorem references and only then setting
+`proof_grade=true`.

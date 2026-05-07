@@ -5471,3 +5471,17 @@ period-transfer density has the positive sign convention.  The remaining
 not-ready mathematical block is now only `Z0_boundary_row_selection`, plus
 provenance.  The separate EndpointPeriodColumnOrientationLemma is still a
 Gate 1 column-side proof obligation.
+
+Update: `Z0_boundary_row_selection` is now ready.  The chart must export
+\(Z_0=Z_L\cup Z_R\), \(Z_\nu=[s_\nu^-,s_\nu^+]\), as the ordered regular
+contact components, with collisions routed to Gate 3.  It also exports
+\(u=c-a\), \(v=c+b\), \(a,b>0\), and for every seed
+\[
+\rho_j=-C_j(c),\qquad b_j=aV_j(u)+bV_j(v).
+\]
+Thus the homogeneous off-row is exactly \(\rho\), and the affine residual row
+is exactly \(b-\Lambda\rho\).  The equation-spec audit now reports every
+mathematical block ready; `solver ready` remains false only because
+`proof_grade=true` and non-TODO provenance have not yet been supplied.  The
+next executable step is therefore provenance closure, not another boundary-row
+definition pass.

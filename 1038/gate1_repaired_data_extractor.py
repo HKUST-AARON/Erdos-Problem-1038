@@ -912,10 +912,16 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
             {
                 "name": "Z0_boundary_row_selection",
-                "status": "TODO",
+                "status": "contract",
                 "equations": [
-                    "TODO: rule selecting Z0 components",
-                    "TODO: rule selecting u,c,v,a,b used by Gate 1 residual rows",
+                    "export Z0 as the ordered regular contact set Z0=Z_L union Z_R with Z_nu=[s_nu^-,s_nu^+] after deleting empty components",
+                    "Z_L and Z_R are compact real intervals disjoint from c,u,v,Q-poles, and branch singularities except at explicitly routed endpoint-contact degeneracies",
+                    "use endpoint-neck variables u=c-a, v=c+b with a>0 and b>0",
+                    "for every seed j in {Pi,alpha_1,beta_1,alpha_2,beta_2}, export rho_j=-C_j(c)",
+                    "for every seed j in {Pi,alpha_1,beta_1,alpha_2,beta_2}, export b_j=a V_j(u)+b V_j(v)",
+                    "V_j(s)=int_s^infty C_j(y) dy is evaluated with the real continuous boundary value on the relevant Z0 component",
+                    "the Gate 1 affine residual row is exactly b-Lambda rho; the homogeneous off-row is exactly rho",
+                    "collisions of Z0 with moving boundaries, c, u, v, Q-poles, branch endpoints, or loss of a,b positivity route to Gate 3",
                 ],
             },
         ],
@@ -969,6 +975,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "positivity_interlacing": "Lemma FG Sign and interlacing",
             "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
             "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
+            "Z0_boundary_row_selection": "G1ExtractorRows and finite contact-pattern ledger",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },
     }
