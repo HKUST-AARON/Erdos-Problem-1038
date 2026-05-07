@@ -3471,6 +3471,53 @@ theorem exists_positiveComponent_baseline_of_connectedComponentIn_bdd
   exact hbase_conn hy
 
 /--
+Baseline connected-component selection with a right-positive witness.  This is
+the selected-component constructor in the form needed by the boundary-average
+part of the standard reduction: the baseline lies inside the selected
+component, the component is interval-maximal, and its right endpoint is
+strictly positive.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_connectedComponentIn_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x xRight : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hxRight_pos : 0 < xRight)
+    (hxRight_conn :
+      xRight ∈
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x)
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x)) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hxpos : x ∈ PositiveSet (unitIntervalLogPotential μ) :=
+    hbaseline hxbase
+  rcases exists_positiveComponent_of_connectedComponentIn_bdd
+      (μ := μ) (x := x) hopen hxpos hbddBelow hbddAbove with
+    ⟨C, hCeq, hmax⟩
+  have hbase_conn :
+      Ioo (-1 : ℝ) 0 ⊆
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x :=
+    positiveSet_baseline_subset_connectedComponentIn_of_mem
+      (U := unitIntervalLogPotential μ) hxbase hbaseline
+  have hbaseline_C : Ioo (-1 : ℝ) 0 ⊆ C.interval := by
+    intro y hy
+    rw [hCeq]
+    exact hbase_conn hy
+  have hxRight_C : xRight ∈ C.interval := by
+    rw [hCeq]
+    exact hxRight_conn
+  exact ⟨C, hmax, hbaseline_C,
+    C.right_pos_of_pos_mem_interval hxRight_pos hxRight_C⟩
+
+/--
 The local component-selection bridge for the endpoint `-1`.
 
 If the selected positive component contains the right baseline `(-1,0)`, the
