@@ -24051,6 +24051,70 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         hcomponent_atomized⟩
 
 /--
+Augmented-span/off-support provider with a concrete component replacement and
+normalized endpoint atomization.  The endpoint atom, boundary average, and
+zero-neighbourhood fields are all derived from the normalized atomization.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_not_support_normalized_atomization_data
+    (hAugmentedMaximalComponentReplacementAugmentedSpanNotSupportNormalizedAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          C.right ∉ (realMeasure μ).support ∧
+          normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentReplacementAugmentedSpanNotSupportNormalizedAtomizationDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, R, ε, hε, hright_pos, hmax, hspan_aug, hbaseline,
+      hnot_support, hnormalized_atomized⟩
+  have hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) :=
+    componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized
+  have hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} :=
+    unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hcomponent_atomized
+  exact
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug, hendpoint_unit_pos,
+      hbaseline, hnot_support,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        hcomponent_atomized⟩
+
+/--
 Augmented-span/right-gap provider where normalized atomization is derived from
 secondary replacement rigidity and the zero-neighbourhood support uniqueness.
 -/
