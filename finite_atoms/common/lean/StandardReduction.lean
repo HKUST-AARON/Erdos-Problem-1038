@@ -3617,6 +3617,50 @@ theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_no_diagona
     exact (hnoDiag l r hlr haug hinter).le_bot ⟨hy, hdiag⟩
 
 /--
+Baseline connected-component selection in the augmented-maximal form, under a
+local no-diagonal condition for augmented competing intervals.  This combines
+the topological selected-component constructor with the ordinary-to-augmented
+maximality bridge.
+-/
+theorem exists_positiveComponent_baseline_right_pos_augmentedMaximal_of_connectedComponentIn_bdd_no_diagonal
+    {μ : ProbabilityMeasure UnitInterval1038} {x xRight : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hxRight_pos : 0 < xRight)
+    (hxRight_conn :
+      xRight ∈
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x)
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases exists_positiveComponent_baseline_right_pos_of_connectedComponentIn_bdd
+      (μ := μ) (x := x) (xRight := xRight)
+      hopen hxbase hbaseline hxRight_pos hxRight_conn hbddBelow hbddAbove with
+    ⟨C, hmax, hbaseline_C, hright⟩
+  have haug : C.AugmentedIntervalMaximal :=
+    C.augmentedIntervalMaximal_of_intervalMaximal_no_diagonal hmax
+      (hnoDiag C hmax hbaseline_C hright)
+  exact ⟨C, haug, hbaseline_C, hright⟩
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
