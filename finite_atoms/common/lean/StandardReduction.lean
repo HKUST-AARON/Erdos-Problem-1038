@@ -4315,6 +4315,51 @@ theorem PositiveComponent.spanning_augmented_subset_interval_of_augmentedInterva
     hspan_aug
     hinter
 
+theorem PositiveComponent.right_mem_closure_augmented_of_spanning_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ} (hε : 0 < ε) (hright_pos : 0 < C.right)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ) :
+    C.right ∈ closure (unitIntervalAugmentedPositiveSet μ) := by
+  rw [mem_closure_iff]
+  intro U hUopen hrightU
+  rcases Metric.isOpen_iff.mp hUopen C.right hrightU with
+    ⟨r, hr, hball⟩
+  let η : ℝ := min r (C.right + 1 + ε)
+  have hη_pos : 0 < η := by
+    dsimp [η]
+    exact lt_min hr (by linarith)
+  let y : ℝ := C.right - η / 2
+  have hy_left : -(1 : ℝ) - ε < y := by
+    dsimp [y, η]
+    have hη_le : min r (C.right + 1 + ε) ≤ C.right + 1 + ε :=
+      min_le_right r (C.right + 1 + ε)
+    linarith
+  have hy_right : y < C.right := by
+    dsimp [y]
+    linarith
+  have hy_aug : y ∈ unitIntervalAugmentedPositiveSet μ :=
+    hspan_aug ⟨hy_left, hy_right⟩
+  have hy_ball : y ∈ Metric.ball C.right r := by
+    rw [Metric.mem_ball, Real.dist_eq, abs_sub_lt_iff]
+    dsimp [y, η]
+    have hη_le_r : min r (C.right + 1 + ε) ≤ r :=
+      min_le_left r (C.right + 1 + ε)
+    constructor <;> linarith
+  exact ⟨y, hball hy_ball, hy_aug⟩
+
+theorem PositiveComponent.not_mem_closure_contradicts_spanning_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ} (hε : 0 < ε) (hright_pos : 0 < C.right)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hclosure :
+      C.right ∉ closure (unitIntervalAugmentedPositiveSet μ)) :
+    False :=
+  hclosure
+    (C.right_mem_closure_augmented_of_spanning_augmented
+      hε hright_pos hspan_aug)
+
 theorem PositiveComponent.right_not_mem_augmented_of_augmented_gap
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ : ℝ} (hδ : 0 < δ)
