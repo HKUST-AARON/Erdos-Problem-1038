@@ -338,9 +338,12 @@ Useful corrections already recorded:
 - `ContactPatternVerification` is now the concrete Gate 1 workload: enumerate
   contacts on \(Z_L\cup Z_R\) by endpoint/interior type, solve the finite
   \(G=0\), \(P=0\) contact systems, certify the interval sign table for
-  \(P_\theta/(Q^2R)\), and prove the affine or homogeneous residual is strict.
-  No solution is harmless; degeneration routes to Gate 3; a regular
-  non-strict residual is a real Gate 1 obstruction.
+  \(P_\theta/(Q^2R)\), verify the KKT cone compatibility
+  \(\sum_iw_iV_S(z_i)=-b_S+\Lambda\rho_S\) in the affine branch and
+  \(\sum_iw_iV_S(z_i)=\lambda\rho_S\) in the homogeneous branch, and prove the
+  affine or homogeneous residual is strict.  No solution is harmless;
+  degeneration routes to Gate 3; a regular non-strict residual is a real Gate
+  1 obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
