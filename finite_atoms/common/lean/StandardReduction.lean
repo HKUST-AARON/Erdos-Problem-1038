@@ -14370,6 +14370,67 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     hcomponent_interval, hbaseline, hright, hboundary, hunique⟩
 
 /--
+Component-atomization version of the high-level endpoint consequence.
+
+This is the direct interface when the variation argument identifies the
+selected component block itself with an endpoint atom.  The zero-neighbourhood
+condition is generated internally, and the rest of the endpoint package is
+assembled by `...from_zero_neighborhood_component_data`.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_atomization_component_data
+    (hComponentAtomizationComponentDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ _ : TaoVariationMeanChoice,
+        ∃ _ : Bool,
+        ∃ _ : ℝ,
+        ∃ C : PositiveComponent μ,
+        ∃ xMinus xPlus : ℝ,
+          C.interval = Set.Ioo xMinus xPlus ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < xPlus ∧
+          1 ≤ (xPlus + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - xPlus) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_zero_neighborhood_component_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentAtomizationComponentDataFromVariation μ hPrimary hSecondary with
+    ⟨mean_choice, reflected, translation, C, xMinus, xPlus,
+      hcomponent_interval, hbaseline, hright, hboundary, hcomponent_atomized⟩
+  exact ⟨mean_choice, reflected, translation, C, xMinus, xPlus,
+    hcomponent_interval, hbaseline, hright, hboundary,
+    component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized⟩
+
+/--
 Moment-rigidity version of the concrete-data endpoint consequence.
 
 This pushes the remaining atomization input one step upstream: the provider no
