@@ -2675,6 +2675,12 @@ theorem disjoint_Icc_diagonalAtomSet_of_disjoint_realMeasure_support
     Disjoint (Icc a b) (diagonalAtomSet μ) :=
   disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
 
+theorem disjoint_Ioo_diagonalAtomSet_of_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {a b : ℝ}
+    (hsupport : Disjoint (Ioo a b) (realMeasure μ).support) :
+    Disjoint (Ioo a b) (diagonalAtomSet μ) :=
+  disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
+
 theorem subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
     (haug : s ⊆ unitIntervalAugmentedPositiveSet μ)
