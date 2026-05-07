@@ -17684,6 +17684,67 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         hcomponent_atomized⟩
 
 /--
+Replacement-package version of the augmented-span/right-gap component
+atomization provider.  The endpoint atom is derived from the component-block
+atomization and the supplied component replacement.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_atomization_data
+    (hAugmentedMaximalComponentReplacementAugmentedSpanRightGapAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < δ ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_atomization_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentReplacementAugmentedSpanRightGapAtomizationDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hbaseline, hright_gap, hcomponent_atomized⟩
+  have hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} :=
+    unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hcomponent_atomized
+  exact
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hright_gap, hcomponent_atomized⟩
+
+/--
 Augmented-span/right-gap provider with normalized component atomization.  The
 conversion to component-block atomization is carried out internally using the
 endpoint atom to get positive component mass.
