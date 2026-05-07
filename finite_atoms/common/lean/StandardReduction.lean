@@ -3693,6 +3693,53 @@ theorem right_witness_connectedComponentIn_of_positive_spanning_interval
   exact ⟨xRight, hxRight_pos, hsubset hxRight_span⟩
 
 /--
+Selected-component constructor from a single positive interval spanning across
+`0`.  The spanning interval supplies both the baseline positivity and the
+right-positive witness, leaving only boundedness and the diagonal-exception
+policy as explicit inputs.
+-/
+theorem exists_positiveComponent_augmentedMaximal_of_positive_spanning_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {x δ : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hδ : 0 < δ)
+    (hspan :
+      Ioo (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hxspan : x ∈ Ioo (-1 : ℝ) δ :=
+    ⟨hxbase.1, lt_trans hxbase.2 hδ⟩
+  have hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+    intro y hy
+    exact hspan ⟨hy.1, lt_trans hy.2 hδ⟩
+  rcases right_witness_connectedComponentIn_of_positive_spanning_interval
+      (μ := μ) (x := x) (δ := δ) hxspan hδ hspan with
+    ⟨xRight, hxRight_pos, hxRight_conn⟩
+  exact
+    exists_positiveComponent_baseline_right_pos_augmentedMaximal_of_connectedComponentIn_bdd_no_diagonal
+      (μ := μ) (x := x) (xRight := xRight)
+      hopen hxbase hbaseline hxRight_pos hxRight_conn
+      hbddBelow hbddAbove hnoDiag
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
