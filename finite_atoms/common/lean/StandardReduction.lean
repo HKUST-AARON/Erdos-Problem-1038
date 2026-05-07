@@ -301,6 +301,29 @@ theorem normalized_endpoint_lower_bound_pointwise_positive
   exact normalized_endpoint_lower_bound_positive_set hp hU ⟨hx, by simpa using hne⟩
 
 /--
+The normalized endpoint lower bound also supplies the exact Tao baseline
+`(-1,0)`: this interval lies inside `BaselinePunctured`.
+-/
+theorem normalized_endpoint_lower_bound_baseline_neg_one_zero_positive
+    {U : ℝ → ℝ} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hU : HasNormalizedEndpointLowerBound U p) :
+    Ioo (-1 : ℝ) 0 ⊆ PositiveSet U := by
+  intro x hx
+  have hsqrt_neg : -(Real.sqrt 2) < (-1 : ℝ) := by
+    have hsqrt_one_lt : (1 : ℝ) < Real.sqrt 2 := by
+      exact (Real.lt_sqrt (by norm_num : (0 : ℝ) ≤ 1)).2
+        (by norm_num : (1 : ℝ) ^ 2 < 2)
+    linarith
+  have hxBase : x ∈ BaselineInterval := ⟨lt_trans hsqrt_neg hx.1, hx.2⟩
+  have hxne : x ≠ -1 := by
+    intro h
+    rw [h] at hx
+    exact (lt_irrefl (-1 : ℝ)) hx.1
+  exact normalized_endpoint_lower_bound_pointwise_positive hp hU
+    hxBase hxne
+
+/--
 Packed normalized endpoint consequence.  This is the precise formal object
 needed by the finite-atom lower-bound route after the external variational
 normalization has put a minimizer into endpoint-mass form.
