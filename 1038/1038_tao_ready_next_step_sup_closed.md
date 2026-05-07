@@ -570,6 +570,17 @@ Useful corrections already recorded:
   non-pinched \(g=2\) chart JSON with `P,Q,gammas,rows`.  The next numerical
   step must derive or supply that chart; continuing to run the old branch JSONs
   would compute the wrong object.
+- A follow-up chart-generation audit found no hidden concrete
+  \(\alpha_1,\beta_1,\alpha_2,\beta_2\) or compact \(g=2\) \(P,Q\) candidate
+  in the current 1038 materials.  The concrete numbers present are still the
+  one-cut / old two-interval constants such as
+  \(x_L=-1.8081073680988165\), \(x_R=0.02632310766384517\), and the old
+  \(P=z+1.2627187696571671\), \(Q=(z-\ell)(z-r)(z-1)\) ansatz.  The compact
+  neck equations specify local variables \(y=(q,a,b,c)\) in an external field
+  \(W\), but do not yet generate the global chart data
+  `P,Q,gammas,rows,kappa,Z0,u,c,v`.  The next executable target is therefore a
+  compact \(g=2\) finite-gap chart-equation solver, not another pass over the
+  old JSONs.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

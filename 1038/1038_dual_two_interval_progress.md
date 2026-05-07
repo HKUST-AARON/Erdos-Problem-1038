@@ -14509,6 +14509,90 @@ theorem queue.
     local branches, but they cannot run the repaired moving-Schiffer majorant
     computation.
 
+    Chart-generation audit.
+
+    The next possible escape would be to derive the missing chart file from
+    numerical constants already present in the ledger.  A direct search for
+    four-endpoint data
+
+    \[
+    \alpha_1<\beta_1<\alpha_2<\beta_2
+    \]
+
+    and for concrete \(P,Q\) compact \(g=2\) coefficients found no such
+    candidate.  The numerical constants currently present are the one-cut /
+    old two-interval constants, for example
+
+    \[
+    x_L=-1.8081073680988165,\qquad
+    x_R=0.02632310766384517,
+    \]
+
+    and the old ansatz values reconstructed by the audit,
+
+    \[
+    P(z)=z+1.2627187696571671,
+    \qquad
+    Q(z)=(z-\ell)(z-r)(z-1).
+    \]
+
+    These do not determine a compact non-pinched two-cut chart.  The local
+    compact-neck equations in the ledger specify the state variables
+
+    \[
+    y=(q,a,b,c),\qquad u=c-a,\qquad v=c+b,
+    \]
+
+    with endpoint equations
+
+    \[
+    q\log(1/a)+W(u)=0,\qquad
+    q\log(1/b)+W(v)=0,
+    \]
+
+    stationarity
+
+    \[
+    aW'(u)+bW'(v)=0,
+    \]
+
+    and the branch row
+
+    \[
+    F(c)=0,\qquad F'(c)<0.
+    \]
+
+    But these equations are local neck equations in an external field \(W\);
+    they do not by themselves produce the global finite-gap objects
+
+    \[
+    P,\ Q,\ \Gamma,\ \ell,\ \kappa,\ Z_0,u,c,v.
+    \]
+
+    In particular, the ledger explicitly leaves the proof-grade chart rows
+    \(\ell\), the pole/residue-state convention, and the global period/filling
+    normalization as inputs to the repaired extractor.  Therefore a chart
+    builder cannot be honestly implemented from the current formulas without
+    first writing the missing global finite-gap chart equations.
+
+    The computational route is now sharply split:
+
+    1.  **Chart-construction route.**  Write and solve the compact non-pinched
+        \(g=2\) finite-gap chart equations that output
+        \(\{P,Q,\Gamma,\ell,\kappa,Z_0,u,c,v\}\).  This is the next necessary
+        numerical step if the proof is to continue by repaired majorants.
+    2.  **Row-realization proof route.**  Prove the
+        RepairedCauchySignRegularity / ChartCompatibility theorem directly,
+        without relying on a numerical chart instance.
+    3.  **Second-variation route.**  Continue the Riesz/Gram route, but it
+        still needs the same separated two-cut chart parameters and the
+        endpoint-transfer realization.  It is not currently a bypass around
+        the missing chart.
+
+    Thus the best next action is not another scan or another old-JSON run.  It
+    is to formulate the global compact \(g=2\) chart equations as an executable
+    solver target.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
