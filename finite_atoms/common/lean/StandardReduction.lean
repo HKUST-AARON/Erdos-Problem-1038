@@ -30458,6 +30458,129 @@ noncomputable def unitInterval_standardReduction_from_baseline_zero_disjoint_sup
       hPrimary hSecondary hpositive_disjoint_support hbaseline hzero hnoDiag
       hRegularMassData)
 
+theorem selectedComponent_provider_from_baseline_zero_disjoint_support_noDiag_componentMass_closure_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hpositive_disjoint_support :
+      Disjoint (PositiveSet (unitIntervalLogPotential μ))
+        (realMeasure μ).support)
+    (hbaseline :
+      Set.Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Set.Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Set.Ioo l r) (diagonalAtomSet μ))
+    (hRegularMassClosureData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < componentMass C ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          C.right ∉ closure
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ C : PositiveComponent μ,
+    ∃ R : ComponentReplacement μ C,
+    ∃ ε δ : ℝ,
+      0 < ε ∧
+      0 < δ ∧
+      0 < C.right ∧
+      C.AugmentedIntervalMaximal ∧
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ ∧
+      Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ ∧
+      (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0) := by
+  refine
+    selectedComponent_provider_from_baseline_zero_disjoint_support_noDiag_componentMass_regular_data
+      hPrimary hSecondary hpositive_disjoint_support hbaseline hzero hnoDiag ?_
+  intro C hmax hbaseline_C hright
+  rcases hRegularMassClosureData C hmax hbaseline_C hright with
+    ⟨ε, hε, hmass_pos, hspan_aug, hclosure, hzero_neighborhood⟩
+  let gap := C.right_gap_union_of_not_mem_closure_union hclosure
+  let δ : ℝ := Classical.choose gap
+  have hδ : 0 < δ := (Classical.choose_spec gap).1
+  have hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ := (Classical.choose_spec gap).2
+  exact
+    ⟨ε, δ, hε, hδ, hmass_pos, hspan_aug, hright_gap,
+      hzero_neighborhood⟩
+
+noncomputable def unitInterval_standardReduction_from_baseline_zero_disjoint_support_noDiag_componentMass_closure_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hpositive_disjoint_support :
+      Disjoint (PositiveSet (unitIntervalLogPotential μ))
+        (realMeasure μ).support)
+    (hbaseline :
+      Set.Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Set.Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Set.Ioo l r) (diagonalAtomSet μ))
+    (hRegularMassClosureData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < componentMass C ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          C.right ∉ closure
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) :=
+  unitInterval_standardReduction_from_secondaryMinimizer_of_provider
+    hPrimary hSecondary
+    (selectedComponent_provider_from_baseline_zero_disjoint_support_noDiag_componentMass_closure_regular_data
+      hPrimary hSecondary hpositive_disjoint_support hbaseline hzero hnoDiag
+      hRegularMassClosureData)
+
 theorem selectedComponent_provider_from_baseline_zero_disjoint_support_noDiag_supportPoint_regular_data
     {μ : ProbabilityMeasure UnitInterval1038}
     (hPrimary :
