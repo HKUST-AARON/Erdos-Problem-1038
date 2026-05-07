@@ -17835,3 +17835,44 @@ Thus the next bottleneck is no longer the degree of \(P\); it is the global
 period/filling convention and the selection of \(Z_0,u,c,v,a,b\), with
 positivity/interlacing and endpoint-neck equations still needing proof-grade
 status.
+
+The positivity/interlacing block has now also been upgraded to a contract.  It
+uses the finite-gap sign lemma:
+
+\[
+F'(x)=-\int\frac{d\lambda(t)}{(x-t)^2}<0
+\]
+
+on every complementary real interval.  Therefore each complementary interval
+contains at most one zero of \(F\), and the regular chart requires real simple
+off-cut \(Q\)-poles, positive residues, interlacing of zeros/poles/branch
+endpoints, and positive cut density
+
+\[
+\rho(x)=-\frac1\pi\operatorname{Im}F_+(x)>0
+\]
+
+on both bands.  Non-real poles, multiple poles, zero residues, pole/cut
+collisions, or density sign loss are not equations to solve inside the regular
+chart; they are Gate 3 boundary routes.
+
+The equation-spec audit now reports:
+
+```text
+block = positivity_interlacing, ready = True
+solver ready = False
+```
+
+The remaining not-ready blocks are now only:
+
+```text
+endpoint_neck_equations
+period_filling_convention
+Z0_boundary_row_selection
+provenance
+```
+
+Thus the regular finite-gap structural part of the chart contract is mostly
+fixed.  The active bottleneck has moved to the neck equations and, more
+importantly, to the period/filling convention and the \(Z_0,u,c,v,a,b\)
+selection rule that determine the actual Gate 1 residual rows.

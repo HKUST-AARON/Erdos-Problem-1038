@@ -5447,3 +5447,10 @@ Update: `mass_decay_normalization` is now a ready contract.  It uses Lemma FG:
 after the mass scale is fixed.  The remaining not-ready blocks are
 `positivity_interlacing`, `endpoint_neck_equations`,
 `period_filling_convention`, `Z0_boundary_row_selection`, and `provenance`.
+
+Update: `positivity_interlacing` is now a ready regular-chart contract.  It
+records the positive Cauchy-transform monotonicity, real simple off-cut
+pole/interlacing requirement, positive residues, positive cut density, and
+Gate 3 routing for failures.  The remaining not-ready blocks are now
+`endpoint_neck_equations`, `period_filling_convention`,
+`Z0_boundary_row_selection`, and `provenance`.

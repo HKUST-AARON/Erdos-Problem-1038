@@ -873,11 +873,15 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
             {
                 "name": "positivity_interlacing",
-                "status": "draft",
+                "status": "contract",
                 "equations": [
-                    "TODO: positive residues at Q-poles",
-                    "TODO: positive cut density on both bands",
-                    "TODO: Gate 3 route for pole/endpoint collisions",
+                    "F is the Cauchy transform of a positive dual measure",
+                    "on every complementary real interval, F'(x)=-int d lambda(t)/(x-t)^2 < 0",
+                    "each complementary interval contains at most one zero of F",
+                    "zeros, real simple Q-poles, and branch endpoints interlace",
+                    "residues Res_{z=p_k} F are positive at atom poles",
+                    "cut density rho(x)=-(1/pi) Im F_+(x) is positive on both bands",
+                    "non-real poles, multiple poles, zero residues, pole-cut collisions, or density sign loss route to Gate 3",
                 ],
             },
             {
@@ -954,6 +958,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
             "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
             "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
+            "positivity_interlacing": "Lemma FG Sign and interlacing",
             "period_filling_convention": "TODO: ledger theorem/line reference",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },
