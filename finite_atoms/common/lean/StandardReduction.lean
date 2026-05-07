@@ -8386,6 +8386,54 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_closed_right
       (Ioc_positive_spanning_of_baseline_and_closed_right hδ hbaseline hright)
 
 /--
+Right-closed positivity from continuity at the origin.  If a real-valued
+function is continuous at `0` and positive at `0`, then it is positive on some
+closed right neighbourhood `[0, δ]`.
+-/
+theorem exists_Icc_zero_right_subset_positive_of_continuousAt_zero
+    {U : ℝ → ℝ}
+    (hcont : ContinuousAt U 0)
+    (hzero : 0 < U 0) :
+    ∃ δ : ℝ, 0 < δ ∧ Icc (0 : ℝ) δ ⊆ PositiveSet U := by
+  have hpos_eventually :
+      ∀ᶠ x : ℝ in nhds (0 : ℝ), 0 < U x :=
+    hcont.eventually (isOpen_Ioi.mem_nhds hzero)
+  rcases Metric.mem_nhds_iff.mp hpos_eventually with
+    ⟨ε, hε, hball⟩
+  refine ⟨ε / 2, by positivity, ?_⟩
+  intro x hx
+  exact hball (by
+    rw [Metric.mem_ball, Real.dist_eq]
+    have hx_nonneg : 0 ≤ x := hx.1
+    have hx_le : x ≤ ε / 2 := hx.2
+    have hlt : |x - 0| < ε := by
+      rw [sub_zero, abs_of_nonneg hx_nonneg]
+      linarith
+    exact hlt)
+
+/--
+Selected component from baseline positivity and continuity/positivity at `0`.
+The continuity step supplies a closed right neighbourhood on which the ordinary
+potential remains positive.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_continuousAt_zero
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hcont_zero : ContinuousAt (unitIntervalLogPotential μ) 0)
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases exists_Icc_zero_right_subset_positive_of_continuousAt_zero
+      hcont_zero hzero with
+    ⟨δ, hδ, hright⟩
+  rcases exists_positiveComponent_baseline_right_pos_of_baseline_and_closed_right
+      hδ hbaseline hright with
+    ⟨C, _hinterval, hbaseline_C, hright_C⟩
+  exact ⟨C, hbaseline_C, hright_C⟩
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
