@@ -9736,6 +9736,33 @@ theorem mem_unitIntervalTruncatedPositiveSet_of_baseline_local_compact_data
   exact hsub_trunc hxab
 
 /--
+Whole-baseline pointwise wrapper.  If every point of `(-1,0)` has the local
+compact analytic data from
+`mem_unitIntervalTruncatedPositiveSet_of_baseline_local_compact_data`, then the
+entire baseline interval is contained in `unitIntervalTruncatedPositiveSet`.
+-/
+theorem unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
+    {μ : ProbabilityMeasure UnitInterval1038} {truncε : ℝ}
+    (htruncε : 0 < truncε)
+    (hlocal :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+          (∀ threshold : ℝ, 0 < threshold →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2))) :
+    Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ := by
+  intro x hx
+  exact mem_unitIntervalTruncatedPositiveSet_of_baseline_local_compact_data
+    hx htruncε (hlocal x hx)
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
