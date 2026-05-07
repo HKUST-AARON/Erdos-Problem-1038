@@ -9559,6 +9559,28 @@ theorem mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
   exact mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
     htruncε htrunc_pos
 
+/--
+Interval-level threshold version of the ordinary-to-truncated bridge.  A
+uniform lower threshold for the ordinary potential plus uniform tail control
+puts the whole interval into `unitIntervalTruncatedPositiveSet`.
+-/
+theorem unitIntervalTruncatedPositiveSet_interval_subset_of_threshold_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {l r truncε threshold : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hpos :
+      ∀ x : ℝ, x ∈ Ioo l r →
+        threshold < unitIntervalLogPotential μ x)
+    (hno_diag : Disjoint (Ioo l r) (diagonalAtomSet μ))
+    (htail :
+      ∀ x : ℝ, x ∈ Ioo l r →
+        singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    Ioo l r ⊆ unitIntervalTruncatedPositiveSet μ := by
+  intro x hx
+  exact mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+    htruncε hthreshold (hpos x hx)
+    (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
+    (htail x hx)
+
 theorem unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
     (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
     {truncε : ℝ} (htruncε : 0 < truncε) :
