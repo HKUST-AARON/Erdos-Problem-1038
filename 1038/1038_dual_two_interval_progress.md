@@ -16710,6 +16710,24 @@ theorem queue.
     gives the exact diagnostic to apply once the real compact chart supplies
     \(u,v,a,b\) and the compact \(\Lambda\)-range.
 
+    The extractor also has a bare affine \(\Lambda\)-sweep:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-lrlr-affine-lambda-sweep \
+      --anchor-c C --affine-u U --affine-v V --affine-a A --affine-b B
+    ```
+
+    For the same synthetic row data, the sweep over \(\Lambda\in[-20,20]\)
+    and a wider sweep over \(\Lambda\in[-500,500]\) both find no fixed
+    projective sign.  A second synthetic right-exterior row choice
+    \(u=2.05,v=4.0,a=b=1/2\) also splits throughout \([-500,500]\).  Thus the
+    bare LRLR kernel does not appear to have a generic affine row that closes
+    it independently of the real chart.  The affine route must therefore use
+    the actual compact \(g=2\) row data and the compact \(\Lambda\)-range
+    produced by homogeneous margins/contact verification; it should not be
+    replaced by another toy-row search.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

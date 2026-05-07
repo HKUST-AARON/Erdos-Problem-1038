@@ -2540,6 +2540,138 @@ def lrlr_anchor_projective_audit(
     }
 
 
+def lrlr_affine_lambda_sweep_audit(
+    c_value: float,
+    affine_u: float,
+    affine_v: float,
+    affine_a: float,
+    affine_b: float,
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    lambda_min: float = -10.0,
+    lambda_max: float = 10.0,
+    lambda_samples: int = 41,
+    samples: int = 720,
+    nodes: int = 160,
+) -> dict[str, Any]:
+    """Sweep affine LRLR projective signs over Lambda for bare chart data."""
+    if lambda_samples < 1:
+        raise ValueError("--lambda-samples must be positive")
+    if lambda_samples > 1 and not lambda_min < lambda_max:
+        raise ValueError("--lambda-min must be smaller than --lambda-max")
+    lambda_values = (
+        [float(lambda_min)]
+        if lambda_samples == 1
+        else [float(value) for value in np.linspace(lambda_min, lambda_max, lambda_samples)]
+    )
+    records = []
+    fixed_records = []
+    for lambda_value in lambda_values:
+        audit = lrlr_anchor_projective_audit(
+            c_value=c_value,
+            gammas=gammas,
+            omitted_pole=omitted_pole,
+            samples=samples,
+            nodes=nodes,
+            lambda_value=lambda_value,
+            affine_u=affine_u,
+            affine_v=affine_v,
+            affine_a=affine_a,
+            affine_b=affine_b,
+        )
+        affine_zero_records = [
+            record
+            for record in audit["zero_angle_records"]
+            if record["row"] == "L_b_minus_Lambda_rho"
+        ]
+        record = {
+            "Lambda": lambda_value,
+            "affine_lrlr_projective_sign_counts": audit[
+                "affine_lrlr_projective_sign_counts"
+            ],
+            "affine_lrlr_projective_sign_fixed_nonzero": audit[
+                "affine_lrlr_projective_sign_fixed_nonzero"
+            ],
+            "min_abs_affine_projective_product": audit[
+                "min_abs_affine_projective_product"
+            ],
+            "min_abs_affine_projective_product_sample": audit[
+                "min_abs_affine_projective_product_sample"
+            ],
+            "affine_zero_angle_records": affine_zero_records,
+        }
+        records.append(record)
+        if record["affine_lrlr_projective_sign_fixed_nonzero"]:
+            fixed_records.append(record)
+
+    fixed_windows = []
+    run: list[dict[str, Any]] = []
+    left_neighbor: dict[str, Any] | None = None
+    for record in records + [{"affine_lrlr_projective_sign_fixed_nonzero": False, "sentinel": True}]:
+        if record.get("affine_lrlr_projective_sign_fixed_nonzero"):
+            run.append(record)
+            continue
+        if run:
+            right_neighbor = None if record.get("sentinel") else record
+            fixed_windows.append(
+                {
+                    "left_lambda": float(run[0]["Lambda"]),
+                    "right_lambda": float(run[-1]["Lambda"]),
+                    "sample_count": len(run),
+                    "min_abs_affine_projective_product": min(
+                        float(item["min_abs_affine_projective_product"]) for item in run
+                    ),
+                    "left_neighbor": None
+                    if left_neighbor is None
+                    else {
+                        "Lambda": float(left_neighbor["Lambda"]),
+                        "sign_counts": left_neighbor["affine_lrlr_projective_sign_counts"],
+                        "controlling_sample": left_neighbor[
+                            "min_abs_affine_projective_product_sample"
+                        ],
+                    },
+                    "right_neighbor": None
+                    if right_neighbor is None
+                    else {
+                        "Lambda": float(right_neighbor["Lambda"]),
+                        "sign_counts": right_neighbor["affine_lrlr_projective_sign_counts"],
+                        "controlling_sample": right_neighbor[
+                            "min_abs_affine_projective_product_sample"
+                        ],
+                    },
+                }
+            )
+            run = []
+        if not record.get("sentinel"):
+            left_neighbor = record
+    fixed_sign_counts: dict[str, int] = {}
+    for record in fixed_records:
+        counts = record["affine_lrlr_projective_sign_counts"]
+        nonzero_signs = [sign for sign, count in counts.items() if sign != "0" and count]
+        if len(nonzero_signs) == 1:
+            sign = str(nonzero_signs[0])
+            fixed_sign_counts[sign] = fixed_sign_counts.get(sign, 0) + 1
+    return {
+        "model": "LRLR affine Lambda projective sweep",
+        "gammas": [-2.0, -1.0, 1.0, 2.0] if gammas is None else gammas,
+        "omitted_pole": omitted_pole,
+        "c": c_value,
+        "u": affine_u,
+        "v": affine_v,
+        "a": affine_a,
+        "b": affine_b,
+        "lambda_min": lambda_min,
+        "lambda_max": lambda_max,
+        "lambda_samples": lambda_samples,
+        "samples_count": samples,
+        "nodes": nodes,
+        "fixed_lambda_count": len(fixed_records),
+        "fixed_sign_counts": fixed_sign_counts,
+        "fixed_windows": fixed_windows,
+        "records": records,
+    }
+
+
 def lrlr_residual_offrow_audit_from_chart(
     path: Path,
     samples: int = 32,
@@ -3382,6 +3514,11 @@ def main() -> int:
         action="store_true",
         help="audit zero angles of I_gap and the anchor rho row on the LRLR projective kernel",
     )
+    parser.add_argument(
+        "--audit-lrlr-affine-lambda-sweep",
+        action="store_true",
+        help="sweep Lambda for the bare LRLR affine row projective audit",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -3893,6 +4030,53 @@ def main() -> int:
             print(
                 "  affine controlling sample = "
                 f"{audit['min_abs_affine_projective_product_sample']}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_lrlr_affine_lambda_sweep:
+        if args.anchor_c is None:
+            parser.error("--audit-lrlr-affine-lambda-sweep requires --anchor-c")
+        if None in {args.affine_u, args.affine_v, args.affine_a, args.affine_b}:
+            parser.error(
+                "--audit-lrlr-affine-lambda-sweep requires --affine-u --affine-v --affine-a --affine-b"
+            )
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = lrlr_affine_lambda_sweep_audit(
+            c_value=float(args.anchor_c),
+            affine_u=float(args.affine_u),
+            affine_v=float(args.affine_v),
+            affine_a=float(args.affine_a),
+            affine_b=float(args.affine_b),
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            lambda_min=args.lambda_min,
+            lambda_max=args.lambda_max,
+            lambda_samples=args.lambda_samples,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 LRLR affine Lambda projective sweep")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  c,u,v,a,b = {audit['c']}, {audit['u']}, {audit['v']}, {audit['a']}, {audit['b']}")
+        print(f"  Lambda range = [{audit['lambda_min']}, {audit['lambda_max']}], samples = {audit['lambda_samples']}")
+        print(f"  fixed Lambda count = {audit['fixed_lambda_count']}")
+        print(f"  fixed sign counts = {audit['fixed_sign_counts']}")
+        print(f"  fixed windows = {audit['fixed_windows'][:5]}")
+        preview = audit["records"][:3]
+        if len(audit["records"]) > 3:
+            preview = preview + audit["records"][-1:]
+        for record in preview:
+            print(
+                "  Lambda = "
+                f"{record['Lambda']:.12g}, signs = {record['affine_lrlr_projective_sign_counts']}, "
+                f"fixed = {record['affine_lrlr_projective_sign_fixed_nonzero']}, "
+                f"min |product| = {record['min_abs_affine_projective_product']}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

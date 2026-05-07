@@ -972,6 +972,13 @@ Useful corrections already recorded:
   \(48.78\).  This is only a pipeline diagnostic, but it is the correct next
   acceptance test after a real compact chart supplies \(u,v,a,b\) and the
   compact \(\Lambda\)-range.
+- New `--audit-lrlr-affine-lambda-sweep` sweeps the bare affine row over
+  \(\Lambda\).  On the same synthetic row data, both \([-20,20]\) and
+  \([-500,500]\) split for every sampled \(\Lambda\); another synthetic
+  right-exterior row choice also splits on \([-500,500]\).  Hence the bare
+  LRLR kernel does not seem closable by a generic toy affine row.  The affine
+  route now requires actual compact chart data and the true compact
+  \(\Lambda\)-range; do not continue toy-row searching as if it were a proof.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
