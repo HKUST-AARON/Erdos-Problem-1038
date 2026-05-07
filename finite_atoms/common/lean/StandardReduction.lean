@@ -26258,6 +26258,43 @@ noncomputable def unitInterval_standardReduction_from_normalizedAtomization_comp
       (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac_of_componentMass_pos
         hmass_pos hnormalized)
 
+noncomputable def unitInterval_standardReduction_from_componentMass_leftAugmented_notSupport_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hmass_pos : 0 < componentMass C)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hnormalized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ) :=
+    normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood_of_componentMass_pos
+      hmass_pos hε hPrimary hSecondary
+      (fun η hη => singularTail_exists_small_strictOutside_exception C ε η hη)
+      hzero
+  exact
+    unitInterval_standardReduction_from_normalizedAtomization_componentMass_leftAugmented_notSupport
+      hε hright_pos hmax hleft_aug hmass_pos hbaseline hnot_support
+      hnormalized
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
