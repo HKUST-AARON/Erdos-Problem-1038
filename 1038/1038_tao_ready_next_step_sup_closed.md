@@ -423,6 +423,27 @@ Useful corrections already recorded:
   Thus no-positive-lift recession is exactly a five-column orientation check:
   any circuit whose endpoint cofactors can be oriented positive must have
   nonpositive period lift, with vanishing cofactors routed to Gate 3.
+- ECT-A homogeneous closure is now isolated.  If the actual repaired columns
+  satisfy (i) endpoint/off-row cofactor alternation for \(\rho_S\), and
+  (ii) the five-point lifted circuit orientation excluding positive
+  \(V_\Pi\)-lift, then no-positive-lift recession holds,
+  \(\mathcal D_Z\ne\emptyset\), \(\pm\rho_S\) are outside the endpoint cone,
+  the two homogeneous margins hold, and the affine \(\Lambda\)-axis is compact.
+  This is only the homogeneous closure; compact affine contact patterns and the
+  boundary row pencil \(b-\Lambda\rho\) remain to be verified.
+- After ECT-A, the compact affine target is now a finite pattern-minimum
+  problem.  For each regular affine pattern \(\mathfrak p\), define
+  \(\mathcal S_{\mathfrak p}\) by the contact equations, interior
+  \(P_\theta=0\) equations, endpoint one-sided signs, interval sign table, and
+  KKT equation
+  \(\sum_iw_iV_S(z_i)=-b_S+\Lambda\rho_S\) with
+  \(\Lambda\in[\Lambda_-,\Lambda_+]\).  The required check is
+  \[
+  m_{\mathfrak p}:=\inf_{\mathcal S_{\mathfrak p}}
+  (G_\theta^{(b)}-\Lambda G_\theta^{(c)})>0.
+  \]
+  Empty patterns are harmless; boundary infima route to Gate 3; a regular
+  nonpositive minimizer is exactly a Gate 1 weighted affine obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

@@ -13570,6 +13570,160 @@ theorem queue.
     five-function ECT/sign-regular theorem would prove (G1NoPositiveLiftRecession)
     by (G1CircuitCoeff)--(G1CircuitLiftDet).
 
+    ECT-A homogeneous closure theorem.
+
+    The preceding determinant reductions can now be packaged as a precise
+    theorem for the homogeneous branch.
+
+    \[
+    \boxed{\textbf{EndpointOffRowAndLiftedCircuitTheorem}.}
+    \]
+
+    Assume the following two determinant statements hold for the actual
+    repaired columns, with all vanishing/collision cases routed to Gate 3.
+
+    1.  Endpoint/off-row alternation: for every regular four-tuple in \(Z_0\),
+        the endpoint determinant and the cofactors obtained by replacing one
+        endpoint column by \(\rho_S\) satisfy (G1OffRowAlternation).
+
+    2.  Lifted circuit orientation: for every regular five-tuple in \(Z_0\),
+        the endpoint circuit coefficients (G1CircuitCoeff) and the augmented
+        determinant (G1CircuitLiftDet) have the sign excluding a positive
+        \(V_\Pi\)-lift whenever the endpoint cofactors are oriented positive.
+
+    Then the homogeneous \(Z_0\)-atomic branch is excluded, and the affine
+    parameter \(\Lambda\) is reduced to a compact interval.
+
+    Proof.  The lifted circuit orientation excludes positive-lift recession
+    rays.  Indeed, if
+
+    \[
+    \sum_iw_iV_S(x_i)=0,\qquad w_i>0,
+    \qquad
+    \sum_iw_iV_\Pi(x_i)>0,
+    \]
+
+    then conic Carathéodory in the five-dimensional lifted circuit space gives
+    such a relation with at most five atoms.  In the regular five-atom case the
+    endpoint null vector is the cofactor vector (G1CircuitCoeff), and the lift
+    is exactly (G1CircuitLiftDet), contradicting the lifted circuit orientation.
+    Lower-support and zero-cofactor cases are limits of the same system; by
+    hypothesis they are Gate 3 degenerations.  Hence
+    (G1NoPositiveLiftRecession) holds, so \(\mathcal D_Z\ne\emptyset\).
+
+    Next, endpoint/off-row alternation implies endpoint cone separation.  If
+
+    \[
+    \rho_S=\sum_{i=1}^Nw_iV_S(x_i),
+    \qquad w_i>0,
+    \]
+
+    then conic Carathéodory in \(\mathbb R^4\) gives \(N\le4\).  For a regular
+    four-atom representation, Cramer's rule gives the weights by the cofactors
+    in (G1OffRowAlternation), so their signs alternate and cannot all be
+    positive.  The same argument applies to \(-\rho_S\), and lower-support
+    degeneracies are routed to Gate 3.  Thus (G1EndpointConeSeparation) holds.
+
+    Since \(\mathcal D_Z\ne\emptyset\), choose
+    \(\theta_0\in\mathcal D_Z\).  By finite-dimensional separation applied to
+    (G1EndpointConeSeparation), there are
+    \(\chi_R,\chi_L\in\mathcal K_Z\) with
+    \(\chi_R\cdot\rho_S>0\) and \(\chi_L\cdot\rho_S<0\).  Therefore
+    \(\theta_0+t\chi_R,\theta_0+t\chi_L\in\mathcal D_Z\) for \(t\ge0\), and
+    \(G^{(c)}\) tends respectively to \(+\infty\) and \(-\infty\) along these
+    rays.  Hence the two homogeneous margins in
+    (G1HomMarginsFromRecession) hold.
+
+    Finally, the homogeneous margins give the compactification already recorded
+    in (G1EnvelopeOrder): a witness with \(G^{(c)}<0\) makes
+    \(M_\eta(\Lambda)>0\) for all sufficiently large positive \(\Lambda\), and
+    a witness with \(G^{(c)}>0\) makes \(M_\eta(\Lambda)>0\) for all sufficiently
+    large negative \(\Lambda\).  Thus only a compact affine interval remains.
+    \(\square\)
+
+    This theorem closes the homogeneous branch conditional on two explicit
+    determinant sign statements.  It does not close the compact affine branch:
+    the boundary row pencil \(b-\Lambda\rho\), the affine contact sign tables,
+    and the repaired-column ChartCompatibility proof still have to be checked
+    on the compact \(\Lambda\)-range.
+
+    Compact affine residual-minimum formulation.
+
+    After EndpointOffRowAndLiftedCircuitTheorem, the affine parameter is
+    restricted to a compact interval \(I_\Lambda=[\Lambda_-,\Lambda_+]\).  The
+    remaining affine branch can therefore be stated as a finite family of
+    compact pattern-minimum problems.
+
+    For a regular affine contact pattern \(\mathfrak p\), let
+    \(\mathcal S_{\mathfrak p}\) be the set of tuples
+
+    \[
+    (\Lambda,z,\theta,w),
+    \qquad
+    \Lambda\in I_\Lambda,
+    \qquad
+    w_i>0,
+    \]
+
+    satisfying the contact equations \(G_\theta(z_i)=0\), the interior
+    stationarity equations \(P_\theta(z_i)=0\), the assigned endpoint
+    one-sided signs, the interval sign table for \(P_\theta/(Q^2R)\), and the
+    affine KKT equation
+
+    \[
+    \sum_iw_iV_S(z_i)=-b_S+\Lambda\rho_S.
+    \tag{G1CompactAffineKKT}
+    \]
+
+    On this set define the residual
+
+    \[
+    R_{\mathfrak p}(\Lambda,z,\theta)
+    =
+    G_\theta^{(b)}-\Lambda G_\theta^{(c)}.
+    \tag{G1CompactAffineResidual}
+    \]
+
+    If the pattern is a four-contact invertible pattern, this residual is the
+    determinant quotient (G1AffineResidualDet); for lower-support patterns it
+    is the same linear functional evaluated on the remaining KKT solution.
+
+    The exact compact affine target is
+
+    \[
+    \boxed{
+    m_{\mathfrak p}
+    :=
+    \inf_{\mathcal S_{\mathfrak p}}
+    R_{\mathfrak p}
+    >0
+    \quad
+    \text{for every regular affine pattern } \mathfrak p.
+    }
+    \tag{G1PatternPositiveMinimum}
+    \]
+
+    If \(\mathcal S_{\mathfrak p}\) is empty, the pattern is harmless.  If an
+    infimum is approached only by contact collision, endpoint/pole hit,
+    denominator sign loss, vanishing weight, or chart-rank loss, the limit is
+    a Gate 3 route.  Otherwise compactness gives a regular minimizer.  Thus a
+    failure of (G1PatternPositiveMinimum) produces an explicit regular tuple in
+    \(\mathcal S_{\mathfrak p}\) with
+
+    \[
+    R_{\mathfrak p}\le0,
+    \]
+
+    which is exactly the weighted affine obstruction extracted earlier.
+    Conversely, any regular weighted affine obstruction lies in some
+    \(\mathcal S_{\mathfrak p}\) and makes (G1PatternPositiveMinimum) fail.
+
+    Therefore, after ECT-A, the remaining Gate 1 affine work is precisely the
+    finite list of inequalities (G1PatternPositiveMinimum), not a new
+    measure-theoretic or quotient-rank problem.  This formulation is the
+    correct target for either a symbolic determinant proof or an interval
+    contact oracle using the repaired data.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
