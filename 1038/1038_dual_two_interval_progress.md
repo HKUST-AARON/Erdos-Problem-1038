@@ -14688,6 +14688,79 @@ theorem queue.
     extractor and determinant/envelope oracles become executable on the
     resulting chart.
 
+    Row-count audit for the proposed canonical moving chart.
+
+    There is a concrete consistency check before any solver can be written.  In
+    the current canonical-basis reduction the moving correction image is stated
+    as
+
+    \[
+    D\mathbb R[z]_{\le 2d-3}.
+    \]
+
+    Its dimension is
+
+    \[
+    \dim D\mathbb R[z]_{\le 2d-3}=2d-2.
+    \tag{G1CorrectionDim}
+    \]
+
+    The same ledger later describes the canonical Gate 1 rows as the
+    zero-mass/infinity row plus real pole-state evaluation/confluent derivative
+    rows.  If all pole rows
+
+    \[
+    H\mapsto H(p_k),\qquad H\mapsto H'(p_k),
+    \qquad k=1,\ldots,d
+    \]
+
+    are included, this already gives \(2d\) rows, or \(2d+1\) rows if the
+    zero-mass row is also included.  Thus the proposed row list is larger than
+    the proposed correction space:
+
+    \[
+    2d-2
+    \quad\text{versus}\quad
+    2d\ \text{or}\ 2d+1.
+    \tag{G1RowCountMismatch}
+    \]
+
+    For the numerically relevant cubic \(Q\) case this is
+
+    \[
+    4\quad\text{correction columns, but }6\text{ pole rows, or }7\text{ with mass}.
+    \]
+
+    Therefore the text cannot yet define the square matrix \(A_{\ell,X}\) in a
+    proof-grade way.  One of the following must be true before a chart solver
+    is meaningful:
+
+    1.  the correction image \(D\mathbb R[z]_{\le2d-3}\) is too small for the
+        full moving-\(P,Q\) pole-state chart and must be enlarged;
+    2.  only a selected \(2d-2\)-row subset of the pole/mass/period conditions
+        belongs to \(A\), with the remaining rows treated as open state
+        coordinates or quotient rows;
+    3.  some of the pole eval/deriv rows are dependent on the chosen degree
+        ranges and should not be counted independently;
+    4.  the canonical row checklist is only a TP-row toolbox, not the actual
+        normalization list \(\ell\).
+
+    This is now the smallest concrete obstruction to writing
+    CompactG2MovingChartEquations.  Before any new numerical solve, the proof
+    must specify a square moving-chart linear system:
+
+    \[
+    \boxed{
+    \#\ell=\dim\mathcal X,\qquad
+    A_{\ell,X}=\ell(BX)\text{ invertible}.
+    }
+    \tag{G1SquareChartRequirement}
+    \]
+
+    Until then, a chart builder would have to guess which rows are equations
+    and which rows are state outputs, and any resulting Gate 1 computation
+    would not be proof-grade.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

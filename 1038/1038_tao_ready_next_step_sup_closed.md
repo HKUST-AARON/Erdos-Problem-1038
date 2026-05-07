@@ -590,6 +590,14 @@ Useful corrections already recorded:
   `CompactG2MovingChartEquations`: it must specify the unknown vector,
   equation vector, period/filling convention, and ordered row list `ell`, with
   output exactly `P,Q,gammas,rows,kappa,Z0,u,c,v`.
+- A row-count audit found a sharper obstruction inside that target.  The
+  proposed canonical correction image \(D\mathbb R[z]_{\le2d-3}\) has dimension
+  \(2d-2\), but the simultaneously described pole-state rows
+  \(H(p_k),H'(p_k)\) already give \(2d\) rows, or \(2d+1\) with zero mass.  For
+  cubic \(Q\), this is 4 correction columns versus 6 or 7 rows.  Hence the
+  square moving-chart matrix \(A_{\ell,X}\) is not yet defined.  The next proof
+  step must decide which rows are equations, which are state outputs/quotient
+  rows, or whether the correction image must be enlarged.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
