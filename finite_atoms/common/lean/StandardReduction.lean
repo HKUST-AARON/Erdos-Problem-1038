@@ -2104,6 +2104,28 @@ theorem realMeasure_ae_separated_of_not_mem_support
     simpa [Metric.mem_ball, Real.dist_eq] using hlt'
   exact (hball ht_ball) htSupport
 
+theorem realMeasure_exists_right_Icc_disjoint_support_of_not_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Icc x (x + δ) ∩ (realMeasure μ).support = ∅ := by
+  have hcompl_open : IsOpen ((realMeasure μ).supportᶜ) :=
+    Measure.isOpen_compl_support
+  have hxcompl : x ∈ (realMeasure μ).supportᶜ := hx
+  rcases Metric.mem_nhds_iff.1 (hcompl_open.mem_nhds hxcompl) with
+    ⟨ε, hε, hball⟩
+  refine ⟨ε / 2, by linarith, ?_⟩
+  ext y
+  constructor
+  · intro hy
+    rcases hy with ⟨hyIcc, hySupport⟩
+    have hy_ball : y ∈ Metric.ball x ε := by
+      rw [Metric.mem_ball, Real.dist_eq, abs_sub_lt_iff]
+      constructor <;> linarith [hyIcc.1, hyIcc.2, hε]
+    exact (hball hy_ball) hySupport
+  · intro hy
+    exact False.elim hy
+
 theorem realMeasure_abs_sub_integrable
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     Integrable (fun t : ℝ => |x - t|) (realMeasure μ) := by
