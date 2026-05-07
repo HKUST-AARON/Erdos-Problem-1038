@@ -11998,6 +11998,56 @@ theorem exists_positiveComponent_baseline_right_pos_of_span_compact_data
       (hspan_no_diag 0 δ hright_subset_span)
       (hspan_tail 0 δ hright_subset_span)
 
+theorem exists_positiveComponent_baseline_right_pos_of_span_global_support_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε) (hδ : 0 < δ)
+    (hspan_support :
+      Disjoint (Ioc (-1 : ℝ) δ) (realMeasure μ).support)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y)
+    (hspan_tail :
+      ∀ threshold' : ℝ, 0 < threshold' →
+        ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+          singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hspan_support_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          Disjoint (Icc a b) (realMeasure μ).support := by
+    intro a b hsubset
+    rw [Set.disjoint_left]
+    intro y hy hysupport
+    rw [Set.disjoint_left] at hspan_support
+    exact hspan_support (hsubset hy) hysupport
+  have hspan_pos_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y := by
+    intro a b hsubset y hy
+    exact hspan_pos y (hsubset hy)
+  have hspan_tail_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2) := by
+    intro a b hsubset threshold hthreshold _hthreshold y hy
+    exact hspan_tail threshold hthreshold y (hsubset hy)
+  exact
+    exists_positiveComponent_baseline_right_pos_of_span_compact_support_data
+      μ hlog_int htruncε hδ
+      hspan_support_compact hspan_pos_compact hspan_tail_compact
+
 /--
 Span-global-data version of selected-component construction.  Continuity,
 positivity, off-diagonal disjointness, and tail control are supplied on the
