@@ -4383,6 +4383,46 @@ theorem PositiveComponent.right_potential_nonpos_of_augmented_gap
   unitIntervalLogPotential_nonpos_of_not_mem_augmented
     (C.right_not_mem_augmented_of_augmented_gap hδ haug_gap)
 
+theorem not_mem_unitIntervalAugmentedPositiveSet_of_open_right_gap
+    {μ : ProbabilityMeasure UnitInterval1038} {x δ : ℝ}
+    (hδ : 0 < δ)
+    (haug_gap :
+      Ioo x (x + δ) ∩ unitIntervalAugmentedPositiveSet μ = ∅)
+    (hxdiag : x ∉ diagonalAtomSet μ)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) x) :
+    x ∉ unitIntervalAugmentedPositiveSet μ := by
+  intro hxaug
+  rcases hxaug with hxpos | hxdiag'
+  · have hpos_eventually :
+        ∀ᶠ y : ℝ in nhds x, 0 < unitIntervalLogPotential μ y :=
+      hcont.eventually (isOpen_Ioi.mem_nhds hxpos)
+    rcases Metric.mem_nhds_iff.mp hpos_eventually with
+      ⟨ε, hε, hball⟩
+    let y : ℝ := x + min δ ε / 2
+    have hmin_pos : 0 < min δ ε := lt_min hδ hε
+    have hy_gt : x < y := by
+      dsimp [y]
+      linarith
+    have hy_lt_delta : y < x + δ := by
+      dsimp [y]
+      linarith [min_le_left δ ε]
+    have hy_ball : y ∈ Metric.ball x ε := by
+      rw [Metric.mem_ball, Real.dist_eq]
+      have hdiff_nonneg : 0 ≤ y - x := by linarith
+      have hlt : |y - x| < ε := by
+        rw [abs_of_nonneg hdiff_nonneg]
+        dsimp [y]
+        linarith [min_le_right δ ε]
+      exact hlt
+    have hy_aug : y ∈ unitIntervalAugmentedPositiveSet μ :=
+      unitInterval_positiveSet_subset_augmented μ (hball hy_ball)
+    have hy_empty : y ∈
+        Ioo x (x + δ) ∩ unitIntervalAugmentedPositiveSet μ :=
+      ⟨⟨hy_gt, hy_lt_delta⟩, hy_aug⟩
+    rw [haug_gap] at hy_empty
+    exact False.elim hy_empty
+  · exact hxdiag hxdiag'
+
 theorem PositiveComponent.exists_right_Icc_disjoint_augmented_of_not_mem_closure
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (hclosure :
