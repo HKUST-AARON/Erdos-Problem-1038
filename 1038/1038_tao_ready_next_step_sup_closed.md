@@ -544,6 +544,14 @@ Useful corrections already recorded:
   cofactor signs \((- ,+,-,+)\).  This confirms the executable can test the
   endpoint/off-row alternation hard mouth once real chart data are supplied;
   it is not a Gate 1 certificate.
+- The right-exterior off-row checker now also supports grid scans.  On the
+  synthetic chart, an \(N=8\) grid from \(2.02\) to \(4.0\) checks all \(70\)
+  four-tuples and finds only \(15\) alternating tuples, with no singular
+  \(\det E\).  The first nonalternating tuple is approximately
+  \((2.02,2.302857142857143,2.585714285714286,2.8685714285714283)\), with
+  relative signs \((- ,+,+,-)\).  This shows why single four-point smoke tests
+  are not evidence for Gate 1; the real chart must pass a grid/envelope scan
+  before any interval proof attempt.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

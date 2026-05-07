@@ -522,6 +522,109 @@ def right_exterior_offrow_determinant_payload(
     }
 
 
+def right_exterior_offrow_grid_payload(
+    repaired: dict[str, Any],
+    rho_payload: dict[str, Any] | None,
+    source: dict[str, Any],
+    nodes: int = 500,
+) -> dict[str, Any] | None:
+    if rho_payload is None:
+        return None
+    spec = source.get("right_exterior_grid")
+    if spec is None:
+        return None
+    if not isinstance(spec, dict):
+        raise ValueError("right_exterior_grid must be an object")
+    start = float(spec["start"])
+    stop = float(spec["stop"])
+    count = int(spec.get("count", 8))
+    if count < 4:
+        raise ValueError("right_exterior_grid.count must be at least 4")
+    if not start < stop:
+        raise ValueError("right_exterior_grid requires start < stop")
+
+    Q = np.array(repaired["Q_coefficients_ascending"], dtype=float)
+    gammas = [float(x) for x in repaired["gammas"]]
+    right_endpoint = max(gammas)
+    if start <= right_endpoint:
+        raise ValueError("right_exterior_grid.start must be in the right exterior component")
+
+    gamma_keys = [f"{gamma:.17g}" for gamma in gammas]
+    grid = np.linspace(start, stop, count)
+    rows_by_point: dict[float, list[float]] = {}
+    for point in grid:
+        row = []
+        for gamma_key in gamma_keys:
+            endpoint = repaired["endpoints"][gamma_key]
+            row.append(
+                integrate_to_infinity_right_exterior(
+                    lambda y, coeffs=endpoint["h_rep_coefficients_ascending"]: cauchy_column_value(
+                        coeffs, Q, gammas, y
+                    ),
+                    float(point),
+                    right_endpoint,
+                    nodes=nodes,
+                )
+            )
+        rows_by_point[float(point)] = row
+
+    rho_row = np.array([float(rho_payload["rho_S"][gamma_key]) for gamma_key in gamma_keys], dtype=float)
+    total = 0
+    alternating = 0
+    singular = 0
+    min_abs_det_E = math.inf
+    first_failure: dict[str, Any] | None = None
+
+    from itertools import combinations
+
+    for combo in combinations(range(count), 4):
+        total += 1
+        points = [float(grid[i]) for i in combo]
+        matrix = np.array([rows_by_point[point] for point in points], dtype=float)
+        det_E = float(np.linalg.det(matrix))
+        min_abs_det_E = min(min_abs_det_E, abs(det_E))
+        if sign_label(det_E) == 0:
+            singular += 1
+            if first_failure is None:
+                first_failure = {"kind": "singular", "points": points, "det_E": det_E}
+            continue
+        signs: list[int] = []
+        cofactors = []
+        for index in range(4):
+            replaced = matrix.copy()
+            replaced[index, :] = rho_row
+            det_i = float(np.linalg.det(replaced))
+            sign_i = sign_label(det_i / det_E)
+            signs.append(sign_i)
+            cofactors.append(det_i)
+        ok = all(signs[i] != 0 and signs[i + 1] == -signs[i] for i in range(3))
+        if ok:
+            alternating += 1
+        elif first_failure is None:
+            first_failure = {
+                "kind": "nonalternating",
+                "points": points,
+                "det_E": det_E,
+                "relative_signs": signs,
+                "cofactors": cofactors,
+            }
+
+    return {
+        "status": "computed",
+        "component": "right_exterior",
+        "grid_start": start,
+        "grid_stop": stop,
+        "grid_count": count,
+        "quad_nodes": nodes,
+        "total_four_tuples": total,
+        "alternating_four_tuples": alternating,
+        "singular_four_tuples": singular,
+        "min_abs_det_E": None if math.isinf(min_abs_det_E) else min_abs_det_E,
+        "first_failure": first_failure,
+        "all_nonsingular_alternating": total > 0 and alternating == total,
+    }
+
+
 def run_chart_json(path: Path) -> dict[str, Any]:
     P, Q, gammas, rows, source = load_chart_json(path)
     repaired = extract_repaired_data(P, Q, gammas, rows)
@@ -545,6 +648,9 @@ def run_chart_json(path: Path) -> dict[str, Any]:
             result.get("anchor_rho"),
             [float(x) for x in repaired["gammas"]],
         )
+    grid_payload = right_exterior_offrow_grid_payload(repaired, result.get("anchor_rho"), source)
+    if grid_payload is not None:
+        result["right_exterior_offrow_grid"] = grid_payload
     return result
 
 
@@ -644,6 +750,14 @@ def main() -> int:
                 print(f"  det(E) = {det_payload['det_E']:.12e}")
                 print(f"  relative signs = {det_payload['relative_signs']}")
                 print(f"  alternating = {det_payload['alternating_relative_signs']}")
+        if payload.get("right_exterior_offrow_grid"):
+            grid_payload = payload["right_exterior_offrow_grid"]
+            print(
+                "  right-exterior grid alternating = "
+                f"{grid_payload['alternating_four_tuples']}/{grid_payload['total_four_tuples']}"
+            )
+            print(f"  right-exterior grid singular = {grid_payload['singular_four_tuples']}")
+            print(f"  right-exterior grid all ok = {grid_payload['all_nonsingular_alternating']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, indent=2, sort_keys=True)

@@ -14364,6 +14364,54 @@ theorem queue.
     This remains only a smoke test until a real compact non-pinched \(g=2\)
     chart is supplied.
 
+    Right-exterior off-row grid scan.
+
+    A single four-contact smoke test is not enough.  The extractor therefore
+    also accepts a right-exterior grid specification
+
+    \[
+    \texttt{"right\_exterior\_grid":\{"start":s_0,"stop":s_1,"count":N\}}
+    \]
+
+    and checks every four-tuple of grid points.  For each tuple it reports
+    whether the relative cofactor signs in (G1RightExteriorOffRowDet)
+    alternate, whether \(\det E\) is numerically singular, and the first
+    nonalternating tuple if one exists.
+
+    On the synthetic chart with grid
+
+    \[
+    s_0=2.02,\qquad s_1=4.0,\qquad N=8,
+    \]
+
+    the scan gives
+
+    \[
+    \texttt{alternating\_four\_tuples}=15,\qquad
+    \texttt{total\_four\_tuples}=70,\qquad
+    \texttt{singular\_four\_tuples}=0.
+    \tag{G1RightExteriorGridSmoke}
+    \]
+
+    The first nonalternating tuple is approximately
+
+    \[
+    (2.02,\ 2.302857142857143,\ 2.585714285714286,\ 2.8685714285714283),
+    \]
+
+    with
+
+    \[
+    \det E=0.6096211894375172,\qquad
+    \operatorname{relative\ signs}=(-,+,+,-).
+    \]
+
+    This is a useful warning, not a theorem about the actual Gate 1 chart: the
+    synthetic chart is not constrained to satisfy the real Schiffer ECT
+    theorem.  It proves that a hand-picked four-contact smoke test can be
+    misleading and that the grid/envelope scan is necessary before promoting
+    numerical evidence into a sign claim.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
