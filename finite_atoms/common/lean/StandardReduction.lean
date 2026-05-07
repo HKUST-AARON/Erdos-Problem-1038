@@ -8446,6 +8446,35 @@ theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd
       hopen hxbase hδ hbaseline hright hzero hnoDiag
 
 /--
+Same as `exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd`,
+but with the baseline basepoint fixed to `-1/2`.  This removes the last
+purely topological basepoint choice from the selected-component interface.
+-/
+theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd_midpoint
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd
+      (μ := μ) (x := (-(1 : ℝ) / 2))
+      hopen (by norm_num) hbaseline hzero hnoDiag
+
+/--
 Truncated-positive analogue of
 `positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
 preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
