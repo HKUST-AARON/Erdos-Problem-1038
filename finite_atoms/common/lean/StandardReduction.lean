@@ -41,6 +41,25 @@ open scoped ENNReal BigOperators
 /-- Positive set of a real-valued potential. -/
 def PositiveSet (U : ℝ → ℝ) : Set ℝ := {x : ℝ | 0 < U x}
 
+/--
+Compact uniform-margin lemma.  If a real-valued function is continuous on a
+compact interval and strictly positive there, then it is bounded below by a
+strictly positive threshold on that interval.
+-/
+theorem continuousOn_positive_Icc_exists_strict_lower_threshold
+    {U : ℝ → ℝ} {a b : ℝ}
+    (hcont : ContinuousOn U (Icc a b))
+    (hpos : ∀ x : ℝ, x ∈ Icc a b → 0 < U x) :
+    ∃ threshold : ℝ,
+      0 < threshold ∧
+      ∀ x : ℝ, x ∈ Icc a b → threshold < U x := by
+  rcases isCompact_Icc.exists_forall_le' hcont hpos with
+    ⟨m, hmpos, hmle⟩
+  refine ⟨m / 2, by positivity, ?_⟩
+  intro x hx
+  have hmx : m ≤ U x := hmle x hx
+  linarith
+
 /-- The baseline interval forced by the normalized endpoint mass. -/
 def BaselineInterval : Set ℝ := Ioo (-(Real.sqrt 2)) 0
 
