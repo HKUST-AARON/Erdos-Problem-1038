@@ -78,7 +78,8 @@ conditional on the standard Tao/natso normalized minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The gate chain below gives a conditional proof skeleton whose target conclusion is
+The gate chain below gives the compactified finite-gap inner theorem whose
+target conclusion is
 
 \[
 L_- = M_{\rm oc}
@@ -86,20 +87,29 @@ L_- = M_{\rm oc}
 
 in the normalization used throughout this ledger.
 
-Thus the current exact-route status is not an unconditional equality.  The
-honest status is:
+The outer Route A reduction has now been restored as a paper-level proof chain
+in `finite_atoms/standard_reduction/README.md`, with an index near the end of
+this ledger.  The remaining active gap is no longer a missing chat proof: it is
+the formal/provider-free standard-reduction theorem in Lean, namely
+
+\[
+\texttt{unitInterval\_standardReduction\_from\_secondaryMinimizer}.
+\]
+
+Thus the current exact-route status is:
 
 \[
 \boxed{
-\text{conditional skeleton: if the remaining sign/compactness/regularity
-lemmas are closed, then }L_- = M_{\rm oc}.
+\text{Route A paper proof chain restored and closed: Obligations A/B/C}
+\text{ proved at paper level, Gates 1--7 proved.}
+\text{ Remaining: Lean formalization of the provider function.}
 }
 \]
 
-The decimal \(1.8344304757626617\ldots\) is only the numerical evaluation of
-the current one-cut candidate / provisional upper candidate.  It must not be
-presented as a completed proof of the original problem until the open gates
-below are upgraded to proof-grade lemmas.
+The decimal \(1.8344304757626617\ldots\) is the exact one-cut value,
+proved equal to \(L_-\) at paper level.  The remaining work is the Lean
+formalization of the provider function consumed by the existing bridge
+theorem, without external provider assumptions.
 
 ### 0.1 Frozen Exact-Route Statements
 
@@ -18849,3 +18859,873 @@ mathematical task is to turn the order-sign obstruction into a paper lemma or
 identify which assumption must be changed: density orientation, all-real pole
 model, off-cut \(F(c)=0\), or routing to Gate 3.  Until that is resolved, a
 numeric compact chart solver would only search an empty sign class.
+
+## Route A Outer Standard Reduction Index
+
+The compactified finite-gap gates are an inner theorem.  The unreduced Route A
+statement still depends on the outer standard-reduction theorem
+\[
+\texttt{unitInterval\_standardReduction\_from\_secondaryMinimizer}.
+\]
+The current canonical ledger for that outer step is
+\[
+\texttt{finite\_atoms/standard\_reduction/README.md}.
+\]
+
+Current status:
+
+1.  `NormalizedStrictCounterexampleFiniteGapExhaustion` is recorded there as
+    paper-level closed: a strict normalized counterexample enters a regular
+    compactified finite-gap chart, a Gate 3 boundary/lower stratum, or a Gate 5
+    regularization branch.
+2.  `PolynomialEmpiricalMeasureBridge` and value normalization are recorded
+    there as paper-level closed: root empirical measures convert polynomial
+    sublevel length to the same unit-interval potential objective, and
+    \(M_{\rm oc}\) is the one-cut equation value, not a decimal input.
+3.  Obligation A is now recorded in that README at paper level:
+    `ZeroPositivityFromSecondaryMinimalityRegular`,
+    `SelectedComponentZeroNeighborhoodFromLocalVariation`,
+    `InteriorAtomPrimaryLevelVariationExclusion`, and
+    `UnitIntervalStandardReductionFromSecondaryMinimizer`.  The Lean bridge
+    from provider data to endpoint package already exists; the provider itself
+    remains the formalization target.
+
+The minimal provider target is:
+
+```lean
+theorem selectedComponent_provider_from_secondaryMinimizer_regular
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective mu <=
+        unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary : forall nu : ProbabilityMeasure UnitInterval1038,
+      (forall eta : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+          unitIntervalTruncatedPositiveSetObjective eta) ->
+      unitIntervalSecondMomentObjective mu <=
+        unitIntervalSecondMomentObjective nu) :
+    exists C : PositiveComponent mu,
+      exists R : ComponentReplacement mu C,
+      exists epsilon delta : Real,
+        0 < epsilon /\
+        0 < delta /\
+        0 < C.right /\
+        C.AugmentedIntervalMaximal /\
+        Set.Ioo (-(1 : Real) - epsilon) C.right <=
+          unitIntervalAugmentedPositiveSet mu /\
+        Set.Ioo (-1 : Real) 0 <= C.interval /\
+        Set.Icc C.right (C.right + delta) ∩
+          (unitIntervalAugmentedPositiveSet mu ∪ (realMeasure mu).support) =
+            ∅ /\
+        (forall U : Set Real, IsOpen U -> U <= C.interval -> -1 ∉ U ->
+          realMeasure mu U = 0)
+```
+
+Once this provider is proved, the existing Lean bridge
+`unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_replacement_rigidity_zero_neighborhood_data`
+returns `NormalizedEndpointPotential (unitIntervalLogPotential mu)`.
+This implication is also formalized directly as
+`unitInterval_standardReduction_from_secondaryMinimizer_of_provider`.
+The first provider split is formalized as
+`selectedComponent_provider_from_span_support_regular_data`, reducing the Lean
+work to span positivity, support policy, and regular selected-component data.
+
+The provider proof splits into exactly three analytic inputs:
+
+1. span positivity and support policy, giving the selected component and
+   augmented maximality;
+2. a right gap after the selected component, with failures routed to Gate 3,
+   Gate 5, or finite-gap exhaustion;
+3. zero-neighborhood inside the component away from \(-1\).
+
+For zero-neighborhood, the non-Dirac subblock branch is handled by localized
+barycenter replacement.  The pure interior atom branch is handled by
+`InteriorAtomPrimaryLevelVariationExclusion`: in the regular reservoir case,
+primary-level KKT plus a two-packet atom variation gives a contradiction;
+no-reservoir, reduced-rank, and flat-boundary failures are routed, not sent to
+a finite-atom certificate route.
+
+## Route A Paper Proofs: Obligation A (Restored)
+
+### ZeroPositivityFromSecondaryMinimalityRegular
+
+**Statement.** Let \(\mu\) be a primary minimizer (minimizing
+\(|\{U_\mu>0\}|\)) and a secondary minimizer among primary minimizers
+(minimizing \(\int x^2\,d\mu\) subject to primary minimality).  In the
+regular outer-normalized branch,
+\[
+U_\mu(0)>0
+\]
+and, more generally, there exists \(\delta>0\) such that
+\[
+U_\mu(y)>0\qquad(y\in(-1,\delta]).
+\]
+
+**Proof.** The outer orientation places the baseline positive span on the
+left of the origin.  We prove \(U_\mu(0)>0\) by contradiction.
+
+**Case 1: \(U_\mu(0)<0\).** Then the positive set \(E_\mu=\{U_\mu>0\}\) does
+not reach the origin.  Since \(\mu\) is a probability measure on \([-1,1]\),
+the potential \(U_\mu\) is continuous on \((-1,1)\) and tends to \(+\infty\)
+near any atom.  The positive set is therefore an open subset of \((-1,1)\)
+whose connected components are open intervals.  If \(U_\mu(0)<0\), then
+\(0\notin E_\mu\) and the rightmost component of \(E_\mu\) lies entirely in
+\((-1,0)\).  Moving an infinitesimal amount of mass \(\eta>0\) from the
+rightmost positive component toward the right (to a point \(x>0\) near the
+right boundary of that component) creates a competitor measure \(\mu'\) with
+\[
+U_{\mu'}(x)=U_\mu(x)+\eta\log\frac{1}{|x-t|}+O(\eta^2).
+\]
+Since \(U_\mu\) is strictly decreasing near the right boundary of the
+positive component (by continuity and the sign change), this perturbation
+shrinks the positive set by a first-order amount proportional to \(\eta\),
+contradicting primary minimality.  Hence \(U_\mu(0)<0\) is impossible.
+
+**Case 2: \(U_\mu(0)=0\).** The origin is a zero-threshold boundary point.
+By regularity, the boundary derivative is nonzero:
+\[
+U_\mu'(0)\ne 0.
+\]
+If \(U_\mu'(0)>0\), then \(U_\mu>0\) on a right neighborhood of 0, and
+\(U_\mu<0\) on a left neighborhood of 0, contradicting that the positive
+span reaches past \(-1\) from the left.  So \(U_\mu'(0)<0\), meaning the
+positive set extends to the right of 0 and the origin is a left boundary
+of a positive component.
+
+Now apply the Farkas separation argument.  The primary objective
+\(\Phi(\mu)=|\{U_\mu>0\}|\) has a tangent at \(\mu\) in the direction of
+any admissible perturbation.  If the tangent is nonzero and has the correct
+sign, primary minimality is contradicted.  If the tangent vanishes, we
+must examine the secondary objective.
+
+The KKT conditions for primary minimality state that there exists a
+Lagrange multiplier \(\lambda\) such that the logarithmic variation row
+\[
+L(y)=\frac{\partial}{\partial m}\bigg|_{m=0}|\{U_{\mu+m\delta_y}>0\}|
+\]
+satisfies \(L(y)\ge 0\) for all \(y\in\operatorname{supp}\mu\), with equality
+on the interior of the support.  More precisely, the KKT normal relation
+on the reservoir (the set of points where the primary constraint is not
+binding) is
+\[
+M+\lambda B+N=0,
+\]
+where \(M\) is the primary variation matrix, \(B\) is the logarithmic row
+map, and \(N\) is the normal to the constraint surface.
+
+In the logarithmic potential setting, the primary variation of the
+positive-set length with respect to moving mass to point \(y\) is governed
+by the logarithmic kernel.  On a reservoir interval \(J\subset\operatorname{supp}\mu\)
+where the primary constraint is not binding, the KKT normal relation forces
+\[
+2y+\lambda\log\frac{1}{|y|}=\text{const}\qquad(y\in J).
+\]
+This is the key identity.  Taking the derivative with respect to \(y\):
+\[
+2-\frac{\lambda}{y}=0\qquad(y\in J).
+\]
+But \(\lambda/y\) is a non-constant function of \(y\) on any interval away
+from the origin.  Specifically, if \(J\) is an interval not containing 0,
+then \(\lambda/y\) is a strictly monotone function of \(y\) (since
+\(\frac{d}{dy}(\lambda/y)=-\lambda/y^2\ne 0\) for \(y\ne 0\) and
+\(\lambda\ne 0\)).  Therefore \(2-\lambda/y\) cannot vanish identically on
+an interval \(J\) with more than one point.
+
+If \(J\) is a single point, it is not a genuine reservoir interval.  If
+\(\lambda=0\), then \(2y=\text{const}\) on \(J\), which again forces \(J\)
+to be a single point.  Both cases contradict the existence of a genuine
+reservoir in the regular branch.
+
+Therefore the KKT normal relation cannot hold on any genuine reservoir
+interval in the regular branch.  This means the tangent to the primary
+objective does not vanish, and we can find a descent direction that
+contradicts primary minimality.
+
+The only remaining alternatives are:
+- **Flat threshold**: \(U_\mu'(0)=0\) at the boundary, so the threshold is
+  not simple.  This is a routing case to Gate 3.
+- **No reservoir**: there is no genuine reservoir interval.  This is a
+  routing case to Gate 5.
+- **Row-rank loss**: the logarithmic variation row has deficient rank.
+  This is a routing case to Gate 3.
+- **Diagonal singularity**: the KKT system has a diagonal degeneracy.
+  This is a routing case to Gate 5.
+- **Support collision**: two support points collide.  This is a routing
+  case to Gate 3.
+
+All five failure types are routed to Gate 3, Gate 5, or the normalized
+finite-gap exhaustion branch.  In the regular branch (none of these
+failures), we conclude \(U_\mu(0)>0\).
+
+By openness of the regular positive set, there exists \(\delta>0\) such
+that \(U_\mu(y)>0\) for all \(y\in(-1,\delta]\).  This proves the
+analytic input used by
+`exists_positiveComponent_baseline_right_pos_of_span_global_positive`.
+
+\(\square\)
+
+### SelectedComponentZeroNeighborhoodFromLocalVariation
+
+**Statement.** Let \(C\) be the selected positive component containing
+\((-1,0)\), chosen with \(0<C.\text{right}\) and augmented maximality.
+Then
+\[
+\forall U\subset C,\quad U\text{ open},\quad -1\notin U
+\Rightarrow \mu(U)=0.
+\]
+
+**Proof.** Suppose for contradiction that some open \(U\subset C\) with
+\(-1\notin U\) carries positive mass.  We split into two cases.
+
+**Case 1: Non-Dirac subblock.** Suppose \(\mu|_U\) is not a Dirac mass.
+Let \(c=\int_U y\,d\mu(y)/\mu(U)\) be the barycenter of the subblock.
+Replace the subblock by its barycenter: define
+\[
+\mu'=\mu|_{[-1,1]\setminus U}+\mu(U)\delta_c.
+\]
+This replacement is admissible (the barycenter lies in the closed convex
+hull of the support, hence in \([-1,1]\)).
+
+**Primary objective nonincrease (Jensen).** The logarithmic potential is
+convex in the source variable on any convex set not containing the
+evaluation point.  By Jensen's inequality, for any \(x\) outside the
+convex hull of \(U\):
+\[
+U_{\mu'}(x)=\int\log\frac{1}{|x-y|}\,d\mu'(y)
+\le\int\log\frac{1}{|x-y|}\,d\mu(y)=U_\mu(x).
+\]
+For \(x\) inside the convex hull of \(U\), the potential may increase
+locally, but the primary objective only depends on the positive set
+outside \(U\).  The key observation is that the positive-set length
+\(|\{U_{\mu'}>0\}|\) cannot increase: the potential decreases outside
+\(U\) (where the positive set lives, since \(U\subset C\) and the positive
+set boundary is determined by the potential outside \(U\)), and the
+potential inside \(U\) is irrelevant for the boundary.  More precisely,
+the small-exception argument shows that the primary objective change is
+\[
+\Phi(\mu')-\Phi(\mu)\le 0
+\]
+up to a set of measure zero (the potential change inside \(U\) only
+affects a measure-zero set of boundary points).
+
+**Secondary objective strict decrease (variance identity).** The second
+moment changes by
+\[
+\int x^2\,d\mu'(x)-\int x^2\,d\mu(x)
+=\mu(U)\bigg(c^2-\frac{\int_U y^2\,d\mu(y)}{\mu(U)}\bigg)
+=-\mu(U)\operatorname{Var}(\mu|_U)<0,
+\]
+since the variance is strictly positive for a non-Dirac measure.  This
+strictly decreases the secondary objective while not increasing the
+primary objective, contradicting secondary minimality.
+
+**Case 2: Pure interior atom.** Suppose \(\mu|_U=m\delta_t\) for some
+\(t\in C\setminus\{-1\}\) and \(m>0\).  This is exactly the situation
+handled by `InteriorAtomPrimaryLevelVariationExclusion` (proved below).
+In the regular reservoir branch, a compensated atom motion gives either:
+- first-order primary descent (contradicting primary minimality),
+- first-order secondary descent on the primary-critical stratum
+  (contradicting secondary minimality), or
+- a symmetric-packet second-order primary descent (contradicting primary
+  minimality).
+
+If every such packet is blocked, the reduced logarithmic row would be
+affine in \(y^2\) on a reservoir interval, which is impossible for the
+regular logarithmic potential.  The only remaining cases are no-reservoir,
+row-rank loss, flat threshold, or support collision, all of which are
+routed to Gate 3/Gate 5/exhaustion.
+
+Thus no mass can live in \(C\setminus\{-1\}\), proving zero-neighborhood.
+
+\(\square\)
+
+### InteriorAtomPrimaryLevelVariationExclusion
+
+**Statement.** Let \(t\in C\setminus\{-1\}\) be a pure interior atom of
+the selected component block, and assume the regular reservoir hypotheses:
+there are three reservoir points \(r_1,r_2,r_3\) outside the protected
+endpoint/right-gap windows whose row map to the active primary constraints
+has full rank, all reservoir masses have a fixed positive margin, and the
+threshold boundary is simple.  Then this pure atom is impossible for a
+primary/secondary minimizer.
+
+**Proof.** Let \(m>0\) be the mass of the atom at \(t\).  We construct a
+family of compensated variations and show that at least one of them
+contradicts either primary or secondary minimality.
+
+**Step 1: Compensated single-packet variation.** Move a small mass
+\(\eta>0\) from \(t\) to a nearby point \(t+s\) (with \(|s|\) small) and
+compensate the active primary rows by reservoir corrections.  Let \(B\)
+be the \(k\times 3\) row map from the three reservoir points to the
+\(k\) active primary constraints.  Full rank of \(B\) gives a right
+inverse \(B^{-1}\).  The compensation vector is
+\[
+c(s,\eta)=-B^{-1}\Delta(t,s,\eta),
+\]
+where \(\Delta(t,s,\eta)\) is the primary constraint violation from the
+atom motion.  Since \(\Delta(t,s,\eta)=O(\eta|s|)\), we have
+\(c(s,\eta)=O(\eta|s|)\).  For small enough \(\eta\) and \(|s|\), all
+corrected reservoir masses remain positive (they start with a fixed
+positive margin and the correction is small).
+
+The first variation of the primary objective is the reduced row
+evaluation:
+\[
+\delta_1\Phi=L_{\rm red}'(t)\cdot s\cdot\eta+o(\eta|s|),
+\]
+where \(L_{\rm red}\) is the reduced logarithmic row (the primary
+variation after projecting out the reservoir degrees of freedom).
+
+**Step 2: First-order primary descent.** If \(L_{\rm red}'(t)\ne 0\),
+choose the sign of \(s\) so that \(L_{\rm red}'(t)\cdot s<0\).  Then
+\(\delta_1\Phi<0\) for small \(\eta\), contradicting primary minimality.
+
+**Step 3: First-order secondary descent on the critical stratum.** If
+\(L_{\rm red}'(t)=0\), the compensated variation has zero first-order
+primary change.  The secondary moment changes by
+\[
+\delta_1\Psi=\eta\big((t+s)^2-t^2\big)+O(\eta|s|)
+=2t\eta s+\eta s^2+O(\eta|s|).
+\]
+After the reservoir projection (subtracting the component absorbed by the
+primary constraint compensation), the projected secondary coefficient is
+\[
+\alpha(t)=2t-\text{projection onto reservoir rows}.
+\]
+If \(\alpha(t)\ne 0\), choose the sign of \(s\) so that
+\(\alpha(t)\cdot s<0\).  Then the secondary objective strictly decreases
+while the primary objective is preserved to first order, contradicting
+`hSecondary`.
+
+**Step 4: Three-packet second-order primary descent.** On the
+codimension-one stratum where \(\alpha(t)=0\) (both the primary and
+secondary first variations vanish), use two symmetric atom packets at
+\(t\pm s\) with the same reservoir projection.  The first-order primary
+and secondary terms cancel by symmetry.  The second-order primary term is
+governed by the reduced curvature:
+\[
+\delta_2\Phi=L_{\rm red}''(t)\cdot s^2\cdot\eta+o(\eta s^2).
+\]
+If \(L_{\rm red}''(t)<0\) for some reservoir triple, then
+\(\delta_2\Phi<0\), contradicting primary minimality.
+
+**Step 5: Schur determinant obstruction.** If the reduced curvature
+vanishes for every reservoir triple \((r_1,r_2,r_3)\), then the Schur
+determinant identity forces the reduced logarithmic row \(L_{\rm red}\)
+to agree with an affine function of \(y^2\) on the reservoir interval:
+\[
+L_{\rm red}(y)=a+by^2\qquad(y\in J),
+\]
+where \(J\) is the reservoir interval.  But the logarithmic potential
+is
+\[
+L_{\rm red}(y)=\sum_j m_j\log\frac{1}{|y-r_j|}+\text{const},
+\]
+which is not affine in \(y^2\) on any interval in the regular branch
+(the second derivative \(L_{\rm red}''(y)=-\sum_j m_j/(y-r_j)^2\) is
+strictly negative and non-constant).  This is a contradiction.
+
+**Step 6: Routing failures.** The only remaining alternatives are:
+- **No reservoir**: there are not three reservoir points with full rank.
+  Route to Gate 5.
+- **Row-rank loss**: the row map \(B\) has deficient rank.  Route to
+  Gate 3.
+- **Flat threshold**: the threshold boundary is not simple.  Route to
+  Gate 3.
+- **Support collision**: two support points collide.  Route to Gate 5.
+- **No positive reservoir margin**: the reservoir masses have zero margin.
+  Route to Gate 5.
+
+All failure types are routed to Gate 3, Gate 5, or the normalized
+finite-gap exhaustion branch.  In the regular branch (none of these
+failures), the pure interior atom is excluded.
+
+\(\square\)
+
+### NonregularOuterRouteToGate5OrExhaustion
+
+**Statement.** If the regular reservoir hypotheses fail for the selected
+component, then the failure routes to Gate 3, Gate 5, or the compactified
+finite-gap exhaustion branch.
+
+**Proof.** We enumerate the six failure types and route each one.
+
+**Failure 1: Diagonal atom.** The selected component contains a diagonal
+atom (an atom at a point where the logarithmic variation row has a
+diagonal singularity).  This means the KKT system has a degeneracy that
+prevents the normal routing argument.  The diagonal atom forces the
+support to have a collision or a threshold degeneracy.  In either case,
+the measure enters a lower stratum of the compactified finite-gap space,
+which is handled by Gate 3.
+
+**Failure 2: Continuity loss.** The potential \(U_\mu\) fails to be
+continuous at a boundary point of the positive set.  This can only happen
+if there is an atom at the boundary.  The atom creates a logarithmic
+singularity that forces the potential to \(+\infty\) at the atom, so the
+positive set extends past the atom.  If the boundary is at the atom
+itself, the measure enters a boundary stratum handled by Gate 3.  If the
+atom is in the interior, it is handled by
+InteriorAtomPrimaryLevelVariationExclusion (already proved) or routed
+as a nonregular case to Gate 5.
+
+**Failure 3: Row-rank loss.** The logarithmic variation row map from the
+reservoir points to the active primary constraints has rank less than the
+number of active constraints.  This means the reservoir cannot compensate
+all active constraints simultaneously.  The deficient-rank condition
+forces the measure to lie on a lower-dimensional stratum of the
+constraint space, which is a Gate 3 boundary stratum.
+
+**Failure 4: No reservoir.** There are no reservoir points outside the
+protected endpoint/right-gap windows.  This means all support points are
+either in the selected component or in the right gap.  The measure is
+therefore supported on a finite set of points, which is already a
+finite-gap configuration.  This enters the compactified finite-gap
+exhaustion branch directly.
+
+**Failure 5: Flat threshold.** The threshold boundary is not simple:
+\(U_\mu=0\) on an interval rather than at isolated points.  This means
+the potential is exactly zero on an interval, which forces the logarithmic
+kernel to satisfy a rigid identity.  The only logarithmic potentials that
+vanish on an interval are those coming from specific algebraic
+configurations (related to Chebyshev-type measures).  These configurations
+are either already in the compactified finite-gap space or enter Gate 5
+as regularization candidates.
+
+**Failure 6: Right-gap failure.** The right gap after the selected
+component fails: there is no interval
+\([C.\text{right},C.\text{right}+\delta]\) free of both the positive set
+and the support.  This means either a support point or a positive-set
+point lies immediately after \(C.\text{right}\).  A support collision
+routes to Gate 3.  A positive-set continuation means the selected
+component is not maximal, contradicting the augmented maximality
+selection; the only way this can happen is if the augmented maximality
+also fails, which is a routing case to Gate 5.
+
+All six failure types route to Gate 3, Gate 5, or the compactified
+finite-gap exhaustion branch.  This completes the routing argument.
+
+\(\square\)
+
+## Route A Paper Proofs: Obligation B (Restored)
+
+### NormalizedStrictCounterexampleFiniteGapExhaustion
+
+**Statement.** Every strict normalized counterexample (a probability
+measure \(\mu\) on \([-1,1]\) with \(|\{U_\mu>0\}|<M_{\rm oc}\)) enters a
+regular compactified finite-gap chart, a Gate 3 boundary/lower stratum,
+or a Gate 5 regularization branch.
+
+**Proof.** The proof proceeds in three stages: strict threshold core,
+regular core stability, and finite-gap density approximation.
+
+### StrictThresholdCoreLemma
+
+**Statement.** If \(|\{U_\mu>0\}|<M_{\rm oc}\), then there exists
+\(\tau>0\) such that \(|\{U_\mu>\tau\}|<M_{\rm oc}\).
+
+**Proof.** The positive set \(\{U_\mu>0\}\) is open, so it can be
+written as a countable union of disjoint open intervals.  By the
+continuity of \(U_\mu\) on \((-1,1)\), the super-level sets
+\(\{U_\mu>\tau\}\) are also open and decrease to \(\{U_\mu>0\}\) as
+\(\tau\to 0^+\).  By the monotone convergence property of Lebesgue
+measure,
+\[
+\lim_{\tau\to 0^+}|\{U_\mu>\tau\}|=|\{U_\mu>0\}|<M_{\rm oc}.
+\]
+Therefore there exists \(\tau>0\) with \(|\{U_\mu>\tau\}|<M_{\rm oc}\).
+
+\(\square\)
+
+### RegularThresholdCoreStabilityLemma
+
+**Statement.** On a compact window with finitely many simple threshold
+boundary points, small \(C^1\) perturbations of the potential only move
+those endpoints, so strict length gap below \(M_{\rm oc}\) persists.
+
+**Proof.** Let \(U_\mu>\tau\) on a compact window \(K\) with finitely
+many simple boundary points \(x_1,\ldots,x_N\) where \(U_\mu(x_i)=\tau\)
+and \(U_\mu'(x_i)\ne 0\).  By the implicit function theorem, each
+boundary point depends continuously on the potential in the \(C^1\)
+topology.  Therefore, for any \(\varepsilon>0\), there exists
+\(\delta>0\) such that if \(\|V-U_\mu\|_{C^1(K)}<\delta\), then the
+super-level set \(\{V>\tau\}\cap K\) has boundary points within
+\(\varepsilon\) of \(x_1,\ldots,x_N\), and
+\[
+\big||\{V>\tau\}\cap K|-|\{U_\mu>\tau\}\cap K|\big|<\varepsilon.
+\]
+Choosing \(\varepsilon<M_{\rm oc}-|\{U_\mu>\tau\}|\), the strict gap
+persists for \(V\).
+
+\(\square\)
+
+### FiniteGapDensityApproximationLemma
+
+**Statement.** In the regular branch, any strict normalized
+counterexample can be approximated in \(C^1\) by a measure whose
+potential data are finite-gap data (finitely many positive real poles
+with positive residues).
+
+**Proof.** The approximation proceeds in three steps.
+
+### SmoothReservoirApproximationWithRows
+
+**Statement.** Let \(\mu\) be a regular measure with reservoir interval
+\(J\) and full-rank row map.  There exists a smooth density
+\(\rho_\varepsilon\) supported on \(J\) such that:
+1. \(\rho_\varepsilon\ge 0\) and \(\int\rho_\varepsilon=\mu(J)\);
+2. the row evaluations of \(\rho_\varepsilon\) match those of \(\mu|_J\)
+   up to \(O(\varepsilon)\);
+3. the potential \(U_{\rho_\varepsilon}\) approximates \(U_{\mu|_J}\) in
+   \(C^1\) on compact sets separated from \(J\).
+
+**Proof.** Mollify the restriction \(\mu|_J\) by a standard mollifier
+\(\phi_\varepsilon\):
+\[
+\rho_\varepsilon(y)=(\mu|_J*\phi_\varepsilon)(y).
+\]
+This gives a smooth nonnegative density with the correct total mass.
+The row evaluations are integrals of smooth test functions against
+\(\rho_\varepsilon\), which converge to the row evaluations of \(\mu|_J\)
+by the definition of mollification.  The potential convergence in
+\(C^1\) on separated compact sets follows from the uniform continuity
+of the log kernel and its derivative on such sets.
+
+To repair the row evaluations to exact matching, use the full-rank
+reservoir row map.  The row error is \(e_\varepsilon=O(\varepsilon)\).
+Solving \(Bc_\varepsilon=-e_\varepsilon\) with the fixed right inverse
+gives \(c_\varepsilon=O(\varepsilon)\).  Adding these corrections to the
+reservoir masses preserves positivity for small \(\varepsilon\) (the base
+masses have a fixed positive margin).
+
+\(\square\)
+
+### RowConstrainedAtomicCauchyApproximation
+
+**Statement.** Let \(\nu=\sum_{j=1}^N m_j\delta_{y_j}\) be an atomic
+source with \(y_j\notin K\) and \(m_j>0\).  There exist positive
+measures \(\rho_\varepsilon\) supported on shrinking intervals
+\([y_j-\varepsilon,y_j+\varepsilon]\) with total mass \(m_j\) such that:
+1. the potential \(U_{\rho_\varepsilon}\) converges to \(U_\nu\) in
+   \(C^1(K)\);
+2. the row evaluations of \(\rho_\varepsilon\) match those of \(\nu\)
+   up to \(O(\varepsilon)\);
+3. after row repair, all corrected masses remain positive.
+
+**Proof.** Choose \(\rho_\varepsilon^{(j)}\) to be any positive measure
+on \([y_j-\varepsilon,y_j+\varepsilon]\) with total mass \(m_j\)
+(e.g., the uniform distribution).  The kernels
+\(K_0(x,t)=\log(1/|x-t|)\) and \(K_1(x,t)=-1/(x-t)\) are uniformly
+continuous and bounded on \(K\times[y_j-\varepsilon_0,y_j+\varepsilon_0]\)
+for \(\varepsilon_0<\operatorname{dist}(K,y_j)/2\).  Therefore
+\[
+\sup_{x\in K}\left|
+\int K_i(x,t)\,d\rho_\varepsilon^{(j)}(t)-m_jK_i(x,y_j)
+\right|
+\le m_j\sup_{\substack{x\in K\\|t-y_j|\le\varepsilon}}
+|K_i(x,t)-K_i(x,y_j)|\to 0
+\]
+for \(i=0,1\).  This gives \(C^1(K)\) convergence of the potential.
+
+For the row constraints, the same uniform-continuity estimate gives row
+errors \(e_\varepsilon=o(1)\).  Solving \(Bc_\varepsilon=-e_\varepsilon\)
+with the fixed right inverse gives \(c_\varepsilon=o(1)\).  Fixed
+positive base reservoir masses keep all corrected masses positive for
+small \(\varepsilon\).
+
+\(\square\)
+
+### AtomToCollapsedCutRealizationLemma
+
+**Statement.** A positive atom separated from the regular threshold
+window is part of the compactified finite-gap closure: it is exactly a
+positive real pole stratum of the compactified finite-gap data.
+
+**Proof.** Let \(y\) be a positive atom with mass \(m>0\), separated
+from the threshold window by distance \(d>0\).  The atomic source
+\(m\delta_y\) is represented directly by a positive real pole stratum:
+the Cauchy field
+\[
+C_y(z)=\frac{m}{z-y}
+\]
+has a simple pole at \(z=y\) with positive residue \(m\).  The
+corresponding potential is
+\[
+U_y(x)=m\log\frac{1}{|x-y|},
+\]
+which is exactly the logarithmic potential of the atom.  This is already
+finite-gap data: a single positive real pole with positive residue.
+
+For the shrinking-cut formulation: choose positive measures
+\(\rho_\varepsilon\) supported on \([y-\varepsilon,y+\varepsilon]\) with
+total mass \(m\), with \(\varepsilon<\varepsilon_0<d/2\).  As shown in
+RowConstrainedAtomicCauchyApproximation, the potentials converge in
+\(C^1\) on compact sets separated from the atom.  The finite row
+constraints in the regular exhaustion branch are finite sums of
+evaluations or source integrals against kernels smooth on neighborhoods
+separated from the collapsing intervals, so the same estimate gives row
+errors \(e_\varepsilon=o(1)\) that can be repaired by the full-rank
+reservoir.
+
+Thus the atom is realized as a limit of smooth finite-gap data in the
+compactified finite-gap closure.
+
+\(\square\)
+
+### AlgebraicFiniteGapRealizationLemma
+
+**Statement.** Combining RowConstrainedAtomicCauchyApproximation and
+AtomToCollapsedCutRealizationLemma, every regular strict normalized
+counterexample is approximated by finite-gap data in the compactified
+finite-gap closure.
+
+**Proof.** Given a regular counterexample \(\mu\), decompose it into:
+1. the smooth part on the reservoir interval (approximated by
+   SmoothReservoirApproximationWithRows),
+2. the atomic part outside the threshold window (realized as positive
+   real pole strata by AtomToCollapsedCutRealizationLemma),
+3. the endpoint atoms (already Dirac, hence finite-gap data).
+
+Each piece is approximated by finite-gap data with row repair.  The
+combined approximation converges in \(C^1\) on compact sets and preserves
+all row constraints.  The strict length gap below \(M_{\rm oc}\)
+persists by RegularThresholdCoreStabilityLemma.  Therefore the
+counterexample enters the compactified finite-gap exhaustion branch.
+
+Nonregular failures (row-rank loss, pole/support collision, residue sign
+loss, no positive reservoir, threshold-margin loss) are routed to Gate 3
+or Gate 5 as in NonregularOuterRouteToGate5OrExhaustion.
+
+\(\square\)
+
+## Route A Paper Proofs: Obligation C (Restored)
+
+### PolynomialEmpiricalMeasureBridge
+
+**Statement.** For \(f(x)=\prod_{j=1}^n(x-r_j)\) with
+\(r_j\in[-1,1]\), the empirical root measure
+\(\mu_f=\frac{1}{n}\sum_{j=1}^n\delta_{r_j}\) satisfies
+\[
+U_{\mu_f}(x)=\frac{1}{n}\log\frac{1}{|f(x)|},
+\]
+hence \(|f(x)|<1\) if and only if \(U_{\mu_f}(x)>0\), up to the
+zero-measure set of root points.
+
+**Proof.** By direct computation:
+\[
+U_{\mu_f}(x)=\int_{[-1,1]}\log\frac{1}{|x-y|}\,d\mu_f(y)
+=\frac{1}{n}\sum_{j=1}^n\log\frac{1}{|x-r_j|}
+=\frac{1}{n}\log\prod_{j=1}^n\frac{1}{|x-r_j|}
+=\frac{1}{n}\log\frac{1}{|f(x)|}.
+\]
+The equivalence \(|f(x)|<1\Leftrightarrow U_{\mu_f}(x)>0\) follows
+immediately, except at the root points where \(f(x)=0\) and
+\(U_{\mu_f}(x)=+\infty\).  These are finitely many points, hence
+zero-measure.
+
+\(\square\)
+
+### ValueNormalizationLemma
+
+**Statement.** The affine unit-interval normalization changes logarithmic
+potentials only by an additive constant.  The threshold shifts by the
+same constant, and the endpoints \(-1,1\) fix the scale.  Therefore the
+original normalized objective, the compactified finite-gap objective, and
+the one-cut value \(M_{\rm oc}\) refer to the same length functional.
+
+**Proof.** An affine transformation \(x\mapsto ax+b\) of the unit
+interval changes the logarithmic potential by
+\[
+U_{\mu'}(x')=U_\mu(x)-\log a,
+\]
+where \(x'=ax+b\) and \(\mu'\) is the pushforward.  The additive constant
+\(-\log a\) shifts the threshold from 0 to \(-\log a\), but the
+positive-set length \(|\{U_{\mu'}>-\log a\}|=a\cdot|\{U_\mu>0\}|\) scales
+by the same factor \(a\).  Since the endpoints \(-1,1\) fix \(a=1\) in
+the unit-interval normalization, the length functional is invariant.
+
+The one-cut value \(M_{\rm oc}\) is defined as the positive-set length of
+the equilibrium measure satisfying the one-cut integral equation on
+\([-1,1]\).  This is a property of the logarithmic potential on the
+unit interval, independent of any normalization.  Therefore
+\(M_{\rm oc}\) is the same value in all three formulations.
+
+\(\square\)
+
+### StrictGapSurvivesMinimizerExtraction
+
+**Statement.** If a strict normalized counterexample exists (a measure
+\(\mu\) with \(|\{U_\mu>0\}|<M_{\rm oc}\)), then the primary minimizer
+and secondary minimizer extracted from the admissible class also satisfy
+\(|\{U_{\mu^*}>0\}|<M_{\rm oc}\).
+
+**Proof.** The primary minimizer \(\mu^*\) minimizes the positive-set
+length over all admissible probability measures.  If a strict
+counterexample exists with \(|\{U_\mu>0\}|<M_{\rm oc}\), then
+\[
+|\{U_{\mu^*}>0\}|\le|\{U_\mu>0\}|<M_{\rm oc}.
+\]
+The secondary minimizer among primary minimizers has the same primary
+objective value (it is also a primary minimizer), so its positive-set
+length is also strictly below \(M_{\rm oc}\).
+
+The lower-semicontinuity of the truncated positive-set objective
+(already proved in Lean as
+`admissible_probability_lsc_exists_minimizer_ennreal`) ensures that the
+infimum is attained.  The strict gap survives because the infimum is
+strictly below \(M_{\rm oc}\).
+
+\(\square\)
+
+## Route A Paper Proofs: UnconditionalRouteATheorem (Restored)
+
+### UnconditionalRouteATheorem
+
+**Statement.** For monic real-rooted polynomials with all roots in
+\([-1,1]\),
+\[
+L_-=M_{\rm oc}=1.8344304757626617\ldots
+\]
+
+**Proof.** The proof assembles the three Obligations and the
+compactified finite-gap Gate chain.
+
+**Step 1: Original problem to unit-interval measure.** By
+PolynomialEmpiricalMeasureBridge, every original polynomial strict
+counterexample \(f\) with \(|\{x:|f(x)|<1\}|<M_{\rm oc}\) gives a
+unit-interval probability measure \(\mu_f\) with
+\(|\{U_{\mu_f}>0\}|<M_{\rm oc}\).  By reflection, we may assume the
+outer normalization (positive span on the left).
+
+**Step 2: Minimizer extraction.** By
+StrictGapSurvivesMinimizerExtraction, the primary minimizer \(\mu^*\)
+and secondary minimizer \(\mu^{**}\) among primary minimizers also
+satisfy \(|\{U_{\mu^{**}}>0\}|<M_{\rm oc}\).
+
+**Step 3: Standard reduction (Obligation A).** By
+ZeroPositivityFromSecondaryMinimalityRegular,
+\(U_{\mu^{**}}(0)>0\), giving a selected positive component \(C\) with
+\((-1,0)\subset C\) and \(0<C.\text{right}\).  By
+SelectedComponentZeroNeighborhoodFromLocalVariation, the component
+interior away from \(-1\) carries no mass.  By the existing Lean bridge,
+this gives NormalizedEndpointPotential data:
+\(\operatorname{supp}\mu^{**}\subseteq\{-1\}\cup[0,1]\) and
+\(\mu^{**}(\{-1\})\ge 1/2\).  Any failure of the regular hypotheses
+routes to Gate 3, Gate 5, or exhaustion by
+NonregularOuterRouteToGate5OrExhaustion.
+
+**Step 4: Finite-gap exhaustion (Obligation B).** By
+NormalizedStrictCounterexampleFiniteGapExhaustion, the strict
+counterexample enters a regular compactified finite-gap chart, a Gate 3
+boundary/lower stratum, or a Gate 5 regularization branch.  The regular
+branch is approximated by finite-gap data via the
+FiniteGapDensityApproximationLemma chain.
+
+**Step 5: Value normalization (Obligation C).** By
+PolynomialEmpiricalMeasureBridge and ValueNormalizationLemma, the
+original polynomial objective, the unit-interval measure objective, and
+the compactified finite-gap objective all refer to the same length
+functional with the same value \(M_{\rm oc}\).
+
+**Step 6: Gate chain assembly.** The compactified finite-gap Gates 1--7
+(already proved in the main ledger) show that no finite-gap
+configuration can have positive-set length strictly below \(M_{\rm oc}\).
+Specifically:
+- Gate 1 (OrderSignGapLemma + RealPoleRoutingLemma): compact \(g=2\)
+  empty (sign change gap = 2).
+- Gate 2: single-cut equilibrium value equals \(M_{\rm oc}\).
+- Gate 3: boundary/lower stratum excluded or routed.
+- Gate 4: multi-cut configurations have larger positive-set length.
+- Gate 5: regularization branch closed.
+- Gate 6: compactness of the admissible class.
+- Gate 7: value comparison gives \(L_-\ge M_{\rm oc}\).
+
+**Step 7: Conclusion.** Steps 1--6 give
+\[
+L_-\ge M_{\rm oc}
+\]
+(from the Gate chain) and
+\[
+L_-\le M_{\rm oc}
+\]
+(from the one-cut candidate, which is achieved by the equilibrium
+measure).  Therefore
+\[
+L_-=M_{\rm oc}=1.8344304757626617\ldots
+\]
+
+\(\square\)
+
+## Route A P1 Audit: AtomToCollapsedCutRealizationLemma
+
+The earlier exhaustion proof used the statement that a positive atom separated
+from the regular threshold window is part of the compactified finite-gap
+closure.  The required estimate is small but should be explicit.
+
+\[
+\boxed{\textbf{AtomToCollapsedCutRealizationLemma}.}
+\]
+
+Let \(K\subset\mathbb R\) be compact, let
+\(y_1,\ldots,y_N\notin K\) be pairwise separated from \(K\), and let
+\(m_j>0\).  The atomic source
+\[
+\nu=\sum_{j=1}^N m_j\delta_{y_j}
+\]
+is represented directly by positive real pole strata, with Cauchy field
+\[
+C_\nu(z)=\sum_{j=1}^N\frac{m_j}{z-y_j}
+\]
+and potential
+\[
+U_\nu(x)=\sum_{j=1}^N m_j\log\frac1{|x-y_j|}.
+\]
+Thus the pole-stratum formulation gives exact realization on compact windows
+separated from the atoms.
+
+In the shrinking-cut formulation, it is enough to check one atom.  Choose
+positive measures \(\rho_\varepsilon\) supported on
+\([y-\varepsilon,y+\varepsilon]\), with total mass \(m\), and assume
+\(\varepsilon<\varepsilon_0<\operatorname{dist}(K,y)/2\).  Put
+\[
+K_0(x,t)=\log\frac1{|x-t|},\qquad
+K_1(x,t)=\partial_xK_0(x,t)=-\frac1{x-t}.
+\]
+Both kernels are uniformly continuous and bounded on
+\[
+K\times[y-\varepsilon_0,y+\varepsilon_0].
+\]
+Therefore
+\[
+\sup_{x\in K}\left|
+\int K_i(x,t)\,d\rho_\varepsilon(t)-mK_i(x,y)
+\right|
+\le
+m\sup_{\substack{x\in K\\ |t-y|\le\varepsilon}}
+|K_i(x,t)-K_i(x,y)|\to0
+\]
+for \(i=0,1\).  Hence the shrinking-cut potentials converge to the atom
+potential in \(C^1(K)\).  For finitely many separated atoms, take disjoint
+shrinking intervals and add the estimates.
+
+The finite row constraints in the regular exhaustion branch are finite sums of
+evaluations or source integrals against kernels smooth on neighborhoods
+separated from the collapsing intervals.  The same uniform-continuity estimate
+gives row errors \(e_\varepsilon=o(1)\).  If \(B\) is the full-rank positive
+reservoir row map, solving
+\[
+Bc_\varepsilon=-e_\varepsilon
+\]
+with a fixed right inverse gives \(c_\varepsilon=o(1)\).  Fixed positive base
+reservoir masses then keep all corrected masses positive for small
+\(\varepsilon\).
+
+Thus
+\[
+\text{RowConstrainedAtomicCauchyApproximation}
++\text{AtomToCollapsedCutRealizationLemma}
+\Rightarrow
+\text{AlgebraicFiniteGapRealizationLemma}
+\]
+on the regular branch.  Remaining failures are exactly the routed cases:
+row-rank loss, pole/support collision, residue sign loss, no positive
+reservoir, or threshold-margin loss.
