@@ -15684,6 +15684,84 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       C.right_pos_of_pos_mem_interval hxPos_pos hxPos_mem,
       hboundary, hzero⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_right_augmented_replacement_rigidity_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomRightAugmentedReplacementRigidityZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε xRight : ℝ,
+          0 < ε ∧
+          0 < xRight ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Ioo (-1 : ℝ) xRight ⊆ unitIntervalAugmentedPositiveSet μ ∧
+          1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_positive_point_replacement_rigidity_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomRightAugmentedReplacementRigidityZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, xRight, hε, hxRight_pos, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hright_aug, hboundary, hzero⟩
+  let xPos : ℝ := xRight / 2
+  have hxPos_pos : 0 < xPos := by
+    dsimp [xPos]
+    linarith
+  have hxPos_interval : xPos ∈ C.interval := by
+    have hJ_inter :
+        (Set.Ioo (-1 : ℝ) xRight ∩ C.interval).Nonempty := by
+      refine ⟨-(1 : ℝ) / 2, ?_⟩
+      constructor
+      · constructor
+        · norm_num
+        · linarith
+      · exact hbaseline (by norm_num)
+    have hJ_subset : Set.Ioo (-1 : ℝ) xRight ⊆ C.interval :=
+      hmax (-1 : ℝ) xRight (by linarith) hright_aug hJ_inter
+    exact hJ_subset (by
+      constructor
+      · dsimp [xPos]
+        linarith
+      · dsimp [xPos]
+        linarith)
+  exact
+    ⟨C, ε, xPos, hε, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hxPos_pos, hxPos_interval, hboundary, hzero⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
