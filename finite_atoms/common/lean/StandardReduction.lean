@@ -2669,6 +2669,12 @@ theorem disjoint_diagonalAtomSet_of_disjoint_realMeasure_support
     exact hsupport.le_bot ⟨hx, hxsupport⟩
   exact (notMem_diagonalAtomSet_of_not_mem_realMeasure_support hxnot_support) hxdiag
 
+theorem disjoint_Icc_diagonalAtomSet_of_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {a b : ℝ}
+    (hsupport : Disjoint (Icc a b) (realMeasure μ).support) :
+    Disjoint (Icc a b) (diagonalAtomSet μ) :=
+  disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
+
 theorem subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
     (haug : s ⊆ unitIntervalAugmentedPositiveSet μ)
