@@ -277,6 +277,90 @@ def audit_two_interval_json(path: Path) -> dict[str, Any]:
     }
 
 
+def diagnose_json_file(path: Path) -> dict[str, Any]:
+    """Classify a JSON file by whether it can feed the Gate 1 chart extractor."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 - diagnostic payload should keep scanning.
+        return {
+            "path": str(path),
+            "kind": "unreadable_json",
+            "gate1_chart_ready": False,
+            "reason": str(exc),
+        }
+    if not isinstance(payload, dict):
+        return {
+            "path": str(path),
+            "kind": "json_non_object",
+            "gate1_chart_ready": False,
+            "reason": "top-level JSON is not an object",
+        }
+
+    chart_required = ["P", "Q", "gammas", "rows"]
+    missing_chart = [key for key in chart_required if key not in payload]
+    if not missing_chart:
+        raw_rows = payload.get("rows")
+        rows_ok = isinstance(raw_rows, list)
+        gammas_ok = isinstance(payload.get("gammas"), list) and len(payload["gammas"]) == 4
+        return {
+            "path": str(path),
+            "kind": "gate1_chart_json" if rows_ok and gammas_ok else "malformed_gate1_chart_json",
+            "gate1_chart_ready": bool(rows_ok and gammas_ok),
+            "missing_required_fields": [],
+            "row_count": len(raw_rows) if isinstance(raw_rows, list) else None,
+            "gamma_count": len(payload.get("gammas", [])) if isinstance(payload.get("gammas"), list) else None,
+            "optional_fields_present": {
+                key: key in payload
+                for key in ["kappa", "Z0", "u", "c", "v", "contact_points", "right_exterior_grid"]
+            },
+            "reason": None if rows_ok and gammas_ok else "requires list rows and exactly four gammas",
+        }
+
+    rows = payload.get("rows")
+    if isinstance(rows, list) and rows and isinstance(rows[0], dict) and "solution" in rows[0]:
+        return {
+            "path": str(path),
+            "kind": "old_two_interval_diagnostic",
+            "gate1_chart_ready": False,
+            "missing_required_fields": missing_chart,
+            "row_count": len(rows),
+            "reason": (
+                "old local ansatz data; lacks compact non-pinched g=2 "
+                "Gamma, moving-chart rows, kappa, and Z0/u/c/v"
+            ),
+        }
+
+    return {
+        "path": str(path),
+        "kind": "other_json",
+        "gate1_chart_ready": False,
+        "missing_required_fields": missing_chart,
+        "reason": "not a Gate 1 chart schema",
+    }
+
+
+def scan_jsons_for_gate1(root: Path) -> dict[str, Any]:
+    records = [diagnose_json_file(path) for path in sorted(root.rglob("*.json"))]
+    by_kind: dict[str, int] = {}
+    for record in records:
+        kind = str(record["kind"])
+        by_kind[kind] = by_kind.get(kind, 0) + 1
+    ready = [record for record in records if record.get("gate1_chart_ready")]
+    old = [record for record in records if record.get("kind") == "old_two_interval_diagnostic"]
+    malformed = [record for record in records if record.get("kind") == "malformed_gate1_chart_json"]
+    return {
+        "root": str(root),
+        "total_json_files": len(records),
+        "counts_by_kind": by_kind,
+        "gate1_chart_ready_count": len(ready),
+        "gate1_chart_ready": ready,
+        "old_two_interval_diagnostic_count": len(old),
+        "old_two_interval_diagnostics": old,
+        "malformed_gate1_chart_count": len(malformed),
+        "malformed_gate1_charts": malformed,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -693,6 +777,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--toy-g2", action="store_true", help="run a synthetic g=2 smoke test")
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
+    parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -700,6 +785,31 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.scan_jsons:
+        scan = scan_jsons_for_gate1(Path(args.scan_jsons))
+        print("Gate 1 JSON input scan")
+        print(f"  root = {scan['root']}")
+        print(f"  total JSON files = {scan['total_json_files']}")
+        print(f"  counts by kind = {scan['counts_by_kind']}")
+        print(f"  gate1 chart ready = {scan['gate1_chart_ready_count']}")
+        if scan["gate1_chart_ready"]:
+            print("  ready chart candidates:")
+            for record in scan["gate1_chart_ready"]:
+                print(f"    - {record['path']}")
+        print(f"  old two-interval diagnostics = {scan['old_two_interval_diagnostic_count']}")
+        if scan["old_two_interval_diagnostics"]:
+            print("  first old diagnostic:")
+            first = scan["old_two_interval_diagnostics"][0]
+            print(f"    path = {first['path']}")
+            print(f"    missing = {', '.join(first['missing_required_fields'])}")
+        if scan["malformed_gate1_chart_count"]:
+            print(f"  malformed Gate 1 chart JSONs = {scan['malformed_gate1_chart_count']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(scan, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.audit_two_interval_json:
         audit = audit_two_interval_json(Path(args.audit_two_interval_json))

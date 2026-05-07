@@ -560,6 +560,16 @@ Useful corrections already recorded:
   \(\det E=3.872350669859211\cdot10^{-8}\), while the first nonalternating
   tuple has \(\det E=0.6096211894375172\).  Thus that synthetic failure is not
   just a near-singular determinant artifact.
+- The extractor now has `--scan-jsons ROOT`, which verifies whether a
+  proof-grade Gate 1 chart input is actually present.  Scanning `1038/` finds
+  7 JSON files, with counts `{other_json: 3, old_two_interval_diagnostic: 4}`
+  and `gate1 chart ready = 0`.  Scanning the full repository finds 130 JSON
+  files, with counts `{other_json: 122, json_non_object: 2, unreadable_json: 2,
+  old_two_interval_diagnostic: 4}` and again `gate1 chart ready = 0`.  Thus the
+  current computational blocker is verified: the repository contains no compact
+  non-pinched \(g=2\) chart JSON with `P,Q,gammas,rows`.  The next numerical
+  step must derive or supply that chart; continuing to run the old branch JSONs
+  would compute the wrong object.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

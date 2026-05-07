@@ -14439,6 +14439,76 @@ theorem queue.
     grid scan with a healthy determinant floor would be meaningful evidence;
     failing it would immediately localize the obstruction pattern.
 
+    Repository-wide Gate 1 chart-input scan.
+
+    The extractor now has a repository scan mode
+
+    \[
+    \texttt{--scan-jsons ROOT}
+    \]
+
+    which classifies each JSON file as a proof-grade Gate 1 chart candidate,
+    an old two-interval diagnostic, or unrelated JSON.  This is deliberately a
+    schema check rather than a theorem: it answers whether the numerical route
+    has the required input object
+
+    \[
+    \{P,Q,\Gamma,\ell\}
+    \]
+
+    with four branch endpoints and a square regular moving-chart row list.
+
+    Running
+
+    \[
+    \texttt{python3 1038/gate1\_repaired\_data\_extractor.py --scan-jsons 1038}
+    \]
+
+    gives
+
+    \[
+    \texttt{total JSON files}=7,\qquad
+    \texttt{gate1 chart ready}=0,
+    \]
+
+    with counts
+
+    \[
+    \{\texttt{other\_json}:3,\quad
+      \texttt{old\_two\_interval\_diagnostic}:4\}.
+    \tag{G1JsonScan1038}
+    \]
+
+    A full repository scan
+
+    \[
+    \texttt{python3 1038/gate1\_repaired\_data\_extractor.py --scan-jsons .}
+    \]
+
+    gives
+
+    \[
+    \texttt{total JSON files}=130,\qquad
+    \texttt{gate1 chart ready}=0,
+    \]
+
+    with counts
+
+    \[
+    \{\texttt{other\_json}:122,\quad
+      \texttt{json\_non\_object}:2,\quad
+      \texttt{unreadable\_json}:2,\quad
+      \texttt{old\_two\_interval\_diagnostic}:4\}.
+    \tag{G1JsonScanRepo}
+    \]
+
+    Thus the current computational blocker is now verified, not inferred:
+    there is no proof-grade compact non-pinched \(g=2\) chart JSON anywhere in
+    the repository.  Continuing the numerical Gate 1 route requires producing
+    or deriving such a chart file.  The existing JSON files can audit old
+    local branches, but they cannot run the repaired moving-Schiffer majorant
+    computation.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
