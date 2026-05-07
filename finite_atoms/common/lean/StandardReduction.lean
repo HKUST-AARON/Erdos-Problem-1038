@@ -2687,6 +2687,12 @@ theorem disjoint_Ioc_diagonalAtomSet_of_disjoint_realMeasure_support
     Disjoint (Ioc a b) (diagonalAtomSet μ) :=
   disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
 
+theorem disjoint_Ico_diagonalAtomSet_of_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {a b : ℝ}
+    (hsupport : Disjoint (Ico a b) (realMeasure μ).support) :
+    Disjoint (Ico a b) (diagonalAtomSet μ) :=
+  disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
+
 theorem subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
     (haug : s ⊆ unitIntervalAugmentedPositiveSet μ)
@@ -27499,6 +27505,103 @@ noncomputable def unitInterval_standardReduction_from_replacement_openGap_zeroNe
     unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
       hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
       hbaseline hright_gap hzero
+
+theorem unitInterval_standardReduction_from_secondaryMinimizer_of_provider
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hProvider :
+      ∃ C : PositiveComponent μ,
+      ∃ R : ComponentReplacement μ C,
+      ∃ ε δ : ℝ,
+        0 < ε ∧
+        0 < δ ∧
+        0 < C.right ∧
+        C.AugmentedIntervalMaximal ∧
+        Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+          unitIntervalAugmentedPositiveSet μ ∧
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+        Set.Icc C.right (C.right + δ) ∩
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+          ∅ ∧
+        (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+          realMeasure μ U = 0)) :
+    ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ), True := by
+  rcases hProvider with
+    ⟨C, R, ε, δ, hε, hδ, hright_pos, hmax, hspan_aug,
+      hbaseline, hright_gap, hzero⟩
+  exact
+    ⟨unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
+      hbaseline hright_gap hzero, trivial⟩
+
+theorem selectedComponent_provider_from_span_support_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038} {δ₀ : ℝ}
+    (hpositive_disjoint_support :
+      Disjoint (PositiveSet (unitIntervalLogPotential μ))
+        (realMeasure μ).support)
+    (hδ₀ : 0 < δ₀)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Set.Ioc (-1 : ℝ) δ₀ →
+        0 < unitIntervalLogPotential μ y)
+    (haug_support :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Set.Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Set.Ioo l r) (realMeasure μ).support)
+    (hRegularData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < δ ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ C : PositiveComponent μ,
+    ∃ R : ComponentReplacement μ C,
+    ∃ ε δ : ℝ,
+      0 < ε ∧
+      0 < δ ∧
+      0 < C.right ∧
+      C.AugmentedIntervalMaximal ∧
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ ∧
+      Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ ∧
+      (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0) := by
+  rcases exists_positiveComponent_augmentedMaximal_of_span_positive_support_policies_auto_bdd_midpoint
+      (μ := μ) (δ := δ₀)
+      hpositive_disjoint_support hδ₀ hspan_pos haug_support with
+    ⟨C, hmax, hbaseline, hright_pos⟩
+  rcases hRegularData C hmax hbaseline hright_pos with
+    ⟨R, ε, δ, hε, hδ, hspan_aug, hright_gap, hzero⟩
+  exact
+    ⟨C, R, ε, δ, hε, hδ, hright_pos, hmax, hspan_aug,
+      hbaseline, hright_gap, hzero⟩
 
 end StandardReduction
 end Erdos1038
