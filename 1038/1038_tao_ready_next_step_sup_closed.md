@@ -529,6 +529,14 @@ Useful corrections already recorded:
   \(R(c)=-2.087103255711\) and \(\max_\gamma|\rho_\gamma|=2.992534365488\).
   It intentionally does not invent \(V_S,b_S\); those require the cut-density
   logarithmic potential normalization.
+- The first potential layer is now implemented only on the right exterior
+  component.  For \(s>\beta_2\), the extractor computes
+  \(V_j(s)=\int_s^\infty C_j(y)\,dy\) by Gauss-Legendre quadrature after
+  \(y=s+t/(1-t)\).  A synthetic chart with \(u=2.2,v=3.0\), two right-exterior
+  contact points, \(a=0.4,b=0.6,\kappa=1\) computes four right-exterior rows,
+  skips none, and gives \(\max_j|b_j|=7.071555885807\cdot10^2\).  Middle-gap
+  and left-exterior potential rows are still intentionally uncomputed until
+  their boundary-value convention is fixed.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

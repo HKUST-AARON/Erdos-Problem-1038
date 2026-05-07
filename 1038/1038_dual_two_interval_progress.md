@@ -14267,6 +14267,55 @@ theorem queue.
     potential normalization.  That is the next numerical layer after a real
     chart file is available.
 
+    Right-exterior potential layer.
+
+    The first safe potential layer is now implemented for the right exterior
+    component only.  If \(s>\beta_2=\max\Gamma\), then the real path
+    \([s,\infty)\) does not cross a cut or pole, and the definition
+
+    \[
+    V_j(s)=\int_s^\infty C_j(y)\,dy
+    \tag{G1RightExteriorV}
+    \]
+
+    is numerically unambiguous.  The extractor evaluates this integral by the
+    change of variables
+
+    \[
+    y=s+\frac{t}{1-t},\qquad 0<t<1,
+    \]
+
+    followed by Gauss-Legendre quadrature.  This is deliberately restricted to
+    the right exterior component; middle-gap or left-exterior rows require a
+    separate boundary-value convention and are not silently computed.
+
+    With synthetic data
+
+    \[
+    c=-0.4,\qquad u=2.2,\qquad v=3.0,\qquad a=0.4,\qquad b=0.6,\qquad
+    \kappa=1,
+    \]
+
+    and contact points \(2.05,2.5\), the chart-json entry point computes four
+    right-exterior potential rows and skips none:
+
+    \[
+    \texttt{right-exterior V rows computed/skipped}=4/0,
+    \]
+
+    and the boundary combination satisfies
+
+    \[
+    \max_j|b_j|=7.071555885807\cdot10^2.
+    \tag{G1RightExteriorVSmoke}
+    \]
+
+    Therefore, if a real Gate 1 chart has \(u,v\) and contact samples in the
+    right exterior component, the executable data path now reaches
+    \(H_\gamma^{rep}\), \(\rho_S\), right-exterior \(V_S\), \(V_\Pi\), and
+    \(b_S,b_\Pi\).  The remaining missing numerical layers are the other
+    off-cut components and the compact contact/envelope optimization.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

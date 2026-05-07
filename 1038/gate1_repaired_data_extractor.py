@@ -355,6 +355,31 @@ def cauchy_column_value(h_coefficients: list[float], Q: Array, gammas: list[floa
     return poly_eval(np.array(h_coefficients, dtype=float), x) / (Q_x * Q_x * R_x)
 
 
+def period_cauchy_value(kappa: float, gammas: list[float], x: float) -> float:
+    return kappa / real_R_value(x, gammas)
+
+
+def integrate_to_infinity_right_exterior(
+    value_at: Any,
+    start: float,
+    right_endpoint: float,
+    nodes: int = 500,
+) -> float:
+    if start <= right_endpoint:
+        raise ValueError(
+            f"start={start} is not in the right exterior component ({right_endpoint}, infinity)"
+        )
+    xs, ws = np.polynomial.legendre.leggauss(nodes)
+    ts = 0.5 * (xs + 1.0)
+    weights = 0.5 * ws
+    total = 0.0
+    for t, weight in zip(ts, weights):
+        y = start + t / (1.0 - t)
+        jac = 1.0 / ((1.0 - t) * (1.0 - t))
+        total += float(weight) * value_at(float(y)) * jac
+    return float(total)
+
+
 def anchor_rho_payload(repaired: dict[str, Any], c_value: float) -> dict[str, Any]:
     Q = np.array(repaired["Q_coefficients_ascending"], dtype=float)
     gammas = [float(x) for x in repaired["gammas"]]
@@ -369,6 +394,67 @@ def anchor_rho_payload(repaired: dict[str, Any], c_value: float) -> dict[str, An
         "R_c": real_R_value(c_value, gammas),
         "C_gamma_at_c": C_values,
         "rho_S": rho,
+    }
+
+
+def right_exterior_potential_payload(
+    repaired: dict[str, Any],
+    source: dict[str, Any],
+    nodes: int = 500,
+) -> dict[str, Any]:
+    Q = np.array(repaired["Q_coefficients_ascending"], dtype=float)
+    gammas = [float(x) for x in repaired["gammas"]]
+    right_endpoint = max(gammas)
+    points: dict[str, float] = {}
+    for key in ["u", "v"]:
+        if key in source:
+            points[key] = float(source[key])
+    for index, value in enumerate(source.get("contact_points", []) or []):
+        points[f"contact_{index}"] = float(value)
+
+    values: dict[str, dict[str, float]] = {}
+    skipped: dict[str, str] = {}
+    for name, point in points.items():
+        if point <= right_endpoint:
+            skipped[name] = "not in right exterior component"
+            continue
+        row: dict[str, float] = {}
+        for key, endpoint in repaired["endpoints"].items():
+            row[key] = integrate_to_infinity_right_exterior(
+                lambda y, coeffs=endpoint["h_rep_coefficients_ascending"]: cauchy_column_value(
+                    coeffs, Q, gammas, y
+                ),
+                point,
+                right_endpoint,
+                nodes=nodes,
+            )
+        if "kappa" in source:
+            kappa = float(source["kappa"])
+            row["Pi"] = integrate_to_infinity_right_exterior(
+                lambda y: period_cauchy_value(kappa, gammas, y),
+                point,
+                right_endpoint,
+                nodes=nodes,
+            )
+        values[name] = row
+
+    boundary_b: dict[str, float] | None = None
+    if {"a", "b", "u", "v"}.issubset(source) and "u" in values and "v" in values:
+        a_weight = float(source["a"])
+        b_weight = float(source["b"])
+        boundary_b = {}
+        for key in values["u"]:
+            if key in values["v"]:
+                boundary_b[key] = a_weight * values["u"][key] + b_weight * values["v"][key]
+
+    return {
+        "component": "right_exterior",
+        "right_endpoint": right_endpoint,
+        "quadrature": "Gauss-Legendre after y=s+t/(1-t)",
+        "nodes": nodes,
+        "values": values,
+        "skipped": skipped,
+        "b": boundary_b,
     }
 
 
@@ -387,6 +473,8 @@ def run_chart_json(path: Path) -> dict[str, Any]:
     }
     if "c" in source:
         result["anchor_rho"] = anchor_rho_payload(repaired, float(source["c"]))
+    if any(key in source for key in ["u", "v", "contact_points"]):
+        result["right_exterior_potentials"] = right_exterior_potential_payload(repaired, source)
     return result
 
 
@@ -471,6 +559,14 @@ def main() -> int:
             max_abs_rho = max(abs(value) for value in rho["rho_S"].values())
             print(f"  R(c) = {rho['R_c']:.12e}")
             print(f"  max |rho_S| = {max_abs_rho:.12e}")
+        if "right_exterior_potentials" in payload:
+            potentials = payload["right_exterior_potentials"]
+            computed = len(potentials["values"])
+            skipped = len(potentials["skipped"])
+            print(f"  right-exterior V rows computed/skipped = {computed}/{skipped}")
+            if potentials.get("b") is not None:
+                max_abs_b = max(abs(value) for value in potentials["b"].values())
+                print(f"  max |b| = {max_abs_b:.12e}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, indent=2, sort_keys=True)
