@@ -11609,6 +11609,68 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_da
       hright_threshold hright_no_diag
       (hright_tail threshold hthreshold hright_threshold)
 
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_closed_right_compact_support_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)))
+    (hδ : 0 < δ)
+    (hright_support :
+      Disjoint (Icc (0 : ℝ) δ) (realMeasure μ).support)
+    (hright_pos :
+      ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+        0 < unitIntervalLogPotential μ x)
+    (hright_tail :
+      ∀ threshold : ℝ, 0 < threshold →
+        (∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          threshold < unitIntervalLogPotential μ x) →
+        ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_closed_right_interval_threshold_tail
+      μ hlog_int htruncε
+      (continuousOn_positive_Icc_exists_strict_lower_threshold
+        (unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+          hright_support)
+        hright_pos).choose_spec.1
+      hbaseline_local hδ
+      (continuousOn_positive_Icc_exists_strict_lower_threshold
+        (unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+          hright_support)
+        hright_pos).choose_spec.2
+      (disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hright_support)
+      (hright_tail
+        (continuousOn_positive_Icc_exists_strict_lower_threshold
+          (unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+            hright_support)
+          hright_pos).choose
+        (continuousOn_positive_Icc_exists_strict_lower_threshold
+          (unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+            hright_support)
+          hright_pos).choose_spec.1
+        (continuousOn_positive_Icc_exists_strict_lower_threshold
+          (unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+            hright_support)
+          hright_pos).choose_spec.2)
+
 /--
 Compact-subinterval baseline version of selected-component construction.
 The baseline input is now stated once for every compact subinterval of
