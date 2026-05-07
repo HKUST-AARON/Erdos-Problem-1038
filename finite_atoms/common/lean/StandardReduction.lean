@@ -2058,6 +2058,58 @@ theorem realMeasure_abs_sub_integrable
       linarith
   simpa [Real.norm_eq_abs, abs_of_nonneg (abs_nonneg (x - t))] using hle
 
+/--
+On the normalized real support, an a.e. positive separation from `x` removes the
+logarithmic singularity and makes `log |x - t|` integrable.
+-/
+theorem realMeasure_log_abs_sub_integrable_of_ae_lower_bound
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|) :
+    Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ) := by
+  let K : ℝ := |Real.log ε| + (|x| + 1)
+  have hconst : Integrable (fun _ : ℝ => K) (realMeasure μ) :=
+    integrable_const K
+  have hlog_aesm :
+      AEStronglyMeasurable
+        (fun t : ℝ => Real.log |x - t|) (realMeasure μ) :=
+    (Real.measurable_log.comp
+      ((continuous_const.sub continuous_id).abs.measurable)).aestronglyMeasurable
+  refine hconst.mono' hlog_aesm ?_
+  filter_upwards [realMeasure_ae_mem_unitInterval μ, hdist_lower] with t ht hdist
+  have ht_abs : |t| ≤ 1 := abs_le.mpr ht
+  have hdist_pos : 0 < |x - t| := lt_of_lt_of_le hε hdist
+  have hdist_upper : |x - t| ≤ |x| + 1 := by
+    by_cases hxt : 0 ≤ x - t
+    · have hx_le : x ≤ |x| := le_abs_self x
+      have hneg_t_le : -t ≤ |t| := neg_le_abs t
+      have hdist_eq : |x - t| = x - t := abs_of_nonneg hxt
+      rw [hdist_eq]
+      linarith
+    · have hxt_lt : x - t < 0 := lt_of_not_ge hxt
+      have ht_le : t ≤ |t| := le_abs_self t
+      have hneg_x_le : -x ≤ |x| := neg_le_abs x
+      have hdist_eq : |x - t| = -(x - t) := abs_of_neg hxt_lt
+      rw [hdist_eq]
+      linarith
+  have hlog_lower : Real.log ε ≤ Real.log |x - t| :=
+    Real.log_le_log hε hdist
+  have hlog_upper : Real.log |x - t| ≤ |x| + 1 :=
+    (Real.log_le_self (abs_nonneg (x - t))).trans hdist_upper
+  have hK_lower : -K ≤ Real.log ε := by
+    dsimp [K]
+    have hneg_abs : -|Real.log ε| ≤ Real.log ε := neg_abs_le (Real.log ε)
+    have hnonneg : 0 ≤ |x| + 1 := by positivity
+    linarith
+  have hK_upper : |x| + 1 ≤ K := by
+    dsimp [K]
+    have hnonneg : 0 ≤ |Real.log ε| := abs_nonneg (Real.log ε)
+    linarith
+  have habs_le : |Real.log (|x - t|)| ≤ K := by
+    exact abs_le.mpr ⟨le_trans hK_lower hlog_lower,
+      le_trans hlog_upper hK_upper⟩
+  simpa [Real.norm_eq_abs] using habs_le
+
 theorem realMeasure_endpointRemainder_support_in_support
     (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
     (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
@@ -16193,6 +16245,70 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
       realMeasure_abs_sub_integrable μ C.right, hlog_int, hpotential_nonpos,
       hdistance_upper, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_spanning_positive_boundary_separated_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomSpanningPositiveBoundarySeparatedZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε xRight boundarySep : ℝ,
+          0 < ε ∧
+          0 < xRight ∧
+          0 < boundarySep ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) xRight ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          (∀ᵐ t ∂realMeasure μ, boundarySep ≤ |C.right - t|) ∧
+          unitIntervalLogPotential μ C.right ≤ 0 ∧
+          (∫ t, |C.right - t| ∂realMeasure μ) ≤
+            (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_spanning_positive_boundary_log_distance_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomSpanningPositiveBoundarySeparatedZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, xRight, boundarySep, hε, hxRight_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      hpotential_nonpos, hdistance_upper, hzero⟩
+  exact
+    ⟨C, ε, xRight, boundarySep, hε, hxRight_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      realMeasure_log_abs_sub_integrable_of_ae_lower_bound μ
+        hboundarySep hdist_lower,
+      hpotential_nonpos, hdistance_upper, hzero⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
