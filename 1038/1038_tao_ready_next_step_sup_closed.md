@@ -854,6 +854,27 @@ Useful corrections already recorded:
   zero-integrals plus root order alone.  It needs an additional actual Gate 1
   row: residual, off-row, or KKT compatibility.  The next proof target is
   `LRLRResidualOffRowLemma`.
+- The LRLR audit now also records the free third root and projective products
+  \(I_{\rm gap}(F)L(F)\), because \(F\) and \(-F\) represent the same zero
+  pattern.  With
+  `--audit-lrlr-kernel --connection-samples 128 --connection-nodes 80`, the
+  LRLR-order samples still split \(57(+),57(-)\), and the middle-gap free-root
+  subbranch itself splits \(34(+),34(-)\).  Thus the remaining row cannot be a
+  generic root-location or point-probe argument; it must use the actual
+  homogeneous \(\rho\)-row or affine \(b-\Lambda\rho\) residual/KKT row from the
+  moving-Schiffer chart.
+- A current scan with `gate1_repaired_data_extractor.py --scan-jsons 1038`
+  still reports `gate1 chart ready = 0`; the repository contains old
+  two-interval diagnostic JSONs but no chart-ready input with
+  \(P,Q,\Gamma\), moving-chart rows, and anchor/boundary data.  Therefore the
+  next computation must first produce or import that chart-ready JSON before
+  any LRLR residual-margin claim can be proof-grade.
+- The extractor already supports that input through `--chart-json`.  The
+  required minimal schema is \(P,Q,\Gamma\), the moving-chart rows
+  \(\ell_r\), plus \(c\) for \(\rho_S\), and \(u,v,a,b,\kappa\) for the affine
+  \(b-\Lambda\rho\) row.  Once such a file exists, the next run should compute
+  \(H_\gamma^{rep}\), \(AX_\gamma+r_\gamma\), \(\rho_S,b_S,\rho_\Pi,b_\Pi\),
+  and then test `LRLRResidualOffRowLemma` directly.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

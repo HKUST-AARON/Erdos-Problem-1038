@@ -1494,6 +1494,7 @@ def endpoint_heavy_mixed_kernel_root_audit(
 def endpoint_heavy_lrlr_kernel_audit(
     gammas: list[float] | None = None,
     omitted_pole: float = -3.0,
+    samples: int = 32,
     nodes: int = 100,
 ) -> dict[str, Any]:
     """Linear-kernel audit for the remaining LRLR endpoint-heavy pattern."""
@@ -1539,44 +1540,104 @@ def endpoint_heavy_lrlr_kernel_audit(
     M = np.array(rows, dtype=float)
     _u, s, vh = np.linalg.svd(M)
     kernel_basis = vh[-2:, :]
-    samples = []
-    for angle in np.linspace(0.0, 2.0 * math.pi, 33)[:-1]:
+    sample_records = []
+
+    def root_region(root: float) -> str:
+        tol = 1.0e-7
+        if root < a1 - tol:
+            return "left_exterior"
+        if a1 + tol < root < b1 - tol:
+            return "left_cut"
+        if b1 + tol < root < a2 - tol:
+            return "middle_gap"
+        if a2 + tol < root < b2 - tol:
+            return "right_cut"
+        if root > b2 + tol:
+            return "right_exterior"
+        return "endpoint"
+
+    for angle in np.linspace(0.0, 2.0 * math.pi, samples + 1)[:-1]:
         coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
         roots_complex = np.roots(list(reversed(coeff)))
         real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
         lrlr_order = len(real_roots) == 3 and sum(a1 < r < b1 for r in real_roots) == 1 and sum(a2 < r < b2 for r in real_roots) == 1
-        samples.append(
+        free_roots = [r for r in real_roots if not (a1 < r < b1 or a2 < r < b2)]
+        free_root = free_roots[0] if lrlr_order and len(free_roots) == 1 else None
+        free_root_region = root_region(free_root) if free_root is not None else "not_lrlr"
+        connection_integral = integrate_gap(coeff)
+        values = {
+            "left_exterior_probe": poly_eval(coeff, a1 - 1.0),
+            "middle_gap_probe": poly_eval(coeff, 0.5 * (b1 + a2)),
+            "right_exterior_probe": poly_eval(coeff, b2 + 1.0),
+        }
+        projective_products = {
+            f"connection_times_{key}": connection_integral * value
+            for key, value in values.items()
+        }
+        sample_records.append(
             {
                 "angle": float(angle),
                 "coefficients_ascending": coeff.tolist(),
-                "connection_integral": integrate_gap(coeff),
-                "connection_sign": sign_label(integrate_gap(coeff)),
+                "connection_integral": connection_integral,
+                "connection_sign": sign_label(connection_integral),
                 "real_roots": real_roots,
                 "lrlr_order": lrlr_order,
-                "values": {
-                    "left_exterior_probe": poly_eval(coeff, a1 - 1.0),
-                    "middle_gap_probe": poly_eval(coeff, 0.5 * (b1 + a2)),
-                    "right_exterior_probe": poly_eval(coeff, b2 + 1.0),
+                "free_root": free_root,
+                "free_root_region": free_root_region,
+                "values": values,
+                "value_signs": {key: sign_label(value) for key, value in values.items()},
+                "projective_products": projective_products,
+                "projective_product_signs": {
+                    key: sign_label(value) for key, value in projective_products.items()
                 },
             }
         )
     sign_counts: dict[str, int] = {}
     order_sign_counts: dict[str, int] = {}
-    for sample in samples:
+    free_region_counts: dict[str, int] = {}
+    free_region_connection_sign_counts: dict[str, int] = {}
+    probe_sign_counts_by_region: dict[str, dict[str, int]] = {}
+    projective_product_sign_counts_by_region: dict[str, dict[str, int]] = {}
+    for sample in sample_records:
         sign = str(sample["connection_sign"])
         sign_counts[sign] = sign_counts.get(sign, 0) + 1
         if sample["lrlr_order"]:
             order_sign_counts[sign] = order_sign_counts.get(sign, 0) + 1
+            region = str(sample["free_root_region"])
+            free_region_counts[region] = free_region_counts.get(region, 0) + 1
+            key = f"{region}:{sign}"
+            free_region_connection_sign_counts[key] = free_region_connection_sign_counts.get(key, 0) + 1
+            for probe, probe_sign in sample["value_signs"].items():
+                probe_key = f"{region}:{probe}"
+                if probe_key not in probe_sign_counts_by_region:
+                    probe_sign_counts_by_region[probe_key] = {}
+                sign_key = str(probe_sign)
+                probe_sign_counts_by_region[probe_key][sign_key] = (
+                    probe_sign_counts_by_region[probe_key].get(sign_key, 0) + 1
+                )
+            for product, product_sign in sample["projective_product_signs"].items():
+                product_key = f"{region}:{product}"
+                if product_key not in projective_product_sign_counts_by_region:
+                    projective_product_sign_counts_by_region[product_key] = {}
+                sign_key = str(product_sign)
+                projective_product_sign_counts_by_region[product_key][sign_key] = (
+                    projective_product_sign_counts_by_region[product_key].get(sign_key, 0) + 1
+                )
     return {
         "model": "LRLR two-integral kernel audit",
         "gammas": gammas,
         "omitted_pole": omitted_pole,
+        "samples_count": samples,
         "nodes": nodes,
         "singular_values": s.tolist(),
         "kernel_basis": kernel_basis.tolist(),
         "connection_sign_counts": sign_counts,
         "lrlr_order_connection_sign_counts": order_sign_counts,
-        "samples": samples,
+        "lrlr_free_root_region_counts": free_region_counts,
+        "lrlr_free_root_region_connection_sign_counts": free_region_connection_sign_counts,
+        "lrlr_probe_sign_counts_by_region": probe_sign_counts_by_region,
+        "lrlr_projective_product_sign_counts_by_region": projective_product_sign_counts_by_region,
+        "samples": sample_records,
     }
 
 
@@ -2221,20 +2282,34 @@ def main() -> int:
         audit = endpoint_heavy_lrlr_kernel_audit(
             gammas=gammas,
             omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
             nodes=args.connection_nodes,
         )
         print("Gate 1 LRLR endpoint-heavy kernel audit")
         print(f"  model = {audit['model']}")
         print(f"  gammas = {audit['gammas']}")
         print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  samples = {audit['samples_count']}")
         print(f"  singular values = {audit['singular_values']}")
         print(f"  connection sign counts = {audit['connection_sign_counts']}")
         print(f"  LRLR-order connection signs = {audit['lrlr_order_connection_sign_counts']}")
+        print(f"  LRLR free-root regions = {audit['lrlr_free_root_region_counts']}")
+        print(
+            "  LRLR free-root region / connection signs = "
+            f"{audit['lrlr_free_root_region_connection_sign_counts']}"
+        )
+        print(
+            "  LRLR projective connection/probe products = "
+            f"{audit['lrlr_projective_product_sign_counts_by_region']}"
+        )
         for sample in audit["samples"][:8]:
             print(
                 "  sample angle = "
                 f"{sample['angle']:.3f}, sign = {sample['connection_sign']}, "
-                f"LRLR order = {sample['lrlr_order']}, roots = {sample['real_roots']}"
+                f"LRLR order = {sample['lrlr_order']}, "
+                f"free root = {sample['free_root']}, "
+                f"free region = {sample['free_root_region']}, "
+                f"roots = {sample['real_roots']}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

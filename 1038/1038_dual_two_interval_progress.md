@@ -16139,6 +16139,105 @@ theorem queue.
     LRLR kernel.  Without such an extra row, the LRLR pattern is a genuine
     two-branch obstruction in the full-pair endpoint-heavy model.
 
+    LRLR projective-branch audit.
+
+    The LRLR audit was extended to record the free third root and the signs of
+    projectively meaningful products
+
+    \[
+    I_{\rm gap}(F)\,L(F),
+    \]
+
+    where \(L\) is a probe row.  This is the right invariant quantity because
+    \(F\) and \(-F\) define the same root pattern while reversing
+    \(I_{\rm gap}(F)\) and every linear row simultaneously.
+
+    Running
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-lrlr-kernel --connection-samples 128 --connection-nodes 80
+    ```
+
+    gives
+
+    \[
+    \operatorname{sgn}I_{\rm gap}=57(+),57(-)
+    \]
+
+    among LRLR-order samples, and the free-root regions are
+
+    \[
+    \text{middle gap}:68,\qquad
+    \text{right exterior}:22,\qquad
+    \text{left exterior}:24.
+    \]
+
+    Even inside the middle-gap free-root subbranch,
+
+    \[
+    \operatorname{sgn}I_{\rm gap}=34(+),34(-).
+    \tag{G1LRLRProjectiveAudit}
+    \]
+
+    Hence the free-root location, even after separating the middle-gap and
+    exterior cases, still does not determine the connection sign.  Simple
+    point-evaluation probes also split on the middle-gap subbranch.  Therefore
+    the LRLR closure cannot be obtained from root location, component
+    zero-integrals, and a generic probe row.  The extra row must be the actual
+    Gate 1 row: the homogeneous \(\rho\)-row or the affine residual/KKT row
+    \(b-\Lambda\rho\), with its true moving-Schiffer normalization.
+
+    A fresh repository scan confirms that this actual row is not yet available
+    as data:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py --scan-jsons 1038
+    ```
+
+    reports
+
+    \[
+    \texttt{gate1 chart ready}=0,
+    \]
+
+    with only old two-interval diagnostic JSON files present.  Consequently
+    the next computation cannot honestly be a residual-margin oracle until a
+    chart-ready JSON supplies \(P,Q,\Gamma\), the moving-chart rows, and the
+    anchor/boundary data needed to compute \(\rho_S,b_S,\rho_\Pi,b_\Pi\).
+    The old diagnostics remain useful for branch geometry, but not for the
+    LRLR residual/off-row closure.
+
+    The extractor already accepts the required schema through
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --chart-json path/to/gate1_chart.json --write-json path/to/output.json
+    ```
+
+    The minimal proof-grade input is:
+
+    \[
+    P,\quad Q,\quad \Gamma=(\alpha_1,\beta_1,\alpha_2,\beta_2),\quad
+    \{\ell_r\}_{r=1}^{2\deg Q-2},
+    \]
+
+    where each row \(\ell_r\) is an evaluation/derivative moving-chart row.
+    To test the LRLR off-row/residual closure it must also include the anchor
+    \(c\), and for the affine branch the boundary data \(u,v,a,b\) and
+    \(\kappa\).  With these fields, the extractor computes
+
+    \[
+    H_\gamma^{rep},\quad AX_\gamma+r_\gamma,\quad \rho_S,\quad b_S,
+    \quad \rho_\Pi,\quad b_\Pi,
+    \]
+
+    and can turn the LRLR toy kernel audit into a true residual/off-row
+    determinant audit.  Until then, the correct status is
+    \[
+    \boxed{\text{Gate 1 blocked at LRLRResidualOffRowLemma; chart data missing.}}
+    \]
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
