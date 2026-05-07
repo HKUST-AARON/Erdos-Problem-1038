@@ -444,6 +444,14 @@ Useful corrections already recorded:
   \]
   Empty patterns are harmless; boundary infima route to Gate 3; a regular
   nonpositive minimizer is exactly a Gate 1 weighted affine obstruction.
+- Most likely next route: prove repaired-column ECT-A first, namely
+  endpoint/off-row alternation plus five-point lifted circuit orientation for
+  the actual \(H_\gamma^{rep}\) data.  This closes the homogeneous branch and
+  compactifies \(\Lambda\).  Then verify the compact affine pattern minima
+  \(m_{\mathfrak p}>0\) using a repaired-data contact oracle or an explicit
+  determinant product.  Keep \(Q_{\rm eff}\) as a fallback for compact affine
+  hard cases, not as the first attack on nonzero \(Z_0\)-atomic homogeneous
+  loads.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

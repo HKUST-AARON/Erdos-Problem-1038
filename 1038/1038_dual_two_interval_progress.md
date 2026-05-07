@@ -13724,6 +13724,68 @@ theorem queue.
     correct target for either a symbolic determinant proof or an interval
     contact oracle using the repaired data.
 
+    Most likely remaining route.
+
+    The proof should now proceed in the following order.
+
+    First, attack the ECT-A determinant signs for the actual repaired columns:
+
+    \[
+    \boxed{
+    \text{Endpoint/off-row alternation}
+    \quad+\quad
+    \text{five-point lifted circuit orientation}.
+    }
+    \tag{G1NextECTA}
+    \]
+
+    This is the highest-leverage task because it closes the homogeneous branch
+    and converts the affine branch from an all-\(\Lambda\) problem into the
+    compact pattern-minimum problem (G1PatternPositiveMinimum).  The expected
+    proof is not a quotient/rank argument.  It must be a determinant product or
+    sign-regularity proof for the actual repaired moving-Schiffer columns
+    \(H_\gamma^{rep}\), with the \(c\)-row and the period lift column included.
+
+    Second, after ECT-A, prove the compact affine inequalities
+    \(m_{\mathfrak p}>0\) pattern by pattern.  The most practical route is an
+    interval-certified contact oracle using the repaired data:
+
+    \[
+    H_\gamma^{rep},\quad
+    C_\gamma=\frac{H_\gamma^{rep}}{Q^2R},\quad
+    V_S,\rho_S,b_S,V_\Pi,\rho_\Pi,b_\Pi.
+    \tag{G1OracleInputs}
+    \]
+
+    The oracle must not use the fixed-\(Q\) collapsed table.  Its output should
+    classify each pattern as empty, Gate 3 boundary, or positive residual
+    \(m_{\mathfrak p}>0\).  A regular pattern with \(m_{\mathfrak p}\le0\) is a
+    real obstruction, not a numerical nuisance.
+
+    Third, keep the second-variation \(Q_{\rm eff}\) line only as a fallback
+    for the compact affine hard cases.  It is not the right first move for the
+    \(Z_0\)-atomic homogeneous branch because point-row loads have positive
+    logarithmic blow-up; it may still help after ECT-A has removed the
+    homogeneous recession directions and localized the affine branch.
+
+    Thus the most likely successful route is:
+
+    \[
+    \boxed{
+    \text{repaired-column ECT-A}
+    \Longrightarrow
+    \text{compact affine contact verification}
+    \Longrightarrow
+    \text{Gate 1}.
+    }
+    \tag{G1MostLikelyRoute}
+    \]
+
+    The least promising route remains any attempt to declare PASS from
+    endpoint-period quotient rank, a fixed-pattern determinant for all
+    \(\Lambda\), or finite \(Q_{\rm eff}\) against nonzero \(Z_0\)-atomic
+    loads.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
