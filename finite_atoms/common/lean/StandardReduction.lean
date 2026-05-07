@@ -16999,6 +16999,15 @@ theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     _ = (componentMass C • Measure.dirac (-1 : ℝ)) s := by
       rfl
 
+theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac_of_componentMass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_pos : 0 < componentMass C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) := by
+  exact
+    componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      (ComponentReplacement.of_mass_pos C hmass_pos) hdirac
+
 /--
 Normalized endpoint atomization version of the pointwise right-region support
 consequence.
@@ -26199,6 +26208,27 @@ noncomputable def unitInterval_standardReduction_from_normalizedAtomization_left
       R hε hright_pos hmax hleft_aug hbaseline hnot_support
       (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
         R hnormalized)
+
+noncomputable def unitInterval_standardReduction_from_normalizedAtomization_componentMass_leftAugmented_notSupport
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hmass_pos : 0 < componentMass C)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  exact
+    unitInterval_standardReduction_from_componentMassAtomization_leftAugmented_notSupport
+      hε hright_pos hmax hleft_aug hmass_pos hbaseline hnot_support
+      (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac_of_componentMass_pos
+        hmass_pos hnormalized)
 
 /-!
 ## Fixed-minimizer endpoint bridge
