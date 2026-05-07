@@ -11464,6 +11464,63 @@ theorem componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
   exact componentBlock_secondMoment_eq_of_replacement_secondMoment_eq hreal
 
 /--
+Secondary-minimizer rigidity for a concrete replacement.  If the replacement
+does not increase the truncated primary objective, then primary minimality makes
+it another primary minimizer; secondary minimality and the barycenter second
+moment inequality force equality in the component-block second-moment drop.
+-/
+theorem componentBlock_secondMoment_eq_of_secondary_minimality
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+      ∫ t : ℝ, t ^ 2 ∂componentBlock C := by
+  have hreplacement_primary_min :
+      ∀ η : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective
+            (componentReplacementProbability C hmass_unit) ≤
+          unitIntervalTruncatedPositiveSetObjective η := by
+    intro η
+    exact le_trans hprimary_replacement (hPrimary η)
+  have hsecondary_ge :
+      unitIntervalSecondMomentObjective μ ≤
+        unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) :=
+    hSecondary (componentReplacementProbability C hmass_unit)
+      hreplacement_primary_min
+  have hsecondary_le :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalSecondMomentObjective μ :=
+    unitIntervalSecondMomentObjective_componentReplacement_nonincrease
+      R hmass_unit hsupport
+  have hsecondary_eq :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) =
+        unitIntervalSecondMomentObjective μ :=
+    le_antisymm hsecondary_le hsecondary_ge
+  exact componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
+    hmass_unit hsupport hsecondary_eq
+
+/--
 Scaled component-block second-moment equality is equivalent to equality in the
 normalized probability block's variance inequality.
 -/
