@@ -8600,6 +8600,38 @@ theorem exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_ze
     ⟨C, hinterval, hbaseline_C, hright_C⟩
   exact ⟨C, hbaseline_C, hright_C⟩
 
+/--
+Same constructor as
+`exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero`,
+but with the spanning off-diagonal condition split into baseline, zero, and
+right-neighbourhood checks.  This is the shape needed for the pole-exception
+part of the standard-reduction proof.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_offDiagonal_parts
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ)
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ))
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hright_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero
+    μ hlog_int hbaseline hzero
+    (fun δ hδ hright =>
+      disjoint_Ioo_neg_one_delta_diagonal_of_parts
+        hbaseline_no_diag hzero_no_diag (hright_no_diag δ hδ hright))
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
