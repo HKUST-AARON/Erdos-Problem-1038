@@ -8719,6 +8719,30 @@ theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_conn
       hbddBelow hbddAbove hcont.continuousAt hzero
 
 /--
+Endpoint-data connected-component selection with boundedness discharged from
+the global window `PositiveSet (unitIntervalLogPotential μ) ⊆ (-2,2)`.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_continuous
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_connectedComponentIn_continuous
+      hp hendpoint hcont
+      (unitInterval_positiveSet_connectedComponentIn_bddBelow
+        μ (-(1 / 2 : ℝ)))
+      (unitInterval_positiveSet_connectedComponentIn_bddAbove
+        μ (-(1 / 2 : ℝ)))
+      hzero
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
