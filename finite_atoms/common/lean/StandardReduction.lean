@@ -41,6 +41,12 @@ open scoped ENNReal BigOperators
 /-- Positive set of a real-valued potential. -/
 def PositiveSet (U : ℝ → ℝ) : Set ℝ := {x : ℝ | 0 < U x}
 
+/-- The positive set of a continuous real-valued function is open. -/
+theorem positiveSet_isOpen_of_continuous
+    {U : ℝ → ℝ} (hU : Continuous U) :
+    IsOpen (PositiveSet U) := by
+  simpa [PositiveSet] using isOpen_lt continuous_const hU
+
 /--
 Compact uniform-margin lemma.  If a real-valued function is continuous on a
 compact interval and strictly positive there, then it is bounded below by a
@@ -8682,6 +8688,35 @@ theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_conn
   exact
     exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_connectedComponentIn_zero_right
       hp hendpoint hopen hbddBelow hbddAbove hδ hzero hright
+
+/--
+Endpoint-data connected-component selection when the ordinary potential is
+globally continuous.  Global continuity supplies both openness of the positive
+set and continuity at `0`.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_connectedComponentIn_continuous
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ))))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ))))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_connectedComponentIn_continuousAt_zero
+      hp hendpoint (positiveSet_isOpen_of_continuous hcont)
+      hbddBelow hbddAbove hcont.continuousAt hzero
 
 /--
 Combine baseline positivity with a right neighbourhood of `0` into a single
