@@ -3435,6 +3435,42 @@ theorem exists_positiveComponent_of_connectedComponentIn_bdd
           exact hEq.symm)
 
 /--
+Baseline version of the connected-component constructor.  If the baseline
+interval is positive and the selected point lies in it, then the packaged
+positive component contains the whole baseline interval and is interval
+maximal.
+-/
+theorem exists_positiveComponent_baseline_of_connectedComponentIn_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x)) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval := by
+  have hxpos : x ∈ PositiveSet (unitIntervalLogPotential μ) :=
+    hbaseline hxbase
+  rcases exists_positiveComponent_of_connectedComponentIn_bdd
+      (μ := μ) (x := x) hopen hxpos hbddBelow hbddAbove with
+    ⟨C, hCeq, hmax⟩
+  have hbase_conn :
+      Ioo (-1 : ℝ) 0 ⊆
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x :=
+    positiveSet_baseline_subset_connectedComponentIn_of_mem
+      (U := unitIntervalLogPotential μ) hxbase hbaseline
+  refine ⟨C, hmax, ?_⟩
+  intro y hy
+  rw [hCeq]
+  exact hbase_conn hy
+
+/--
 The local component-selection bridge for the endpoint `-1`.
 
 If the selected positive component contains the right baseline `(-1,0)`, the
