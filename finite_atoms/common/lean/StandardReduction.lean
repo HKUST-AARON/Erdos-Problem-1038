@@ -26138,5 +26138,60 @@ noncomputable def unitInterval_standardReduction_from_endpointAtom_augmentedGap_
       hPrimary hSecondary hε hright_pos hδ hmax hspan_aug
       hendpoint_unit_pos hbaseline hright_gap hzero
 
+noncomputable def unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε δ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ) :=
+    normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood
+      R hε hPrimary hSecondary
+      (fun η hη => singularTail_exists_small_strictOutside_exception C ε η hη)
+      hzero
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_average_of_spanning_augmented_right_gap_normalized_atomized
+      μ R hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+      hnormalized_atomized
+  let Pack : TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+    taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+      μ TaoVariationMeanChoice.nonnegativeMean false 0 C R C.left C.right
+      (by
+        rw [C.interval_eq])
+      hbaseline hright_pos hboundary hnormalized_atomized
+  exact Pack.toNormalizedEndpointPotential
+
 end StandardReduction
 end Erdos1038
