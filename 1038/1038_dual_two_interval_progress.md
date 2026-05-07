@@ -14593,6 +14593,101 @@ theorem queue.
     is to formulate the global compact \(g=2\) chart equations as an executable
     solver target.
 
+    Minimal chart-solver specification.
+
+    The solver target should not reuse the fixed-\(Q\) Hermite endpoint table.
+    That table has already been audited:
+
+    \[
+    H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+    =
+    -\frac12\operatorname{lc}(P)\,Q^2,
+    \]
+
+    so all four endpoint columns are proportional to the period column.  Any
+    solver built on that table would reproduce the known collapse, not Gate 1
+    data.  The solver must instead target the full moving-Schiffer chart.
+
+    The minimal output contract is the chart JSON schema:
+
+    \[
+    \boxed{
+    \texttt{P,Q,gammas,rows,kappa,Z0,u,c,v}
+    }
+    \tag{G1ChartSolverOutput}
+    \]
+
+    with optional contact samples and grid boxes for majorant tests.  Here
+    \(P,Q\) are ascending coefficient lists, \(Q\) is monic, and
+    `gammas` is
+
+    \[
+    \Gamma=(\alpha_1,\beta_1,\alpha_2,\beta_2).
+    \]
+
+    A legitimate compact \(g=2\) solver must choose unknowns at least
+
+    \[
+    \alpha_1,\beta_1,\alpha_2,\beta_2,\quad
+    p_1,\ldots,p_d,\quad
+    P\text{-coefficients},\quad
+    \text{residue/pole-state variables},\quad
+    u,c,v,\quad \text{period/filling variable},
+    \]
+
+    subject to:
+
+    1.  finite-gap representation
+
+        \[
+        F(z)=\frac{P(z)}{Q(z)}R(z),\qquad
+        R(z)^2=\prod_{\gamma\in\Gamma}(z-\gamma),\qquad R(z)\sim z^2;
+        \]
+
+    2.  decay and mass normalization \(F(z)=m_F/z+O(z^{-2})\) with fixed
+        \(m_F>0\);
+    3.  positivity/interlacing: real simple \(Q\)-poles off the cuts, positive
+        residues, and positive cut density;
+    4.  endpoint neck equations for the first extra positive component
+
+        \[
+        q\log(1/a)+W(u)=0,\qquad
+        q\log(1/b)+W(v)=0,\qquad
+        aW'(u)+bW'(v)=0,
+        \]
+
+        where \(a=c-u\), \(b=v-c\);
+    5.  branch equation
+
+        \[
+        F(c)=0,\qquad F'(c)<0;
+        \]
+
+    6.  fixed period/filling convention and the associated orientation
+        \(\kappa\);
+    7.  the ordered regular moving-chart rows \(\ell\) for the full
+        moving-Schiffer correction system.
+
+    Items 1--5 are present in the ledger as analytic constraints.  Items 6--7
+    are not yet explicit enough to code: the chart row list must say exactly
+    which moving-\(P\), moving-\(Q\), pole/residue, period/filling, and
+    normalization rows are fixed.  This is the smallest missing mathematical
+    definition before a real chart solver can be written.
+
+    Therefore the next proof/computation target is:
+
+    \[
+    \boxed{
+    \textbf{CompactG2MovingChartEquations.}
+    }
+    \]
+
+    It must define the unknown vector, the equation vector, the period/filling
+    convention, and the ordered row list \(\ell\) so that its solutions export
+    exactly (G1ChartSolverOutput).  Once this is written, the existing repaired
+    extractor and determinant/envelope oracles become executable on the
+    resulting chart.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

@@ -581,6 +581,15 @@ Useful corrections already recorded:
   `P,Q,gammas,rows,kappa,Z0,u,c,v`.  The next executable target is therefore a
   compact \(g=2\) finite-gap chart-equation solver, not another pass over the
   old JSONs.
+- The fixed-\(Q\) Hermite endpoint table should not be used as that solver
+  target: the ledger already proves its collapse
+  \(H_{\alpha_1}=H_{\beta_1}=H_{\alpha_2}=H_{\beta_2}
+  =-\frac12\operatorname{lc}(P)Q^2\), so all endpoint columns are proportional
+  to the period column.  The solver must instead define the full moving
+  Schiffer chart.  The minimal missing definition is now named
+  `CompactG2MovingChartEquations`: it must specify the unknown vector,
+  equation vector, period/filling convention, and ordered row list `ell`, with
+  output exactly `P,Q,gammas,rows,kappa,Z0,u,c,v`.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
