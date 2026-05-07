@@ -4338,6 +4338,36 @@ theorem PositiveComponent.right_potential_nonpos_of_augmented_gap
   unitIntervalLogPotential_nonpos_of_not_mem_augmented
     (C.right_not_mem_augmented_of_augmented_gap hδ haug_gap)
 
+theorem PositiveComponent.exists_right_Icc_disjoint_augmented_of_not_mem_closure
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hclosure :
+      C.right ∉ closure (unitIntervalAugmentedPositiveSet μ)) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Icc C.right (C.right + δ) ∩ unitIntervalAugmentedPositiveSet μ =
+        ∅ := by
+  have hcompl_open :
+      IsOpen ((closure (unitIntervalAugmentedPositiveSet μ))ᶜ) :=
+    isClosed_closure.isOpen_compl
+  have hright_compl :
+      C.right ∈ (closure (unitIntervalAugmentedPositiveSet μ))ᶜ :=
+    hclosure
+  rcases Metric.mem_nhds_iff.1 (hcompl_open.mem_nhds hright_compl) with
+    ⟨ε, hε, hball⟩
+  refine ⟨ε / 2, by linarith, ?_⟩
+  ext y
+  constructor
+  · intro hy
+    rcases hy with ⟨hyIcc, hyAug⟩
+    have hy_ball : y ∈ Metric.ball C.right ε := by
+      rw [Metric.mem_ball, Real.dist_eq, abs_sub_lt_iff]
+      constructor <;> linarith [hyIcc.1, hyIcc.2, hε]
+    have hy_not_closure :
+        y ∈ (closure (unitIntervalAugmentedPositiveSet μ))ᶜ :=
+      hball hy_ball
+    exact hy_not_closure (subset_closure hyAug)
+  · intro hy
+    exact False.elim hy
+
 theorem PositiveComponent.right_gap_union_of_augmented_gap_not_mem_support
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
