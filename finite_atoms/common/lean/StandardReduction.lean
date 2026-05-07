@@ -24538,6 +24538,77 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       hε, hright_pos, hδ, hmax, hspan_aug, hbaseline, hright_gap, hzero⟩
 
 /--
+Not-support auto-tail provider where the component replacement is built from the
+endpoint atom.  This is the endpoint-atom analogue of the support-point bridge,
+but it does not require a right-gap witness.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_autoTail_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanNotSupportAutoTailZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          C.right ∉ (realMeasure μ).support ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_not_support_autoTail_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanNotSupportAutoTailZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support, hzero⟩
+  have hendpoint_real_pos :
+      0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩
+  have hendpoint_mem : (-1 : ℝ) ∈ C.interval :=
+    C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+      hε hmax hbaseline hleft_aug hendpoint_unit_pos
+  have hmass_pos : 0 < componentMass C :=
+    componentMass_pos_of_support_mem_interval
+      (realMeasure_mem_support_of_singleton_pos hendpoint_real_pos)
+      hendpoint_mem
+  exact
+    ⟨C, ComponentReplacement.of_mass_pos C hmass_pos, ε,
+      hε, hright_pos, hmax, hspan_aug, hbaseline, hnot_support, hzero⟩
+
+/--
 Right-gap auto-tail provider where the component support point is the endpoint
 atom `-1`.  The endpoint atom hypothesis supplies the support point needed to
 build positive component mass.
