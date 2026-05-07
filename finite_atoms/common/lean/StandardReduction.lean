@@ -13029,6 +13029,45 @@ theorem normalizedComponentBlock_eq_dirac_endpoint_of_componentBlock_secondMomen
       R hdirac_bary hunique
   simpa [hbary_endpoint] using hdirac_bary
 
+/--
+Endpoint atomization from the real replacement-rigidity inputs.  Secondary
+minimality first gives Dirac atomization at the barycenter; support uniqueness
+inside the selected component then identifies that barycenter with `-1`.
+-/
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ)
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+  have hdirac_bary :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C) :=
+    normalizedComponentBlock_eq_dirac_barycenter_of_secondary_minimality
+      R hmass_unit hsupport hPrimary hSecondary hprimary_replacement
+  have hbary_endpoint : componentBarycenter C = -1 :=
+    componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+      R hdirac_bary hunique
+  simpa [hbary_endpoint] using hdirac_bary
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
