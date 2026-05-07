@@ -3561,6 +3561,40 @@ theorem exists_positiveComponent_baseline_of_connectedComponentIn_bdd
   exact hbase_conn hy
 
 /--
+Endpoint-lower-bound version of baseline connected-component selection.  The
+base point is fixed at `-1/2`, so the baseline intersection is concrete and the
+baseline positivity is derived from the endpoint lower bound.
+-/
+theorem exists_positiveComponent_baseline_of_endpoint_lower_bound_connectedComponentIn_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ))))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ)))) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      (Ioo (-1 : ℝ) 0 ∩ C.interval).Nonempty := by
+  have hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ) :=
+    normalized_endpoint_lower_bound_baseline_neg_one_zero_positive hp hendpoint
+  have hxbase : (-(1 / 2 : ℝ)) ∈ Ioo (-1 : ℝ) 0 := by norm_num
+  rcases exists_positiveComponent_baseline_of_connectedComponentIn_bdd
+      (μ := μ) (x := (-(1 / 2 : ℝ)))
+      hopen hxbase hbaseline hbddBelow hbddAbove with
+    ⟨C, hmax, hbaseline_C⟩
+  refine ⟨C, hmax, hbaseline_C, ?_⟩
+  exact ⟨-(1 / 2 : ℝ), hxbase, hbaseline_C hxbase⟩
+
+/--
 Baseline connected-component selection with a right-positive witness.  This is
 the selected-component constructor in the form needed by the boundary-average
 part of the standard reduction: the baseline lies inside the selected
