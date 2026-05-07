@@ -922,6 +922,12 @@ Useful corrections already recorded:
   `--audit-chart-contract` and can be fed to the full-pair gauge-choice audit.
   This fixes the expected output shape for any future
   `CompactG2MovingChartEquations` solver.
+- New end-to-end command: `--run-chart-pipeline`.  It runs the contract audit,
+  repaired extraction, endpoint-period quotient check, full-pair gauge-choice
+  audit, and LRLR rho/affine row audits, then reports explicit blockers.  The
+  synthetic chart runs through the pipeline and blocks only at split LRLR
+  signs; the old one-cut diagnostic stops at the contract layer.  This is now
+  the single acceptance command for any future compact chart JSON.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

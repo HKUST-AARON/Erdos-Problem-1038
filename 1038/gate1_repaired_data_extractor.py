@@ -2737,6 +2737,102 @@ def run_chart_json(path: Path) -> dict[str, Any]:
     return result
 
 
+def run_gate1_chart_pipeline(
+    path: Path,
+    samples: int = 32,
+    nodes: int = 100,
+    lambda_min: float = -10.0,
+    lambda_max: float = 10.0,
+    lambda_samples: int = 41,
+) -> dict[str, Any]:
+    """Run the current Gate 1 chart handoff pipeline on a candidate chart."""
+    contract = chart_contract_audit(path)
+    blockers: list[str] = []
+    repaired_payload: dict[str, Any] | None = None
+    full_pair_payload: dict[str, Any] | None = None
+
+    if not contract["extractor_ready"]:
+        blockers.append("chart is not extractor-ready")
+    else:
+        try:
+            repaired_payload = run_chart_json(path)
+        except ValueError as exc:
+            blockers.append(f"repaired extraction failed: {exc}")
+
+    if not contract["lrlr_ready"]:
+        blockers.append("chart is not LRLR-ready")
+    elif repaired_payload is not None:
+        try:
+            P, Q, gammas, _rows, source = load_chart_json(path)
+            full_pair_payload = full_pair_gauge_choice_audit(
+                P,
+                Q,
+                gammas,
+                source=source,
+                samples=samples,
+                nodes=nodes,
+                lambda_min=lambda_min,
+                lambda_max=lambda_max,
+                lambda_samples=lambda_samples,
+            )
+        except ValueError as exc:
+            blockers.append(f"full-pair/LRLR audit failed: {exc}")
+
+    if not contract["global_gate1_contract_ready"]:
+        blockers.append("chart lacks global Gate 1 fields kappa and/or Z0")
+
+    accepted_choices = full_pair_payload.get("accepted_choices", []) if full_pair_payload else []
+    rho_fixed_choices = [
+        choice
+        for choice in accepted_choices
+        if choice.get("lrlr_projective_sign_fixed_nonzero") is True
+    ]
+    affine_fixed_choices = [
+        choice
+        for choice in accepted_choices
+        if int(choice.get("affine_fixed_nonzero_lambda_count") or 0) > 0
+    ]
+    if full_pair_payload is not None and not accepted_choices:
+        blockers.append("no accepted exterior full-pair omitted-pole gauge choices")
+    if full_pair_payload is not None and accepted_choices and not rho_fixed_choices:
+        blockers.append("no accepted gauge has fixed nonzero LRLR rho projective sign in this audit")
+    return {
+        "model": "Gate 1 chart pipeline",
+        "path": str(path),
+        "contract": contract,
+        "repaired_summary": None
+        if repaired_payload is None
+        else {
+            "det_A": repaired_payload["repaired"]["det_A"],
+            "cond_A": repaired_payload["repaired"]["cond_A"],
+            "max_abs_AX_plus_r": repaired_payload["repaired"]["max_abs_AX_plus_r"],
+            "max_abs_chart_row_after_repair": repaired_payload["repaired"][
+                "max_abs_chart_row_after_repair"
+            ],
+            "period_quotient_remainder": repaired_payload["period_endpoint_quotient"][
+                "max_abs_remainder_after_dividing_by_D"
+            ],
+            "has_anchor_rho": "anchor_rho" in repaired_payload,
+            "has_right_exterior_potentials": "right_exterior_potentials" in repaired_payload,
+        },
+        "full_pair_gauge_choice_summary": None
+        if full_pair_payload is None
+        else {
+            "accepted_choice_count": full_pair_payload["accepted_choice_count"],
+            "accepted_choices": full_pair_payload["accepted_choices"],
+            "pole_row_subset_summary": full_pair_payload["pole_row_subset_summary"],
+        },
+        "rho_fixed_choice_count": len(rho_fixed_choices),
+        "affine_fixed_choice_count": len(affine_fixed_choices),
+        "proof_interpretation_allowed": (
+            contract["global_gate1_contract_ready"]
+            and repaired_payload is not None
+            and full_pair_payload is not None
+        ),
+        "blockers": blockers,
+    }
+
+
 def parse_float_list(raw: str) -> list[float]:
     return [float(part) for part in raw.split(",") if part.strip()]
 
@@ -2768,6 +2864,7 @@ def main() -> int:
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--audit-chart-contract", action="store_true", help="check the current Gate 1 chart JSON contract")
+    parser.add_argument("--run-chart-pipeline", action="store_true", help="run contract, repaired extraction, gauge choice, and LRLR audits")
     parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
     parser.add_argument(
@@ -2862,6 +2959,47 @@ def main() -> int:
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.run_chart_pipeline:
+        if not args.chart_json:
+            parser.error("--run-chart-pipeline requires --chart-json")
+        payload = run_gate1_chart_pipeline(
+            Path(args.chart_json),
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+            lambda_min=args.lambda_min,
+            lambda_max=args.lambda_max,
+            lambda_samples=args.lambda_samples,
+        )
+        print("Gate 1 chart pipeline")
+        print(f"  path = {payload['path']}")
+        print(
+            "  ready flags = "
+            f"extractor:{payload['contract']['extractor_ready']} "
+            f"LRLR:{payload['contract']['lrlr_ready']} "
+            f"global:{payload['contract']['global_gate1_contract_ready']}"
+        )
+        print(f"  proof interpretation allowed = {payload['proof_interpretation_allowed']}")
+        print(f"  repaired summary = {payload['repaired_summary']}")
+        print(f"  rho fixed choices = {payload['rho_fixed_choice_count']}")
+        print(f"  affine fixed choices = {payload['affine_fixed_choice_count']}")
+        if payload["full_pair_gauge_choice_summary"] is not None:
+            summary = payload["full_pair_gauge_choice_summary"]
+            print(f"  accepted full-pair choices = {summary['accepted_choice_count']}")
+            for choice in summary["accepted_choices"]:
+                print(
+                    "    accepted omitted = "
+                    f"{choice['omitted_q_pole_index']} / {choice['omitted_q_pole']}; "
+                    f"rho fixed = {choice.get('lrlr_projective_sign_fixed_nonzero')}; "
+                    f"affine fixed = {choice.get('affine_fixed_nonzero_lambda_count')} / "
+                    f"{choice.get('affine_lambda_samples')}"
+                )
+        print(f"  blockers = {payload['blockers']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
         return 0
 

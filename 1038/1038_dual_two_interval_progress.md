@@ -16494,6 +16494,51 @@ theorem queue.
     output a JSON file of exactly this form, after replacing the toy or TODO
     data by the actual compact non-pinched \(g=2\) solution.
 
+    End-to-end chart pipeline.
+
+    The individual contract, extraction, gauge, and LRLR checks are now
+    bundled into one command:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --chart-json PATH --run-chart-pipeline
+    ```
+
+    The pipeline runs:
+
+    1.  `--audit-chart-contract`;
+    2.  repaired moving-Schiffer extraction and endpoint-period quotient
+        residual;
+    3.  full-pair omitted-pole gauge-choice audit;
+    4.  LRLR \(\rho\)-row and affine \(b-\Lambda\rho\) projective sign audits
+        whenever the contract allows them.
+
+    Its output includes a `blockers` list.  On the synthetic complete chart,
+    the pipeline is allowed to interpret the data, computes the repaired rows
+    with \(\max|AX+r|\approx3.1\cdot10^{-13}\), accepts two exterior full-pair
+    omitted-pole choices, and then records the actual blocker:
+
+    \[
+    \texttt{no accepted gauge has fixed nonzero LRLR rho projective sign in
+    this audit}.
+    \]
+
+    On the old one-cut diagnostic JSON, the same pipeline stops at the
+    contract level:
+
+    \[
+    \texttt{chart is not extractor-ready},\quad
+    \texttt{chart is not LRLR-ready},\quad
+    \texttt{chart lacks global Gate 1 fields kappa and/or Z0}.
+    \]
+
+    Therefore a future compact-chart computation has a single acceptance
+    command.  If it returns no blockers and a fixed LRLR sign for an accepted
+    gauge, the remaining Gate 1 discussion can move from schema/gauge
+    readiness to proof-grade interval certification of that sign.  If it
+    returns a split sign, the next branch is compact affine contact
+    verification rather than more schema work.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
