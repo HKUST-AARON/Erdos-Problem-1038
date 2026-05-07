@@ -318,6 +318,16 @@ Useful corrections already recorded:
   \(P_\theta/(Q^2R)\).  This certified oracle would prove
   `MovingSchifferMajorantSignTheorem`; failed denominator/contact/chart boxes
   route to Gate 3.
+- `RepairedSchifferDataExtractorSoundness` now fixes the oracle input: solve
+  \(AX_\gamma=-r_\gamma\) with
+  \(B(\Delta P,\Delta Q)=QD\,\Delta P-PD\,\Delta Q\) and
+  \(h_\gamma^{raw}=-\frac12PQD_\gamma\), then set
+  \(H_\gamma^{rep}=h_\gamma^{raw}-BA^{-1}r_\gamma\),
+  \(C_\gamma=H_\gamma^{rep}/(Q^2R)\),
+  \(\rho_\gamma=-C_\gamma(c)\), and
+  \(b_\gamma=aV_\gamma(u)+bV_\gamma(v)\).  The extractor proves the repaired
+  columns satisfy the moving-chart rows; it still leaves the
+  \(P_\theta\)-majorant sign theorem as the active hard mouth.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

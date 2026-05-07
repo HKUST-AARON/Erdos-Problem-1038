@@ -12483,6 +12483,183 @@ theorem queue.
     and \(AX_\gamma=-r_\gamma\).  Without that extractor, any numerical
     margin calculation is testing the wrong object.
 
+    Repaired moving-Schiffer data extractor.
+
+    We now make that extractor explicit.  This is still linear algebra, not a
+    sign theorem, but it fixes the exact data that every Gate 1 oracle must
+    consume.
+
+    Fix the regular moving chart data
+
+    \[
+    D(z)=\prod_{\delta\in\Gamma}(z-\delta),
+    \qquad
+    \Gamma=\{\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \]
+
+    and the numerator/pole pair \(P,Q\) with \(Q\) monic and separated from
+    \(J\cup\{u,c,v\}\).  Let
+
+    \[
+    \mathcal X=\mathcal X_P\oplus\mathcal X_Q
+    \]
+
+    be the allowed coefficient space for \((\Delta P,\Delta Q)\) after the
+    monic-\(Q\) gauge has removed the leading \(Q\)-coefficient.  Define the
+    moving correction map
+
+    \[
+    \boxed{
+    B(\Delta P,\Delta Q)=QD\,\Delta P-PD\,\Delta Q.
+    }
+    \tag{G1ExtractorB}
+    \]
+
+    Let
+
+    \[
+    h_\gamma^{raw}=-\frac12PQD_\gamma,
+    \qquad D_\gamma=D/(z-\gamma).
+    \]
+
+    The chart rows are a fixed ordered list
+
+    \[
+    \ell=(\ell_1,\ldots,\ell_N)
+    \]
+
+    consisting of the rows that must remain fixed under an endpoint Schiffer
+    move: zero mass, the chosen free-period/filling convention if it is not
+    quotiented, moving-\(Q\) gauge rows, pole/residue-state rows, and any
+    regular chart equality rows.  The anchor row \(R_c\) is not in this list;
+    it is corrected later by the boundary-neutral bump pair.  In the regular
+    non-pinched chart \(N=\dim\mathcal X\) and the square matrix
+
+    \[
+    \boxed{
+    A_{\ell,X}=\ell(BX)
+    }
+    \tag{G1ExtractorA}
+    \]
+
+    is invertible.  If it is not invertible, the point is a chart-rank
+    boundary case and is routed to Gate 3.
+
+    For each endpoint \(\gamma\), set
+
+    \[
+    r_\gamma=\ell(h_\gamma^{raw})
+    \tag{G1ExtractorR}
+    \]
+
+    and solve
+
+    \[
+    \boxed{
+    AX_\gamma=-r_\gamma.
+    }
+    \tag{G1ExtractorSolve}
+    \]
+
+    Then define
+
+    \[
+    \boxed{
+    H_\gamma^{rep}=h_\gamma^{raw}+BX_\gamma
+    =
+    -\frac12PQD_\gamma-BA^{-1}r_\gamma.
+    }
+    \tag{G1ExtractorH}
+    \]
+
+    The endpoint Cauchy column and potential column are
+
+    \[
+    C_\gamma(z)=\frac{H_\gamma^{rep}(z)}{Q(z)^2R(z)},
+    \qquad
+    V_\gamma(s)=\int_s^\infty C_\gamma(y)\,dy
+    \]
+
+    with the usual continuous boundary value on \(Z_0\).  The period column is
+
+    \[
+    H_\Pi=\kappa Q^2,\qquad
+    C_\Pi=\frac{\kappa}{R},\qquad
+    V_\Pi(s)=\int_s^\infty C_\Pi(y)\,dy,
+    \]
+
+    with the sign of \(\kappa\) chosen to match the oriented positive
+    period-transfer density.  Finally set
+
+    \[
+    \boxed{
+    \rho_j=-C_j(c),\qquad
+    b_j=aV_j(u)+bV_j(v),
+    \qquad j\in\{\Pi\}\cup\Gamma.
+    }
+    \tag{G1ExtractorRows}
+    \]
+
+    \[
+    V_S=(V_{\alpha_1},V_{\beta_1},V_{\alpha_2},V_{\beta_2})^T,
+    \quad
+    \rho_S=(\rho_{\alpha_1},\rho_{\beta_1},\rho_{\alpha_2},\rho_{\beta_2})^T,
+    \quad
+    b_S=(b_{\alpha_1},b_{\beta_1},b_{\alpha_2},b_{\beta_2})^T.
+    \]
+
+    The extractor has the following correctness property.
+
+    \[
+    \boxed{\textbf{RepairedSchifferDataExtractorSoundness}.}
+    }
+    \]
+
+    If \(A\) is invertible, then:
+
+    1.  every repaired endpoint column satisfies all moving-chart rows,
+
+        \[
+        \ell(H_\gamma^{rep})=0;
+        \]
+
+    2.  in particular, if the zero-mass row is included in \(\ell\), then
+        \(R_0(G_\gamma)=0\);
+
+    3.  the anchor/equality correction data are exactly the rows
+        \(\rho_\gamma=-C_\gamma(c)\), because \(R_c\) was deliberately not
+        included in \(A\);
+
+    4.  the reduced boundary entries are exactly
+        \(b_\gamma=aV_\gamma(u)+bV_\gamma(v)\), since the equality correctors
+        are chosen boundary-neutral.
+
+    Proof.  By construction
+
+    \[
+    \ell(H_\gamma^{rep})
+    =
+    \ell(h_\gamma^{raw})+\ell(BX_\gamma)
+    =
+    r_\gamma+AX_\gamma
+    =
+    0.
+    \]
+
+    The zero-mass statement is the zero-mass component of this row identity.
+    Since \(R_c\) is not a row of \(A\), it is not forced by the moving-chart
+    solve and remains precisely the scalar \(-C_\gamma(c)\) that the
+    boundary-neutral bump correction removes.  Boundary neutrality gives
+    \(B_{\rm red}(G_\gamma)=B_{\rm safe}(G_\gamma)\), and the anchored neck
+    identity gives \(B_{\rm safe}(G_\gamma)=aV_\gamma(u)+bV_\gamma(v)\).
+    This proves the extractor formulas.  \(\square\)
+
+    Thus the data needed by CertifiedMajorantOracleSoundness are now
+    specified without ambiguity.  The next proof task is not to define more
+    rows, but to either evaluate this extractor in the concrete moving chart
+    or prove a signed \(P_\theta\)-alternation theorem from the extracted
+    columns.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
