@@ -7665,6 +7665,33 @@ theorem exists_positiveComponent_of_truncated_interval_disjoint_diagonal
   refine ⟨PositiveComponent.of_interval_subset_positiveSet hlr hpos,
     rfl, rfl, rfl⟩
 
+/--
+Baseline-interval specialization of the off-diagonal truncated-interval
+component constructor.  This isolates the precise analytic inputs needed before
+the selected component can be made to contain Tao's baseline interval.
+-/
+theorem exists_positiveComponent_containing_baseline_of_truncated_baseline
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    (hbaseline_trunc :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) 0 ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 ≤ C.right := by
+  rcases exists_positiveComponent_of_truncated_interval_disjoint_diagonal
+      μ hlog_int (by norm_num : (-1 : ℝ) < 0)
+      hbaseline_trunc hbaseline_no_diag with
+    ⟨C, hleft, hright, hinterval⟩
+  refine ⟨C, hinterval, ?_, ?_⟩
+  · rw [hinterval]
+  · rw [hright]
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
