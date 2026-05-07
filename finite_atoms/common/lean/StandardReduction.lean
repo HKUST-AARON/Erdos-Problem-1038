@@ -8518,6 +8518,29 @@ theorem unitIntervalTruncatedPositiveSet_exists_right_neighborhood_of_zero
   exact hsub ⟨lt_trans hl0 hx.1, hx.2⟩
 
 /--
+Off-diagonal decomposition for an interval spanning across `0`.  To show the
+whole span `(-1, δ)` avoids diagonal atoms, it is enough to check the baseline
+side, the point `0`, and the positive right neighbourhood separately.
+-/
+theorem disjoint_Ioo_neg_one_delta_diagonal_of_parts
+    {μ : ProbabilityMeasure UnitInterval1038} {δ : ℝ}
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ))
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hright_no_diag :
+      Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ) := by
+  rw [Set.disjoint_left]
+  intro x hxspan hxdiag
+  by_cases hxneg : x < 0
+  · exact hbaseline_no_diag.le_bot ⟨⟨hxspan.1, hxneg⟩, hxdiag⟩
+  · have hx_nonneg : 0 ≤ x := le_of_not_gt hxneg
+    by_cases hxzero : x = 0
+    · exact hzero_no_diag (by simpa [hxzero] using hxdiag)
+    · have hxpos : 0 < x := lt_of_le_of_ne hx_nonneg (Ne.symm hxzero)
+      exact hright_no_diag.le_bot ⟨⟨hxpos, hxspan.2⟩, hxdiag⟩
+
+/--
 Component constructor from truncated baseline positivity plus a truncated
 positive right neighbourhood of `0`.  The remaining off-diagonal hypothesis is
 exactly the existing truncated-to-ordinary bridge requirement.
