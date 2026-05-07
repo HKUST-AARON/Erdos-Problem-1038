@@ -4315,6 +4315,44 @@ theorem PositiveComponent.spanning_augmented_subset_interval_of_augmentedInterva
     hspan_aug
     hinter
 
+theorem PositiveComponent.right_gap_union_of_augmented_gap_not_mem_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
+    (haug_gap :
+      Icc C.right (C.right + δ₀) ∩ unitIntervalAugmentedPositiveSet μ = ∅)
+    (hsupport : C.right ∉ (realMeasure μ).support) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ := by
+  rcases realMeasure_exists_right_Icc_disjoint_support_of_not_mem_support
+      μ hsupport with
+    ⟨δ₁, hδ₁, hsupport_gap⟩
+  refine ⟨min δ₀ δ₁, lt_min hδ₀ hδ₁, ?_⟩
+  ext y
+  constructor
+  · intro hy
+    rcases hy with ⟨hyIcc, hyUnion⟩
+    cases hyUnion with
+    | inl hyAug =>
+        have hyIcc₀ : y ∈ Icc C.right (C.right + δ₀) := by
+          exact ⟨hyIcc.1, by linarith [hyIcc.2, min_le_left δ₀ δ₁]⟩
+        have hyEmpty : y ∈
+            Icc C.right (C.right + δ₀) ∩ unitIntervalAugmentedPositiveSet μ :=
+          ⟨hyIcc₀, hyAug⟩
+        rw [haug_gap] at hyEmpty
+        exact False.elim hyEmpty
+    | inr hySupport =>
+        have hyIcc₁ : y ∈ Icc C.right (C.right + δ₁) := by
+          exact ⟨hyIcc.1, by linarith [hyIcc.2, min_le_right δ₀ δ₁]⟩
+        have hyEmpty : y ∈ Icc C.right (C.right + δ₁) ∩
+            (realMeasure μ).support :=
+          ⟨hyIcc₁, hySupport⟩
+        rw [hsupport_gap] at hyEmpty
+        exact False.elim hyEmpty
+  · intro hy
+    exact False.elim hy
+
 /--
 A right gap excluding augmented-positive/support points also excludes the right
 endpoint itself.
