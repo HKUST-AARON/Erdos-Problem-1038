@@ -2462,6 +2462,32 @@ lemma diagonalAtomSet_volume_zero (μ : ProbabilityMeasure UnitInterval1038) :
     volume (diagonalAtomSet μ) = 0 := by
   exact Set.Countable.measure_zero (diagonalAtomSet_countable μ) volume
 
+theorem realMeasure_mem_support_of_singleton_pos
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
+    x ∈ (realMeasure μ).support := by
+  rw [Measure.mem_support_iff_forall]
+  intro U hU
+  have hxU : x ∈ U := mem_of_mem_nhds hU
+  have hsingleton_subset : ({x} : Set ℝ) ⊆ U := by
+    intro y hy
+    simpa [Set.mem_singleton_iff.mp hy] using hxU
+  have hle : realMeasure μ ({x} : Set ℝ) ≤ realMeasure μ U :=
+    measure_mono hsingleton_subset
+  exact lt_of_lt_of_le hpos hle
+
+theorem notMem_diagonalAtomSet_of_not_mem_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hnot_support : x ∉ (realMeasure μ).support) :
+    x ∉ diagonalAtomSet μ := by
+  intro hxdiag
+  have hreal_pos : 0 < realMeasure μ ({x} : Set ℝ) := by
+    rw [realMeasure]
+    rw [Measure.map_apply continuous_subtype_val.measurable
+      (measurableSet_singleton x)]
+    simpa [diagonalAtomSet, Set.preimage, Set.mem_singleton_iff] using hxdiag
+  exact hnot_support (realMeasure_mem_support_of_singleton_pos hreal_pos)
+
 /--
 Positive set enlarged by the diagonal atom set.
 
@@ -2569,6 +2595,25 @@ theorem unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support
     exact unitIntervalLogPotential_eq_realMeasure μ y
   rw [hfun]
   exact hcont
+
+theorem unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038) {s : Set ℝ}
+    (hsupport : Disjoint s (realMeasure μ).support) :
+    ContinuousOn (unitIntervalLogPotential μ) s := by
+  intro x hx
+  exact (unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+    (fun hxsupport => hsupport.le_bot ⟨hx, hxsupport⟩)).continuousWithinAt
+
+theorem disjoint_diagonalAtomSet_of_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
+    (hsupport : Disjoint s (realMeasure μ).support) :
+    Disjoint s (diagonalAtomSet μ) := by
+  rw [Set.disjoint_left]
+  intro x hx hxdiag
+  have hxnot_support : x ∉ (realMeasure μ).support := by
+    intro hxsupport
+    exact hsupport.le_bot ⟨hx, hxsupport⟩
+  exact (notMem_diagonalAtomSet_of_not_mem_realMeasure_support hxnot_support) hxdiag
 
 /-! ## Concrete reflection/translation normalization map -/
 
@@ -10708,6 +10753,34 @@ theorem unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
   exact mem_unitIntervalTruncatedPositiveSet_of_baseline_local_compact_data
     hx htruncε (hlocal x hx)
 
+theorem unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_support_data
+    {μ : ProbabilityMeasure UnitInterval1038} {truncε : ℝ}
+    (htruncε : 0 < truncε)
+    (hlocal :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold : ℝ, 0 < threshold →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2))) :
+    Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ := by
+  refine unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
+    htruncε ?_
+  intro x hx a b hxab hsub_base
+  rcases hlocal x hx a b hxab hsub_base with
+    ⟨hsupport, hpos, htail⟩
+  exact
+    ⟨unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support μ
+        hsupport,
+      hpos,
+      disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport,
+      htail⟩
+
 /--
 The local compact baseline data already contains off-diagonal information on a
 compact neighbourhood of each baseline point.  Therefore the entire baseline
@@ -14740,32 +14813,6 @@ theorem exists_componentReplacement_truncatedObjective_nonincrease_of_support_me
   exact ⟨R,
     componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
       R horiginal_positive_le_truncated⟩
-
-theorem realMeasure_mem_support_of_singleton_pos
-    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
-    (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
-    x ∈ (realMeasure μ).support := by
-  rw [Measure.mem_support_iff_forall]
-  intro U hU
-  have hxU : x ∈ U := mem_of_mem_nhds hU
-  have hsingleton_subset : ({x} : Set ℝ) ⊆ U := by
-    intro y hy
-    simpa [Set.mem_singleton_iff.mp hy] using hxU
-  have hle : realMeasure μ ({x} : Set ℝ) ≤ realMeasure μ U :=
-    measure_mono hsingleton_subset
-  exact lt_of_lt_of_le hpos hle
-
-theorem notMem_diagonalAtomSet_of_not_mem_realMeasure_support
-    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
-    (hnot_support : x ∉ (realMeasure μ).support) :
-    x ∉ diagonalAtomSet μ := by
-  intro hxdiag
-  have hreal_pos : 0 < realMeasure μ ({x} : Set ℝ) := by
-    rw [realMeasure]
-    rw [Measure.map_apply continuous_subtype_val.measurable
-      (measurableSet_singleton x)]
-    simpa [diagonalAtomSet, Set.preimage, Set.mem_singleton_iff] using hxdiag
-  exact hnot_support (realMeasure_mem_support_of_singleton_pos hreal_pos)
 
 theorem realMeasure_exists_right_Icc_disjoint_support_and_diagonal_of_not_mem_support
     (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
