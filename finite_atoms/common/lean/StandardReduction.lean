@@ -3208,6 +3208,60 @@ theorem positiveSet_connectedComponentIn_mem_of_between
   exact (positiveSet_connectedComponentIn_ordConnected (U := U) x).out
     ha hb ⟨haz, hzb⟩
 
+/--
+A bounded open selected connected component is exactly the open interval
+between its `sInf` and `sSup`.  This is the endpoint representation needed to
+turn a topologically selected connected component into the existing
+`PositiveComponent` API.
+-/
+theorem positiveSet_connectedComponentIn_eq_Ioo_csInf_csSup
+    {U : ℝ → ℝ} {x : ℝ}
+    (hopen : IsOpen (PositiveSet U))
+    (hxpos : x ∈ PositiveSet U)
+    (hbddBelow : BddBelow (connectedComponentIn (PositiveSet U) x))
+    (hbddAbove : BddAbove (connectedComponentIn (PositiveSet U) x)) :
+    connectedComponentIn (PositiveSet U) x =
+      Ioo (sInf (connectedComponentIn (PositiveSet U) x))
+        (sSup (connectedComponentIn (PositiveSet U) x)) := by
+  let S : Set ℝ := connectedComponentIn (PositiveSet U) x
+  have hSopen : IsOpen S := by
+    simpa [S] using positiveSet_connectedComponentIn_isOpen hopen x
+  have hSconn : IsConnected S := by
+    simpa [S] using (isConnected_connectedComponentIn_iff.mpr hxpos)
+  apply Subset.antisymm
+  · intro y hyS
+    have hlocal :
+        ∃ l r : ℝ, l < y ∧ y < r ∧ Ioo l r ⊆ S := by
+      rcases positiveSet_connectedComponentIn_exists_interval_around
+          (U := U) (x := x) (y := y) hopen (by simpa [S] using hyS) with
+        ⟨l, r, hly, hyr, hsub⟩
+      exact ⟨l, r, hly, hyr, by simpa [S] using hsub⟩
+    rcases hlocal with ⟨l, r, hly, hyr, hsub⟩
+    let yl : ℝ := (l + y) / 2
+    let yr : ℝ := (y + r) / 2
+    have hyl_mem : yl ∈ S := by
+      apply hsub
+      constructor <;> dsimp [yl] <;> linarith
+    have hyr_mem : yr ∈ S := by
+      apply hsub
+      constructor <;> dsimp [yr] <;> linarith
+    have hInf_lt : sInf S < y := by
+      have hle : sInf S ≤ yl := csInf_le (by simpa [S] using hbddBelow) hyl_mem
+      have hyll : yl < y := by dsimp [yl]; linarith
+      exact lt_of_le_of_lt hle hyll
+    have hltSup : y < sSup S := by
+      have hle : yr ≤ sSup S := le_csSup (by simpa [S] using hbddAbove) hyr_mem
+      have hyrr : y < yr := by dsimp [yr]; linarith
+      exact lt_of_lt_of_le hyrr hle
+    exact ⟨by simpa [S] using hInf_lt, by simpa [S] using hltSup⟩
+  · intro y hy
+    have hsubset :
+        Ioo (sInf S) (sSup S) ⊆ S :=
+      hSconn.Ioo_csInf_csSup_subset
+        (by simpa [S] using hbddBelow)
+        (by simpa [S] using hbddAbove)
+    exact hsubset (by simpa [S] using hy)
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
