@@ -4040,6 +4040,58 @@ theorem PositiveComponent.no_positive_interval_crosses_right
   rw [C.interval_eq] at hright_mem
   exact (lt_irrefl C.right) hright_mem.2
 
+theorem PositiveComponent.no_augmented_interval_from_component_point_crosses_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.AugmentedIntervalMaximal)
+    {x r : ℝ}
+    (hx : x ∈ C.interval)
+    (hr : C.right < r)
+    (haug : Ioo x r ⊆ unitIntervalAugmentedPositiveSet μ) :
+    False := by
+  rw [C.interval_eq] at hx
+  have hinter : (Ioo x r ∩ C.interval).Nonempty := by
+    let y : ℝ := (x + C.right) / 2
+    refine ⟨y, ?_⟩
+    constructor
+    · constructor
+      · dsimp [y]
+        linarith [hx.2]
+      · dsimp [y]
+        linarith [hx.2, hr]
+    · rw [C.interval_eq]
+      constructor
+      · dsimp [y]
+        linarith [hx.1, hx.2]
+      · dsimp [y]
+        linarith [hx.2]
+  exact C.no_augmented_interval_crosses_right hmax hx.2 hr haug hinter
+
+theorem PositiveComponent.no_positive_interval_from_component_point_crosses_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    {x r : ℝ}
+    (hx : x ∈ C.interval)
+    (hr : C.right < r)
+    (hpos : Ioo x r ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    False := by
+  rw [C.interval_eq] at hx
+  have hinter : (Ioo x r ∩ C.interval).Nonempty := by
+    let y : ℝ := (x + C.right) / 2
+    refine ⟨y, ?_⟩
+    constructor
+    · constructor
+      · dsimp [y]
+        linarith [hx.2]
+      · dsimp [y]
+        linarith [hx.2, hr]
+    · rw [C.interval_eq]
+      constructor
+      · dsimp [y]
+        linarith [hx.1, hx.2]
+      · dsimp [y]
+        linarith [hx.2]
+  exact C.no_positive_interval_crosses_right hmax hx.2 hr hpos hinter
+
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
 local no-diagonal condition for augmented competing intervals.  This combines
