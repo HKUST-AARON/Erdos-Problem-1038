@@ -11613,6 +11613,26 @@ theorem componentMass_pos_of_support_mem_interval
   unfold componentMass
   exact lt_of_le_of_ne bot_le (Ne.symm hne)
 
+/--
+Support-point version of the concrete replacement package.  Once the selected
+component contains a topological support point, all replacement data needed by
+the downstream variation argument are constructed automatically.
+-/
+theorem exists_componentReplacement_probability_data_of_support_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {t : ℝ}
+    (htSupport : t ∈ (realMeasure μ).support)
+    (htInterval : t ∈ C.interval) :
+    ∃ R : ComponentReplacement μ C,
+    ∃ hmass_unit : componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1,
+      componentBarycenter C ∈ Icc (-1 : ℝ) 1 ∧
+      (∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) ∧
+      unitIntervalLogPotential
+          (componentReplacementProbability C hmass_unit) =
+        componentReplacementPotential C :=
+  exists_componentReplacement_probability_data_of_componentMass_pos
+    (componentMass_pos_of_support_mem_interval htSupport htInterval)
+
 theorem realMeasure_mem_support_of_singleton_pos
     {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
     (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
