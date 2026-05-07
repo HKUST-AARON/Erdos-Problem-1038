@@ -15826,7 +15826,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_replacement_rigidity_zero_neighborhood_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_atomization_component_data
       ?_
   intro μ hPrimary hSecondary
   rcases hComponentReplacementAutoTailReplacementRigidityAtomizationDataFromVariation
@@ -15835,10 +15835,9 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       xMinus, xPlus, hcomponent_interval, hbaseline, hright,
       hboundary, hcomponent_atomized⟩
   exact
-    ⟨mean_choice, reflected, translation, C, R,
+    ⟨mean_choice, reflected, translation, C,
       xMinus, xPlus, hcomponent_interval, hbaseline, hright, hboundary,
-      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
-        hcomponent_atomized⟩
+      hcomponent_atomized⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_replacement_auto_tail_replacement_rigidity_normalized_atomization_data
     (hComponentReplacementAutoTailReplacementRigidityNormalizedAtomizationDataFromVariation :
