@@ -995,6 +995,159 @@ def endpoint_heavy_connection_sweep(nodes: int = 32) -> dict[str, Any]:
     }
 
 
+def endpoint_heavy_mixed_connection_continuation(
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    samples: int = 30,
+    nodes: int = 80,
+) -> dict[str, Any]:
+    """Continuation scan for the four mixed endpoint-heavy patterns.
+
+    One interior contact is used as the continuation parameter.  For each
+    sampled parameter value, the two within-component zero-integral equations
+    solve for the remaining two numerator roots.  This is diagnostic evidence
+    for the mixed connection-sign theorem, not an interval proof.
+    """
+    from scipy.optimize import root
+
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError(
+            f"omitted pole {omitted_pole} lies in the connection gap ({b1}, {a2}); "
+            "ordinary mixed continuation requires an exterior omitted pole"
+        )
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        if right < left:
+            return -integrate_cut(poly, right, left)
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def sigmoid_interval(raw: float, left: float, right: float) -> float:
+        return left + (right - left) / (1.0 + math.exp(-raw))
+
+    pattern_specs = {
+        "LR,LI": {
+            "y_range": (a2, b2),
+            "roots": lambda y, r0, r1: [r0, r1, y],
+            "root_boxes": lambda y: [(a1, b1), (a2, y)],
+            "integrals": lambda y, poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, a2, y)],
+            "expected_sign": "-1",
+        },
+        "LR,IR": {
+            "y_range": (a2, b2),
+            "roots": lambda y, r0, r1: [r0, y, r1],
+            "root_boxes": lambda y: [(a1, b1), (y, b2)],
+            "integrals": lambda y, poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, y, b2)],
+            "expected_sign": "-1",
+        },
+        "LI,LR": {
+            "y_range": (a1, b1),
+            "roots": lambda y, r0, r1: [r0, y, r1],
+            "root_boxes": lambda y: [(a1, y), (a2, b2)],
+            "integrals": lambda y, poly: [integrate_cut(poly, a1, y), integrate_cut(poly, a2, b2)],
+            "expected_sign": "1",
+        },
+        "IR,LR": {
+            "y_range": (a1, b1),
+            "roots": lambda y, r0, r1: [y, r0, r1],
+            "root_boxes": lambda y: [(y, b1), (a2, b2)],
+            "integrals": lambda y, poly: [integrate_cut(poly, y, b1), integrate_cut(poly, a2, b2)],
+            "expected_sign": "1",
+        },
+    }
+
+    records_by_pattern: dict[str, list[dict[str, Any]]] = {}
+    summary_by_pattern: dict[str, dict[str, Any]] = {}
+    for pattern, spec in pattern_specs.items():
+        y_left, y_right = spec["y_range"]
+        ys = np.linspace(y_left + 0.03 * (y_right - y_left), y_right - 0.03 * (y_right - y_left), samples)
+        previous: Array | None = None
+        records: list[dict[str, Any]] = []
+
+        for y in ys:
+            boxes = spec["root_boxes"](float(y))
+
+            def residual(raw: Array) -> Array:
+                r0 = sigmoid_interval(float(raw[0]), boxes[0][0], boxes[0][1])
+                r1 = sigmoid_interval(float(raw[1]), boxes[1][0], boxes[1][1])
+                poly = poly_from_roots(spec["roots"](float(y), r0, r1))
+                return np.array(spec["integrals"](float(y), poly), dtype=float)
+
+            seed = previous if previous is not None else np.array([0.0, 0.0])
+            result = root(residual, seed)
+            if not result.success or float(np.linalg.norm(residual(result.x))) > 1.0e-6:
+                records.append({"y": float(y), "status": "no_solution"})
+                continue
+            previous = np.array(result.x, dtype=float)
+            r0 = sigmoid_interval(float(result.x[0]), boxes[0][0], boxes[0][1])
+            r1 = sigmoid_interval(float(result.x[1]), boxes[1][0], boxes[1][1])
+            roots = spec["roots"](float(y), r0, r1)
+            poly = poly_from_roots(roots)
+            connection = integrate_gap(poly)
+            records.append(
+                {
+                    "y": float(y),
+                    "status": "solved",
+                    "roots": roots,
+                    "within_integrals": spec["integrals"](float(y), poly),
+                    "connection_integral": connection,
+                    "connection_sign": sign_label(connection),
+                }
+            )
+
+        solved = [record for record in records if record["status"] == "solved"]
+        signs: dict[str, int] = {}
+        values = [float(record["connection_integral"]) for record in solved]
+        for record in solved:
+            sign = str(record["connection_sign"])
+            signs[sign] = signs.get(sign, 0) + 1
+        expected = str(spec["expected_sign"])
+        records_by_pattern[pattern] = records
+        summary_by_pattern[pattern] = {
+            "solved": len(solved),
+            "samples": samples,
+            "sign_counts": signs,
+            "expected_sign": expected,
+            "all_solved_match_expected": len(solved) > 0 and signs == {expected: len(solved)},
+            "min_connection_integral": min(values) if values else None,
+            "max_connection_integral": max(values) if values else None,
+        }
+
+    return {
+        "model": "mixed endpoint-heavy continuation scan",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "samples": samples,
+        "nodes": nodes,
+        "summary_by_pattern": summary_by_pattern,
+        "records_by_pattern": records_by_pattern,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -1428,9 +1581,15 @@ def main() -> int:
         action="store_true",
         help="sweep endpoint-heavy connection integrals over valid off-cut omitted-pole models",
     )
+    parser.add_argument(
+        "--continue-mixed-connection",
+        action="store_true",
+        help="continuation scan for the four mixed endpoint-heavy connection signs",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
-    parser.add_argument("--connection-omitted-pole", type=float, default=0.0)
+    parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
+    parser.add_argument("--connection-samples", type=int, default=30)
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -1520,6 +1679,33 @@ def main() -> int:
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(sweep, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.continue_mixed_connection:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        continuation = endpoint_heavy_mixed_connection_continuation(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 mixed endpoint-heavy connection continuation")
+        print(f"  model = {continuation['model']}")
+        print(f"  gammas = {continuation['gammas']}")
+        print(f"  omitted pole = {continuation['omitted_pole']}")
+        print(f"  samples = {continuation['samples']}")
+        for pattern, summary in continuation["summary_by_pattern"].items():
+            print(
+                "  pattern = "
+                f"{pattern}, solved = {summary['solved']}/{summary['samples']}, "
+                f"signs = {summary['sign_counts']}, expected = {summary['expected_sign']}, "
+                f"all expected = {summary['all_solved_match_expected']}, "
+                f"min/max = {summary['min_connection_integral']}, {summary['max_connection_integral']}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(continuation, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
         return 0
 

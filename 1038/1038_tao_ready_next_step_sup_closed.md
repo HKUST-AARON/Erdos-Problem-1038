@@ -781,6 +781,24 @@ Useful corrections already recorded:
   while \((LR,LR)\) remains mixed, \(15(-),15(+)\).  Thus the most plausible
   next theorem is the four-pattern mixed connection sign theorem, not a
   five-pattern theorem.
+- The new `--continue-mixed-connection` command parameterizes each mixed
+  pattern by its unique interior contact, solves the two component zero-
+  integral equations for the remaining roots, and scans the whole continuation
+  branch.  For \(\Gamma=(-2,-1,1,2),p=-3\), 40/40 samples solve in all four
+  patterns with ranges
+  \[
+  (LR,LI):[-0.891,-0.483],\quad
+  (LR,IR):[-1.350,-0.709],
+  \]
+  \[
+  (LI,LR):[0.334,0.894],\quad
+  (IR,LR):[0.185,0.521].
+  \]
+  A non-symmetric exterior-pole model \(\Gamma=(-3,-1.2,0.7,2.5),p=3.5\)
+  gives the same signs.  The next proof target is therefore a
+  `MixedConnectionMonotoneSignLemma`: along the one-parameter mixed branch,
+  the connection integral cannot cross zero except through a Gate 3
+  degeneration.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

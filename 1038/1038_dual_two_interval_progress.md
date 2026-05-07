@@ -15607,13 +15607,14 @@ theorem queue.
     a model check for the endpoint-heavy connection target after solving the
     two within-component zero-integral contact equations.
 
-    On the symmetric model
+    Earlier diagnostic caveat.  The first version of this audit used the
+    symmetric model
 
     \[
     \Gamma=(-2,-1,1,2),\qquad p=0,
     \]
 
-    the solved-contact sign counts are:
+    and reported the following solved-contact signs:
 
     \[
     \begin{array}{c|c}
@@ -15627,8 +15628,13 @@ theorem queue.
     \end{array}
     \]
 
-    Thus a blanket fixed connection sign for all five endpoint-heavy
-    survivors is false even diagnostically.  The correct next proof split is:
+    Since \(p=0\) lies in the middle gap, the connection path crosses a double
+    pole and this run is not a valid ordinary connection-integral computation.
+    It remains a useful warning about \((LR,LR)\), but it is not cited as
+    proof evidence for the mixed signs.  The corrected valid exterior-pole
+    sweep below is the evidence retained for the next proof target.
+
+    The resulting proof split is:
 
     \[
     \boxed{
@@ -15684,6 +15690,65 @@ theorem queue.
     By contrast, \((LR,LR)\) cannot be killed by a fixed connection sign and
     must be routed through a separate free-third-root residual or off-row
     determinant condition.
+
+    Mixed-pattern continuation scan.
+
+    The next diagnostic removes another numerical ambiguity.  For each of the
+    four mixed patterns, use the unique interior contact as a continuation
+    parameter.  At each parameter value, solve the two within-component
+    zero-integral equations for the remaining two numerator roots, then
+    evaluate the connection integral.  The command is
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --continue-mixed-connection \
+      --connection-gammas=-2,-1,1,2 \
+      --connection-omitted-pole -3 \
+      --connection-samples 40 --connection-nodes 80
+    ```
+
+    On the exterior-pole symmetric model it solves all samples and gives:
+
+    \[
+    \begin{array}{c|c|c}
+    \text{pattern} & \text{solved samples} & \text{connection range}\\
+    \hline
+    (LR,LI) & 40/40 & [-0.8908685348,\,-0.4825206729]\\
+    (LR,IR) & 40/40 & [-1.3495538847,\,-0.7094324794]\\
+    (LI,LR) & 40/40 & [0.3338646024,\,0.8942745693]\\
+    (IR,LR) & 40/40 & [0.1852087846,\,0.5208970484]
+    \end{array}
+    \]
+
+    On the non-symmetric exterior-pole model
+
+    \[
+    \Gamma=(-3,-1.2,0.7,2.5),\qquad p=3.5,
+    \]
+
+    it again solves \(40/40\) samples for all four patterns and gives the same
+    signs.  This supports a sharper theorem than the earlier finite-start
+    least-squares audit:
+
+    \[
+    \boxed{
+    \textbf{MixedConnectionMonotoneSignLemma.}
+    }
+    \]
+
+    For the full-pair kernel with exterior omitted pole, after imposing the
+    two within-component zero-integral equations, the mixed endpoint-heavy
+    connection sign is fixed along the whole interior-contact continuation
+    branch:
+
+    \[
+    (LR,LI),(LR,IR)<0,\qquad (LI,LR),(IR,LR)>0.
+    \tag{G1MixedContinuationSignTarget}
+    \]
+
+    The proof target is now one-dimensional for each mixed pattern.  It should
+    show that the solved root branches cannot hit a zero of the connection
+    integral without forcing a double/contact degeneration routed to Gate 3.
 
     The conditional PV equation is not used in this reduction.
 
