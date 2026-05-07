@@ -3442,6 +3442,38 @@ theorem PositiveComponent.endpoint_neighborhood_subset_component_of_augmentedInt
   exact C.endpoint_neighborhood_subset_of_augmentedIntervalMaximal_endpointAtom
     hε hmax hbaseline hleft_pos hendpoint_atom hx
 
+/--
+If an augmented-maximal selected component contains the baseline and the
+positive set spans from just left of `-1` up to the component's right endpoint,
+then that whole spanning interval is part of the selected component.
+-/
+theorem PositiveComponent.spanning_positive_subset_interval_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_pos : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      PositiveSet (unitIntervalLogPotential μ)) :
+    Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval := by
+  have hinter : (Ioo (-(1 : ℝ) - ε) C.right ∩ C.interval).Nonempty := by
+    refine ⟨-(1 : ℝ) / 2, ?_⟩
+    constructor
+    · constructor
+      · linarith
+      · have hmem := hbaseline (by norm_num : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0)
+        rw [C.interval_eq] at hmem
+        exact hmem.2
+    · exact hbaseline (by norm_num)
+  exact hmax (-(1 : ℝ) - ε) C.right
+    (by
+      have hmem := hbaseline (by norm_num : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0)
+      rw [C.interval_eq] at hmem
+      have hright_gt : (-(1 : ℝ) / 2) < C.right := hmem.2
+      linarith)
+    (fun x hx => unitInterval_positiveSet_subset_augmented μ (hspan_pos hx))
+    hinter
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
@@ -11246,6 +11278,51 @@ theorem realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_
   exact realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
     hbaseline
     (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint hdirac)
+
+/--
+After a spanning positive interval has been glued into the selected component,
+the zero-neighbourhood condition forces almost every non-endpoint support point
+to lie on or to the right of `C.right`.
+-/
+theorem realMeasure_ae_endpoint_or_right_of_spanning_positive_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_pos : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      PositiveSet (unitIntervalLogPotential μ))
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    ∀ᵐ t ∂realMeasure μ, t = -1 ∨ C.right ≤ t := by
+  have hcomponent_open : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero
+  have hspan_interval :
+      Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+    C.spanning_positive_subset_interval_of_augmentedIntervalMaximal
+      hε hmax hbaseline hspan_pos
+  filter_upwards [realMeasure_ae_mem_support μ,
+    realMeasure_ae_mem_unitInterval μ] with t htSupport htUnit
+  by_cases ht_endpoint : t = -1
+  · exact Or.inl ht_endpoint
+  · right
+    by_contra hnot
+    have ht_lt_right : t < C.right := lt_of_not_ge hnot
+    have ht_gt_endpoint : (-1 : ℝ) < t := by
+      have ht_ge_endpoint : (-1 : ℝ) ≤ t := htUnit.1
+      exact lt_of_le_of_ne ht_ge_endpoint (Ne.symm ht_endpoint)
+    have ht_span : t ∈ Ioo (-(1 : ℝ) - ε) C.right := by
+      constructor
+      · linarith
+      · exact ht_lt_right
+    exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
 
 /--
 Endpoint atomization of the selected component produces a genuine endpoint atom
