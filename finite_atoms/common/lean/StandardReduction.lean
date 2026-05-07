@@ -2033,6 +2033,29 @@ theorem realMeasure_support_subset_unitInterval
   Measure.support_subset_of_isClosed isClosed_Icc
     (realMeasure_ae_mem_unitInterval μ)
 
+/--
+If a point is outside the real push-forward support, then almost every support
+point is separated from it by a positive distance.
+-/
+theorem realMeasure_ae_separated_of_not_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ∃ ε : ℝ, 0 < ε ∧ ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t| := by
+  have hcompl_open : IsOpen ((realMeasure μ).supportᶜ) :=
+    Measure.isOpen_compl_support
+  have hxcompl : x ∈ (realMeasure μ).supportᶜ := hx
+  rcases Metric.mem_nhds_iff.1 (hcompl_open.mem_nhds hxcompl) with
+    ⟨ε, hε, hball⟩
+  refine ⟨ε, hε, ?_⟩
+  filter_upwards [realMeasure_ae_mem_support μ] with t htSupport
+  by_contra hnot
+  have hlt : |x - t| < ε := lt_of_not_ge hnot
+  have ht_ball : t ∈ Metric.ball x ε := by
+    have hlt' : |t - x| < ε := by
+      simpa [abs_sub_comm] using hlt
+    simpa [Metric.mem_ball, Real.dist_eq] using hlt'
+  exact (hball ht_ball) htSupport
+
 theorem realMeasure_abs_sub_integrable
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     Integrable (fun t : ℝ => |x - t|) (realMeasure μ) := by
@@ -16761,6 +16784,61 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
       hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
       hright_not_pos, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_not_augmented_not_support_data
+    (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryNotAugmentedNotSupportDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          C.right ∉ unitIntervalAugmentedPositiveSet μ ∧
+          C.right ∉ (realMeasure μ).support ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_not_augmented_separated_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryNotAugmentedNotSupportDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
+      hendpoint_unit_pos, hbaseline, hright_not_aug, hright_not_support,
+      hzero⟩
+  rcases realMeasure_ae_separated_of_not_mem_support μ hright_not_support with
+    ⟨boundarySep, hboundarySep, hdist_lower⟩
+  exact
+    ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      hright_not_aug, hzero⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
