@@ -13180,6 +13180,126 @@ theorem queue.
     Any regular solution with bad residual is no longer a heuristic failure;
     it is a concrete rank-defect obstruction.
 
+    Review audit: contact determinants and the envelope correction.
+
+    The latest Gate 1 review is accepted with the following scope.  The
+    reduction to finite contact patterns is correct, and the residual for a
+    fixed affine four-contact pattern has the following exact determinant
+    form.  For contacts \(z_1,\ldots,z_4\), set
+
+    \[
+    E_{\mathfrak p}=
+    \begin{pmatrix}
+    V_S(z_1)^T\\
+    V_S(z_2)^T\\
+    V_S(z_3)^T\\
+    V_S(z_4)^T
+    \end{pmatrix},
+    \qquad
+    v_{\Pi,\mathfrak p}=
+    \begin{pmatrix}
+    V_\Pi(z_1)\\
+    V_\Pi(z_2)\\
+    V_\Pi(z_3)\\
+    V_\Pi(z_4)
+    \end{pmatrix}.
+    \]
+
+    If \(E_{\mathfrak p}\) is invertible, the contact equations give
+    \(\theta_{\mathfrak p}=E_{\mathfrak p}^{-1}v_{\Pi,\mathfrak p}\).  With
+
+    \[
+    \ell_\Lambda^T=b_S^T-\Lambda\rho_S^T,
+    \qquad
+    \ell_{\Pi,\Lambda}=b_\Pi-\Lambda\rho_\Pi,
+    \]
+
+    the affine residual satisfies
+
+    \[
+    \boxed{
+    L_\Lambda(\theta_{\mathfrak p})
+    =
+    -
+    \frac{
+    \det
+    \begin{pmatrix}
+    E_{\mathfrak p}&v_{\Pi,\mathfrak p}\\
+    \ell_\Lambda^T&\ell_{\Pi,\Lambda}
+    \end{pmatrix}
+    }{
+    \det E_{\mathfrak p}
+    }.
+    }
+    \tag{G1AffineResidualDet}
+    \]
+
+    This follows from the Schur determinant identity and is proof-grade.
+    The homogeneous five-contact branch is likewise a cofactor computation:
+    for
+
+    \[
+    E_{\mathfrak p}^{hom}=
+    \begin{pmatrix}
+    V_S(z_1)^T&-V_\Pi(z_1)\\
+    \vdots&\vdots\\
+    V_S(z_5)^T&-V_\Pi(z_5)
+    \end{pmatrix},
+    \]
+
+    an oriented null vector \((\theta,\mu)\) gives the homogeneous residual
+    \(\rho_S^T\theta-\rho_\Pi\mu\).
+
+    However, the review also exposes a real trap.  For a fixed contact
+    pattern,
+
+    \[
+    \det
+    \begin{pmatrix}
+    E_{\mathfrak p}&v_{\Pi,\mathfrak p}\\
+    b_S^T-\Lambda\rho_S^T&b_\Pi-\Lambda\rho_\Pi
+    \end{pmatrix}
+    =
+    D_b-\Lambda D_\rho
+    \]
+
+    is affine in \(\Lambda\).  Unless \(D_\rho=0\), one fixed pattern cannot
+    have the required nonzero sign for all \(\Lambda\in\mathbb R\).  Thus a
+    proof by a single fixed determinant orientation for all \(\Lambda\) would
+    be false.  The correct statement is an envelope statement: for each
+    \(\Lambda\), some majorant/contact pattern may be active.
+
+    Homogeneous margins give the useful compactification.  If there are
+    witnesses \(\theta_R,\theta_L\in\mathcal D_Z\) with
+
+    \[
+    G_{\theta_R}^{(c)}<0,
+    \qquad
+    G_{\theta_L}^{(c)}>0,
+    \]
+
+    then \(M_\eta(\Lambda)>0\) for all sufficiently large positive
+    \(\Lambda\) by \(\theta_R\), and for all sufficiently large negative
+    \(\Lambda\) by \(\theta_L\).  Hence the affine verification may be
+    restricted to a compact interval \([\Lambda_-,\Lambda_+]\), after the
+    homogeneous margins are proved.  This is now the correct Gate 1 order:
+
+    \[
+    \boxed{
+    \text{homogeneous margin witnesses}
+    \quad\Longrightarrow\quad
+    \text{compact affine contact verification}.
+    }
+    \tag{G1EnvelopeOrder}
+    \]
+
+    Consequently the missing theorem is not merely "each fixed pattern has a
+    sign."  It is the repaired-column envelope theorem: prove the homogeneous
+    witnesses and then exclude all regular weighted contact obstructions on
+    the compact affine \(\Lambda\)-range.  A repaired numerator ECT or
+    total-positivity theorem would prove this, but it has not yet been
+    established.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

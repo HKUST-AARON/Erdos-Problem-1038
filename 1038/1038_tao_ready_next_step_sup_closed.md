@@ -351,6 +351,22 @@ Useful corrections already recorded:
   a bad residual.  Thus the next proof task is to exclude these weighted
   systems pattern-by-pattern; otherwise a regular solution is a genuine
   rank-defect obstruction.
+- Review audit: the affine four-contact residual has the exact Schur formula
+  \[
+  L_\Lambda(\theta_{\mathfrak p})
+  =
+  -\frac{\det\begin{pmatrix}
+  E_{\mathfrak p}&v_{\Pi,\mathfrak p}\\
+  b_S^T-\Lambda\rho_S^T&b_\Pi-\Lambda\rho_\Pi
+  \end{pmatrix}}{\det E_{\mathfrak p}}.
+  \]
+  This verifies the determinant reduction for a fixed pattern.  It also shows
+  why a fixed-pattern sign proof cannot cover all \(\Lambda\): the numerator
+  is \(D_b-\Lambda D_\rho\).  The correct Gate 1 order is therefore to prove
+  homogeneous margin witnesses \(G^{(c)}<0\) and \(G^{(c)}>0\), use them to
+  compactify the affine \(\Lambda\)-axis, and then run contact-pattern
+  verification on that compact range.  The still-missing theorem is the
+  repaired-column envelope/ECT sign theorem, not a rank or quotient statement.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
