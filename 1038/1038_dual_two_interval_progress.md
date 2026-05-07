@@ -13903,6 +13903,125 @@ theorem queue.
     \(B_\nu\) and writing the two determinants (G1ECTASchur4),
     (G1ECTASchur5) in that basis.
 
+    Canonical moving-correction basis reduction.
+
+    The basis choice in (G1ECTAFullBlockChecklist) can be normalized without
+    changing the substance of the sign problem.  By (Gate1CorrectionImage), in
+    the regular monic \(Q\)-chart the moving correction image is exactly
+
+    \[
+    \{QD\Delta P-PD\Delta Q\}
+    =
+    D\mathbb R[z]_{\le 2d-3}.
+    \]
+
+    Therefore choose the canonical ordered correction columns
+
+    \[
+    \boxed{
+    B_m^{can}(z)=D(z)z^m,\qquad 0\le m\le 2d-3,
+    }
+    \tag{G1CanonicalCorrectionBasis}
+    \]
+
+    and, for each \(m\), choose the unique pair
+    \((\Delta P_m,\Delta Q_m)\) with
+
+    \[
+    Q\Delta P_m-P\Delta Q_m=z^m
+    \]
+
+    in the degree ranges of the monic chart.  The actual moving correction
+    basis and the canonical basis differ by an invertible change-of-basis
+    matrix.  Its determinant only changes the full moving determinants by the
+    same nonzero global orientation factor.  We fix the canonical orientation
+    by requiring \(\det A>0\) in this basis; if the determinant changes sign
+    under a different chart basis, that sign is a basis convention, not a
+    mathematical circuit sign.
+
+    Thus ECTAFullMovingBlockSignLemma may be proved using
+    \(B_m^{can}=Dz^m\).  In this basis, the normalization block and raw endpoint
+    columns reduce to evaluations of the polynomial list
+
+    \[
+    Dz^0,\ldots,Dz^{2d-3},
+    \qquad
+    -\frac12PQD_{\alpha_1},\ldots,-\frac12PQD_{\beta_2},
+    \qquad
+    \kappa Q^2.
+    \tag{G1CanonicalColumnList}
+    \]
+
+    The next determinant product to derive is therefore a bordered
+    interpolation determinant for (G1CanonicalColumnList) against the ordered
+    rows \(A\), \(L_X\), \(L_{X;i\to c}\), or \(L_Y\).  This is preferable to
+    working with arbitrary \((\Delta P,\Delta Q)\)-coordinates, because all
+    moving correction columns now vanish at the four branch endpoints through
+    the common factor \(D\), while the raw endpoint columns
+    \(PQD_\gamma\) interpolate the endpoint values.  Any failure of
+    invertibility of the change-of-basis map is exactly \(\gcd(P,Q)\ne1\) or a
+    degree/chart degeneration and is routed to Gate 3.
+
+    Correction: the five-column first-order block is singular.
+
+    The canonical basis reduction also reveals a hard obstruction to the
+    proposed full-block proof of the lifted five-point orientation.  By
+    (Gate1PeriodInterpolation),
+
+    \[
+    Q^2
+    =
+    DW_Q
+    +
+    \sum_\gamma
+    \frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}\,P QD_\gamma.
+    \]
+
+    In the canonical column list this says that the period column
+    \(\kappa Q^2\) is already a linear combination of the correction columns
+    \(Dz^m\) and the four raw endpoint columns \(PQD_\gamma\).  Therefore the
+    full determinant in (G1ECTASchur5), with all correction columns adjoined,
+    is identically zero before any row signs are considered.  Equivalently,
+    the Schur-complement five-column determinant cannot furnish a strict
+    lifted circuit orientation at first order.
+
+    Thus ECTAFullMovingBlockSignLemma must be split:
+
+    \[
+    \boxed{
+    \begin{array}{c|c}
+    \text{part} & \text{status}\\ \hline
+    \text{four-column endpoint/off-row alternation}
+      & \text{still plausible by canonical full-block signs}\\
+    \text{five-column lifted circuit orientation}
+      & \text{not available from first-order full-block determinant}
+    \end{array}
+    }
+    \tag{G1ECTASplitAfterPeriodInterpolation}
+    \]
+
+    This is not a new failure; it is the same endpoint-period quotient
+    obstruction in canonical coordinates.  The period lift is an endpoint
+    interpolation class modulo moving corrections, so no first-order
+    determinant product involving the full correction block can give a strict
+    period-lift sign.  The lifted positive-circuit negativity needed for
+    \(\mathcal D_Z\ne\emptyset\) must come from one of the non-first-order
+    mechanisms already isolated: a direct majorant construction on \(Z_0\), a
+    compact affine/contact envelope argument after endpoint cone separation, or
+    a second-variation/effective Hessian input.  It cannot be proved by the
+    naive (G1ECTASchur5) determinant.
+
+    The corrected next target is therefore narrower:
+
+    \[
+    \boxed{
+    \text{prove endpoint/off-row alternation first;}
+    \quad
+    \text{treat lifted circuit negativity by majorant/envelope or }Q_{\rm eff}.
+    }
+    \tag{G1CorrectedNextAfterSingularFiveBlock}
+    \]
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

@@ -468,6 +468,25 @@ Useful corrections already recorded:
   \(\kappa Q^2\); and track the component signs of \(Q^2R\).  Any failure of
   these regular sign conventions routes to Gate 3 or becomes a real
   obstruction.
+- The moving-correction basis can now be normalized.  Since
+  \(QD\Delta P-PD\Delta Q=D\mathbb R[z]_{\le2d-3}\) in the regular monic
+  \(Q\)-chart, ECTAFullMovingBlockSignLemma may use the canonical ordered
+  columns \(B_m^{can}=Dz^m\), \(0\le m\le2d-3\).  The actual chart basis differs
+  by an invertible change of basis whose determinant is absorbed into the
+  \(\det A>0\) orientation convention.  The next determinant product is
+  therefore the bordered interpolation determinant for
+  \(Dz^m\), the raw endpoint columns \(-\frac12PQD_\gamma\), and the period
+  column \(\kappa Q^2\) against the ordered \(A,L_X,L_{X;i\to c},L_Y\) rows.
+- Correction: the five-column first-order full block is singular.  The period
+  interpolation identity \(Q^2=DW_Q+\sum_\gamma
+  Q(\gamma)/(P(\gamma)D_\gamma(\gamma))\,PQD_\gamma\) puts the period column in
+  the span of the canonical correction columns and endpoint columns.  Hence
+  the determinant corresponding to (G1ECTASchur5) cannot give strict lifted
+  circuit orientation.  The full-block determinant route remains plausible
+  only for the four-column endpoint/off-row alternation.  The lifted
+  positive-circuit negativity must instead come from a direct majorant/envelope
+  construction or a second-variation/effective Hessian input; it cannot come
+  from the naive first-order five-column determinant.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
