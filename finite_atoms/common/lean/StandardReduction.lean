@@ -8309,6 +8309,50 @@ theorem exists_positiveComponent_baseline_right_pos_of_positive_spanning
   · dsimp [C, PositiveComponent.of_interval_subset_positiveSet]
     exact hδ
 
+/--
+Combine baseline positivity with a right neighbourhood of `0` into a single
+ordinary positive interval spanning across `0`.  This is the analytic-input
+shape needed by the direct spanning-interval component constructor.
+-/
+theorem positive_spanning_interval_of_baseline_and_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    Ioo (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+  intro x hx
+  by_cases hxneg : x < 0
+  · exact hbaseline ⟨hx.1, hxneg⟩
+  · have hx_nonneg : 0 ≤ x := le_of_not_gt hxneg
+    by_cases hxzero : x = 0
+    · simpa [hxzero] using hzero
+    · have hxpos : 0 < x := lt_of_le_of_ne hx_nonneg (Ne.symm hxzero)
+      exact hright ⟨hxpos, hx.2⟩
+
+/--
+Component constructor from baseline positivity plus a positive right
+neighbourhood of `0`.  This packages the previous spanning-interval bridge into
+the ordinary `PositiveComponent` API.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact exists_positiveComponent_baseline_right_pos_of_positive_spanning hδ
+    (positive_spanning_interval_of_baseline_and_zero_neighborhood
+      hδ hbaseline hright hzero)
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
