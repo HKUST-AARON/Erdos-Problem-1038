@@ -11979,6 +11979,65 @@ def taoVariationComponentPackage_of_component_replacement_data
     unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
       μ hendpoint_mass hendpoint_mass_nonneg hkernel_integrable
 
+/--
+Support-uniqueness variant of `taoVariationComponentPackage_of_component_replacement_data`.
+When the variation argument already proves the unique-support conclusion inside
+the component, the package constructor need not route through open-neighbourhood
+zero statements.
+-/
+def taoVariationComponentPackage_of_component_replacement_support_unique_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (Support : Set ℝ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hsupport_bounded : Support ⊆ Icc (-1 : ℝ) 1)
+    (hSupport_ae : ∀ᵐ t ∂realMeasure μ, t ∈ Support)
+    (hunique :
+      ∀ t : ℝ, t ∈ Support → t ∈ C.interval → t = -1)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hendpoint_mass :
+      realMeasure μ ({-1} : Set ℝ) = ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) where
+  mean_choice := mean_choice
+  reflected := reflected
+  translation := translation
+  component := C.interval
+  Support := Support
+  endpointMass := endpointMass
+  xMinus := xMinus
+  xPlus := xPlus
+  component_positive := C.interval_subset_positiveSet
+  component_interval := hcomponent_interval
+  baseline_inside_component := hbaseline
+  support_bounded := hsupport_bounded
+  unique_support_in_component := hunique
+  right_endpoint_positive := hright_endpoint_positive
+  boundary_average := hboundary_average
+  remainder := (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ
+  remainder_support_in_support :=
+    realMeasure_endpointRemainder_support_in_support μ Support hSupport_ae
+  remainder_no_endpoint := realMeasure_endpointRemainder_no_endpoint μ
+  remainder_mass :=
+    realMeasure_endpointRemainder_mass μ hendpoint_mass hendpoint_mass_nonneg
+  remainder_mass_nonneg := hremainder_mass_nonneg
+  kernel_integrable := hkernel_integrable
+  potential_decomposition_lower :=
+    unitIntervalLogPotential_endpointRemainder_potential_decomposition_lower
+      μ hendpoint_mass hendpoint_mass_nonneg hkernel_integrable
+
 def taoVariationComponentPackage_of_realSupport_component_atomization_data
     (μ : ProbabilityMeasure UnitInterval1038)
     (mean_choice : TaoVariationMeanChoice)
