@@ -10358,6 +10358,80 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_compact_data_and
       hright_cont hright_pos hright_no_diag hright_tail
 
 /--
+Separated-baseline compact-data version of selected-component construction.
+This exposes the four baseline compact-subinterval obligations independently:
+continuity, positivity, off-diagonal disjointness, and tail control.  It is the
+same mathematical content as
+`exists_positiveComponent_baseline_right_pos_of_baseline_compact_data_and_closed_right_compact_data`,
+but with inputs closer to the eventual variation proof.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_separated_baseline_compact_data_and_closed_right_compact_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε)
+    (hbaseline_cont :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b))
+    (hbaseline_pos :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y)
+    (hbaseline_no_diag :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (diagonalAtomSet μ))
+    (hbaseline_tail :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2))
+    (hδ : 0 < δ)
+    (hright_cont :
+      ContinuousOn (unitIntervalLogPotential μ) (Icc (0 : ℝ) δ))
+    (hright_pos :
+      ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+        0 < unitIntervalLogPotential μ x)
+    (hright_no_diag :
+      Disjoint (Icc (0 : ℝ) δ) (diagonalAtomSet μ))
+    (hright_tail :
+      ∀ threshold : ℝ, 0 < threshold →
+        (∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          threshold < unitIntervalLogPotential μ x) →
+        ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) := by
+    intro a b hsubset
+    exact ⟨hbaseline_cont a b hsubset,
+      hbaseline_pos a b hsubset,
+      hbaseline_no_diag a b hsubset,
+      hbaseline_tail a b hsubset⟩
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_compact_data_and_closed_right_compact_data
+      μ hlog_int htruncε hbaseline_compact hδ
+      hright_cont hright_pos hright_no_diag hright_tail
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
