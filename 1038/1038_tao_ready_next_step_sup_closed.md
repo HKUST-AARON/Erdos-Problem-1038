@@ -893,6 +893,12 @@ Useful corrections already recorded:
   \(\Lambda\in[-5,5]\) found no fixed nonzero sign, which is only a pipeline
   check.  The proof-grade next step is still to produce the compact \(g=2\)
   chart JSON and run the same rho/affine LRLR audit on that chart.
+- A fresh old-solver JSON at \(\epsilon=0.01\) was audited again and is still
+  not promotable: it has a one-cut ansatz \(P,Q,[\alpha,\beta]\), but lacks
+  compact non-pinched \(\Gamma\), moving chart rows, \(\kappa\), and
+  \(Z_0,u,c,v\).  Therefore the next route is not conversion of old
+  diagnostics; it is `CompactG2MovingChartEquations` plus a true chart-ready
+  JSON.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

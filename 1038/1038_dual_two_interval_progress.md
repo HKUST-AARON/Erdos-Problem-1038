@@ -16325,6 +16325,51 @@ theorem queue.
     `CompactG2MovingChartEquations` remains the next mathematical input
     needed for a real LRLR computation.
 
+    This was checked again against a fresh output of the old diagnostic solver
+    at \(\epsilon=0.01\).  The JSON contains only the one-cut ansatz data
+
+    \[
+    P(z)=z+1.3363079291570308,
+    \]
+
+    and
+
+    \[
+    Q(z)=0.04733177384161843
+    -1.8191160342765895z
+    +0.7717842604349712z^2
+    +z^3,
+    \]
+
+    together with the one moving cut \([\alpha,\beta]\).  Running
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-two-interval-json /tmp/two_interval_diag.json
+    ```
+
+    reports
+
+    \[
+    \texttt{gate1\_ready=False},
+    \]
+
+    with missing fields
+
+    \[
+    \texttt{compact\_non\_pinched\_four\_branch\_endpoints\_Gamma},
+    \quad
+    \texttt{regular\_moving\_chart\_rows\_ell},
+    \quad
+    \texttt{period\_orientation\_kappa},
+    \quad
+    \texttt{Z0\_components\_and\_anchor\_rows\_u\_c\_v}.
+    \]
+
+    Hence the old solver is useful only as a historical diagnostic and cannot
+    be wrapped into the Gate 1 LRLR oracle.  The proof-grade path must produce
+    a genuinely compact non-pinched \(g=2\) chart JSON.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
