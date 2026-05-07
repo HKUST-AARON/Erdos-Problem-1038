@@ -17669,6 +17669,82 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
         hcomponent_atomized⟩
 
+/--
+Augmented-span/right-gap provider with normalized component atomization.  The
+conversion to component-block atomization is carried out internally using the
+endpoint atom to get positive component mass.
+-/
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_normalized_atomization_data
+    (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanRightGapNormalizedAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < δ ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_atomization_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanRightGapNormalizedAtomizationDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hright_gap, hnormalized_atomized⟩
+  have hendpoint_real_pos :
+      0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hendpoint_mem : (-1 : ℝ) ∈ C.interval :=
+    C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+      hε hmax hbaseline
+      (by
+        intro x hx
+        exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩)
+      hendpoint_unit_pos
+  have hmass_pos : 0 < componentMass C :=
+    componentMass_pos_of_support_mem_interval
+      (realMeasure_mem_support_of_singleton_pos hendpoint_real_pos)
+      hendpoint_mem
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C hmass_pos
+  exact
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hright_gap,
+      componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+        R hnormalized_atomized⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
