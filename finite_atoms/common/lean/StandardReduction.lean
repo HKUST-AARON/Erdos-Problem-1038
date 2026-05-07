@@ -26217,6 +26217,31 @@ noncomputable def unitInterval_standardReduction_from_componentMassAtomization_l
     unitInterval_standardReduction_from_componentAtomization_boundary
       hright_pos hbaseline hboundary hcomponent_atomized
 
+noncomputable def unitInterval_standardReduction_from_componentMassAtomization_leftAugmented_rightGap
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε δ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hmass_pos : 0 < componentMass C)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  exact
+    unitInterval_standardReduction_from_componentMassAtomization_leftAugmented_notSupport
+      hε hright_pos hmax hleft_aug hmass_pos hbaseline
+      (C.right_not_mem_support_of_right_gap hδ hright_gap)
+      hcomponent_atomized
+
 noncomputable def unitInterval_standardReduction_from_normalizedAtomization_leftAugmented_notSupport
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C) {ε : ℝ}
