@@ -26193,5 +26193,98 @@ noncomputable def unitInterval_standardReduction_from_replacement_rightGap_zeroN
       hbaseline hright_pos hboundary hnormalized_atomized
   exact Pack.toNormalizedEndpointPotential
 
+noncomputable def unitInterval_standardReduction_from_replacement_augmentedGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε δ₀ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Icc C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  let gap :=
+    C.right_gap_union_of_augmented_gap_not_mem_support
+      hδ₀ haug_gap hnot_support
+  let δ : ℝ := Classical.choose gap
+  have hδ : 0 < δ := (Classical.choose_spec gap).1
+  have hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ :=
+    (Classical.choose_spec gap).2
+  exact
+    unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
+      hbaseline hright_gap hzero
+
+noncomputable def unitInterval_standardReduction_from_replacement_openGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε δ₀ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Ioo C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  let gap :=
+    C.right_gap_union_of_open_augmented_gap_not_mem
+      hδ₀ haug_gap hnot_aug hnot_support
+  let δ : ℝ := Classical.choose gap
+  have hδ : 0 < δ := (Classical.choose_spec gap).1
+  have hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ :=
+    (Classical.choose_spec gap).2
+  exact
+    unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
+      hbaseline hright_gap hzero
+
 end StandardReduction
 end Erdos1038
