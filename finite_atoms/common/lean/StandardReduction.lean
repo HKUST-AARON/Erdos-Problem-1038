@@ -3497,6 +3497,38 @@ theorem PositiveComponent.spanning_positive_subset_interval_of_augmentedInterval
     (fun x hx => unitInterval_positiveSet_subset_augmented μ (hspan_pos hx))
     hinter
 
+/--
+Augmented-set version of the spanning bridge.  This is the natural form for the
+pole-as-win component selection: augmented maximality only needs the spanning
+interval to be contained in the augmented positive set.
+-/
+theorem PositiveComponent.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ) :
+    Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval := by
+  have hinter : (Ioo (-(1 : ℝ) - ε) C.right ∩ C.interval).Nonempty := by
+    refine ⟨-(1 : ℝ) / 2, ?_⟩
+    constructor
+    · constructor
+      · linarith
+      · have hmem := hbaseline (by norm_num : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0)
+        rw [C.interval_eq] at hmem
+        exact hmem.2
+    · exact hbaseline (by norm_num)
+  exact hmax (-(1 : ℝ) - ε) C.right
+    (by
+      have hmem := hbaseline (by norm_num : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0)
+      rw [C.interval_eq] at hmem
+      have hright_gt : (-(1 : ℝ) / 2) < C.right := hmem.2
+      linarith)
+    hspan_aug
+    hinter
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
@@ -11328,9 +11360,52 @@ theorem realMeasure_ae_endpoint_or_right_of_spanning_positive_zero_neighborhood
       (realMeasure_support_open_neighborhood_pos μ)
       hzero
   have hspan_interval :
-      Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
     C.spanning_positive_subset_interval_of_augmentedIntervalMaximal
       hε hmax hbaseline hspan_pos
+  filter_upwards [realMeasure_ae_mem_support μ,
+    realMeasure_ae_mem_unitInterval μ] with t htSupport htUnit
+  by_cases ht_endpoint : t = -1
+  · exact Or.inl ht_endpoint
+  · right
+    by_contra hnot
+    have ht_lt_right : t < C.right := lt_of_not_ge hnot
+    have ht_gt_endpoint : (-1 : ℝ) < t := by
+      have ht_ge_endpoint : (-1 : ℝ) ≤ t := htUnit.1
+      exact lt_of_le_of_ne ht_ge_endpoint (Ne.symm ht_endpoint)
+    have ht_span : t ∈ Ioo (-(1 : ℝ) - ε) C.right := by
+      constructor
+      · linarith
+      · exact ht_lt_right
+    exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
+
+/--
+Augmented-span version of `realMeasure_ae_endpoint_or_right...`.
+-/
+theorem realMeasure_ae_endpoint_or_right_of_spanning_augmented_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    ∀ᵐ t ∂realMeasure μ, t = -1 ∨ C.right ≤ t := by
+  have hcomponent_open : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero
+  have hspan_interval :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+    C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
+      hε hmax hbaseline hspan_aug
   filter_upwards [realMeasure_ae_mem_support μ,
     realMeasure_ae_mem_unitInterval μ] with t htSupport htUnit
   by_cases ht_endpoint : t = -1
@@ -16957,6 +17032,79 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       · exact ⟨le_rfl, by linarith⟩
       · exact hmem
     simpa [hright_gap] using hright_mem
+  exact
+    ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
+      hendpoint_unit_pos, hbaseline, hright_excluded, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_augmented_span_right_gap_data
+    (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryAugmentedSpanRightGapDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < δ ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_excluded_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryAugmentedSpanRightGapDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
+  have hright_excluded :
+      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support := by
+    intro hmem
+    have hright_mem :
+        C.right ∈ Set.Icc C.right (C.right + δ) ∩
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) := by
+      constructor
+      · exact ⟨le_rfl, by linarith⟩
+      · exact hmem
+    simpa [hright_gap] using hright_mem
+  have hspan_interval :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+    C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
+      hε hmax hbaseline hspan_aug
+  have hspan_pos :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        PositiveSet (unitIntervalLogPotential μ) := by
+    intro x hx
+    have hx_interval := hspan_interval hx
+    exact C.interval_subset_positiveSet hx_interval
   exact
     ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
       hendpoint_unit_pos, hbaseline, hright_excluded, hzero⟩
