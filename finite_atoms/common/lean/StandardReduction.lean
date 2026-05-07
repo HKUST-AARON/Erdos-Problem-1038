@@ -26055,6 +26055,63 @@ noncomputable def unitInterval_standardReduction_from_componentAtomization_bound
       (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
         hcomponent_atomized)
 
+noncomputable def unitInterval_standardReduction_from_componentAtomization_leftAugmented_notSupport
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} :=
+    unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hcomponent_atomized
+  have hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ :=
+    unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_unit_pos)
+  have hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    by_cases hx_left : x < -1
+    · exact hleft_aug ⟨hx.1, hx_left⟩
+    · have hx_ge : -1 ≤ x := le_of_not_gt hx_left
+      by_cases hx_endpoint : x = -1
+      · simpa [hx_endpoint] using hendpoint_aug
+      · have hx_gt : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
+        have hx_interval : x ∈ C.interval := by
+          by_cases hxneg : x < 0
+          · exact hbaseline ⟨hx_gt, hxneg⟩
+          · have hbase : (-(1 : ℝ) / 2) ∈ C.interval :=
+              hbaseline (by norm_num)
+            rw [C.interval_eq] at hbase
+            rw [C.interval_eq]
+            exact ⟨by linarith [hbase.1, le_of_not_gt hxneg], hx.2⟩
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet hx_interval)
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_average_of_spanning_augmented_not_support_componentBlock_atomized
+      μ hright_pos hε hmax hbaseline hspan_aug hnot_support
+      hcomponent_atomized
+  exact
+    unitInterval_standardReduction_from_componentAtomization_boundary
+      hright_pos hbaseline hboundary hcomponent_atomized
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
