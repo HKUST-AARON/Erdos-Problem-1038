@@ -18042,6 +18042,34 @@ theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_small
   exact normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_zero_neighborhood
     R hmass_unit hsupport hPrimary hSecondary hprimary_replacement hzero
 
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood_of_componentMass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_pos : 0 < componentMass C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ → x ∉ N →
+            singularTailMass ε μ x < ∞)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) :=
+  normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood
+    (ComponentReplacement.of_mass_pos C hmass_pos) hε hPrimary hSecondary
+    hsmall hzero
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
