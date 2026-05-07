@@ -17842,6 +17842,28 @@ theorem componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
     (componentBarycenter_mem_interval_of_normalizedComponentBlock_eq_dirac R hdirac)
 
 /--
+Endpoint identification from zero-neighbourhood data: if the normalized block is
+Dirac at its barycenter and the selected component has no real support away
+from `-1`, then that barycenter is `-1`.
+-/
+theorem componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    componentBarycenter C = -1 := by
+  have hcomponent_open : IsOpen C.interval := by
+    simpa [PositiveComponent.interval_eq] using
+      (isOpen_Ioo : IsOpen (Set.Ioo C.left C.right))
+  exact componentBarycenter_eq_endpoint_of_normalizedComponentBlock_eq_dirac
+    R hdirac
+    (unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero)
+
+/--
 Normalized atomization at the endpoint: moment equality gives a Dirac mass at
 the component barycenter, and endpoint uniqueness identifies that barycenter
 with `-1`.
