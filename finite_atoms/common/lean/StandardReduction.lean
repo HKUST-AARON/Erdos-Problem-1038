@@ -8349,6 +8349,43 @@ theorem exists_positiveComponent_baseline_right_pos_of_Ioc_positive_spanning
       hδ (fun _x hx => hspan ⟨hx.1, le_of_lt hx.2⟩)
 
 /--
+Closed-right version of the ordinary spanning positivity bridge.  Baseline
+positivity on `(-1,0)` and right positivity on `[0,δ]` combine into positivity
+on the closed-right span `(-1,δ]`.
+-/
+theorem Ioc_positive_spanning_of_baseline_and_closed_right
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (_hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hright :
+      Icc (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    Ioc (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+  intro x hx
+  by_cases hxneg : x < 0
+  · exact hbaseline ⟨hx.1, hxneg⟩
+  · exact hright ⟨le_of_not_gt hxneg, hx.2⟩
+
+/--
+Selected component from baseline positivity plus closed-right positivity.  This
+is a short ordinary-positive route to the component-selection conclusion.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_closed_right
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hright :
+      Icc (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_Ioc_positive_spanning hδ
+      (Ioc_positive_spanning_of_baseline_and_closed_right hδ hbaseline hright)
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
