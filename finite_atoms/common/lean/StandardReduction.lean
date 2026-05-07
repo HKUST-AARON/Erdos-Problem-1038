@@ -11839,6 +11839,20 @@ theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     _ = (componentMass C • Measure.dirac (-1 : ℝ)) s := by
       rfl
 
+/--
+Normalized endpoint atomization also produces a genuine endpoint atom of the
+original subtype probability measure.
+-/
+theorem unitInterval_endpoint_atom_pos_of_normalizedComponentBlock_eq_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    0 < (μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1} :=
+  unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint R
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hdirac)
+
 def taoVariationComponentPackage_of_component_replacement_data
     (μ : ProbabilityMeasure UnitInterval1038)
     (mean_choice : TaoVariationMeanChoice)
