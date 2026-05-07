@@ -16539,6 +16539,69 @@ theorem queue.
     returns a split sign, the next branch is compact affine contact
     verification rather than more schema work.
 
+    LRLR anchor-window sweep.
+
+    The LRLR \(\rho\)-row has the actual form
+
+    \[
+    L_\rho(F)=\frac{F(c)}{N(c)^2R(c)}.
+    \]
+
+    Thus, before a proof-grade compact chart is available, one useful
+    diagnostic is to ask whether any off-cut anchor \(c\) can make
+    \(I_{\rm gap}(F)L_\rho(F)\) have a fixed projective sign on the sampled
+    LRLR kernel.  The extractor now has this pre-chart command:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-lrlr-anchor-sweep \
+      --connection-samples 128 --connection-nodes 80 --anchor-samples 61
+    ```
+
+    On the symmetric diagnostic kernel
+
+    \[
+    \Gamma=(-2,-1,1,2),\qquad p=-3,
+    \]
+
+    the sweep tests \(183\) off-cut anchors and finds no fixed sign in the
+    left or right exterior components, but two middle-gap anchors do have a
+    fixed positive sign:
+
+    \[
+    c\approx -0.3666652,\quad c\approx -0.333332.
+    \]
+
+    A denser middle-gap sweep over \([-0.55,-0.15]\), with \(512\) projective
+    samples and \(161\) anchor values, finds a narrow fixed-positive window
+    near
+
+    \[
+    c\in[-0.36,-0.35]
+    \]
+
+    at the sampled resolution.  Repeating the same test with the omitted pole
+    on the right exterior, \(p=3\), finds the symmetric narrow window near
+    \(c\approx0.35\).  On the nonsymmetric diagnostic model
+
+    \[
+    \Gamma=(-3,-1.2,0.7,2.5),\qquad p=3.5,
+    \]
+
+    the fixed anchor again appears only in the middle gap, here near
+    \(c\approx0.03499835\).
+
+    These are not proof-grade chart computations.  They do, however, sharpen
+    the LRLR strategy: the homogeneous \(\rho\)-row route is still plausible,
+    but it is an anchor-window statement in the middle gap, not a generic
+    off-row sign theorem.  A real `CompactG2MovingChartEquations` output must
+    therefore report the actual anchor \(c\), and the first LRLR acceptance
+    check should be whether that \(c\) lies in a fixed-sign \(\rho\)-window for
+    an accepted exterior omitted-pole gauge.  If the true \(c\) lies outside
+    this window or the interval-certified sweep splits signs, the proof must
+    switch to the affine \(b-\Lambda\rho\) row and compact affine contact
+    verification.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

@@ -2080,6 +2080,160 @@ def endpoint_heavy_lrlr_kernel_audit(
     }
 
 
+def lrlr_anchor_sweep_audit(
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    samples: int = 128,
+    nodes: int = 100,
+    anchor_samples: int = 41,
+    anchor_min: float | None = None,
+    anchor_max: float | None = None,
+) -> dict[str, Any]:
+    """Sweep off-cut anchor rows against the LRLR two-dimensional kernel.
+
+    This is a pre-chart diagnostic for the homogeneous rho-row route.  It asks
+    whether any off-cut evaluation row of the actual form
+
+        F(c) / ((c-p)^2 R(c))
+
+    can make I_gap(F) times the row value have one fixed projective sign on all
+    sampled LRLR-order branches.  A positive result is only evidence for where
+    a real chart anchor might close LRLR; a negative result says the rho-row
+    alone is unlikely to close the bare kernel model.
+    """
+    if anchor_samples < 1:
+        raise ValueError("--anchor-samples must be positive")
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    if anchor_min is not None and anchor_max is not None and not anchor_min < anchor_max:
+        raise ValueError("--anchor-min must be smaller than --anchor-max")
+
+    kernel = endpoint_heavy_lrlr_kernel_audit(
+        gammas=gammas,
+        omitted_pole=omitted_pole,
+        samples=samples,
+        nodes=nodes,
+    )
+    lrlr_samples = [sample for sample in kernel["samples"] if sample["lrlr_order"]]
+    span = max(1.0, b2 - a1)
+    eps = 1.0e-6 * span
+
+    intervals: list[tuple[str, float, float]]
+    if anchor_min is not None and anchor_max is not None:
+        intervals = [("custom", anchor_min, anchor_max)]
+    else:
+        intervals = [
+            ("left_exterior", a1 - 2.0 * span, a1 - eps),
+            ("middle_gap", b1 + eps, a2 - eps),
+            ("right_exterior", b2 + eps, b2 + 2.0 * span),
+        ]
+
+    def anchor_location(c_value: float) -> str:
+        tol = 1.0e-10
+        if c_value < a1 - tol:
+            return "left_exterior"
+        if a1 + tol < c_value < b1 - tol:
+            return "left_cut"
+        if b1 + tol < c_value < a2 - tol:
+            return "middle_gap"
+        if a2 + tol < c_value < b2 - tol:
+            return "right_cut"
+        if c_value > b2 + tol:
+            return "right_exterior"
+        return "endpoint"
+
+    c_records = []
+    fixed_records = []
+    skipped = []
+    for interval_name, left, right in intervals:
+        if not left < right:
+            skipped.append({"interval": interval_name, "reason": "empty interval", "left": left, "right": right})
+            continue
+        if anchor_samples == 1:
+            grid = [0.5 * (left + right)]
+        else:
+            grid = [float(value) for value in np.linspace(left, right, anchor_samples)]
+        for c_value in grid:
+            if abs(c_value - omitted_pole) < 1.0e-8:
+                skipped.append({"c": c_value, "interval": interval_name, "reason": "anchor hits omitted pole"})
+                continue
+            location = anchor_location(c_value)
+            if location in {"left_cut", "right_cut", "endpoint"}:
+                skipped.append({"c": c_value, "interval": interval_name, "reason": f"anchor location {location} is not off-cut"})
+                continue
+            try:
+                R_c = split_R_value(c_value, gammas)
+            except ValueError as exc:
+                skipped.append({"c": c_value, "interval": interval_name, "reason": str(exc)})
+                continue
+            denom = ((c_value - omitted_pole) ** 2) * R_c
+            sign_counts: dict[str, int] = {}
+            region_sign_counts: dict[str, dict[str, int]] = {}
+            min_abs_product = math.inf
+            min_abs_row = math.inf
+            for sample in lrlr_samples:
+                coeff = np.array(sample["coefficients_ascending"], dtype=float)
+                row_value = poly_eval(coeff, c_value) / denom
+                product = float(sample["connection_integral"]) * row_value
+                min_abs_product = min(min_abs_product, abs(product))
+                min_abs_row = min(min_abs_row, abs(row_value))
+                sign = str(sign_label(product))
+                sign_counts[sign] = sign_counts.get(sign, 0) + 1
+                region = str(sample["free_root_region"])
+                region_sign_counts.setdefault(region, {})
+                region_sign_counts[region][sign] = region_sign_counts[region].get(sign, 0) + 1
+            nonzero_signs = {sign for sign, count in sign_counts.items() if sign != "0" and count}
+            fixed = bool(lrlr_samples) and len(nonzero_signs) == 1
+            record = {
+                "c": c_value,
+                "interval": interval_name,
+                "location": location,
+                "R_c": R_c,
+                "sign_counts": sign_counts,
+                "region_sign_counts": region_sign_counts,
+                "fixed_nonzero": fixed,
+                "fixed_sign": next(iter(nonzero_signs)) if fixed else None,
+                "min_abs_projective_product": None if math.isinf(min_abs_product) else min_abs_product,
+                "min_abs_row_value": None if math.isinf(min_abs_row) else min_abs_row,
+            }
+            c_records.append(record)
+            if fixed:
+                fixed_records.append(record)
+
+    by_interval: dict[str, dict[str, Any]] = {}
+    for record in c_records:
+        interval = str(record["interval"])
+        info = by_interval.setdefault(
+            interval,
+            {"tested": 0, "fixed_nonzero": 0, "fixed_sign_counts": {}, "split": 0},
+        )
+        info["tested"] += 1
+        if record["fixed_nonzero"]:
+            info["fixed_nonzero"] += 1
+            sign = str(record["fixed_sign"])
+            info["fixed_sign_counts"][sign] = info["fixed_sign_counts"].get(sign, 0) + 1
+        else:
+            info["split"] += 1
+
+    return {
+        "model": "LRLR anchor rho-row sweep",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "samples_count": samples,
+        "nodes": nodes,
+        "anchor_samples": anchor_samples,
+        "kernel_lrlr_order_sample_count": len(lrlr_samples),
+        "kernel_lrlr_connection_sign_counts": kernel["lrlr_order_connection_sign_counts"],
+        "tested_anchor_count": len(c_records),
+        "fixed_anchor_count": len(fixed_records),
+        "by_interval": by_interval,
+        "fixed_anchors_preview": fixed_records[:10],
+        "skipped": skipped[:20],
+        "anchors": c_records,
+    }
+
+
 def lrlr_residual_offrow_audit_from_chart(
     path: Path,
     samples: int = 32,
@@ -2912,10 +3066,18 @@ def main() -> int:
         action="store_true",
         help="audit the LRLR kernel against the chart's actual full-pair rho off-row",
     )
+    parser.add_argument(
+        "--audit-lrlr-anchor-sweep",
+        action="store_true",
+        help="sweep off-cut anchor c rows against the bare LRLR kernel",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
     parser.add_argument("--connection-samples", type=int, default=30)
+    parser.add_argument("--anchor-samples", type=int, default=41)
+    parser.add_argument("--anchor-min", type=float)
+    parser.add_argument("--anchor-max", type=float)
     parser.add_argument("--lambda-min", type=float, default=-10.0)
     parser.add_argument("--lambda-max", type=float, default=10.0)
     parser.add_argument("--lambda-samples", type=int, default=41)
@@ -3320,6 +3482,39 @@ def main() -> int:
                 f"free root = {sample['free_root']}, "
                 f"free region = {sample['free_root_region']}, "
                 f"roots = {sample['real_roots']}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_lrlr_anchor_sweep:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = lrlr_anchor_sweep_audit(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+            anchor_samples=args.anchor_samples,
+            anchor_min=args.anchor_min,
+            anchor_max=args.anchor_max,
+        )
+        print("Gate 1 LRLR anchor rho-row sweep")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  LRLR-order samples = {audit['kernel_lrlr_order_sample_count']}")
+        print(f"  LRLR connection signs = {audit['kernel_lrlr_connection_sign_counts']}")
+        print(f"  tested anchors = {audit['tested_anchor_count']}")
+        print(f"  fixed anchors = {audit['fixed_anchor_count']}")
+        print(f"  by interval = {audit['by_interval']}")
+        for record in audit["fixed_anchors_preview"][:5]:
+            print(
+                "  fixed c = "
+                f"{record['c']:.12g}, interval = {record['interval']}, "
+                f"sign = {record['fixed_sign']}, "
+                f"min |product| = {record['min_abs_projective_product']:.6e}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

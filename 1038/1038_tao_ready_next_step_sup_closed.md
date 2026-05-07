@@ -928,6 +928,18 @@ Useful corrections already recorded:
   synthetic chart runs through the pipeline and blocks only at split LRLR
   signs; the old one-cut diagnostic stops at the contract layer.  This is now
   the single acceptance command for any future compact chart JSON.
+- New pre-chart LRLR diagnostic: `--audit-lrlr-anchor-sweep`.  Since the
+  homogeneous row has the actual form \(L_\rho(F)=F(c)/(N(c)^2R(c))\), this
+  command sweeps off-cut anchors \(c\) and tests whether
+  \(I_{\rm gap}(F)L_\rho(F)\) has a fixed projective sign on the sampled LRLR
+  kernel.  In the symmetric diagnostic model, exterior anchors split, but a
+  narrow middle-gap window near \(c\in[-0.36,-0.35]\) has fixed positive sign
+  at sampled resolution; the right-omitted and nonsymmetric diagnostics show
+  the same phenomenon with the fixed anchor again in the middle gap.  This is
+  not a Gate 1 proof, but it changes the next check on a real compact chart:
+  first test whether its actual anchor \(c\) lies in an interval-certified
+  LRLR \(\rho\)-window.  If not, the route moves to affine
+  \(b-\Lambda\rho\) contact verification.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
