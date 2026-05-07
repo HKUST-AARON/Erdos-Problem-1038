@@ -16083,6 +16083,62 @@ theorem queue.
     points in each branch, the four mixed endpoint-heavy survivor patterns are
     excluded modulo Gate 3 routing.
 
+    LRLR kernel audit.
+
+    It remains to handle \((LR,LR)\).  This case is different because the two
+    endpoint-to-endpoint component equations impose only two linear conditions
+    on the cubic numerator.  The admissible numerator space is therefore a
+    two-dimensional kernel, and a fixed connection sign is impossible.
+
+    The extractor now has
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-lrlr-kernel --connection-nodes 80
+    ```
+
+    which forms the two component-integral rows
+
+    \[
+    I_L(F)=\int_{\alpha_1}^{\beta_1}\omega_F,\qquad
+    I_R(F)=\int_{\alpha_2}^{\beta_2}\omega_F
+    \]
+
+    on \(\mathbb R[x]_{\le3}\), computes their two-dimensional kernel, and
+    samples directions in that kernel.  On \(\Gamma=(-2,-1,1,2),p=-3\), the
+    output is
+
+    \[
+    \operatorname{sgn}I_{\rm gap}=16(+),16(-),
+    \]
+
+    and even among samples with the \((LR,LR)\) root order,
+
+    \[
+    \operatorname{sgn}I_{\rm gap}=14(+),14(-).
+    \tag{G1LRLRKernelAudit}
+    \]
+
+    The non-symmetric exterior-pole model shows the same behavior.  Therefore
+    \((LR,LR)\) cannot be killed by any argument using only the two component
+    zero-integral equations plus the \((LR,LR)\) root order.  The sign change
+    is controlled by the free third root: in the symmetric audit it moves from
+    the left exterior through the middle gap to the right exterior while the
+    component roots remain in the two cuts.
+
+    The remaining Gate 1 proof obligation is now sharply:
+
+    \[
+    \boxed{
+    \textbf{LRLRResidualOffRowLemma.}
+    }
+    \]
+
+    Identify the actual Gate 1 off-row / residual / KKT compatibility
+    condition that excludes one of the two connection-sign branches in the
+    LRLR kernel.  Without such an extra row, the LRLR pattern is a genuine
+    two-branch obstruction in the full-pair endpoint-heavy model.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

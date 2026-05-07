@@ -1491,6 +1491,95 @@ def endpoint_heavy_mixed_kernel_root_audit(
     }
 
 
+def endpoint_heavy_lrlr_kernel_audit(
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    nodes: int = 100,
+) -> dict[str, Any]:
+    """Linear-kernel audit for the remaining LRLR endpoint-heavy pattern."""
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError(
+            f"omitted pole {omitted_pole} lies in the connection gap ({b1}, {a2}); "
+            "ordinary LRLR audit requires an exterior omitted pole"
+        )
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    basis = [monomial(k) for k in range(4)]
+    rows = [
+        [integrate_cut(poly, a1, b1) for poly in basis],
+        [integrate_cut(poly, a2, b2) for poly in basis],
+    ]
+    M = np.array(rows, dtype=float)
+    _u, s, vh = np.linalg.svd(M)
+    kernel_basis = vh[-2:, :]
+    samples = []
+    for angle in np.linspace(0.0, 2.0 * math.pi, 33)[:-1]:
+        coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
+        roots_complex = np.roots(list(reversed(coeff)))
+        real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
+        lrlr_order = len(real_roots) == 3 and sum(a1 < r < b1 for r in real_roots) == 1 and sum(a2 < r < b2 for r in real_roots) == 1
+        samples.append(
+            {
+                "angle": float(angle),
+                "coefficients_ascending": coeff.tolist(),
+                "connection_integral": integrate_gap(coeff),
+                "connection_sign": sign_label(integrate_gap(coeff)),
+                "real_roots": real_roots,
+                "lrlr_order": lrlr_order,
+                "values": {
+                    "left_exterior_probe": poly_eval(coeff, a1 - 1.0),
+                    "middle_gap_probe": poly_eval(coeff, 0.5 * (b1 + a2)),
+                    "right_exterior_probe": poly_eval(coeff, b2 + 1.0),
+                },
+            }
+        )
+    sign_counts: dict[str, int] = {}
+    order_sign_counts: dict[str, int] = {}
+    for sample in samples:
+        sign = str(sample["connection_sign"])
+        sign_counts[sign] = sign_counts.get(sign, 0) + 1
+        if sample["lrlr_order"]:
+            order_sign_counts[sign] = order_sign_counts.get(sign, 0) + 1
+    return {
+        "model": "LRLR two-integral kernel audit",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "nodes": nodes,
+        "singular_values": s.tolist(),
+        "kernel_basis": kernel_basis.tolist(),
+        "connection_sign_counts": sign_counts,
+        "lrlr_order_connection_sign_counts": order_sign_counts,
+        "samples": samples,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -1939,6 +2028,11 @@ def main() -> int:
         action="store_true",
         help="check cubic kernel root orders for mixed zero-connection systems",
     )
+    parser.add_argument(
+        "--audit-lrlr-kernel",
+        action="store_true",
+        help="audit the two-dimensional cubic kernel for the LRLR endpoint-heavy pattern",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -2115,6 +2209,32 @@ def main() -> int:
                 f"min |F(y)| = {summary['min_abs_value_at_y']:.6e}, "
                 f"det signs = {summary['augmented_eval_det_sign_counts']}, "
                 f"min |det| = {summary['min_abs_augmented_eval_det']:.6e}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_lrlr_kernel:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = endpoint_heavy_lrlr_kernel_audit(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 LRLR endpoint-heavy kernel audit")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  singular values = {audit['singular_values']}")
+        print(f"  connection sign counts = {audit['connection_sign_counts']}")
+        print(f"  LRLR-order connection signs = {audit['lrlr_order_connection_sign_counts']}")
+        for sample in audit["samples"][:8]:
+            print(
+                "  sample angle = "
+                f"{sample['angle']:.3f}, sign = {sample['connection_sign']}, "
+                f"LRLR order = {sample['lrlr_order']}, roots = {sample['real_roots']}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

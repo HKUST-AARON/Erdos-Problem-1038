@@ -846,6 +846,14 @@ Useful corrections already recorded:
   Hence \(F_y(y)\ne0\), so a regular mixed zero-connection crossing is
   impossible; the four mixed endpoint-heavy survivor patterns are excluded
   modulo Gate 3 routing.
+- The remaining endpoint-heavy pattern is \((LR,LR)\).  The new
+  `--audit-lrlr-kernel` command forms the two component-integral rows on
+  cubics and samples their two-dimensional kernel.  In both tested
+  exterior-pole models, connection signs are split even among samples with
+  valid LRLR root order.  Therefore LRLR cannot be excluded by component
+  zero-integrals plus root order alone.  It needs an additional actual Gate 1
+  row: residual, off-row, or KKT compatibility.  The next proof target is
+  `LRLRResidualOffRowLemma`.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
