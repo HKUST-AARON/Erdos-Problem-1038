@@ -15979,6 +15979,110 @@ theorem queue.
     `MixedKernelRootOrderLemma` and excludes regular mixed zero-connection
     crossings.
 
+    Proof of the mixed augmented determinant sign.
+
+    This determinant sign is no longer mysterious.  Write
+
+    \[
+    w_C(x)=\frac{1}{(x-p)^2|R(x)|}
+    \quad\text{on the cuts},
+    \qquad
+    w_G(x)=\frac{1}{(x-p)^2R(x)}
+    \quad\text{on the middle gap}.
+    \]
+
+    With the branch \(R(x)\sim x^2\) at \(+\infty\), one has
+
+    \[
+    R(x)<0\quad(\beta_1<x<\alpha_2),
+    \]
+
+    hence
+
+    \[
+    w_C>0,\qquad w_G<0.
+    \tag{G1MixedWeightSigns}
+    \]
+
+    For any of the four mixed patterns, the first three rows of
+    \(\mathcal A_y\) are integrals against \(w_C,w_C,w_G\), and the last row
+    is evaluation at \(y\).  By multilinearity / Andreief-Cauchy-Binet,
+
+    \[
+    \det\mathcal A_y
+    =
+    \int_{J_1\times J_2\times G}
+    w_C(s_1)w_C(s_2)w_G(s_3)
+    \det
+    \begin{pmatrix}
+    1&s_1&s_1^2&s_1^3\\
+    1&s_2&s_2^2&s_2^3\\
+    1&s_3&s_3^2&s_3^3\\
+    1&y&y^2&y^3
+    \end{pmatrix}
+    ds_1ds_2ds_3,
+    \tag{G1MixedAndreief}
+    \]
+
+    where \(G=(\beta_1,\alpha_2)\), and \(J_1,J_2\) are the two contact
+    intervals appearing in the mixed pattern.  The determinant in the integrand
+    is the Vandermonde product
+
+    \[
+    \prod_{i<j}(x_j-x_i)
+    \]
+
+    evaluated on the ordered row list
+
+    \[
+    (x_1,x_2,x_3,x_4)=(s_1,s_2,s_3,y).
+    \]
+
+    Since \(J_1,J_2,G\) and the point \(y\) are strictly ordered in each mixed
+    pattern, this Vandermonde factor has a fixed sign throughout the product
+    domain.  The weight product has sign \(+\cdot+\cdot-=-\).  Therefore the
+    sign of \(\det\mathcal A_y\) is fixed and is obtained by multiplying this
+    negative weight sign by the row-order Vandermonde sign.
+
+    The four cases are:
+
+    \[
+    \begin{array}{c|c|c|c}
+    \text{pattern} & \text{row order }(s_1,s_2,s_3,y)
+    & \operatorname{sgn}\mathrm{Vdm} & \operatorname{sgn}\det\mathcal A_y\\
+    \hline
+    (LR,LI) & L,\ R_{<y},\ G,\ y & - & +\\
+    (LR,IR) & L,\ R_{>y},\ G,\ y & + & -\\
+    (LI,LR) & L_{<y},\ R,\ G,\ y & - & +\\
+    (IR,LR) & L_{>y},\ R,\ G,\ y & + & -
+    \end{array}
+    \tag{G1MixedAugDetSignTable}
+    \]
+
+    These are exactly the observed signs in (G1MixedAugDetSmoke).  Moreover
+    the determinant is strictly nonzero in the regular interior case because
+    all intervals have positive length, \(y\) is not an endpoint, and the
+    Vandermonde factor does not vanish on the product domain.  Degeneration
+    can occur only if a contact interval collapses, \(y\) hits an endpoint, or
+    a cut/gap collision occurs; these are Gate 3 boundary routes.
+
+    Thus:
+
+    \[
+    \boxed{
+    \textbf{MixedAugmentedDeterminantSignLemma: proved for the full-pair
+    exterior-pole kernel.}
+    }
+    \tag{G1MixedAugDetProved}
+    \]
+
+    Consequently \(F_y(y)\ne0\) for the zero-connection kernel cubic, so the
+    mixed zero-connection system has no regular interior solution.  Therefore
+    the mixed connection integral cannot change sign along a regular
+    continuation branch.  Since the continuation scan gives the sign at sample
+    points in each branch, the four mixed endpoint-heavy survivor patterns are
+    excluded modulo Gate 3 routing.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

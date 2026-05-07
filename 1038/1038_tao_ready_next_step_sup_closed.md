@@ -834,6 +834,18 @@ Useful corrections already recorded:
   has the same fixed signs as \(F_y(y)\) in both tested exterior-pole models.
   The next proof target is `MixedAugmentedDeterminantSignLemma`: prove the
   sign of \(\det\mathcal A_y\) for all regular mixed \(y\).
+- `MixedAugmentedDeterminantSignLemma` is now proved for the full-pair
+  exterior-pole kernel.  Andreief expansion writes \(\det\mathcal A_y\) as a
+  product-domain integral of \(w_Cw_Cw_G\) times a Vandermonde determinant.
+  The cut weights are positive, the middle-gap weight is negative, and the
+  row order is fixed in each mixed pattern.  This gives
+  \[
+  (LR,LI),(LI,LR):\det\mathcal A_y>0,\qquad
+  (LR,IR),(IR,LR):\det\mathcal A_y<0.
+  \]
+  Hence \(F_y(y)\ne0\), so a regular mixed zero-connection crossing is
+  impossible; the four mixed endpoint-heavy survivor patterns are excluded
+  modulo Gate 3 routing.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
