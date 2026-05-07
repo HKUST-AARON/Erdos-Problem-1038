@@ -14761,6 +14761,66 @@ theorem queue.
     and which rows are state outputs, and any resulting Gate 1 computation
     would not be proof-grade.
 
+    Row-count resolution forced by the monic chart.
+
+    The first option above, enlarging the correction image, is not harmless in
+    the monic \(Q\)-chart.  The ledger already proves
+
+    \[
+    (\Delta P,\Delta Q)\longmapsto Q\Delta P-P\Delta Q
+    \]
+
+    is an isomorphism
+
+    \[
+    \mathbb R[z]_{\le d-3}\oplus\mathbb R[z]_{\le d-1}
+    \xrightarrow{\ \sim\ }
+    \mathbb R[z]_{\le 2d-3},
+    \]
+
+    because \(\gcd(P,Q)=1\) and \(Q\) is monic.  Hence the moving correction
+    image has the fixed dimension \(2d-2\).  Enlarging it would change the
+    finite-gap chart rather than merely complete the missing data.
+
+    Therefore the only proof-compatible repair is:
+
+    \[
+    \boxed{
+    \text{choose exactly }2d-2\text{ independent normalization rows for }A,
+    \text{ and treat every other pole/residue/period quantity as a state
+    output, open inequality, or quotient row.}
+    }
+    \tag{G1RowCountResolution}
+    \]
+
+    In particular, the statement "zero-mass plus all \(H(p_k),H'(p_k)\) rows"
+    cannot be the actual row list \(\ell\) for \(A\).  It can only be a
+    toolbox of possible TP rows or a larger diagnostic row set.  The chart
+    equations must specify which \(2d-2\) rows are imposed and why the remaining
+    pole/residue signs are preserved as regular state inequalities.
+
+    For cubic \(Q\), this means the next solver must choose four independent
+    rows.  A plausible square gauge is a four-row pole-state gauge, for example
+    selected residue/pole-position rows after the monic \(Q\) coordinate has
+    absorbed the other two pole rows; but this is not yet written in the proof.
+    It must be derived from the actual finite-gap parameterization, not chosen
+    for numerical convenience.
+
+    Thus the next theorem is more precise:
+
+    \[
+    \boxed{
+    \textbf{SquareMovingChartGaugeLemma.}
+    }
+    \]
+
+    It must identify the \(2d-2\) rows in \(\ell\), prove
+    \(A_{\ell,X}\) is invertible in the regular non-pinched chart, and prove
+    that all omitted pole/residue/period conditions are either quotient
+    directions or open regularity inequalities routed to Gate 3 when they fail.
+    Only after this lemma is fixed can CompactG2MovingChartEquations be
+    implemented without guessing.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

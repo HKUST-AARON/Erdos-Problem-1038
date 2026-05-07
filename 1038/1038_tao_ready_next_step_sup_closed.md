@@ -598,6 +598,13 @@ Useful corrections already recorded:
   square moving-chart matrix \(A_{\ell,X}\) is not yet defined.  The next proof
   step must decide which rows are equations, which are state outputs/quotient
   rows, or whether the correction image must be enlarged.
+- The monic \(Q\)-chart rules out a harmless enlargement: the map
+  \((\Delta P,\Delta Q)\mapsto Q\Delta P-P\Delta Q\) is already an isomorphism
+  onto \(\mathbb R[z]_{\le2d-3}\), so the moving correction image really has
+  dimension \(2d-2\).  The compatible repair is to prove a
+  `SquareMovingChartGaugeLemma`: choose exactly \(2d-2\) independent rows for
+  \(A\), and show every omitted pole/residue/period condition is a state
+  output, quotient direction, or open regularity inequality routed to Gate 3.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
