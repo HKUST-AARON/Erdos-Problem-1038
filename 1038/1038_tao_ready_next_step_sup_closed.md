@@ -395,6 +395,34 @@ Useful corrections already recorded:
   argument is only a sufficient route after the component order, integration
   basepoint, \(Q^2R\) signs, \(c,u,v\) row positions, and moving-Q/period rows
   have all been identified as one compatible ordered Cauchy/confluent system.
+- Conditional proof bridge now recorded: if the repaired Cauchy columns
+  \(C_j=H_j^{rep}/(Q^2R)\) are already one compatible sign-regular ordered
+  Cauchy/confluent block, then the potential rows
+  \(V_j(x)=\int_x^{x_*}C_j(t)\,dt\) inherit determinant signs by the
+  total-positivity of the ordered step kernel and Cauchy-Binet/Andreief.  A
+  mixed determinant with one evaluation row \(\rho_j=-C_j(c)\) gives the
+  off-row alternating cofactors, hence endpoint cone separation.  If the same
+  five-column orientation gives nonpositive \(V_\Pi\)-lift on positive
+  circuits, then the homogeneous margins follow and the affine \(\Lambda\)
+  parameter is compactified.  This still leaves the actual
+  `RepairedCauchySignRegularity / ChartCompatibility` proof and compact
+  affine boundary-row pencil verification; it is not a Gate 1 PASS.
+- The positive-lift recession check is now finite and determinant-level: for
+  five regular points \(x_i\), the circuit of the four endpoint rows is given
+  by cofactors
+  \(a_i=(-1)^i\det[V_S(x_1)\cdots\widehat{V_S(x_i)}\cdots V_S(x_5)]\), and its
+  lift is, up to the fixed orientation sign,
+  \[
+  \sum_i a_iV_\Pi(x_i)
+  =
+  \pm\det\begin{pmatrix}
+  V_S(x_1)&\cdots&V_S(x_5)\\
+  V_\Pi(x_1)&\cdots&V_\Pi(x_5)
+  \end{pmatrix}.
+  \]
+  Thus no-positive-lift recession is exactly a five-column orientation check:
+  any circuit whose endpoint cofactors can be oriented positive must have
+  nonpositive period lift, with vanishing cofactors routed to Gate 3.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
