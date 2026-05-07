@@ -9009,6 +9009,37 @@ theorem NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_of
       (positiveSet_isOpen_of_continuous hcont) hzero hnoDiag
 
 /--
+Interval-witness version of
+`NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_of_zero_continuous`.
+-/
+theorem NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_interval_of_zero_continuous
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hendpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ))
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+    ∃ xMinus xPlus : ℝ,
+      C.AugmentedIntervalMaximal ∧
+      C.interval = Ioo xMinus xPlus ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < xPlus := by
+  rcases hendpoint.exists_positiveComponent_augmentedMaximal_of_zero_continuous
+      hcont hzero hnoDiag with
+    ⟨C, hmax, hbaseline, hright⟩
+  exact
+    ⟨C, C.left, C.right, hmax, PositiveComponent.interval_eq C,
+      hbaseline, hright⟩
+
+/--
 Truncated-positive analogue of
 `positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
 preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
