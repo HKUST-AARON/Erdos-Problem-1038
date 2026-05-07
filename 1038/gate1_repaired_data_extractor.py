@@ -894,17 +894,29 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
         ],
         "moving_chart_rows": {
-            "candidate": {
+            "selected_gauge": {
                 "kind": "full_pair_pole_gauge",
                 "rows": "H(p_i), H'(p_i) for d-1 selected complete pole pairs",
+                "omitted_pair_rule": (
+                    "omit exactly one complete Q-pole pair; for the ordinary "
+                    "LRLR connection audit the omitted pole must lie in an "
+                    "exterior component, otherwise that gauge is rejected or "
+                    "routed to a separate singular/connection-gap case"
+                ),
             },
-            "status": "TODO",
+            "status": "proved_candidate",
             "required_proofs": [
-                "TPSquareMovingChartGaugeLemma",
-                "A_{ell,X} invertible on regular chart",
-                "omitted pole pair is exterior or otherwise routed away",
-                "omitted pole/residue/period rows are state outputs or inequalities",
+                "G1FullPairGaugeDet gives det A_pair > 0 for real simple selected poles",
+                "G1FullPairRepairedEndpoint gives explicit H_gamma^rep formula",
+                "non-exterior omitted pole is rejected by the current LRLR audit contract",
+                "remaining pole/residue/period quantities are state outputs or open inequalities, not rows of A",
             ],
+            "output_to_chart_json": {
+                "row_gauge": {
+                    "kind": "full_pair_pole_gauge",
+                    "omit_q_pole_index": "integer index of exterior omitted Q-pole",
+                }
+            },
         },
         "output_chart_json_fields": [
             "P",
@@ -924,6 +936,8 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
         "provenance": {
             "CompactG2MovingChartEquations": "TODO: ledger theorem/line reference",
             "TPSquareMovingChartGaugeLemma": "TODO: ledger theorem/line reference",
+            "FullPairGaugeDet": "G1FullPairGaugeDet",
+            "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
             "period_filling_convention": "TODO: ledger theorem/line reference",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },

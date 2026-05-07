@@ -5422,3 +5422,11 @@ formulas are real progress, but they are not yet a full compact chart solver.
 The remaining equation-spec gaps are the period/filling convention, the rule
 selecting \(Z_0,u,c,v,a,b\), and proof-grade provenance for the moving-chart
 rows and global finite-gap equations.
+
+Update: the moving-chart row block has now been upgraded from TODO to the
+selected full-pair gauge contract.  The equation-spec audit reports
+`moving_chart_rows, ready = True`.  This confirms the useful part of the
+colleague's diagnosis: the canonical row choice is the full-pair omitted-pole
+gauge.  It also confirms the missing part: the chart JSON still cannot be
+generated until the global finite-gap equations, period/filling convention,
+and \(Z_0,u,c,v,a,b\) selection rule are specified.

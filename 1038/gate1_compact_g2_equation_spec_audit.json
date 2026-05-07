@@ -1,7 +1,7 @@
 {
   "blocking_errors": [
     "equation spec does not declare proof_grade=true",
-    "not-ready blocks: ['unknown_vector', 'equation:finite_gap_representation', 'equation:mass_decay_normalization', 'equation:positivity_interlacing', 'equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'moving_chart_rows', 'provenance']"
+    "not-ready blocks: ['unknown_vector', 'equation:finite_gap_representation', 'equation:mass_decay_normalization', 'equation:positivity_interlacing', 'equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
   ],
   "blocks": [
     {
@@ -47,8 +47,8 @@
     },
     {
       "name": "moving_chart_rows",
-      "ready": false,
-      "todo_like": true
+      "ready": true,
+      "todo_like": false
     },
     {
       "name": "output_chart_json_fields",

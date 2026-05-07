@@ -17671,3 +17671,53 @@ solver and JSON.}
 
 In particular, writing `TPSquareMovingChartGaugeLemma` is necessary but not
 sufficient for `gate1_compact_g2_chart.json`.
+
+The equation-spec template has now been updated with the full-pair gauge as
+the selected moving-chart row contract.  It records:
+
+```json
+{
+  "kind": "full_pair_pole_gauge",
+  "rows": "H(p_i), H'(p_i) for d-1 selected complete pole pairs"
+}
+```
+
+with the omitted-pole rule that the ordinary LRLR audit accepts only an
+exterior omitted \(Q\)-pole; cut, endpoint, or middle-gap omitted poles are
+rejected or routed to separate degeneration/connection cases.
+
+Rerunning
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-chart-equation-spec \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json \
+  --write-json 1038/gate1_compact_g2_equation_spec_audit.json
+```
+
+now reports:
+
+```text
+block = moving_chart_rows, ready = True, todo_like = False
+block = output_chart_json_fields, ready = True, todo_like = False
+solver ready = False
+```
+
+Thus `TPSquareMovingChartGaugeLemma` has been converted into an executable
+contract block for the chart handoff.  The remaining not-ready blocks are now
+only:
+
+```text
+unknown_vector
+finite_gap_representation
+mass_decay_normalization
+positivity_interlacing
+endpoint_neck_equations
+period_filling_convention
+Z0_boundary_row_selection
+provenance
+```
+
+This narrows the next step.  The row-gauge selection is no longer the active
+engineering blocker; the active blockers are the global finite-gap equations
+and especially the period/filling convention and boundary-row selection.
