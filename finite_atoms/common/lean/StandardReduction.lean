@@ -7571,6 +7571,29 @@ theorem unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrabl
   · exact unitInterval_positiveSet_subset_augmented μ
       (lt_of_lt_of_le hpos hle)
 
+/--
+Any truncated-positive point has an ordinary open interval neighbourhood whose
+points are all augmented-positive, provided the off-diagonal log kernels are
+integrable.  This is the local bridge from the truncated primary objective to
+the augmented component-selection topology.
+-/
+theorem unitIntervalTruncatedPositiveSet_exists_augmented_interval_around
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {x : ℝ} (hx : x ∈ unitIntervalTruncatedPositiveSet μ) :
+    ∃ l r : ℝ,
+      l < x ∧ x < r ∧
+      Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ := by
+  rcases unitIntervalTruncatedPositiveSet_exists_interval_around μ hx with
+    ⟨l, r, hlx, hxr, hsub_trunc⟩
+  refine ⟨l, r, hlx, hxr, ?_⟩
+  exact fun y hy =>
+    unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
+      μ hlog_int (hsub_trunc hy)
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
