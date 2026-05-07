@@ -25957,6 +25957,30 @@ theorem support_unique_in_component_of_normalizedComponentBlock_eq_dirac_barycen
     support_unique_in_component_of_normalizedComponentBlock_eq_dirac_endpoint
       R hendpoint
 
+noncomputable def unitInterval_standardReduction_from_supportUnique_boundary
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hright_pos : 0 < C.right)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
+    )
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  let Pack : TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+    taoVariationComponentPackage_of_canonicalEndpointMass_support_unique_baseline_data
+      μ TaoVariationMeanChoice.nonnegativeMean false 0 C C.left C.right
+      (by
+        rw [C.interval_eq])
+      hbaseline hright_pos hboundary hunique
+  exact Pack.toNormalizedEndpointPotential
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
