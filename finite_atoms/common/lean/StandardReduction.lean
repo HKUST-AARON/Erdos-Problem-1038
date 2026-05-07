@@ -2495,6 +2495,17 @@ theorem realMeasure_mem_support_of_singleton_pos
     measure_mono hsingleton_subset
   exact lt_of_lt_of_le hpos hle
 
+theorem diagonalAtomSet_subset_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    diagonalAtomSet μ ⊆ (realMeasure μ).support := by
+  intro x hxdiag
+  have hreal_pos : 0 < realMeasure μ ({x} : Set ℝ) := by
+    rw [realMeasure]
+    rw [Measure.map_apply continuous_subtype_val.measurable
+      (measurableSet_singleton x)]
+    simpa [diagonalAtomSet, Set.preimage, Set.mem_singleton_iff] using hxdiag
+  exact realMeasure_mem_support_of_singleton_pos hreal_pos
+
 theorem notMem_diagonalAtomSet_of_not_mem_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
     (hnot_support : x ∉ (realMeasure μ).support) :
@@ -3969,6 +3980,23 @@ theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_no_diagona
   · exact hpos
   · exfalso
     exact (hnoDiag l r hlr haug hinter).le_bot ⟨hy, hdiag⟩
+
+theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_support_disjoint
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    (hsupport :
+      ∀ l r : ℝ, l < r →
+        Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+        (Ioo l r ∩ C.interval).Nonempty →
+        Disjoint (Ioo l r) (realMeasure μ).support) :
+    C.AugmentedIntervalMaximal := by
+  refine C.augmentedIntervalMaximal_of_intervalMaximal_no_diagonal hmax ?_
+  intro l r hlr haug hinter
+  have hdisjoint_support := hsupport l r hlr haug hinter
+  rw [Set.disjoint_left]
+  intro x hx hxdiag
+  exact hdisjoint_support.le_bot
+    ⟨hx, diagonalAtomSet_subset_realMeasure_support μ hxdiag⟩
 
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
