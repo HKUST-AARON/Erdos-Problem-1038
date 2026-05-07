@@ -508,6 +508,25 @@ theorem TaoComponentReductionData.support_subset_normalized
   support_subset_endpoint_union_nonnegative D.support_bounded
     D.baseline_inside_component D.unique_support_in_component
 
+lemma disjoint_baseline_of_support_subset_endpoint_union_nonnegative
+    {Support : Set ℝ}
+    (hSupport : Support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1) :
+    Disjoint (Ioo (-1 : ℝ) 0) Support := by
+  rw [Set.disjoint_left]
+  intro x hx hxsupport
+  rcases hSupport hxsupport with hxendpoint | hxnonneg
+  · have hx_eq : x = -1 := by simpa using hxendpoint
+    exact (lt_irrefl (-1 : ℝ)) (by simpa [hx_eq] using hx.1)
+  · exact not_lt_of_ge hxnonneg.1 hx.2
+
+lemma disjoint_baseline_Icc_of_support_subset_endpoint_union_nonnegative
+    {Support : Set ℝ} {a b : ℝ}
+    (hSupport : Support ⊆ ({-1} : Set ℝ) ∪ Icc (0 : ℝ) 1)
+    (hsubset : Icc a b ⊆ Ioo (-1 : ℝ) 0) :
+    Disjoint (Icc a b) Support := by
+  exact (disjoint_baseline_of_support_subset_endpoint_union_nonnegative
+    hSupport).mono_left hsubset
+
 theorem TaoComponentReductionData.endpointMass_ge_half
     (D : TaoComponentReductionData) :
     (1 / 2 : ℝ) ≤ D.endpointMass :=
