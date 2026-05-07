@@ -16024,6 +16024,87 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       (fun x hx => hspan_pos ⟨by linarith [hx.1], hx.2⟩),
       hboundary, hzero⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_spanning_positive_boundary_distance_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomSpanningPositiveBoundaryDistanceZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε xRight boundarySep : ℝ,
+          0 < ε ∧
+          0 < xRight ∧
+          0 < boundarySep ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) xRight ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          (∀ᵐ t ∂realMeasure μ, boundarySep ≤ |C.right - t|) ∧
+          Integrable (fun t : ℝ => |C.right - t|) (realMeasure μ) ∧
+          Integrable (fun t : ℝ => Real.log |C.right - t|) (realMeasure μ) ∧
+          unitIntervalLogPotential μ C.right ≤ 0 ∧
+          (∫ t, |C.right - t| ∂realMeasure μ) ≤
+            (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_spanning_positive_replacement_rigidity_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomSpanningPositiveBoundaryDistanceZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, xRight, boundarySep, hε, hxRight_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      hdist_int, hlog_int, hpotential_nonpos, hdistance_upper, hzero⟩
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) := by
+    exact
+      tao_boundary_average_of_boundary_distance_upper
+        (μ := μ)
+        (xPlus := C.right)
+        (endpointMass :=
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
+        (ε := boundarySep)
+        hboundarySep hdist_lower hdist_int hlog_int hpotential_nonpos
+        hdistance_upper
+  exact
+    ⟨C, ε, xRight, hε, hxRight_pos, hmax, hspan_pos,
+      hendpoint_unit_pos, hbaseline, hboundary, hzero⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
