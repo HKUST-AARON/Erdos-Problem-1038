@@ -26090,5 +26090,53 @@ noncomputable def unitInterval_standardReduction_from_endpointAtom_openGap_zeroN
       hPrimary hSecondary hε hright_pos hδ hmax hspan_aug
       hendpoint_unit_pos hbaseline hright_gap hzero
 
+noncomputable def unitInterval_standardReduction_from_endpointAtom_augmentedGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε δ₀ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1})
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Icc C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  let gap :=
+    C.right_gap_union_of_augmented_gap_not_mem_support
+      hδ₀ haug_gap hnot_support
+  let δ : ℝ := Classical.choose gap
+  have hδ : 0 < δ := (Classical.choose_spec gap).1
+  have hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ :=
+    (Classical.choose_spec gap).2
+  exact
+    unitInterval_standardReduction_from_endpointAtom_rightGap_zeroNeighborhood
+      hPrimary hSecondary hε hright_pos hδ hmax hspan_aug
+      hendpoint_unit_pos hbaseline hright_gap hzero
+
 end StandardReduction
 end Erdos1038
