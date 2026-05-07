@@ -11179,6 +11179,65 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_da
     ⟨C, _hinterval, hbaseline_C, hright_C⟩
   exact ⟨C, hbaseline_C, hright_C⟩
 
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_concrete_right_zero_threshold_tail
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε threshold δ : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)))
+    (hzero_pos : threshold < unitIntervalLogPotential μ 0)
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hzero_tail :
+      singularTailMass truncε μ 0 < ENNReal.ofReal (threshold / 2))
+    (hδ : 0 < δ)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hright_no_diag :
+      Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ :=
+    unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_support_data
+      htruncε hbaseline_local
+  have hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ :=
+    mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+      htruncε hthreshold hzero_pos hzero_no_diag hzero_tail
+  have hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ) := by
+    rw [Set.disjoint_left]
+    intro x hx hxdiag
+    rcases exists_baseline_Icc_neighborhood hx with
+      ⟨a, b, hxab, hsub_base⟩
+    rcases hbaseline_local x hx a b hxab hsub_base with
+      ⟨hsupport, _hpos, _htail⟩
+    exact
+      (disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport).le_bot
+        ⟨hxab, hxdiag⟩
+  have hspan_no_diag :
+      Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ) :=
+    disjoint_Ioo_neg_one_delta_diagonal_of_parts
+      hbaseline_no_diag hzero_no_diag hright_no_diag
+  rcases exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_neighborhood
+      μ hlog_int hδ hbaseline hright hzero hspan_no_diag with
+    ⟨C, _hinterval, hbaseline_C, hright_C⟩
+  exact ⟨C, hbaseline_C, hright_C⟩
+
 /--
 Local-baseline selected-component constructor with the right neighbourhood
 provided in ordinary threshold/tail form.  This removes the manual
