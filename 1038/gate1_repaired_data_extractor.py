@@ -624,6 +624,333 @@ def endpoint_heavy_split_pattern_audit() -> dict[str, Any]:
     }
 
 
+def split_R_value(x: float, gammas: list[float]) -> float:
+    a1, b1, a2, b2 = sorted(gammas)
+    radicand = math.prod(x - gamma for gamma in [a1, b1, a2, b2])
+    if radicand <= 0.0:
+        raise ValueError(f"x={x} is not in a real off-cut gap for gammas={gammas}")
+    sign = -1.0 if b1 < x < a2 else 1.0
+    return sign * math.sqrt(radicand)
+
+
+def split_cut_R_abs(x: float, gammas: list[float]) -> float:
+    a1, b1, a2, b2 = sorted(gammas)
+    if a1 < x < b1 or a2 < x < b2:
+        return math.sqrt(abs(math.prod(x - gamma for gamma in [a1, b1, a2, b2])))
+    raise ValueError(f"x={x} is not inside a cut component for gammas={gammas}")
+
+
+def integrate_real_interval(func: Any, left: float, right: float, nodes: int = 200) -> float:
+    xs, ws = np.polynomial.legendre.leggauss(nodes)
+    mid = 0.5 * (left + right)
+    half = 0.5 * (right - left)
+    total = 0.0
+    for x, w in zip(xs, ws):
+        total += float(w) * func(float(mid + half * x))
+    return float(half * total)
+
+
+def endpoint_heavy_connection_audit(
+    gammas: list[float] | None = None,
+    omitted_pole: float = 0.0,
+    nodes: int = 200,
+) -> dict[str, Any]:
+    """Diagnostic connection-integral audit for endpoint-heavy split patterns.
+
+    This uses a normalized full-pair kernel 1 / ((x-p)^2 R(x)) with one omitted
+    pole p.  It is not a Gate 1 certificate; it checks whether the proposed
+    split-connection sign is stable in a concrete two-cut model.
+    """
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    left_interval = (a1, b1)
+    right_interval = (a2, b2)
+    patterns = [
+        (("L", "R"), ("L", "R")),
+        (("L", "R"), ("L", "I")),
+        (("L", "R"), ("I", "R")),
+        (("L", "I"), ("L", "R")),
+        (("I", "R"), ("L", "R")),
+    ]
+
+    def point(component_index: int, marker: str) -> float:
+        left, right = left_interval if component_index == 0 else right_interval
+        if marker == "L":
+            return left
+        if marker == "R":
+            return right
+        if marker == "I":
+            return 0.5 * (left + right)
+        raise ValueError(marker)
+
+    def interval_mid(lo: float, hi: float) -> float:
+        return 0.5 * (lo + hi)
+
+    def forced_roots(pattern: tuple[tuple[str, str], tuple[str, str]]) -> list[float]:
+        roots: list[float] = []
+        for component_index, component in enumerate(pattern):
+            x0 = point(component_index, component[0])
+            x1 = point(component_index, component[1])
+            roots.append(interval_mid(x0, x1))
+            for marker in component:
+                if marker == "I":
+                    roots.append(point(component_index, "I"))
+        return roots
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def safe_integral(poly: Array, left: float, right: float) -> float:
+        if abs(right - left) < 1.0e-12:
+            return 0.0
+        if right < left:
+            return -safe_integral(poly, right, left)
+        eps = 1.0e-8
+        if a1 <= left and right <= b1:
+            return integrate_real_interval(
+                lambda x, p=poly: omega_cut_value(p, x),
+                left + eps,
+                right - eps,
+                nodes=nodes,
+            )
+        if a2 <= left and right <= b2:
+            return integrate_real_interval(
+                lambda x, p=poly: omega_cut_value(p, x),
+                left + eps,
+                right - eps,
+                nodes=nodes,
+            )
+        total = 0.0
+        if left < b1:
+            total += safe_integral(poly, left, b1)
+            left = b1
+        if left < a2 and right > b1:
+            total += integrate_real_interval(
+                lambda x, p=poly: omega_gap_value(p, x),
+                max(left, b1) + eps,
+                min(right, a2) - eps,
+                nodes=nodes,
+            )
+            left = a2
+        if right > a2:
+            total += safe_integral(poly, max(left, a2), right)
+        return float(total)
+
+    def pattern_contacts(pattern: tuple[tuple[str, str], tuple[str, str]], params: dict[str, float]) -> list[float]:
+        contacts = []
+        for component_index, component in enumerate(pattern):
+            left, right = left_interval if component_index == 0 else right_interval
+            for marker in component:
+                if marker == "L":
+                    contacts.append(left)
+                elif marker == "R":
+                    contacts.append(right)
+                elif marker == "I":
+                    contacts.append(params[f"y{component_index}"])
+        return contacts
+
+    def roots_from_params(pattern: tuple[tuple[str, str], tuple[str, str]], params: dict[str, float]) -> list[float]:
+        roots = []
+        for component_index, component in enumerate(pattern):
+            left, right = left_interval if component_index == 0 else right_interval
+            if component == ("L", "R"):
+                roots.append(params[f"r{component_index}"])
+            elif component == ("L", "I"):
+                roots.append(params[f"r{component_index}"])
+                roots.append(params[f"y{component_index}"])
+            elif component == ("I", "R"):
+                roots.append(params[f"y{component_index}"])
+                roots.append(params[f"r{component_index}"])
+            else:
+                raise ValueError(component)
+        if len(roots) == 2:
+            roots.append(params["q"])
+        return roots
+
+    def solve_pattern(pattern: tuple[tuple[str, str], tuple[str, str]]) -> list[dict[str, Any]]:
+        from scipy.optimize import least_squares
+
+        specs = []
+        lower = []
+        upper = []
+        start = []
+        for component_index, component in enumerate(pattern):
+            left, right = left_interval if component_index == 0 else right_interval
+            if component == ("L", "R"):
+                specs.append((f"r{component_index}", left, right))
+                lower.append(left + 1.0e-5)
+                upper.append(right - 1.0e-5)
+                start.append(0.5 * (left + right))
+            elif component == ("L", "I"):
+                specs.extend([(f"y{component_index}", left, right), (f"r{component_index}", left, right)])
+                lower.extend([left + 1.0e-5, left + 1.0e-5])
+                upper.extend([right - 1.0e-5, right - 1.0e-5])
+                start.extend([left + 0.65 * (right - left), left + 0.35 * (right - left)])
+            elif component == ("I", "R"):
+                specs.extend([(f"y{component_index}", left, right), (f"r{component_index}", left, right)])
+                lower.extend([left + 1.0e-5, left + 1.0e-5])
+                upper.extend([right - 1.0e-5, right - 1.0e-5])
+                start.extend([left + 0.35 * (right - left), left + 0.65 * (right - left)])
+        if len(specs) == 2:
+            specs.append(("q", a1 - 4.0, b2 + 4.0))
+            lower.append(a1 - 10.0)
+            upper.append(b2 + 10.0)
+            start.append(0.5 * (b1 + a2))
+
+        def unpack(vector: Array) -> dict[str, float]:
+            return {name: float(value) for (name, _lo, _hi), value in zip(specs, vector)}
+
+        def residual(vector: Array) -> Array:
+            params = unpack(vector)
+            # Enforce ordering for LI/IR by penalty residuals.
+            penalties = []
+            for component_index, component in enumerate(pattern):
+                if component == ("L", "I"):
+                    penalties.append(max(0.0, params[f"r{component_index}"] - params[f"y{component_index}"]))
+                elif component == ("I", "R"):
+                    penalties.append(max(0.0, params[f"y{component_index}"] - params[f"r{component_index}"]))
+            roots = roots_from_params(pattern, params)
+            poly = poly_from_roots(roots)
+            contacts = pattern_contacts(pattern, params)
+            return np.array(
+                [
+                    safe_integral(poly, contacts[0], contacts[1]),
+                    safe_integral(poly, contacts[2], contacts[3]),
+                    *penalties,
+                ],
+                dtype=float,
+            )
+
+        solutions = []
+        starts = [np.array(start, dtype=float)]
+        for jitter in np.linspace(-0.35, 0.35, 5):
+            v = np.array(start, dtype=float)
+            for index, (_name, lo, hi) in enumerate(specs):
+                v[index] = min(max(v[index] + jitter * (hi - lo), lo + 1.0e-5), hi - 1.0e-5)
+            starts.append(v)
+        for seed in starts:
+            result = least_squares(
+                residual,
+                seed,
+                bounds=(np.array(lower), np.array(upper)),
+                xtol=1.0e-10,
+                ftol=1.0e-10,
+                gtol=1.0e-10,
+                max_nfev=2000,
+            )
+            if float(np.linalg.norm(residual(result.x))) > 1.0e-6:
+                continue
+            params = unpack(result.x)
+            roots = roots_from_params(pattern, params)
+            poly = poly_from_roots(roots)
+            contacts = pattern_contacts(pattern, params)
+            connection = safe_integral(poly, contacts[1], contacts[2])
+            if not any(
+                np.linalg.norm(result.x - np.array(existing["vector"], dtype=float)) < 1.0e-5
+                for existing in solutions
+            ):
+                solutions.append(
+                    {
+                        "vector": result.x.tolist(),
+                        "params": params,
+                        "roots": roots,
+                        "contacts": contacts,
+                        "connection_integral": connection,
+                        "connection_sign": sign_label(connection),
+                        "within_integrals": [
+                            safe_integral(poly, contacts[0], contacts[1]),
+                            safe_integral(poly, contacts[2], contacts[3]),
+                        ],
+                    }
+                )
+        return solutions
+
+    records = []
+    for pattern in patterns:
+        roots = forced_roots(pattern)
+        if len(roots) > 3:
+            continue
+        free_root_candidates = []
+        if len(roots) < 3:
+            free_root_candidates = [
+                a1 - 1.0,
+                0.5 * (b1 + a2),
+                b2 + 1.0,
+            ]
+        else:
+            free_root_candidates = [None]
+        for free_root in free_root_candidates:
+            all_roots = list(roots)
+            if free_root is not None:
+                all_roots.append(float(free_root))
+            numerator = poly_from_roots(all_roots)
+            left_component_integral = integrate_real_interval(
+                lambda x, p=numerator: omega_cut_value(p, x),
+                a1 + 1.0e-8,
+                b1 - 1.0e-8,
+                nodes=nodes,
+            )
+            gap_integral = integrate_real_interval(
+                lambda x, p=numerator: omega_gap_value(p, x),
+                b1 + 1.0e-8,
+                a2 - 1.0e-8,
+                nodes=nodes,
+            )
+            right_component_integral = integrate_real_interval(
+                lambda x, p=numerator: omega_cut_value(p, x),
+                a2 + 1.0e-8,
+                b2 - 1.0e-8,
+                nodes=nodes,
+            )
+            records.append(
+                {
+                    "pattern": pattern,
+                    "forced_roots": roots,
+                    "free_root": free_root,
+                    "numerator_coefficients_ascending": numerator.tolist(),
+                    "left_component_integral": left_component_integral,
+                    "gap_connection_integral": gap_integral,
+                    "right_component_integral": right_component_integral,
+                    "connection_sign": sign_label(gap_integral),
+                }
+            )
+        solved = solve_pattern(pattern)
+        for solution in solved:
+            records.append(
+                {
+                    "pattern": pattern,
+                    "solved_contact_equations": True,
+                    **solution,
+                }
+            )
+    sign_counts: dict[str, int] = {}
+    solved_sign_counts_by_pattern: dict[str, dict[str, int]] = {}
+    for record in records:
+        key = str(record["connection_sign"])
+        sign_counts[key] = sign_counts.get(key, 0) + 1
+        if record.get("solved_contact_equations"):
+            pattern_key = str(record["pattern"])
+            solved_sign_counts_by_pattern.setdefault(pattern_key, {})
+            solved_sign_counts_by_pattern[pattern_key][key] = (
+                solved_sign_counts_by_pattern[pattern_key].get(key, 0) + 1
+            )
+    return {
+        "model": "normalized two-cut full-pair omitted-pole kernel",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "nodes": nodes,
+        "records": records,
+        "connection_sign_counts": sign_counts,
+        "solved_connection_sign_counts_by_pattern": solved_sign_counts_by_pattern,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -1047,6 +1374,14 @@ def main() -> int:
         action="store_true",
         help="diagnose endpoint-heavy 2+2 split contact patterns in a bare quartic model",
     )
+    parser.add_argument(
+        "--audit-endpoint-heavy-connection",
+        action="store_true",
+        help="diagnose endpoint-heavy connection integrals in a normalized two-cut model",
+    )
+    parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
+    parser.add_argument("--connection-omitted-pole", type=float, default=0.0)
+    parser.add_argument("--connection-nodes", type=int, default=200)
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -1074,6 +1409,44 @@ def main() -> int:
             "  all-inward-sign patterns = "
             f"{audit['patterns_with_all_endpoint_inward_signs_ok']}"
         )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_endpoint_heavy_connection:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = endpoint_heavy_connection_audit(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 endpoint-heavy connection audit")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  connection sign counts = {audit['connection_sign_counts']}")
+        print(
+            "  solved connection sign counts by pattern = "
+            f"{audit['solved_connection_sign_counts_by_pattern']}"
+        )
+        for record in audit["records"][:12]:
+            if record.get("solved_contact_equations"):
+                print(
+                    "  solved pattern = "
+                    f"{record['pattern']}, connection = {record['connection_integral']:.6e}, "
+                    f"sign = {record['connection_sign']}, params = {record['params']}"
+                )
+            else:
+                print(
+                    "  pattern = "
+                    f"{record['pattern']}, free root = {record['free_root']}, "
+                    f"left = {record['left_component_integral']:.6e}, "
+                    f"gap = {record['gap_connection_integral']:.6e}, "
+                    f"right = {record['right_component_integral']:.6e}, "
+                    f"sign = {record['connection_sign']}"
+                )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

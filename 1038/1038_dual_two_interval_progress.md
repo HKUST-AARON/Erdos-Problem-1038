@@ -15587,6 +15587,57 @@ theorem queue.
     orientation.  This replaces the over-strong standalone
     `EndpointHeavyInwardSignLemma`.
 
+    Endpoint-heavy connection oracle.
+
+    The extractor now has a diagnostic command
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-endpoint-heavy-connection --connection-nodes 40
+    ```
+
+    It uses the normalized two-cut full-pair omitted-pole kernel
+
+    \[
+    \omega_F=\frac{F(x)}{(x-p)^2R(x)}\,dx
+    \]
+
+    with boundary-value density branch on the two cut components and real
+    branch on the middle gap.  The command is not a Gate 1 proof oracle: it is
+    a model check for the endpoint-heavy connection target after solving the
+    two within-component zero-integral contact equations.
+
+    On the symmetric model
+
+    \[
+    \Gamma=(-2,-1,1,2),\qquad p=0,
+    \]
+
+    the solved-contact sign counts are:
+
+    \[
+    \begin{array}{c|c}
+    \text{pattern} & \operatorname{sgn}\int_{x_2}^{x_3}\omega_F\\
+    \hline
+    (LR,LR) & +\text{ and }-\\
+    (LR,LI) & -\\
+    (LR,IR) & -\\
+    (LI,LR) & +\\
+    (IR,LR) & +
+    \end{array}
+    \]
+
+    Thus a blanket fixed connection sign for all five endpoint-heavy
+    survivors is false even diagnostically.  The correct next proof split is:
+
+    \[
+    \boxed{
+    \text{prove the four mixed endpoint-heavy connection signs first;}
+    \quad
+    (LR,LR)\text{ needs a separate third-root/residual/off-row argument.}
+    }
+    \]
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

@@ -754,6 +754,20 @@ Useful corrections already recorded:
   correct next target is `EndpointHeavyConnectionSignLemma`: combine the
   surviving inward-sign/root-order cases with the cross-component connection
   integral or off-row determinant orientation.
+- The extractor now has `--audit-endpoint-heavy-connection`.  This is
+  diagnostic only: it uses the normalized full-pair omitted-pole kernel
+  \(F(x)/((x-p)^2R(x))\,dx\), solves the two within-component contact integral
+  equations, and then reports the middle-gap connection sign.  On the
+  symmetric model \(\Gamma=(-2,-1,1,2)\), \(p=0\), the four mixed survivors
+  have stable signs in the sampled solves:
+  \[
+  (LR,LI),(LR,IR): -,\qquad (LI,LR),(IR,LR): +.
+  \]
+  But \((LR,LR)\) gives both signs.  Therefore a single fixed connection-sign
+  lemma for all five survivor types is false even as a diagnostic statement.
+  The next proof should split: prove the four mixed connection signs first,
+  and handle \((LR,LR)\) with its extra free third root via a separate
+  residual/off-row condition.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
