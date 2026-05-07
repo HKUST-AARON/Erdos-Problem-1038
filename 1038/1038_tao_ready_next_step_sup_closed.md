@@ -957,6 +957,13 @@ Useful corrections already recorded:
   should therefore be treated as a no-go for LRLR; the next viable route is
   affine \(b-\Lambda\rho\) / compact contact verification or an additional
   true chart row.
+- The scoped paper lemma to write next is `LRLRRhoRowNoGoLemma`: for any
+  off-cut anchor \(c\), the projective kernel element with \(L_\rho(F)=0\)
+  remains an LRLR cubic with free root \(c\) and the other two roots in the
+  two cuts.  Since the \(I_{\rm gap}=0\) row also has LRLR zero angles, the
+  product \(I_{\rm gap}L_\rho\) either changes sign on LRLR or vanishes on an
+  LRLR branch.  Thus homogeneous \(\rho\)-row closure is unavailable; move to
+  affine \(b-\Lambda\rho\).
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

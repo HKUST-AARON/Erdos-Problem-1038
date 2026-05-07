@@ -16650,6 +16650,42 @@ theorem queue.
     \(b-\Lambda\rho\)-row contact verification on the compact \(\Lambda\)
     range, or a new true chart row beyond \(L_\rho\).
 
+    The reason is structural, not just numerical.  On the LRLR two-dimensional
+    kernel, both \(I_{\rm gap}\) and \(L_\rho\) are linear functionals.  Their
+    zero sets are two projective points each.  The projective audit shows:
+
+    1.  the zero projective points of \(I_{\rm gap}\) are LRLR cubics, with
+        the free root in the middle gap;
+    2.  for representative anchors \(c=-3.5,0,3.5\), the zero projective
+        points of \(L_\rho\) are also LRLR cubics, with the free root exactly
+        at \(c\) and the other two roots in the left and right cuts.
+
+    Therefore the homogeneous row can only avoid a sign change if its zero
+    projective points coincide with the \(I_{\rm gap}\)-zero points; but then
+    the product is zero on an LRLR branch, so it still cannot give a strict
+    nonzero sign table.  The next paper lemma should be the following scoped
+    no-go:
+
+    \[
+    \boxed{
+    \textbf{LRLRRhoRowNoGoLemma.}}
+    \]
+
+    For any off-cut anchor \(c\), the unique projective LRLR kernel element
+    with \(L_\rho(F)=0\) has roots
+
+    \[
+    x_L(c)\in(\alpha_1,\beta_1),\qquad c,\qquad
+    x_R(c)\in(\alpha_2,\beta_2)
+    \]
+
+    whenever \(c\) is in an off-cut component for which the ordinary LRLR
+    connection integral is defined.  Hence \(L_\rho=0\) intersects the LRLR
+    branch.  Since \(I_{\rm gap}=0\) also intersects the LRLR branch, the
+    product \(I_{\rm gap}L_\rho\) cannot be strictly one-signed on LRLR.  This
+    closes the homogeneous \(\rho\)-row route as a no-go and forces the affine
+    residual row as the next route.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
