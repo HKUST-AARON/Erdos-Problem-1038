@@ -9335,6 +9335,68 @@ theorem unitIntervalTruncatedPositiveSet_interval_subset_of_pos_logPotential_tai
     (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
     htail_n
 
+/--
+Zero-point specialization of the ordinary-positive to truncated-positive tail
+bridge.  This is separated out because the selected-component constructor uses
+positivity at `0` to generate the right neighbourhood by openness.
+-/
+theorem zero_mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hzero_pos : 0 < unitIntervalLogPotential μ 0)
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hzero_tail :
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ 0 <
+          ENNReal.ofReal (unitIntervalLogPotential μ 0 / 2)) :
+    0 ∈ unitIntervalTruncatedPositiveSet μ := by
+  rcases hzero_tail with ⟨n, htail_n⟩
+  exact mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+    hzero_pos hzero_no_diag htail_n
+
+/--
+Selected ordinary component from ordinary baseline/zero positivity plus explicit
+tail control.  This is the first constructor that no longer asks for truncated
+baseline or truncated zero positivity directly; those are derived from ordinary
+logarithmic positivity and the singular-tail approximation lemmas.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_positive_baseline_zero_tail
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    (hbaseline_pos :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero_pos : 0 < unitIntervalLogPotential μ 0)
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ))
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hbaseline_tail :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∃ n : ℕ,
+          singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+            ENNReal.ofReal (unitIntervalLogPotential μ x / 2))
+    (hzero_tail :
+      ∃ n : ℕ,
+        singularTailMass (unitIntervalPositiveTruncationScale n) μ 0 <
+          ENNReal.ofReal (unitIntervalLogPotential μ 0 / 2))
+    (hspan_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_trunc :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ :=
+    unitIntervalTruncatedPositiveSet_interval_subset_of_pos_logPotential_tailMass
+      hbaseline_pos hbaseline_no_diag hbaseline_tail
+  have hzero_trunc : 0 ∈ unitIntervalTruncatedPositiveSet μ :=
+    zero_mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+      hzero_pos hzero_no_diag hzero_tail
+  exact exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero
+    μ hlog_int hbaseline_trunc hzero_trunc hspan_no_diag
+
 theorem mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
     {μ : ProbabilityMeasure UnitInterval1038} {x truncε threshold : ℝ}
     (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
