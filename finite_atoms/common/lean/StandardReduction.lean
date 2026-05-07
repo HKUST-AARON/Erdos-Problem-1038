@@ -11543,6 +11543,35 @@ theorem boundary_distance_upper_of_ae_endpoint_or_right
   linarith
 
 /--
+Distance upper bound at the intrinsic right boundary from the augmented
+pole-as-win span.  This removes the intermediate requirement that the whole
+spanning interval has already been transferred back to the ordinary positive
+set before applying the boundary-average argument.
+-/
+theorem boundary_distance_upper_of_spanning_augmented_zero_neighborhood
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    (∫ t, |C.right - t| ∂realMeasure μ) ≤
+      (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_distance_upper_of_ae_endpoint_or_right μ hright_pos
+    (realMeasure_ae_endpoint_or_right_of_spanning_augmented_zero_neighborhood
+      hε hmax hbaseline hspan_aug hzero)
+
+/--
 Endpoint atomization of the selected component produces a genuine endpoint atom
 of the real push-forward measure.
 -/
