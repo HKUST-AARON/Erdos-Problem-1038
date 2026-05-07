@@ -2378,6 +2378,18 @@ theorem unitInterval_diagonalAtomSet_subset_augmented
   exact Or.inr hx
 
 /--
+Outside the augmented positive set, the real-valued unit-interval potential is
+nonpositive.
+-/
+theorem unitIntervalLogPotential_nonpos_of_not_mem_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hx : x ∉ unitIntervalAugmentedPositiveSet μ) :
+    unitIntervalLogPotential μ x ≤ 0 := by
+  exact le_of_not_gt (by
+    intro hpos
+    exact hx (unitInterval_positiveSet_subset_augmented μ hpos))
+
+/--
 Adding diagonal atom locations does not change Lebesgue length, since the
 diagonal atom set is countable.
 -/
@@ -21226,11 +21238,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases realMeasure_ae_separated_of_not_mem_support μ hright_not_support with
     ⟨boundarySep, hboundarySep, hdist_lower⟩
   have hpotential_nonpos : unitIntervalLogPotential μ C.right ≤ 0 := by
-    exact le_of_not_gt (by
-      intro hpos
-      exact hright_not_aug
-        (unitInterval_positiveSet_subset_augmented μ
-          (by simpa [PositiveSet] using hpos)))
+    exact unitIntervalLogPotential_nonpos_of_not_mem_augmented hright_not_aug
   have hdist_int : Integrable (fun t : ℝ => |C.right - t|) (realMeasure μ) :=
     realMeasure_abs_sub_integrable μ C.right
   have hlog_int : Integrable (fun t : ℝ => Real.log |C.right - t|)
