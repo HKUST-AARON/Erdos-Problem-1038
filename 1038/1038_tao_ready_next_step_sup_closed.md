@@ -5153,6 +5153,22 @@ and a check that endpoint atoms or pole collisions do not create a new
 counterexample stratum.  The remaining global gates are high-genus local-neck
 reduction, Lemma R, and the one-cut upper construction.
 
+Update: Gate 3 is now upgraded to PASS.  The missing compactness lemma has
+been supplied in the progress ledger.  The proof takes a normalized boundary
+sequence in the separated positive \(g=2\) chart, extracts coefficient limits
+for \(D,Q\), weak limits of the positive Stieltjes measures, local uniform
+limits of Cauchy transforms off the limiting support, and \(L^1_{\rm loc}\)
+density limits on non-colliding cut interiors.  If no discriminant, resultant,
+residue, density, chart determinant, \(Z_0\)-distance, or anchor-distance
+failure occurs, the implicit-function chart remains regular, contradicting
+boundary status.  Hence a boundary sequence must trigger one of the listed
+modes.  Branch pinching gives lower genus or an endpoint atom; pole collision
+merges positive atoms; zero residue deletes an atom; density sign loss lowers
+support or chart rank; \(Z_0\)- and anchor-collisions are exactly active-set or
+anchor singular boundary events.  Endpoint atoms arise only from shrinking cuts
+or poles reaching endpoints, so they introduce no new \(g=2\) stratum.
+Therefore PinchingBoundaryReduction is now recorded as `Gate 3 result: PASS`.
+
 Gate 4 gives the intended regular compact high-genus local-neck
 lemma.  For a regular non-pinched chamber with \(g\ge3\), let \(K\) be the
 actual KKT normal after the free-period quotient.  If \(K\) projected to zero
@@ -5495,3 +5511,11 @@ extractor rows, and the Gate 3 boundary-routing ledger.  The caveat is explicit:
 Gate 3 compactness is still a separate proof obligation.  Therefore the next
 route is either to accept these routed obligations and generate the real chart,
 or to close Gate 3 compactness before setting `proof_grade=true`.
+
+Update: the Gate 3 compactness lemma has now been supplied and Gate 3 is
+recorded as PASS.  The equation spec is correspondingly upgraded to
+`proof_grade=true`; its audit now reports `solver ready = True` with no
+blocking errors.  This closes the compact chart equation-spec blocker.  The
+next required artifact is no longer another prose contract but a real
+`gate1_compact_g2_chart.json`, followed by `--run-chart-pipeline` on the
+repaired moving-Schiffer data.

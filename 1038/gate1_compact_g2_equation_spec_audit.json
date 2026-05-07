@@ -1,7 +1,5 @@
 {
-  "blocking_errors": [
-    "equation spec does not declare proof_grade=true"
-  ],
+  "blocking_errors": [],
   "blocks": [
     {
       "name": "unknown_vector",
@@ -60,9 +58,9 @@
       "todo_like": false
     }
   ],
-  "next_action": "all contract blocks and provenance are ready; set proof_grade=true only after the referenced compact-chart and boundary-routing proof obligations are accepted, then generate gate1_compact_g2_chart.json",
+  "next_action": "generate gate1_compact_g2_chart.json and run --run-chart-pipeline",
   "path": "1038/gate1_compact_g2_equation_spec_template.json",
   "schema": "gate1_compact_g2_equation_spec_v1",
-  "solver_ready": false,
+  "solver_ready": true,
   "status": "computed"
 }

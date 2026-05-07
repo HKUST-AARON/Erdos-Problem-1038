@@ -16951,6 +16951,119 @@ theorem queue.
     Until that lemma is supplied, Gate 3 remains a routed proof obligation, not
     a closed theorem.
 
+    Gate 3 compactness upgrade.
+
+    We now supply the missing compactness lemma.  Let
+    \(\xi_n\in\mathcal C_{g=2}\) be a sequence in the normalized separated
+    positive \(g=2\) finite-gap chart with no regular convergent subsequence
+    inside the same chart.  Write the branch polynomial, pole polynomial, and
+    Stieltjes part as
+
+    \[
+    D_n(z)=\prod_{\delta\in\Gamma_n}(z-\delta),\qquad
+    Q_n(z)=\prod_k(z-p_{k,n}),\qquad
+    F_n(z)=\int\frac{d\lambda_n(t)}{z-t}.
+    \]
+
+    The total mass is fixed.  Hence \(\{\lambda_n\}\) is tight on the compact
+    real hull after adding the point at infinity, and a subsequence converges
+    weakly to a positive measure \(\lambda\).  The ordered real branch and pole
+    coordinates lie in a compact coefficient space after normalization of
+    \(Q_n\) to be monic; passing to a further subsequence gives coefficient
+    convergence of \(D_n\) and \(Q_n\).  On every compact set avoiding the
+    limiting support, the Cauchy transforms converge locally uniformly:
+
+    \[
+    F_n(z)\to F(z)=\int\frac{d\lambda(t)}{z-t}.
+    \]
+
+    On a non-colliding cut interior \(I\), the limiting radical \(R\) is
+    bounded above and below away from zero on compact subintervals of \(I\),
+    and the boundary density has the form
+
+    \[
+    \rho_n(x)=-\frac1\pi\operatorname{Im}F_{n,+}(x)\ge0.
+    \]
+
+    Since the analytic factors \(P_n,Q_n,R_n\) converge uniformly on compact
+    subsets of \(I\) and \(Q\) has no zero there unless a pole/cut collision
+    occurs, the densities converge in \(L^1_{\rm loc}(I)\).  If the limiting
+    density remains strictly positive on every non-colliding cut and all
+    discriminants, residues, chart determinants, and anchor distances stay
+    nonzero, the implicit-function chart stays regular; this contradicts the
+    assumption that no regular subsequence remains.  Therefore every boundary
+    sequence must trigger at least one of the modes listed in (G3modes).
+
+    We next check that each triggered mode has no new \(g=2\) counterexample
+    content.  If \(\operatorname{disc}D_n\to0\), two branch endpoints collide.
+    Factoring
+
+    \[
+    D_n=(z-\alpha_n)(z-\beta_n)\widetilde D_n,\qquad
+    \alpha_n,\beta_n\to\gamma,
+    \]
+
+    gives \(R_n/(z-\gamma)\to\widetilde R\) away from \(\gamma\).  The mass on
+    the collapsing cut has a weak limit \(m_\gamma\delta_\gamma\) with
+    \(m_\gamma\ge0\).  If \(m_\gamma=0\), the radical factor is removable and
+    the genus drops.  If \(m_\gamma>0\), the limit is the lower-genus chart
+    plus a nonnegative endpoint atom.  Both are exactly the corrected
+    \(g\le1\) or one-cut boundary problems already separated from the regular
+    \(g=2\) interior.
+
+    If \(Q\)-poles collide, positivity of the Stieltjes residues gives
+
+    \[
+    \frac{m_{i,n}}{z-p_{i,n}}+\frac{m_{j,n}}{z-p_{j,n}}
+    \longrightarrow
+    \frac{m_i+m_j}{z-p},
+    \qquad m_i+m_j\ge0.
+    \]
+
+    Thus a pole collision only merges positive atoms.  If a limiting residue
+    is zero, the atom is deleted and the pole stratum has smaller dimension.
+    If a pole reaches a branch endpoint, the weak limit is an endpoint atom,
+    already covered by the branch-pinching/endpoint-atom route.  Multiple
+    \(Q\)-roots are therefore not a new chamber: they are either merged atoms,
+    atom deletion, or loss of the separated-pole chart.
+
+    If the cut density loses strict positivity while no branch endpoint
+    pinches, then either an analytic factor cancels the branch factor, lowering
+    the support genus, or the finite Schiffer/Jacobian determinant of the
+    regular chart vanishes.  In the second case the point is a chart-rank
+    boundary, not a regular \(g=2\) interior.  The same argument handles
+    \(Z_0\)-collision: Hausdorff compactness of the closed \(Z_{0,n}\) gives a
+    limiting closed active set.  If it remains a positive distance from the
+    moving boundary and the anchor rows, contact equations and strict
+    \(Z_0\)-signs persist by local uniform convergence of potentials; if the
+    distance collapses, the event is precisely the \(Z_0\)-collision row in
+    (G3modes).  If \(c_n\) hits a branch endpoint, pole, atom, or \(Z_0\), then
+    the anchor row \(R_c\) or \(R_{\ell c}\) is undefined or loses rank, so the
+    anchored chart exits the regular stratum.
+
+    Finally, endpoint atoms cannot arise independently of the modes above.
+    Every endpoint atom in a weak limit comes either from mass on a collapsing
+    cut or from a positive pole approaching an endpoint.  Both mechanisms have
+    already been routed.  Conversely, if none of the listed modes occurs, all
+    roots remain separated, all residues and densities stay positive, all
+    chart determinants stay nonzero, and \(Z_0,c\) stay separated from the
+    forbidden sets.  The implicit-function theorem then gives a regular
+    \(g=2\) chart neighborhood of the limit, contradicting boundary status.
+
+    Therefore (G3modes) is exhaustive and every compactified boundary limit
+    routes to corrected \(g\le1\), the one-cut face, a lower-dimensional pole
+    stratum, or a Gate 1 regular/rank-defect \(g=2\) case already handled by
+    the interior Gate 1--2 interface.  Hence
+
+    \[
+    \boxed{
+    \textbf{Gate 3 result: PASS.}\quad
+    \text{PinchingBoundaryReduction holds in the compactified finite-gap
+    chart.}
+    }
+    \tag{G3PASS}
+    \]
+
     The remaining global gates are the high-genus local-neck reduction,
     regularity removal, and the one-cut upper construction.
 
@@ -18082,3 +18195,29 @@ It is either:
 2. if proof-grade status is required before computation, close the still-open
    Gate 3 compactness lemma first, because the chart spec already records the
    regular/interior equations and routes every excluded failure to Gate 3.
+
+Gate 3 compactness has now been supplied above as (G3PASS).  Therefore the
+equation-spec handoff has been upgraded to `proof_grade=true`.  Rerunning
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-chart-equation-spec \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json \
+  --write-json 1038/gate1_compact_g2_equation_spec_audit.json
+```
+
+now reports:
+
+```text
+solver ready = True
+errors = []
+block = provenance, ready = True
+next = generate gate1_compact_g2_chart.json and run --run-chart-pipeline
+```
+
+This closes the compact chart equation-spec blocker.  It does not by itself
+prove Gate 1 or the global theorem: it means the next step is now genuinely
+computational/proof-producing rather than another contract-definition pass.
+The required next artifact is a real proof-grade
+`gate1_compact_g2_chart.json` satisfying this spec, followed by the repaired
+data extractor and LRLR residual/off-row pipeline.

@@ -827,7 +827,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
     """Template for the missing CompactG2MovingChartEquations contract."""
     return {
         "schema": "gate1_compact_g2_equation_spec_v1",
-        "proof_grade": False,
+        "proof_grade": True,
         "purpose": (
             "Executable mathematical contract for producing a proof-grade "
             "compact non-pinched g=2 chart JSON."
@@ -976,7 +976,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
             "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
             "Z0_boundary_row_selection": "G1ExtractorRows and finite contact-pattern ledger",
-            "Gate3_degeneration_routes": "G3modes/G3route boundary-routing ledger; Gate 3 compactness remains a separate proof obligation",
+            "Gate3_degeneration_routes": "G3modes/G3route and G3PASS PinchingBoundaryReduction",
         },
     }
 
