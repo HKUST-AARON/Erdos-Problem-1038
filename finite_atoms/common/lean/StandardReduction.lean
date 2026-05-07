@@ -16306,6 +16306,20 @@ theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_compo
       hdirac)
 
 /--
+Convert the pointwise support right-region statement into the a.e. form used
+by distance estimates.
+-/
+theorem realMeasure_ae_endpoint_or_right_of_support_subset_endpoint_or_right
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hsupport_right :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici x) :
+    ∀ᵐ t ∂realMeasure μ, t = -1 ∨ x ≤ t := by
+  filter_upwards [realMeasure_ae_mem_support μ] with t htSupport
+  rcases hsupport_right htSupport with ht_endpoint | ht_right
+  · exact Or.inl ht_endpoint
+  · exact Or.inr ht_right
+
+/--
 Distance upper bound at an intrinsic right boundary once a.e. every
 non-endpoint support point lies to its right.
 -/
@@ -16424,6 +16438,26 @@ theorem boundary_distance_upper_of_ae_endpoint_or_right
   rw [hsplit, hendpoint_eq]
   dsimp [p]
   linarith
+
+/--
+Distance upper bound from the pointwise support right-region statement.
+-/
+theorem boundary_distance_upper_of_support_subset_endpoint_or_right
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx_pos : 0 < x)
+    (hsupport_right :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici x) :
+    (∫ t, |x - t| ∂realMeasure μ) ≤
+      (x + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - x) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_distance_upper_of_ae_endpoint_or_right μ hx_pos
+    (realMeasure_ae_endpoint_or_right_of_support_subset_endpoint_or_right
+      hsupport_right)
 
 /--
 Distance upper bound at the intrinsic right boundary from the augmented
