@@ -1329,6 +1329,150 @@ def endpoint_heavy_mixed_zero_crossing_audit(
     }
 
 
+def endpoint_heavy_mixed_kernel_root_audit(
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    samples: int = 40,
+    nodes: int = 100,
+) -> dict[str, Any]:
+    """Linear-kernel audit for mixed zero-connection obstructions.
+
+    For a fixed mixed interior contact y, the two contact integrals plus the
+    gap connection integral are linear functionals on cubic numerators.  Their
+    common kernel is generically one-dimensional.  This command computes the
+    kernel cubic and checks whether its real roots have the mixed order needed
+    by the contact pattern.
+    """
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError(
+            f"omitted pole {omitted_pole} lies in the connection gap ({b1}, {a2}); "
+            "ordinary mixed kernel audit requires an exterior omitted pole"
+        )
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        if right < left:
+            return -integrate_cut(poly, right, left)
+        if abs(right - left) < 1.0e-12:
+            return 0.0
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    basis = [monomial(k) for k in range(4)]
+    pattern_specs = {
+        "LR,LI": {
+            "y_range": (a2, b2),
+            "rows": lambda y, poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, a2, y), integrate_gap(poly)],
+            "root_order_ok": lambda y, roots: (
+                sum(a1 < r < b1 for r in roots) == 1
+                and sum(a2 < r < y for r in roots) == 1
+                and any(abs(r - y) < 1.0e-5 for r in roots)
+            ),
+        },
+        "LR,IR": {
+            "y_range": (a2, b2),
+            "rows": lambda y, poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, y, b2), integrate_gap(poly)],
+            "root_order_ok": lambda y, roots: (
+                sum(a1 < r < b1 for r in roots) == 1
+                and any(abs(r - y) < 1.0e-5 for r in roots)
+                and sum(y < r < b2 for r in roots) == 1
+            ),
+        },
+        "LI,LR": {
+            "y_range": (a1, b1),
+            "rows": lambda y, poly: [integrate_cut(poly, a1, y), integrate_cut(poly, a2, b2), integrate_gap(poly)],
+            "root_order_ok": lambda y, roots: (
+                sum(a1 < r < y for r in roots) == 1
+                and any(abs(r - y) < 1.0e-5 for r in roots)
+                and sum(a2 < r < b2 for r in roots) == 1
+            ),
+        },
+        "IR,LR": {
+            "y_range": (a1, b1),
+            "rows": lambda y, poly: [integrate_cut(poly, y, b1), integrate_cut(poly, a2, b2), integrate_gap(poly)],
+            "root_order_ok": lambda y, roots: (
+                any(abs(r - y) < 1.0e-5 for r in roots)
+                and sum(y < r < b1 for r in roots) == 1
+                and sum(a2 < r < b2 for r in roots) == 1
+            ),
+        },
+    }
+
+    records_by_pattern: dict[str, list[dict[str, Any]]] = {}
+    summary_by_pattern: dict[str, Any] = {}
+    for pattern, spec in pattern_specs.items():
+        y_left, y_right = spec["y_range"]
+        ys = np.linspace(y_left + 0.03 * (y_right - y_left), y_right - 0.03 * (y_right - y_left), samples)
+        records = []
+        feasible = 0
+        min_sigma3 = math.inf
+        max_kernel_residual = 0.0
+        for y in ys:
+            M = np.array([[row_value for row_value in spec["rows"](float(y), poly)] for poly in basis], dtype=float).T
+            _u, s, vh = np.linalg.svd(M)
+            kernel = vh[-1, :]
+            if abs(kernel[-1]) > 1.0e-12:
+                kernel = kernel / kernel[-1]
+            roots_complex = np.roots(list(reversed(kernel)))
+            real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
+            root_order_ok = len(real_roots) == 3 and bool(spec["root_order_ok"](float(y), real_roots))
+            if root_order_ok:
+                feasible += 1
+            max_kernel_residual = max(max_kernel_residual, float(np.linalg.norm(M @ kernel)))
+            min_sigma3 = min(min_sigma3, float(s[-1]))
+            records.append(
+                {
+                    "y": float(y),
+                    "singular_values": s.tolist(),
+                    "kernel_coefficients_ascending": kernel.tolist(),
+                    "real_roots": real_roots,
+                    "root_order_ok": root_order_ok,
+                    "kernel_residual_norm": float(np.linalg.norm(M @ kernel)),
+                }
+            )
+        records_by_pattern[pattern] = records
+        summary_by_pattern[pattern] = {
+            "samples": samples,
+            "root_order_feasible_samples": feasible,
+            "min_smallest_singular_value": min_sigma3,
+            "max_kernel_residual_norm": max_kernel_residual,
+            "all_samples_root_order_infeasible": feasible == 0,
+        }
+
+    return {
+        "model": "mixed zero-connection linear kernel root audit",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "samples": samples,
+        "nodes": nodes,
+        "summary_by_pattern": summary_by_pattern,
+        "records_by_pattern": records_by_pattern,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -1772,6 +1916,11 @@ def main() -> int:
         action="store_true",
         help="search for mixed endpoint-heavy solutions with zero connection integral",
     )
+    parser.add_argument(
+        "--audit-mixed-kernel-roots",
+        action="store_true",
+        help="check cubic kernel root orders for mixed zero-connection systems",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -1916,6 +2065,34 @@ def main() -> int:
                 f"best residual norm = {summary['best_residual_norm']:.6e}, "
                 f"best order ok = {best['order_ok'] if best else None}, "
                 f"best connection = {best['connection_integral'] if best else None}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_mixed_kernel_roots:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = endpoint_heavy_mixed_kernel_root_audit(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 mixed zero-connection kernel-root audit")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  samples = {audit['samples']}")
+        for pattern, summary in audit["summary_by_pattern"].items():
+            print(
+                "  pattern = "
+                f"{pattern}, feasible root-order samples = "
+                f"{summary['root_order_feasible_samples']}/{summary['samples']}, "
+                f"all infeasible = {summary['all_samples_root_order_infeasible']}, "
+                f"min sigma = {summary['min_smallest_singular_value']:.6e}, "
+                f"max kernel residual = {summary['max_kernel_residual_norm']:.6e}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

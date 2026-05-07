@@ -810,6 +810,15 @@ Useful corrections already recorded:
   next paper lemma should be `MixedZeroConnectionNoInteriorLemma`: the
   three-integral zero system has no regular interior mixed solution, so any
   sign crossing routes to Gate 3.
+- The new `--audit-mixed-kernel-roots` command linearizes the same obstruction.
+  For fixed mixed interior contact \(y\), the three functionals
+  \(I_L,I_R,I_{\rm gap}\) form a \(3\times4\) matrix on cubic coefficients.
+  Its one-dimensional kernel cubic would have to have the mixed root order for
+  a zero-connection crossing.  In both tested exterior-pole models, 40/40
+  sampled \(y\)-values in all four mixed patterns fail this root-order test.
+  The sharper paper target is `MixedKernelRootOrderLemma`: the kernel cubic
+  of this \(3\times4\) matrix always has the wrong root order, except at Gate
+  3 degeneracy.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

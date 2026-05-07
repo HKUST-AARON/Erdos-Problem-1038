@@ -15819,6 +15819,78 @@ theorem queue.
     sign check on each continuation branch, this lemma proves
     `MixedConnectionMonotoneSignLemma`.
 
+    Linear-kernel root-order refinement.
+
+    The previous search treats the three equations nonlinearly in the roots.
+    There is a sharper formulation.  Fix the unique mixed interior contact
+    \(y\).  The three quantities
+
+    \[
+    I_L(F),\qquad I_R(F),\qquad I_{\rm gap}(F)
+    \]
+
+    are linear functionals of the cubic numerator \(F\).  On the coefficient
+    vector of \(F\in\mathbb R[x]_{\le3}\), they form a \(3\times4\) matrix
+
+    \[
+    \mathcal M_y.
+    \tag{G1MixedKernelMatrix}
+    \]
+
+    A zero-connection mixed obstruction at that \(y\) would require the
+    one-dimensional kernel cubic \(F_y\in\ker\mathcal M_y\) to have the mixed
+    root order prescribed by the pattern.  The new command
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-mixed-kernel-roots \
+      --connection-samples 40 --connection-nodes 80
+    ```
+
+    computes this kernel cubic directly.  On
+
+    \[
+    \Gamma=(-2,-1,1,2),\qquad p=-3,
+    \]
+
+    no sampled \(y\) in any of the four mixed patterns has the required root
+    order:
+
+    \[
+    \begin{array}{c|c|c}
+    \text{pattern} & \text{root-order feasible samples} &
+    \min\sigma_{\min}(\mathcal M_y)\\
+    \hline
+    (LR,LI) & 0/40 & 1.2650\cdot10^{-2}\\
+    (LR,IR) & 0/40 & 2.5213\cdot10^{-2}\\
+    (LI,LR) & 0/40 & 1.3294\cdot10^{-1}\\
+    (IR,LR) & 0/40 & 2.3517\cdot10^{-2}
+    \end{array}
+    \]
+
+    On the non-symmetric exterior-pole model
+
+    \[
+    \Gamma=(-3,-1.2,0.7,2.5),\qquad p=3.5,
+    \]
+
+    the same audit again gives \(0/40\) feasible root-order samples for all
+    four patterns.  This is the strongest current numerical evidence.  The
+    paper target should be sharpened to:
+
+    \[
+    \boxed{
+    \textbf{MixedKernelRootOrderLemma.}
+    }
+    \]
+
+    For every regular mixed interior contact \(y\), the kernel cubic of
+    \(\mathcal M_y\) exists and has the wrong root order for the mixed pattern.
+    Equivalently, a cubic satisfying the two component zero-integral equations
+    and the zero connection equation cannot also satisfy the mixed contact
+    root ordering.  This lemma implies
+    `MixedZeroConnectionNoInteriorLemma` without a nonlinear root search.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
