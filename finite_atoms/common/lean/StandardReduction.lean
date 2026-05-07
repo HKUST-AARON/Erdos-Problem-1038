@@ -8391,6 +8391,60 @@ theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_neighborh
         hδ hbaseline hright hzero)
       hnoDiag
 
+/--
+Truncated-positive analogue of
+`positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
+preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
+the compact-core and openness infrastructure used in the minimizer existence
+layer.
+-/
+theorem unitIntervalTruncatedPositiveSet_spanning_interval_of_baseline_and_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (_hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ) :
+    Ioo (-1 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ := by
+  intro x hx
+  by_cases hxneg : x < 0
+  · exact hbaseline ⟨hx.1, hxneg⟩
+  · have hx_nonneg : 0 ≤ x := le_of_not_gt hxneg
+    by_cases hxzero : x = 0
+    · simpa [hxzero] using hzero
+    · have hxpos : 0 < x := lt_of_le_of_ne hx_nonneg (Ne.symm hxzero)
+      exact hright ⟨hxpos, hx.2⟩
+
+/--
+Component constructor from truncated baseline positivity plus a truncated
+positive right neighbourhood of `0`.  The remaining off-diagonal hypothesis is
+exactly the existing truncated-to-ordinary bridge requirement.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_neighborhood
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {δ : ℝ} (hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ)
+    (hspan_no_diag :
+      Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact exists_positiveComponent_baseline_right_pos_of_truncated_spanning
+    μ hlog_int hδ
+    (unitIntervalTruncatedPositiveSet_spanning_interval_of_baseline_and_zero_neighborhood
+      hδ hbaseline hright hzero)
+    hspan_no_diag
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
