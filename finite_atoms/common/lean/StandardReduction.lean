@@ -14764,6 +14764,69 @@ theorem boundary_distance_upper_of_spanning_augmented_zero_neighborhood
       hε hmax hbaseline hspan_aug hzero)
 
 /--
+Tao boundary-average inequality from the augmented span, a right gap, and the
+zero-neighbourhood condition inside the selected component.
+-/
+theorem boundary_average_of_spanning_augmented_right_gap_zero_neighborhood
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε δ : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    1 ≤ (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) := by
+  have hright_not_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ :=
+    C.right_not_mem_augmented_of_right_gap hδ hright_gap
+  have hright_not_support : C.right ∉ (realMeasure μ).support :=
+    C.right_not_mem_support_of_right_gap hδ hright_gap
+  rcases realMeasure_ae_separated_of_not_mem_support μ hright_not_support with
+    ⟨boundarySep, hboundarySep, hdist_lower⟩
+  have hpotential_nonpos : unitIntervalLogPotential μ C.right ≤ 0 :=
+    unitIntervalLogPotential_nonpos_of_not_mem_augmented hright_not_aug
+  have hdist_int : Integrable (fun t : ℝ => |C.right - t|) (realMeasure μ) :=
+    realMeasure_abs_sub_integrable μ C.right
+  have hlog_int : Integrable (fun t : ℝ => Real.log |C.right - t|)
+      (realMeasure μ) :=
+    realMeasure_log_abs_sub_integrable_of_ae_lower_bound μ
+      hboundarySep hdist_lower
+  have hdistance_upper :
+      (∫ t, |C.right - t| ∂realMeasure μ) ≤
+        (C.right + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - C.right) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_distance_upper_of_spanning_augmented_zero_neighborhood
+      μ hright_pos hε hmax hbaseline hspan_aug hzero
+  exact
+    tao_boundary_average_of_boundary_distance_upper
+      (μ := μ)
+      (xPlus := C.right)
+      (endpointMass :=
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
+      (ε := boundarySep)
+      hboundarySep hdist_lower hdist_int hlog_int hpotential_nonpos
+      hdistance_upper
+
+/--
 Distance upper bound from augmented span and direct support uniqueness inside
 the selected component.
 -/
@@ -21231,31 +21294,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
-  have hright_not_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ :=
-    C.right_not_mem_augmented_of_right_gap hδ hright_gap
-  have hright_not_support : C.right ∉ (realMeasure μ).support :=
-    C.right_not_mem_support_of_right_gap hδ hright_gap
-  rcases realMeasure_ae_separated_of_not_mem_support μ hright_not_support with
-    ⟨boundarySep, hboundarySep, hdist_lower⟩
-  have hpotential_nonpos : unitIntervalLogPotential μ C.right ≤ 0 := by
-    exact unitIntervalLogPotential_nonpos_of_not_mem_augmented hright_not_aug
-  have hdist_int : Integrable (fun t : ℝ => |C.right - t|) (realMeasure μ) :=
-    realMeasure_abs_sub_integrable μ C.right
-  have hlog_int : Integrable (fun t : ℝ => Real.log |C.right - t|)
-      (realMeasure μ) :=
-    realMeasure_log_abs_sub_integrable_of_ae_lower_bound μ
-      hboundarySep hdist_lower
-  have hdistance_upper :
-      (∫ t, |C.right - t| ∂realMeasure μ) ≤
-        (C.right + 1) *
-          (((μ : Measure UnitInterval1038)
-            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
-        (1 - C.right) *
-          (1 -
-            (((μ : Measure UnitInterval1038)
-              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
-    boundary_distance_upper_of_spanning_augmented_zero_neighborhood
-      μ hright_pos hε hmax hbaseline hspan_aug hzero
   have hboundary :
       1 ≤ (C.right + 1) *
               (((μ : Measure UnitInterval1038)
@@ -21264,15 +21302,8 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
               (1 -
                 (((μ : Measure UnitInterval1038)
                   {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
-    tao_boundary_average_of_boundary_distance_upper
-      (μ := μ)
-      (xPlus := C.right)
-      (endpointMass :=
-        (((μ : Measure UnitInterval1038)
-          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
-      (ε := boundarySep)
-      hboundarySep hdist_lower hdist_int hlog_int hpotential_nonpos
-      hdistance_upper
+    boundary_average_of_spanning_augmented_right_gap_zero_neighborhood
+      μ hright_pos hε hδ hmax hbaseline hspan_aug hright_gap hzero
   have hleft_aug :
       Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
         unitIntervalAugmentedPositiveSet μ := by
