@@ -686,6 +686,32 @@ Useful corrections already recorded:
   zeros would force at least four derivative zeros, contradiction.  The
   remaining hard part is the split-set/global contact accounting and off-row
   determinant signs, not the right-exterior component alone.
+- Important correction: this Rolle argument does not prove ECT on the actual
+  split set \(Z_0=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2]\).  Four zeros can
+  split \(2+2\) across the two components and force only two derivative zeros.
+  A bare model \(G(x)=(x+2)(x+1)(x-1)(x-2)\) already has two zeros on each of
+  two disjoint intervals while \(G'\) is cubic.  The remaining missing input is
+  a cross-component constraint: period/normalization linkage, off-row
+  determinant orientation, or a genuine two-interval total-positivity theorem
+  for the kernel \(1/(N^2R)\).
+- Therefore the next lemma should not be a bare two-interval cubic
+  antiderivative ECT theorem; that statement is false without extra finite-gap
+  connection data.  The sharper target is `SplitConnectionSignLemma`: prove
+  that a \(2+2\) contact pattern across the two \(Z_0\) components contradicts
+  the actual Gate 1 connection row, period/filling normalization, or off-row
+  determinant orientation.  This is the only contact distribution not killed
+  by the one-component Rolle count.
+- The old diagnostic solver reinforces the same structure: its
+  `potential_difference_by_F` row links contact values by atom logarithms plus
+  an integral of the Cauchy-transform remainder, rather than allowing
+  independent interval primitives.  For the full-pair Gate 1 kernel, the next
+  concrete target is the signed connection integral
+  \[
+  \int_{x_2}^{x_3}\frac{F(t)}{N(t)^2R(t)}\,dt
+  \]
+  under the constraints that the within-component integrals over
+  \([x_1,x_2]\) and \([x_3,x_4]\) vanish.  Proving this sign fixed and nonzero
+  would close the \(2+2\) contact obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

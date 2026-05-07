@@ -15244,6 +15244,115 @@ theorem queue.
     off-row/contact determinant signs when contacts lie in more than one
     component.
 
+    Rolle deficit on the split set.
+
+    The preceding right-exterior argument must not be misread as a proof of
+    the full \(Z_0\)-ECT statement.  On a single interval, four zeros of
+    \(G_F\), together with the normalization \(G_F(\infty)=0\), force too many
+    zeros of \(G_F'\).  On the actual split set
+
+    \[
+    Z_0=[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2],
+    \]
+
+    this counting no longer works.  Four zeros can split as two zeros on each
+    component; Rolle's theorem then forces only one derivative zero inside
+    each component, hence only two derivative zeros total.  This is compatible
+    with \(G_F'\) being controlled by a cubic.
+
+    A bare polynomial model already shows the deficit:
+
+    \[
+    G(x)=(x+2)(x+1)(x-1)(x-2)=x^4-5x^2+4.
+    \]
+
+    It has two zeros on each of the disjoint intervals
+
+    \[
+    [-2.5,-0.5],\qquad [0.5,2.5],
+    \]
+
+    while
+
+    \[
+    G'(x)=4x^3-10x
+    \]
+
+    has only three zeros.  Therefore a derivative zero-count alone cannot
+    prove that the weighted cubic antiderivative system is Chebyshev on the
+    two-component \(Z_0\).
+
+    The missing ingredient must be a cross-component sign constraint: either a
+    period/normalization identity linking the two components, an off-row
+    determinant orientation, or a genuine two-interval total-positivity theorem
+    for the kernel \(1/(N^2R)\).  This is now the precise remaining hard point
+    inside `WeightedCubicAntiderivativeECTLemma`.
+
+    Consequently `WeightedCubicAntiderivativeECTLemma` must not be stated as a
+    bare theorem about antiderivatives of cubic-polynomial densities on two
+    arbitrary intervals.  That statement is false: the model above is already
+    an antiderivative of a cubic and has four zeros on a two-component set.
+    The correct Gate 1 statement has to include the actual finite-gap
+    connection data: the branch of the Abelian integral, the period/filling
+    normalization, and the off-row \(c\)-evaluation.  Equivalently, the next
+    target should be:
+
+    \[
+    \boxed{
+    \textbf{SplitConnectionSignLemma.}
+    }
+    \]
+
+    It must show that a putative \(2+2\) contact pattern across the two
+    components is incompatible with the Gate 1 connection row.  In integral
+    form, if \(G_F\) has contacts
+
+    \[
+    x_1<x_2\in[\alpha_1,\beta_1],\qquad
+    x_3<x_4\in[\alpha_2,\beta_2],
+    \]
+
+    then the three zero-difference conditions
+
+    \[
+    \int_{x_1}^{x_2}\omega_F=0,\qquad
+    \int_{x_2}^{x_3}\omega_F=0,\qquad
+    \int_{x_3}^{x_4}\omega_F=0
+    \]
+
+    must be read with the correct real/imaginary boundary branches and the
+    period normalization of the finite-gap chart.  A proof of
+    `SplitConnectionSignLemma` would rule out the only contact distribution
+    not killed by the one-component Rolle count.  Without it, Gate 1 is still
+    open even after the full-pair repaired-column simplification.
+
+    The existing one-cut/two-interval diagnostic solver has the same moral
+    structure: it does not certify positivity by treating each interval's
+    primitive independently.  Its `potential_difference_by_F` check writes the
+    potential difference between two contact points as atom logarithms plus a
+    real integral of the continuous Cauchy-transform remainder across the
+    intervening region.  In the compact \(g=2\) Gate 1 problem, the analogous
+    row is the missing split-connection row.  Therefore the next computation
+    should not enumerate arbitrary \(2+2\) contacts without this row; it should
+    compute the signed connection integral for the full-pair kernel
+
+    \[
+    \omega_F=\frac{F(t)}{N(t)^2R(t)}\,dt
+    \]
+
+    under the actual branch convention.  The expected proof form is:
+
+    \[
+    \int_{x_1}^{x_2}\omega_F=0,\quad
+    \int_{x_3}^{x_4}\omega_F=0
+    \quad\Longrightarrow\quad
+    \operatorname{sgn}\int_{x_2}^{x_3}\omega_F
+    \text{ is fixed and nonzero}.
+    \tag{G1SplitConnectionTarget}
+    \]
+
+    This target is exactly what the bare polynomial model lacks.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
