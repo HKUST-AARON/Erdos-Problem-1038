@@ -27769,6 +27769,119 @@ noncomputable def unitInterval_standardReduction_from_span_not_support_regular_d
     (selectedComponent_provider_from_span_not_support_regular_data
       hpositive_not_support hδ₀ hspan_pos haug_support hRegularData)
 
+theorem augmentedInterval_support_policy_of_augmented_not_support
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (haug_not_support :
+      ∀ x : ℝ, x ∈ unitIntervalAugmentedPositiveSet μ →
+        x ∉ (realMeasure μ).support) :
+    ∀ C : PositiveComponent μ,
+      C.IntervalMaximal →
+      Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+      0 < C.right →
+      ∀ l r : ℝ, l < r →
+        Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+        (Set.Ioo l r ∩ C.interval).Nonempty →
+        Disjoint (Set.Ioo l r) (realMeasure μ).support := by
+  intro C hmax hbaseline hright l r hlr haug hinter
+  rw [Set.disjoint_left]
+  intro x hx hxsupport
+  exact haug_not_support x (haug hx) hxsupport
+
+theorem selectedComponent_provider_from_span_augmented_not_support_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038} {δ₀ : ℝ}
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support)
+    (haug_not_support :
+      ∀ x : ℝ, x ∈ unitIntervalAugmentedPositiveSet μ →
+        x ∉ (realMeasure μ).support)
+    (hδ₀ : 0 < δ₀)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Set.Ioc (-1 : ℝ) δ₀ →
+        0 < unitIntervalLogPotential μ y)
+    (hRegularData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < δ ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ C : PositiveComponent μ,
+    ∃ R : ComponentReplacement μ C,
+    ∃ ε δ : ℝ,
+      0 < ε ∧
+      0 < δ ∧
+      0 < C.right ∧
+      C.AugmentedIntervalMaximal ∧
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ ∧
+      Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ ∧
+      (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0) := by
+  exact
+    selectedComponent_provider_from_span_not_support_regular_data
+      hpositive_not_support hδ₀ hspan_pos
+      (augmentedInterval_support_policy_of_augmented_not_support
+        haug_not_support)
+      hRegularData
+
+noncomputable def unitInterval_standardReduction_from_span_augmented_not_support_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038} {δ₀ : ℝ}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support)
+    (haug_not_support :
+      ∀ x : ℝ, x ∈ unitIntervalAugmentedPositiveSet μ →
+        x ∉ (realMeasure μ).support)
+    (hδ₀ : 0 < δ₀)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Set.Ioc (-1 : ℝ) δ₀ →
+        0 < unitIntervalLogPotential μ y)
+    (hRegularData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ R : ComponentReplacement μ C,
+        ∃ ε δ : ℝ,
+          0 < ε ∧
+          0 < δ ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          Set.Icc C.right (C.right + δ) ∩
+              (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+            ∅ ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) :=
+  unitInterval_standardReduction_from_secondaryMinimizer_of_provider
+    hPrimary hSecondary
+    (selectedComponent_provider_from_span_augmented_not_support_regular_data
+      hpositive_not_support haug_not_support hδ₀ hspan_pos hRegularData)
+
 theorem selectedComponent_provider_from_baseline_zero_regular_data
     {μ : ProbabilityMeasure UnitInterval1038}
     (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
