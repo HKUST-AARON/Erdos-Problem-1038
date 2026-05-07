@@ -619,6 +619,13 @@ Useful corrections already recorded:
   from \(7.019243915694513\cdot10^5\) to
   \(5.104535926940518\cdot10^8\).  This is only a rank/gauge diagnostic, but
   it gives the next computational handle for `TPSquareMovingChartGaugeLemma`.
+- The same audit now records orientation signs.  In the synthetic cubic smoke
+  chart, the 15 full-rank pole-row subgauges split as 11 positive determinants
+  and 4 negative determinants; even the repeated row-kind pattern `E,D,E,D`
+  has both signs.  This confirms the important methodological point: full rank
+  is not a TP-compatible gauge criterion.  `TPSquareMovingChartGaugeLemma` must
+  choose a canonical ordered row subset, or prove a sign normalization for the
+  relevant Schur minors; arbitrary full-rank row selection is not proof-grade.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

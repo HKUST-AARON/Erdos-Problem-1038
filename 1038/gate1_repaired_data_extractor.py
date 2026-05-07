@@ -388,23 +388,46 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
     singular = 0
     min_abs_det = math.inf
     max_abs_det = 0.0
+    det_sign_counts: dict[str, int] = {}
+    kind_pattern_counts: dict[str, int] = {}
+    kind_pattern_sign_counts: dict[str, dict[str, int]] = {}
+    named_pattern_sign_counts: dict[str, dict[str, int]] = {}
     for combo in combinations(range(len(rows)), ncols):
         matrix = np.array([[rows[i].apply(col) for col in basis] for i in combo], dtype=float)
         det = float(np.linalg.det(matrix))
         abs_det = abs(det)
         min_abs_det = min(min_abs_det, abs_det)
         max_abs_det = max(max_abs_det, abs_det)
-        if sign_label(det) == 0:
+        det_sign = sign_label(det)
+        sign_key = str(det_sign)
+        row_names = [rows[i].to_json()["name"] for i in combo]
+        kind_pattern = ",".join("E" if rows[i].kind == "eval" else f"D{rows[i].order}" for i in combo)
+        named_pattern = ",".join(str(name) for name in row_names)
+        kind_pattern_counts[kind_pattern] = kind_pattern_counts.get(kind_pattern, 0) + 1
+        det_sign_counts[sign_key] = det_sign_counts.get(sign_key, 0) + 1
+        kind_pattern_sign_counts.setdefault(kind_pattern, {})
+        kind_pattern_sign_counts[kind_pattern][sign_key] = (
+            kind_pattern_sign_counts[kind_pattern].get(sign_key, 0) + 1
+        )
+        named_pattern_sign_counts.setdefault(named_pattern, {})
+        named_pattern_sign_counts[named_pattern][sign_key] = (
+            named_pattern_sign_counts[named_pattern].get(sign_key, 0) + 1
+        )
+        if det_sign == 0:
             singular += 1
             continue
         full_rank.append(
             {
                 "row_indices": list(combo),
-                "row_names": [rows[i].to_json()["name"] for i in combo],
+                "row_names": row_names,
+                "row_kind_pattern": kind_pattern,
                 "det": det,
-                "det_sign": sign_label(det),
+                "det_sign": det_sign,
             }
         )
+    nonzero_signs = sorted(
+        int(sign) for sign, count in det_sign_counts.items() if sign != "0" and count
+    )
     return {
         "degree_Q": d,
         "gammas": gammas,
@@ -418,6 +441,12 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         "max_abs_det": max_abs_det,
         "first_full_rank_subset": full_rank[0] if full_rank else None,
         "full_rank_subsets_preview": full_rank[:10],
+        "det_sign_counts": det_sign_counts,
+        "nonzero_det_signs": nonzero_signs,
+        "all_full_rank_subsets_same_orientation": len(nonzero_signs) <= 1 and singular == 0,
+        "row_kind_pattern_counts": kind_pattern_counts,
+        "row_kind_pattern_sign_counts": kind_pattern_sign_counts,
+        "named_pattern_sign_counts_preview": dict(list(named_pattern_sign_counts.items())[:10]),
     }
 
 
@@ -869,9 +898,17 @@ def main() -> int:
         print(f"  singular subsets = {audit['singular_subsets']}")
         print(f"  min |det| = {audit['min_abs_det']}")
         print(f"  max |det| = {audit['max_abs_det']}")
+        print(f"  det sign counts = {audit['det_sign_counts']}")
+        print(
+            "  all full-rank subsets same orientation = "
+            f"{audit['all_full_rank_subsets_same_orientation']}"
+        )
+        print(f"  row-kind patterns = {audit['row_kind_pattern_counts']}")
+        print(f"  row-kind pattern signs = {audit['row_kind_pattern_sign_counts']}")
         if audit["first_full_rank_subset"]:
             first = audit["first_full_rank_subset"]
             print(f"  first full-rank subset = {first['row_names']}")
+            print(f"  first row-kind pattern = {first['row_kind_pattern']}")
             print(f"  first det = {first['det']:.12e}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

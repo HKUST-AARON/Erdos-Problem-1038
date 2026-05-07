@@ -14942,6 +14942,39 @@ theorem queue.
     square subset has a fixed ordered Cauchy/confluent determinant orientation
     in the actual regular chart.
 
+    Pole-row orientation audit.
+
+    The pole-row subset audit now also records determinant signs and row-kind
+    patterns.  On the same synthetic cubic smoke chart, all \(15\) square
+    subsets remain full rank, but their determinant signs are not uniform:
+
+    \[
+    \#\{\det A>0\}=11,\qquad
+    \#\{\det A<0\}=4.
+    \tag{G1PoleRowSubsetSigns}
+    \]
+
+    Moreover the repeated row-kind pattern
+
+    \[
+    E,D,E,D
+    \]
+
+    itself has both signs in the toy enumeration.  The command reports
+
+    \[
+    E,D,E,D:\quad 4\text{ positive},\quad 1\text{ negative}.
+    \]
+
+    This is only a toy row-rank/orientation diagnostic, not a proof-grade
+    counterexample.  Its value is methodological: it confirms that
+    \( \det A\ne0\) is far too weak for Gate 1.  Even among square pole-row
+    gauges, orientation depends on the selected ordered row subset.  Therefore
+    `TPSquareMovingChartGaugeLemma` cannot be replaced by "choose any
+    full-rank square submatrix"; it must specify a canonical ordered row
+    selection, or prove a row-order/sign normalization that makes the relevant
+    Schur minors Cauchy-sign-compatible.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
