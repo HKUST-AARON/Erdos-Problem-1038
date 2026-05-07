@@ -344,6 +344,13 @@ Useful corrections already recorded:
   affine or homogeneous residual is strict.  No solution is harmless;
   degeneration routes to Gate 3; a regular non-strict residual is a real Gate
   1 obstruction.
+- The failure side has also been normalized: any regular Gate 1 failure now
+  yields a finite weighted contact obstruction with contacts \(z_i\), positive
+  weights \(w_i\), KKT cone equation, interior stationarity
+  \(P_\theta(z_i)=0\), an interval sign table certifying \(G_\theta\ge0\), and
+  a bad residual.  Thus the next proof task is to exclude these weighted
+  systems pattern-by-pattern; otherwise a regular solution is a genuine
+  rank-defect obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

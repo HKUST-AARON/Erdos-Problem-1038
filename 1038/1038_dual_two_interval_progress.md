@@ -13073,6 +13073,113 @@ theorem queue.
     measure-theoretic fallback remains inside Gate 1 after these finite
     checks.
 
+    Weighted contact obstruction system.
+
+    The previous normalization can be turned into an exact obstruction
+    certificate.  This is the useful endpoint of the current Gate 1 reduction:
+    a regular failure of MovingSchifferMajorantSignTheorem is equivalent to a
+    finite weighted contact system.
+
+    In the affine branch, a regular obstruction consists of:
+
+    \[
+    \Lambda\in\mathbb R,\qquad
+    \theta\in\mathbb R^4,\qquad
+    z_i\in Z_0,\qquad
+    w_i>0,
+    \]
+
+    with at most four active contacts, satisfying
+
+    \[
+    G_\theta(z_i)=0,
+    \tag{G1WContact}
+    \]
+
+    \[
+    \sum_iw_iV_S(z_i)=-b_S+\Lambda\rho_S,
+    \tag{G1WAffineKKT}
+    \]
+
+    and, for every interior contact,
+
+    \[
+    P_\theta(z_i)=0.
+    \tag{G1WStationary}
+    \]
+
+    Endpoint contacts satisfy the corresponding one-sided derivative sign,
+    and the sign table of \(P_\theta/(Q^2R)\) between consecutive contacts
+    must certify
+
+    \[
+    G_\theta(x)\ge0\qquad(x\in Z_0).
+    \tag{G1WSignTable}
+    \]
+
+    Finally, it must violate the desired strict margin:
+
+    \[
+    L_\Lambda(\theta)
+    =
+    G_\theta^{(b)}-\Lambda G_\theta^{(c)}
+    \le0.
+    \tag{G1WAffineBadResidual}
+    \]
+
+    In the homogeneous branch, replace (G1WAffineKKT) by
+
+    \[
+    \sum_iw_iV_S(z_i)=\lambda\rho_S,
+    \qquad
+    \lambda\in\{+1,-1\},
+    \tag{G1WHomKKT}
+    \]
+
+    use at most five contacts, and replace the residual failure by
+
+    \[
+    G_\theta^{(c)}\ge0\quad(\lambda=+1),
+    \qquad
+    G_\theta^{(c)}\le0\quad(\lambda=-1).
+    \tag{G1WHomBadResidual}
+    \]
+
+    Lemma (weighted obstruction extraction).  Suppose the regular
+    non-pinched \(g=2\) rank-defect Gate 1 branch is not excluded by the
+    majorant criterion.  Then either the case is a Gate 3 boundary/contact
+    degeneration, or there exists an affine or homogeneous weighted contact
+    obstruction satisfying the corresponding equations above.
+
+    Proof.  If the affine margin fails for some finite \(\Lambda\), then
+    \(M_\eta(\Lambda)\le0\) or the supremum defining \(M_\eta(\Lambda)\) is
+    not properly attained.  Non-attainment gives either a positive-lift
+    recession ray or a contact/chart degeneration; these have already been
+    separated as Gate 3 routes or explicit obstructions.  In the remaining
+    regular case, take an extremizer \(\theta\in\mathcal D_Z\).  The active
+    contact set \(G_\theta=0\) is nonempty; otherwise one can perturb
+    \(\theta\) in the objective direction and improve the residual.  Applying
+    the KKT normal-cone condition and conic Carathéodory gives a minimal
+    active set with at most four contacts and weights satisfying
+    (G1WAffineKKT).  Interior contacts are stationary because \(G_\theta\ge0\)
+    and \(G_\theta(z_i)=0\), giving (G1WStationary).  Endpoint contacts carry
+    the one-sided sign.  The interval sign table is exactly the remaining
+    statement that \(\theta\in\mathcal D_Z\).  Since the margin failed,
+    (G1WAffineBadResidual) holds.
+
+    The homogeneous branch is identical after projectivizing the objective
+    direction.  Maximizing \(G_\theta^{(c)}\) gives the ray
+    \(-\rho_S\), while minimizing \(G_\theta^{(c)}\) gives the ray
+    \(+\rho_S\); after rescaling this is (G1WHomKKT) with
+    \(\lambda=\pm1\).  Carathéodory in the projective raw circuit gives at
+    most five contacts.  The residual failures are precisely
+    (G1WHomBadResidual).  \(\square\)
+
+    Therefore Gate 1 can be attacked pattern-by-pattern: for each contact
+    pattern, prove the weighted obstruction system has no regular solution.
+    Any regular solution with bad residual is no longer a heuristic failure;
+    it is a concrete rank-defect obstruction.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
