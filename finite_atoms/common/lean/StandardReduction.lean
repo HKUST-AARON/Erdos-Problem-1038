@@ -3185,6 +3185,29 @@ theorem positiveSet_connectedComponentIn_exists_interval_around
       rw [abs_sub_lt_iff]
       constructor <;> linarith)
 
+/--
+Selected connected components in `ℝ` are order-connected.  This is the global
+interval-shape fact behind the later `Ioo left right` representation.
+-/
+theorem positiveSet_connectedComponentIn_ordConnected
+    {U : ℝ → ℝ} (x : ℝ) :
+    (connectedComponentIn (PositiveSet U) x).OrdConnected :=
+  isPreconnected_iff_ordConnected.mp isPreconnected_connectedComponentIn
+
+/--
+If two points of the selected connected component bracket a third point, then
+the third point is still in the same component.  This is the usable
+between-points form of interval connectedness.
+-/
+theorem positiveSet_connectedComponentIn_mem_of_between
+    {U : ℝ → ℝ} {x a b z : ℝ}
+    (ha : a ∈ connectedComponentIn (PositiveSet U) x)
+    (hb : b ∈ connectedComponentIn (PositiveSet U) x)
+    (haz : a ≤ z) (hzb : z ≤ b) :
+    z ∈ connectedComponentIn (PositiveSet U) x := by
+  exact (positiveSet_connectedComponentIn_ordConnected (U := U) x).out
+    ha hb ⟨haz, hzb⟩
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
