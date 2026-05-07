@@ -3772,6 +3772,39 @@ theorem unitInterval_positiveSet_connectedComponentIn_bddAbove
   exact le_of_lt hywin.2
 
 /--
+Spanning-interval selected-component constructor with boundedness discharged
+from the global positive-set window.  The remaining explicit inputs are the
+positive spanning interval, openness, and the diagonal-exception policy.
+-/
+theorem exists_positiveComponent_augmentedMaximal_of_positive_spanning_interval_auto_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x δ : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hδ : 0 < δ)
+    (hspan :
+      Ioo (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_augmentedMaximal_of_positive_spanning_interval
+      (μ := μ) (x := x) (δ := δ)
+      hopen hxbase hδ hspan
+      (unitInterval_positiveSet_connectedComponentIn_bddBelow μ x)
+      (unitInterval_positiveSet_connectedComponentIn_bddAbove μ x)
+      hnoDiag
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
