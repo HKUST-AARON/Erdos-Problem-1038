@@ -4329,6 +4329,15 @@ theorem PositiveComponent.right_not_mem_augmented_of_augmented_gap
   rw [haug_gap] at hright_mem
   exact False.elim hright_mem
 
+theorem PositiveComponent.right_potential_nonpos_of_augmented_gap
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ : ℝ} (hδ : 0 < δ)
+    (haug_gap :
+      Icc C.right (C.right + δ) ∩ unitIntervalAugmentedPositiveSet μ = ∅) :
+    unitIntervalLogPotential μ C.right ≤ 0 :=
+  unitIntervalLogPotential_nonpos_of_not_mem_augmented
+    (C.right_not_mem_augmented_of_augmented_gap hδ haug_gap)
+
 theorem PositiveComponent.right_gap_union_of_augmented_gap_not_mem_support
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
