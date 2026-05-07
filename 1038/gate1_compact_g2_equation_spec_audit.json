@@ -1,7 +1,7 @@
 {
   "blocking_errors": [
     "equation spec does not declare proof_grade=true",
-    "not-ready blocks: ['equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
+    "not-ready blocks: ['equation:Z0_boundary_row_selection', 'provenance']"
   ],
   "blocks": [
     {
@@ -35,9 +35,9 @@
     },
     {
       "name": "equation:period_filling_convention",
-      "ready": false,
-      "status": "TODO",
-      "todo_like": true
+      "ready": true,
+      "status": "contract",
+      "todo_like": false
     },
     {
       "name": "equation:Z0_boundary_row_selection",

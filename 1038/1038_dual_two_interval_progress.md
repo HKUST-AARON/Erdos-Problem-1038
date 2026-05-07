@@ -17936,3 +17936,52 @@ provenance
 Thus the remaining obstruction to producing `gate1_compact_g2_chart.json` is
 now exactly the global row convention: how \(\kappa\) is fixed and how
 \(Z_0,u,c,v,a,b\) are selected/exported for the Gate 1 residual rows.
+
+The period/filling block is now a contract.  The convention is the canonical
+free-period chart:
+
+1. the period/filling constraint is quotiented by the filling variable
+   \(\tau\), so it is not a row of \(A\);
+2. the period direction is exported as the lift column
+
+   \[
+   H_\Pi(z)=\kappa Q(z)^2,\qquad
+   C_\Pi(z)=\frac{\kappa}{R(z)};
+   \]
+
+3. with \(V_\Pi(\infty)=0\),
+
+   \[
+   V_\Pi(s)=\kappa\int_s^\infty\frac{dy}{R(y)};
+   \]
+
+4. \(\kappa\ne0\) is chosen with the sign convention that the associated
+   boundary density has the oriented positive period-transfer form.  Positive
+   rescaling of \(\kappa\) only rescales the period seed and does not change
+   projective sign tests.
+
+This closes the period/filling convention as a chart-export contract.  It does
+not prove the remaining column-side sign theorem:
+
+\[
+\boxed{\textbf{EndpointPeriodColumnOrientationLemma}}
+\]
+
+which still has to sign the full canonical block containing the four endpoint
+columns and the period lift \(\kappa Q^2\).
+
+Rerunning the equation-spec audit now gives:
+
+```text
+block = period_filling_convention, ready = True
+solver ready = False
+```
+
+The only not-ready mathematical block is now:
+
+```text
+Z0_boundary_row_selection
+```
+
+plus provenance.  Therefore the next executable task is to specify exactly how
+the chart exports \(Z_0,u,c,v,a,b\) for the Gate 1 residual rows.

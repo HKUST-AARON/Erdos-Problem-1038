@@ -900,10 +900,14 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
             {
                 "name": "period_filling_convention",
-                "status": "TODO",
+                "status": "contract",
                 "equations": [
-                    "TODO: exact period/filling row",
-                    "TODO: definition and orientation of kappa",
+                    "canonical free-period chart: period/filling is quotiented by the filling variable tau and is not a row of A",
+                    "period direction is exported as H_Pi(z)=kappa Q(z)^2",
+                    "C_Pi(z)=kappa/R(z), V_Pi(s)=kappa int_s^infty dy/R(y)",
+                    "choose kappa != 0 with sign so the associated boundary density has oriented positive period-transfer form",
+                    "positive rescaling of kappa only rescales the period seed and does not change projective sign tests",
+                    "EndpointPeriodColumnOrientationLemma remains a separate column-side Gate 1 proof obligation",
                 ],
             },
             {
@@ -964,7 +968,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
             "positivity_interlacing": "Lemma FG Sign and interlacing",
             "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
-            "period_filling_convention": "TODO: ledger theorem/line reference",
+            "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },
     }

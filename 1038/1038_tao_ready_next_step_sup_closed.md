@@ -5462,3 +5462,12 @@ Update: `endpoint_neck_equations` is now ready.  The contract uses
 equation with tangent \(\delta F(c)=F'(c)\delta c+\delta_\xi F(c)=0\).  The
 only not-ready mathematical blocks are now `period_filling_convention` and
 `Z0_boundary_row_selection`, plus provenance.
+
+Update: `period_filling_convention` is now ready.  The chart uses the
+canonical free-period convention: the period/filling row is quotiented by
+\(\tau\), not included in \(A\), and the period seed is exported as
+\(H_\Pi=\kappa Q^2\), \(C_\Pi=\kappa/R\), with \(\kappa\ne0\) oriented so the
+period-transfer density has the positive sign convention.  The remaining
+not-ready mathematical block is now only `Z0_boundary_row_selection`, plus
+provenance.  The separate EndpointPeriodColumnOrientationLemma is still a
+Gate 1 column-side proof obligation.

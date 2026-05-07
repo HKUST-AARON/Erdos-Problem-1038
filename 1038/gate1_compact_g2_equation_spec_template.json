@@ -50,11 +50,15 @@
     },
     {
       "equations": [
-        "TODO: exact period/filling row",
-        "TODO: definition and orientation of kappa"
+        "canonical free-period chart: period/filling is quotiented by the filling variable tau and is not a row of A",
+        "period direction is exported as H_Pi(z)=kappa Q(z)^2",
+        "C_Pi(z)=kappa/R(z), V_Pi(s)=kappa int_s^infty dy/R(y)",
+        "choose kappa != 0 with sign so the associated boundary density has oriented positive period-transfer form",
+        "positive rescaling of kappa only rescales the period seed and does not change projective sign tests",
+        "EndpointPeriodColumnOrientationLemma remains a separate column-side Gate 1 proof obligation"
       ],
       "name": "period_filling_convention",
-      "status": "TODO"
+      "status": "contract"
     },
     {
       "equations": [
@@ -110,7 +114,7 @@
     "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
     "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
     "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
-    "period_filling_convention": "TODO: ledger theorem/line reference",
+    "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
     "positivity_interlacing": "Lemma FG Sign and interlacing"
   },
   "purpose": "Executable mathematical contract for producing a proof-grade compact non-pinched g=2 chart JSON.",
