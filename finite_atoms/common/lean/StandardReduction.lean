@@ -16250,6 +16250,43 @@ theorem realMeasure_ae_endpoint_or_right_of_spanning_augmented_support_unique
     exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
 
 /--
+Pointwise support-uniqueness version of the right-region consequence.  This is
+the direct set-level form of
+`realMeasure_ae_endpoint_or_right_of_spanning_augmented_support_unique`.
+-/
+theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_support_unique
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici C.right := by
+  have hspan_interval :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+    C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
+      hε hmax hbaseline hspan_aug
+  intro t htSupport
+  by_cases ht_endpoint : t = -1
+  · exact Or.inl (by simpa [ht_endpoint])
+  · right
+    by_contra hnot
+    have ht_lt_right : t < C.right := lt_of_not_ge hnot
+    have htUnit : t ∈ Icc (-1 : ℝ) 1 :=
+      realMeasure_support_subset_unitInterval μ htSupport
+    have ht_gt_endpoint : (-1 : ℝ) < t := by
+      have ht_ge_endpoint : (-1 : ℝ) ≤ t := htUnit.1
+      exact lt_of_le_of_ne ht_ge_endpoint (Ne.symm ht_endpoint)
+    have ht_span : t ∈ Ioo (-(1 : ℝ) - ε) C.right := by
+      constructor
+      · linarith
+      · exact ht_lt_right
+    exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
+
+/--
 Distance upper bound at an intrinsic right boundary once a.e. every
 non-endpoint support point lies to its right.
 -/
