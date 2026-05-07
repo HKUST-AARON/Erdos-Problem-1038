@@ -11502,6 +11502,44 @@ theorem realMeasure_ae_endpoint_or_right_of_spanning_augmented_zero_neighborhood
     exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
 
 /--
+Support-uniqueness version of
+`realMeasure_ae_endpoint_or_right_of_spanning_augmented_zero_neighborhood`.
+This is the direct interface when the variation argument already identifies
+the only support point inside the selected component, without first packaging
+that fact as zero mass on every open sub-neighbourhood.
+-/
+theorem realMeasure_ae_endpoint_or_right_of_spanning_augmented_support_unique
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    ∀ᵐ t ∂realMeasure μ, t = -1 ∨ C.right ≤ t := by
+  have hspan_interval :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
+    C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
+      hε hmax hbaseline hspan_aug
+  filter_upwards [realMeasure_ae_mem_support μ,
+    realMeasure_ae_mem_unitInterval μ] with t htSupport htUnit
+  by_cases ht_endpoint : t = -1
+  · exact Or.inl ht_endpoint
+  · right
+    by_contra hnot
+    have ht_lt_right : t < C.right := lt_of_not_ge hnot
+    have ht_gt_endpoint : (-1 : ℝ) < t := by
+      have ht_ge_endpoint : (-1 : ℝ) ≤ t := htUnit.1
+      exact lt_of_le_of_ne ht_ge_endpoint (Ne.symm ht_endpoint)
+    have ht_span : t ∈ Ioo (-(1 : ℝ) - ε) C.right := by
+      constructor
+      · linarith
+      · exact ht_lt_right
+    exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
+
+/--
 Distance upper bound at an intrinsic right boundary once a.e. every
 non-endpoint support point lies to its right.
 -/
@@ -11649,6 +11687,33 @@ theorem boundary_distance_upper_of_spanning_augmented_zero_neighborhood
   boundary_distance_upper_of_ae_endpoint_or_right μ hright_pos
     (realMeasure_ae_endpoint_or_right_of_spanning_augmented_zero_neighborhood
       hε hmax hbaseline hspan_aug hzero)
+
+/--
+Distance upper bound from augmented span and direct support uniqueness inside
+the selected component.
+-/
+theorem boundary_distance_upper_of_spanning_augmented_support_unique
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    (∫ t, |C.right - t| ∂realMeasure μ) ≤
+      (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_distance_upper_of_ae_endpoint_or_right μ hright_pos
+    (realMeasure_ae_endpoint_or_right_of_spanning_augmented_support_unique
+      hε hmax hbaseline hspan_aug hunique)
 
 /--
 Endpoint atomization of the selected component produces a genuine endpoint atom
