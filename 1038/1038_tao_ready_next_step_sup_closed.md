@@ -452,6 +452,22 @@ Useful corrections already recorded:
   determinant product.  Keep \(Q_{\rm eff}\) as a fallback for compact affine
   hard cases, not as the first attack on nonzero \(Z_0\)-atomic homogeneous
   loads.
+- ECT-A is now reduced to full moving-block Schur minors.  Endpoint/off-row
+  alternation requires signing the four-column full block with row blocks
+  \(L_X\) and \(L_{X;i\to c}\); the lifted circuit orientation requires signing
+  the five-column full block with the period column \(\kappa Q^2\).  Since
+  \(\det A>0\), both signs are exactly signs of the corresponding full moving
+  determinants.  The next concrete theorem is
+  `ECTAFullMovingBlockSignLemma`: expand those four- and five-column full
+  determinants as positive factors times ordered Cauchy/Vandermonde products,
+  with zero determinants routed to Gate 3.
+- The immediate checklist for that lemma is: fix an explicit ordered moving
+  correction basis \(B_\nu=QD\Delta P_\nu-PD\Delta Q_\nu\); sign \(\det A\);
+  sign the ordered \(L_X,L_{X;i\to c},L_Y\) row factors; sign the raw endpoint
+  columns \(H_\gamma^{raw}=-\frac12PQD_\gamma\); sign the period lift
+  \(\kappa Q^2\); and track the component signs of \(Q^2R\).  Any failure of
+  these regular sign conventions routes to Gate 3 or becomes a real
+  obstruction.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

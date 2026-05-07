@@ -13786,6 +13786,123 @@ theorem queue.
     \(\Lambda\), or finite \(Q_{\rm eff}\) against nonzero \(Z_0\)-atomic
     loads.
 
+    ECT-A as full moving-block Schur minors.
+
+    The two determinant statements in (G1NextECTA) can be pushed one step
+    closer to the actual moving chart.  They are not independent analytic
+    assertions about the integrated potentials; after the Cauchy-to-potential
+    transfer above, each is a Schur-complement minor of the full moving block.
+
+    Let \(L_X\) denote the ordered row block corresponding to a regular
+    four-tuple \(X=(x_1,\ldots,x_4)\) of potential contact rows, and let
+    \(L_{X;i\to c}\) be the mixed row block obtained by replacing the \(i\)-th
+    potential row by the equality/off-row \(c\)-evaluation row
+    \(\rho_j=-C_j(c)\).  Then endpoint/off-row alternation is equivalent to
+    fixed signs of the repaired minors
+
+    \[
+    \det L_X(H_{\alpha_1}^{rep},H_{\beta_1}^{rep},
+             H_{\alpha_2}^{rep},H_{\beta_2}^{rep}),
+    \]
+
+    and
+
+    \[
+    \det L_{X;i\to c}(H_{\alpha_1}^{rep},H_{\beta_1}^{rep},
+             H_{\alpha_2}^{rep},H_{\beta_2}^{rep}).
+    \]
+
+    By (Gate1BlockDet), each such determinant is
+
+    \[
+    \frac{
+    \det
+    \begin{pmatrix}
+    A&r_{\alpha_1}&r_{\beta_1}&r_{\alpha_2}&r_{\beta_2}\\
+    L_\bullet B&
+    L_\bullet H_{\alpha_1}^{raw}&
+    L_\bullet H_{\beta_1}^{raw}&
+    L_\bullet H_{\alpha_2}^{raw}&
+    L_\bullet H_{\beta_2}^{raw}
+    \end{pmatrix}}
+    {\det A},
+    \tag{G1ECTASchur4}
+    \]
+
+    with \(L_\bullet=L_X\) or \(L_{X;i\to c}\).  Since the canonical chart
+    orientation fixes \(\det A>0\), the sign problem is exactly the sign of the
+    displayed full moving determinant.
+
+    Similarly, the lifted five-point circuit determinant uses the five columns
+
+    \[
+    H_{\alpha_1}^{rep},\ H_{\beta_1}^{rep},\
+    H_{\alpha_2}^{rep},\ H_{\beta_2}^{rep},\ \kappa Q^2,
+    \]
+
+    evaluated against the five-point potential row block \(L_Y\).  Its sign is
+    the sign of
+
+    \[
+    \frac{
+    \det
+    \begin{pmatrix}
+    A&r_{\alpha_1}&r_{\beta_1}&r_{\alpha_2}&r_{\beta_2}&r_\Pi\\
+    L_Y B&
+    L_Y H_{\alpha_1}^{raw}&
+    L_Y H_{\beta_1}^{raw}&
+    L_Y H_{\alpha_2}^{raw}&
+    L_Y H_{\beta_2}^{raw}&
+    L_Y(\kappa Q^2)
+    \end{pmatrix}}
+    {\det A}.
+    \tag{G1ECTASchur5}
+    \]
+
+    Therefore ECT-A will be proved once the two full-block product formulas
+    (G1ECTASchur4) and (G1ECTASchur5) are signed for all admissible ordered
+    row blocks, with zero determinants routed to Gate 3.  This is the most
+    concrete next theorem:
+
+    \[
+    \boxed{\textbf{ECTAFullMovingBlockSignLemma}.}
+    \tag{G1ECTAFullBlockTarget}
+    \]
+
+    It must expand the full determinants in (G1ECTASchur4) and
+    (G1ECTASchur5) as positive factors times ordered Cauchy/Vandermonde
+    products.  This is narrower than the earlier
+    MovingCorrectionColumnOrientationLemma: only the off-row four-minors and
+    lifted five-minors needed for homogeneous closure are required first.
+    After they are proved, the proof can move to compact affine
+    \(m_{\mathfrak p}>0\) verification.
+
+    The proof checklist for ECTAFullMovingBlockSignLemma is therefore:
+
+    \[
+    \boxed{
+    \begin{array}{c|c}
+    \text{factor} & \text{required sign input}\\ \hline
+    \det A & \text{positive chart orientation}\\
+    L_X,L_{X;i\to c},L_Y & \text{ordered step/evaluation rows on }Z_0\\
+    B_\nu=QD\Delta P_\nu-PD\Delta Q_\nu
+      & \text{canonical moving correction basis}\\
+    H_\gamma^{raw}=-\frac12PQD_\gamma
+      & \text{endpoint interpolation column sign}\\
+    \kappa Q^2 & \text{period lift orientation}\\
+    Q^2R & \text{fixed component signs}
+    \end{array}
+    }
+    \tag{G1ECTAFullBlockChecklist}
+    \]
+
+    Any sign-changing row convention, non-real/multiple pole, vanishing
+    endpoint value, or contact/component collision is not an ECT-A pass; it is
+    a Gate 3 route or a genuine obstruction.  Thus the next proof attempt
+    should start by choosing an explicit ordered moving-correction basis
+    \(B_\nu\) and writing the two determinants (G1ECTASchur4),
+    (G1ECTASchur5) in that basis.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
