@@ -277,6 +277,76 @@ def audit_two_interval_json(path: Path) -> dict[str, Any]:
     }
 
 
+def row_from_json(item: dict[str, Any]) -> Row:
+    kind = str(item["kind"])
+    x = float(item["x"])
+    order = int(item.get("order", 0 if kind == "eval" else 1))
+    scale = float(item.get("scale", 1.0))
+    name = item.get("name")
+    return Row(kind, x, order=order, scale=scale, name=name)
+
+
+def load_chart_json(path: Path) -> tuple[Array, Array, list[float], list[Row], dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    missing = [key for key in ["P", "Q", "gammas", "rows"] if key not in payload]
+    if missing:
+        raise ValueError(f"{path}: missing required chart fields {missing}")
+    P = np.array([float(x) for x in payload["P"]], dtype=float)
+    Q = np.array([float(x) for x in payload["Q"]], dtype=float)
+    gammas = [float(x) for x in payload["gammas"]]
+    raw_rows = payload["rows"]
+    if not isinstance(raw_rows, list):
+        raise ValueError(f"{path}: rows must be a list")
+    rows = [row_from_json(item) for item in raw_rows]
+    return P, Q, gammas, rows, payload
+
+
+def period_endpoint_quotient_residual(P: Array, Q: Array, gammas: list[float]) -> dict[str, Any]:
+    D = poly_from_roots(gammas)
+    q2 = poly_mul(Q, Q)
+    interpolation = np.zeros(max(len(q2), len(D) + max(0, len(q2) - len(D) + 1)))
+    coefficients: dict[str, float] = {}
+    for gamma in gammas:
+        D_gamma = divide_by_linear(D, gamma)
+        denom = poly_eval(P, gamma) * poly_eval(D_gamma, gamma)
+        if abs(denom) < 1.0e-14:
+            raise ValueError(f"endpoint interpolation denominator vanishes at gamma={gamma}")
+        coeff = poly_eval(Q, gamma) / denom
+        endpoint_col = poly_mul(poly_mul(P, Q), D_gamma)
+        if len(endpoint_col) > len(interpolation):
+            interpolation = np.pad(interpolation, (0, len(endpoint_col) - len(interpolation)))
+        interpolation[: len(endpoint_col)] += coeff * endpoint_col
+        coefficients[f"{gamma:.17g}"] = float(coeff)
+
+    numerator = poly_add(q2, poly_scale(interpolation, -1.0))
+    desc_num = np.array(list(reversed(numerator)), dtype=float)
+    desc_D = np.array(list(reversed(D)), dtype=float)
+    quotient_desc, rem_desc = np.polydiv(desc_num, desc_D)
+    quotient = trim(np.array(list(reversed(quotient_desc)), dtype=float), tol=1.0e-11)
+    remainder = trim(np.array(list(reversed(rem_desc)), dtype=float), tol=1.0e-11)
+    return {
+        "coefficients": coefficients,
+        "W_Q_coefficients_ascending": quotient.tolist(),
+        "max_abs_remainder_after_dividing_by_D": float(np.max(np.abs(remainder))) if len(remainder) else 0.0,
+        "raw_remainder_coefficients_ascending": remainder.tolist(),
+    }
+
+
+def run_chart_json(path: Path) -> dict[str, Any]:
+    P, Q, gammas, rows, source = load_chart_json(path)
+    repaired = extract_repaired_data(P, Q, gammas, rows)
+    period_residual = period_endpoint_quotient_residual(P, Q, gammas)
+    return {
+        "path": str(path),
+        "description": source.get("description"),
+        "repaired": repaired,
+        "period_endpoint_quotient": period_residual,
+        "optional_fields_present": {
+            key: key in source for key in ["kappa", "Z0", "u", "c", "v", "contact_points"]
+        },
+    }
+
+
 def parse_float_list(raw: str) -> list[float]:
     return [float(part) for part in raw.split(",") if part.strip()]
 
@@ -306,6 +376,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--toy-g2", action="store_true", help="run a synthetic g=2 smoke test")
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
+    parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
     parser.add_argument("--gammas", help="branch endpoints, comma-separated")
@@ -327,6 +398,34 @@ def main() -> int:
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.chart_json:
+        payload = run_chart_json(Path(args.chart_json))
+        repaired = payload["repaired"]
+        period = payload["period_endpoint_quotient"]
+        print("Gate 1 repaired chart JSON")
+        print(f"  path = {payload['path']}")
+        print(
+            "  deg P, deg Q, #gammas = "
+            f"{len(repaired['P_coefficients_ascending'])-1} "
+            f"{len(repaired['Q_coefficients_ascending'])-1} "
+            f"{len(repaired['gammas'])}"
+        )
+        print(f"  rows/correction columns = {len(repaired['rows'])}")
+        print(f"  det(A) = {repaired['det_A']:.12e}")
+        print(f"  cond(A) = {repaired['cond_A']:.12e}")
+        print(f"  max |AX+r| = {repaired['max_abs_AX_plus_r']:.12e}")
+        print(f"  max repaired chart row = {repaired['max_abs_chart_row_after_repair']:.12e}")
+        print(
+            "  period quotient remainder = "
+            f"{period['max_abs_remainder_after_dividing_by_D']:.12e}"
+        )
+        print(f"  optional fields = {payload['optional_fields_present']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
         return 0
 

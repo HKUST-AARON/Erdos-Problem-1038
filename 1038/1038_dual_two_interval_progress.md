@@ -14157,6 +14157,86 @@ theorem queue.
     but any computation of \(M_\eta(\Lambda)\), endpoint/off-row determinants,
     or \(P_\theta\)-sign tables from them would be testing the wrong object.
 
+    Proof-grade chart JSON entry point.
+
+    The same extractor now accepts a real chart file by
+
+    \[
+    \texttt{--chart-json PATH}.
+    \]
+
+    The required minimal schema is
+
+    \[
+    \boxed{
+    \texttt{\{P,Q,gammas,rows\}},
+    }
+    \tag{G1ChartJsonSchema}
+    \]
+
+    where \(P,Q\) are ascending coefficient lists, `gammas` is the ordered
+    four-endpoint list
+
+    \[
+    \Gamma=\{\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \]
+
+    and `rows` is the ordered regular moving-chart row list, with row entries
+    of the form
+
+    \[
+    \texttt{\{"kind":"eval","x":x\}}
+    \quad\text{or}\quad
+    \texttt{\{"kind":"deriv","x":x,"order":m\}}.
+    \]
+
+    Optional fields
+
+    \[
+    \texttt{kappa},\quad \texttt{Z0},\quad \texttt{u},\quad
+    \texttt{c},\quad \texttt{v},\quad \texttt{contact\_points}
+    \]
+
+    are reserved for the next majorant/determinant stage.  On a supplied chart
+    the entry point runs the repaired extractor and also checks the quotient
+    identity
+
+    \[
+    Q^2
+    =
+    DW_Q+
+    \sum_\gamma
+    \frac{Q(\gamma)}{P(\gamma)D_\gamma(\gamma)}PQD_\gamma.
+    \tag{G1ChartJsonPeriodAudit}
+    \]
+
+    A synthetic chart JSON smoke test gives
+
+    \[
+    \max|AX+r|=3.410605131648\cdot10^{-13},\qquad
+    \max|row(H_\gamma^{rep})|=3.845812557302\cdot10^{-13},
+    \]
+
+    and
+
+    \[
+    \max|\operatorname{rem}_D(Q^2-\sum_\gamma
+    Q(\gamma)(P(\gamma)D_\gamma(\gamma))^{-1}PQD_\gamma)|
+    =
+    5.329070518201\cdot10^{-15}.
+    \tag{G1ChartJsonSmoke}
+    \]
+
+    Thus the computation route is now blocked only by the absence of a real
+    compact non-pinched \(g=2\) chart file, not by extractor infrastructure.
+    Once such a file is supplied, the next executable checks are:
+
+    1.  repaired row residuals and conditioning of \(A\);
+    2.  endpoint/off-row four-column determinant smoke tests;
+    3.  construction of \(C_\gamma=H_\gamma^{rep}/(Q^2R)\) and numerical
+        quadrature for \(V_S,\rho_S,b_S\);
+    4.  compact affine contact/envelope search.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

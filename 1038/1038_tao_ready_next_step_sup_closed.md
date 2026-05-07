@@ -512,6 +512,17 @@ Useful corrections already recorded:
   moving-chart rows \(\ell\), period orientation \(\kappa\), or
   \(Z_0,u,c,v\).  Therefore they cannot be wrapped into a Gate 1 repaired
   oracle input.
+- The proof-grade computation entry point is now `--chart-json PATH`, with
+  required fields `P,Q,gammas,rows` and optional fields
+  `kappa,Z0,u,c,v,contact_points`.  Besides repaired extraction, it checks the
+  period endpoint-quotient identity
+  \(Q^2=DW_Q+\sum_\gamma
+  Q(\gamma)(P(\gamma)D_\gamma(\gamma))^{-1}PQD_\gamma\).  A synthetic chart
+  JSON smoke test gives \(\max|AX+r|=3.410605131648\cdot10^{-13}\), max repaired
+  row residual \(3.845812557302\cdot10^{-13}\), and period-quotient remainder
+  \(5.329070518201\cdot10^{-15}\).  Thus the remaining computational blocker
+  is now specifically the absence of a real compact non-pinched \(g=2\) chart
+  file, not extractor infrastructure.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
