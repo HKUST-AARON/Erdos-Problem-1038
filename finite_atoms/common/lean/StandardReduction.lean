@@ -21219,15 +21219,10 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
-  have hright_excluded :
-      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support :=
-    C.right_not_mem_augmented_union_support_of_right_gap hδ hright_gap
-  have hright_not_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ := by
-    intro hmem
-    exact hright_excluded (Or.inl hmem)
-  have hright_not_support : C.right ∉ (realMeasure μ).support := by
-    intro hmem
-    exact hright_excluded (Or.inr hmem)
+  have hright_not_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ :=
+    C.right_not_mem_augmented_of_right_gap hδ hright_gap
+  have hright_not_support : C.right ∉ (realMeasure μ).support :=
+    C.right_not_mem_support_of_right_gap hδ hright_gap
   rcases realMeasure_ae_separated_of_not_mem_support μ hright_not_support with
     ⟨boundarySep, hboundarySep, hdist_lower⟩
   have hpotential_nonpos : unitIntervalLogPotential μ C.right ≤ 0 := by
