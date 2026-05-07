@@ -11392,6 +11392,56 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_da
       hzero_pos hzero_no_diag hzero_tail hδ
       hright_pos hright_no_diag hright_tail
 
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_closed_right_threshold_tail
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε threshold δ : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)))
+    (hzero_pos : threshold < unitIntervalLogPotential μ 0)
+    (hzero_tail :
+      singularTailMass truncε μ 0 < ENNReal.ofReal (threshold / 2))
+    (hδ : 0 < δ)
+    (hright_pos :
+      ∀ x : ℝ, x ∈ Ioo (0 : ℝ) δ →
+        threshold < unitIntervalLogPotential μ x)
+    (hzero_right_no_diag :
+      Disjoint (Icc (0 : ℝ) δ) (diagonalAtomSet μ))
+    (hright_tail :
+      ∀ x : ℝ, x ∈ Ioo (0 : ℝ) δ →
+        singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hzero_no_diag : 0 ∉ diagonalAtomSet μ := by
+    rw [Set.disjoint_left] at hzero_right_no_diag
+    exact hzero_right_no_diag ⟨le_rfl, le_of_lt hδ⟩
+  have hright_no_diag :
+      Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ) := by
+    rw [Set.disjoint_left]
+    intro x hx
+    rw [Set.disjoint_left] at hzero_right_no_diag
+    exact hzero_right_no_diag ⟨le_of_lt hx.1, le_of_lt hx.2⟩
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_right_threshold_tail
+      μ hlog_int htruncε hthreshold hbaseline_local
+      hzero_pos hzero_no_diag hzero_tail hδ
+      hright_pos hright_no_diag hright_tail
+
 /--
 Closed-right interval threshold/tail version of selected-component
 construction.  A single package of ordinary threshold positivity,
