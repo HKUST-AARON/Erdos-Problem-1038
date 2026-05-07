@@ -13300,6 +13300,141 @@ theorem queue.
     total-positivity theorem would prove this, but it has not yet been
     established.
 
+    Review audit: homogeneous margins via endpoint cone separation.
+
+    The next Gate 1 review is accepted as a conditional reduction, with an
+    important caveat about row compatibility.  It gives a useful way to split
+    the homogeneous branch from the compact affine branch before attempting
+    the full contact-pattern verification.
+
+    Define the recession cone of the endpoint majorant inequalities by
+
+    \[
+    \mathcal K_Z
+    =
+    \{\chi\in\mathbb R^4:\chi\cdot V_S(x)\ge0\quad(x\in Z_0)\}.
+    \tag{G1RecessionCone}
+    \]
+
+    If \(\mathcal D_Z\ne\emptyset\) and there are
+    \(\chi_R,\chi_L\in\mathcal K_Z\) such that
+
+    \[
+    \chi_R\cdot\rho_S>0,
+    \qquad
+    \chi_L\cdot\rho_S<0,
+    \tag{G1TwoSidedRhoRecession}
+    \]
+
+    then the homogeneous margins follow.  Indeed, for any
+    \(\theta_0\in\mathcal D_Z\) and \(t\ge0\),
+    \(\theta_0+t\chi_R,\theta_0+t\chi_L\in\mathcal D_Z\), and
+
+    \[
+    G_{\theta_0+t\chi}^{(c)}
+    =
+    G_{\theta_0}^{(c)}+t\,\chi\cdot\rho_S.
+    \]
+
+    Thus \(G^{(c)}\) is unbounded above along \(\chi_R\) and unbounded below
+    along \(\chi_L\), giving
+
+    \[
+    \boxed{
+    \sup_{\theta\in\mathcal D_Z}G_\theta^{(c)}>0,
+    \qquad
+    \inf_{\theta\in\mathcal D_Z}G_\theta^{(c)}<0.
+    }
+    \tag{G1HomMarginsFromRecession}
+    \]
+
+    By finite-dimensional separation, (G1TwoSidedRhoRecession) follows from
+    the endpoint cone separation
+
+    \[
+    \boxed{
+    \rho_S\notin \operatorname{cone}\{V_S(x):x\in Z_0\},
+    \qquad
+    -\rho_S\notin \operatorname{cone}\{V_S(x):x\in Z_0\}.
+    }
+    \tag{G1EndpointConeSeparation}
+    \]
+
+    Conversely, if either cone inclusion held, conic Carathéodory in
+    \(\mathbb R^4\) would give a representation by at most four atoms.  In the
+    regular four-atom case, for
+
+    \[
+    F_X=[V_S(x_1)\ V_S(x_2)\ V_S(x_3)\ V_S(x_4)]
+    \]
+
+    the weights are given by Cramer's rule.  Therefore an off-row cofactor
+    alternation of the form
+
+    \[
+    \operatorname{sgn}
+    \det[V_S(x_1)\cdots \rho_S\cdots V_S(x_4)]
+    =
+    (-1)^i\sigma_\rho\,\operatorname{sgn}\det F_X
+    \tag{G1OffRowAlternation}
+    \]
+
+    rules out all-positive weights for both \(\rho_S\) and \(-\rho_S\).
+    Lower-support cases are obtained by a limiting argument; determinant
+    collapse, contact collision, pole collision, or denominator sign loss is
+    routed to Gate 3, not counted as a regular Gate 1 pass.
+
+    The other input needed for the argument is non-emptiness of
+    \(\mathcal D_Z\).  By the same cone duality, this is equivalent to absence
+    of a positive-lift recession ray:
+
+    \[
+    \boxed{
+    \sum_iw_iV_S(x_i)=0,\quad w_i>0
+    \quad\Longrightarrow\quad
+    \sum_iw_iV_\Pi(x_i)\le0
+    }
+    \tag{G1NoPositiveLiftRecession}
+    \]
+
+    again with strict or boundary-routed alternatives in the regular ledger.
+    Therefore the corrected homogeneous package is
+
+    \[
+    \boxed{
+    \text{no positive-lift recession}
+    +
+    \text{endpoint cone separation}
+    \Longrightarrow
+    \text{homogeneous margins}
+    \Longrightarrow
+    \Lambda\text{-compactification}.
+    }
+    \tag{G1HomConePackage}
+    \]
+
+    The colleague's proposed Cauchy/Andreief route is a valid sufficient
+    strategy only after the actual repaired rows satisfy a row-by-row
+    compatibility theorem.  In particular, one must fix the order and
+    basepoint of the integration kernel on the disconnected set
+    \(Z_0=Z_L\cup Z_R\), the sign of \(Q^2R\) on each component, the ordered
+    position and sign convention for the \(c,u,v\) rows, and the moving-Q /
+    period/free-filling normalization rows.  Only after those rows are shown
+    to be positive rescalings, confluent limits, or positive averages of a
+    single ordered Cauchy system can sign-regularity be transferred through
+    the Schur complement to \(H_\gamma^{rep}\).  This missing row-by-row
+    statement is the current
+
+    \[
+    \boxed{\textbf{RepairedCauchySignRegularity / ChartCompatibility lemma}.}
+    \tag{G1ChartCompatibilityTarget}
+    \]
+
+    Thus this review improves the route, but it still does not prove Gate 1:
+    it reduces the homogeneous margin problem to
+    (G1NoPositiveLiftRecession) plus (G1EndpointConeSeparation), and reduces
+    both to repaired-column determinant signs that remain to be proved.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

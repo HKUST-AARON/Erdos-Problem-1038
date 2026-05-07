@@ -367,6 +367,34 @@ Useful corrections already recorded:
   compactify the affine \(\Lambda\)-axis, and then run contact-pattern
   verification on that compact range.  The still-missing theorem is the
   repaired-column envelope/ECT sign theorem, not a rank or quotient statement.
+- Review audit: the homogeneous margins now have a sharper conditional target.
+  Let
+  \(\mathcal K_Z=\{\chi:\chi\cdot V_S(x)\ge0\ (x\in Z_0)\}\).  If
+  \(\mathcal D_Z\ne\emptyset\) and \(\mathcal K_Z\) contains directions with
+  positive and negative \(\rho_S\)-pairing, then adding large multiples of
+  those directions to any majorant gives
+  \(\sup_{\mathcal D_Z}G^{(c)}>0\) and \(\inf_{\mathcal D_Z}G^{(c)}<0\).  By
+  separation this follows from
+  \[
+  \pm\rho_S\notin\operatorname{cone}\{V_S(x):x\in Z_0\},
+  \]
+  while \(\mathcal D_Z\ne\emptyset\) is exactly the no-positive-lift-recession
+  condition
+  \[
+  \sum_iw_iV_S(x_i)=0,\quad w_i>0
+  \Longrightarrow
+  \sum_iw_iV_\Pi(x_i)\le0.
+  \]
+  Conic Carathéodory reduces the endpoint cone separation to at most four
+  atoms; alternating cofactors with the off-row \(\rho_S\) would make the
+  Cramer weights alternate and rule out positive representations.  This is a
+  correct proof bridge, but it is conditional: the required off-row
+  alternation and lifted circuit sign still require a row-by-row
+  `RepairedCauchySignRegularity / ChartCompatibility` theorem for the actual
+  repaired moving-Schiffer columns.  The proposed Cauchy/Andreief integration
+  argument is only a sufficient route after the component order, integration
+  basepoint, \(Q^2R\) signs, \(c,u,v\) row positions, and moving-Q/period rows
+  have all been identified as one compatible ordered Cauchy/confluent system.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
