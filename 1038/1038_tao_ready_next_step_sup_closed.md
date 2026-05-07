@@ -899,6 +899,15 @@ Useful corrections already recorded:
   \(Z_0,u,c,v\).  Therefore the next route is not conversion of old
   diagnostics; it is `CompactG2MovingChartEquations` plus a true chart-ready
   JSON.
+- New higher-level command:
+  `--audit-full-pair-gauge-choices`.  It enumerates all omitted-pole
+  full-pair gauges, checks the full-pair \(A\)-determinant and repaired
+  endpoint formula diagnostics, rejects cut/gap omitted poles for ordinary
+  LRLR, and runs the \(\rho\)-row plus affine \(b-\Lambda\rho\) LRLR audits
+  whenever the chart has \(c,u,v,a,b\).  On the synthetic smoke chart it
+  accepts the two exterior omitted poles and rejects the middle-gap pole; both
+  accepted toy branches still split signs.  This is a pipeline acceptance
+  tool for the future compact chart, not a proof.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

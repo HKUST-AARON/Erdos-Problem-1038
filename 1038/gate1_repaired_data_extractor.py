@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import tempfile
 from dataclasses import dataclass
 from itertools import combinations
 from pathlib import Path
@@ -590,6 +591,175 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         "max_full_confluent_pair_repaired_formula_relative_error": (
             max_full_pair_repaired_formula_relative_error
         ),
+    }
+
+
+def toy_g2_chart_source() -> dict[str, Any]:
+    """Synthetic full-pair chart payload for smoke tests only."""
+    P, Q, gammas, _rows = toy_g2_inputs()
+    return {
+        "description": "synthetic full-pair g=2 smoke chart; not a Gate 1 proof input",
+        "P": P.tolist(),
+        "Q": Q.tolist(),
+        "gammas": gammas,
+        "c": -0.4,
+        "kappa": 1.0,
+        "u": 2.2,
+        "v": 3.0,
+        "a": 0.4,
+        "b": 0.6,
+        "contact_points": [2.1, 2.35, 2.7, 3.2],
+        "right_exterior_grid": {"start": 2.05, "stop": 4.0, "count": 6},
+    }
+
+
+def full_pair_gauge_choice_audit(
+    P: Array,
+    Q: Array,
+    gammas: list[float],
+    source: dict[str, Any] | None = None,
+    samples: int = 32,
+    nodes: int = 100,
+    lambda_min: float = -10.0,
+    lambda_max: float = 10.0,
+    lambda_samples: int = 41,
+) -> dict[str, Any]:
+    """Enumerate full-pair omitted-pole gauges and run available Gate 1 audits.
+
+    This is an acceptance/checklist audit for a candidate compact chart.  It
+    does not solve the chart equations.
+    """
+    source_payload = dict(source or {})
+    pole_audit = pole_row_subset_audit(P, Q, gammas)
+    by_omitted: dict[int, dict[str, Any]] = {}
+    for record in pole_audit["full_confluent_pair_subsets"]:
+        omitted = record.get("omitted_pole_indices", [])
+        if len(omitted) == 1:
+            by_omitted[int(omitted[0])] = record
+
+    roots = q_roots_real(Q)
+    a1, b1, a2, b2 = sorted(gammas)
+    choices: list[dict[str, Any]] = []
+    for omitted_index, omitted_root in enumerate(roots):
+        gauge = {"kind": "full_pair_pole_gauge", "omit_q_pole_index": omitted_index}
+        rows = rows_from_full_pair_pole_gauge(Q, omitted_index)
+        repaired = extract_repaired_data(P, Q, gammas, rows)
+        location = "left_exterior"
+        if a1 < omitted_root < b1 or a2 < omitted_root < b2:
+            location = "cut"
+        elif b1 < omitted_root < a2:
+            location = "middle_gap"
+        elif omitted_root > b2:
+            location = "right_exterior"
+        elif omitted_root < a1:
+            location = "left_exterior"
+        else:
+            location = "endpoint"
+
+        pair_record = by_omitted.get(omitted_index, {})
+        choice: dict[str, Any] = {
+            "omitted_q_pole_index": omitted_index,
+            "omitted_q_pole": omitted_root,
+            "omitted_pole_location": location,
+            "row_gauge": gauge,
+            "expanded_rows": [row.to_json() for row in rows],
+            "det_A": repaired["det_A"],
+            "det_A_sign": sign_label(float(repaired["det_A"])),
+            "cond_A": repaired["cond_A"],
+            "max_abs_AX_plus_r": repaired["max_abs_AX_plus_r"],
+            "max_abs_chart_row_after_repair": repaired["max_abs_chart_row_after_repair"],
+            "full_pair_formula_relative_error": pair_record.get("full_pair_formula_relative_error"),
+            "repaired_endpoint_formula_max_relative_error": pair_record.get(
+                "repaired_endpoint_formula_max_relative_error"
+            ),
+            "repaired_endpoint_constant_signs": pair_record.get("repaired_endpoint_constant_signs"),
+            "has_common_nonzero_endpoint_constant_sign": (
+                len(set(pair_record.get("repaired_endpoint_constant_signs", {}).values())) == 1
+                if pair_record.get("repaired_endpoint_constant_signs")
+                else None
+            ),
+        }
+
+        if "c" in source_payload:
+            chart_payload = dict(source_payload)
+            chart_payload["P"] = trim(P).tolist()
+            chart_payload["Q"] = trim(Q).tolist()
+            chart_payload["gammas"] = [float(x) for x in gammas]
+            chart_payload["row_gauge"] = gauge
+            chart_payload.pop("rows", None)
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as handle:
+                json.dump(chart_payload, handle)
+                temp_path = Path(handle.name)
+            try:
+                lrlr_audit = lrlr_residual_offrow_audit_from_chart(
+                    temp_path,
+                    samples=samples,
+                    nodes=nodes,
+                    lambda_min=lambda_min,
+                    lambda_max=lambda_max,
+                    lambda_samples=lambda_samples,
+                )
+                choice["lrlr_residual_offrow_status"] = "computed"
+                choice["lrlr_order_sample_count"] = lrlr_audit["lrlr_order_sample_count"]
+                choice["lrlr_connection_times_rho_sign_counts"] = (
+                    lrlr_audit["lrlr_connection_times_rho_sign_counts"]
+                )
+                choice["lrlr_projective_sign_fixed_nonzero"] = (
+                    lrlr_audit["lrlr_projective_sign_fixed_nonzero"]
+                )
+                affine = lrlr_audit["affine_row_audit"]
+                choice["affine_row_audit_status"] = affine["status"]
+                if affine["status"] == "computed":
+                    choice["affine_fixed_nonzero_lambda_count"] = affine[
+                        "fixed_nonzero_lambda_count"
+                    ]
+                    choice["affine_lambda_samples"] = affine["lambda_samples"]
+                else:
+                    choice["affine_row_skipped_reason"] = affine["reason"]
+            except ValueError as exc:
+                choice["lrlr_residual_offrow_status"] = "skipped"
+                choice["lrlr_residual_offrow_reason"] = str(exc)
+            finally:
+                temp_path.unlink(missing_ok=True)
+        else:
+            choice["lrlr_residual_offrow_status"] = "skipped"
+            choice["lrlr_residual_offrow_reason"] = "source lacks c anchor"
+        choices.append(choice)
+
+    accepted = [
+        choice
+        for choice in choices
+        if choice["det_A_sign"] != 0
+        and choice.get("has_common_nonzero_endpoint_constant_sign") is True
+        and choice["omitted_pole_location"] in {"left_exterior", "right_exterior"}
+    ]
+    return {
+        "model": "full-pair gauge choice audit",
+        "gammas": gammas,
+        "Q_roots": roots,
+        "samples_count": samples,
+        "nodes": nodes,
+        "lambda_min": lambda_min,
+        "lambda_max": lambda_max,
+        "lambda_samples": lambda_samples,
+        "required_chart_fields_present": {
+            key: key in source_payload for key in ["c", "u", "v", "a", "b", "kappa"]
+        },
+        "pole_row_subset_summary": {
+            "full_confluent_pair_subset_count": pole_audit["full_confluent_pair_subset_count"],
+            "full_confluent_pair_subset_signs": pole_audit[
+                "full_confluent_pair_subset_signs"
+            ],
+            "max_full_confluent_pair_formula_relative_error": pole_audit[
+                "max_full_confluent_pair_formula_relative_error"
+            ],
+            "max_full_confluent_pair_repaired_formula_relative_error": pole_audit[
+                "max_full_confluent_pair_repaired_formula_relative_error"
+            ],
+        },
+        "choices": choices,
+        "accepted_choice_count": len(accepted),
+        "accepted_choices": accepted,
     }
 
 
@@ -2389,6 +2559,11 @@ def main() -> int:
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
     parser.add_argument(
+        "--audit-full-pair-gauge-choices",
+        action="store_true",
+        help="enumerate full-pair omitted-pole gauges and run available LRLR row audits",
+    )
+    parser.add_argument(
         "--audit-endpoint-heavy-patterns",
         action="store_true",
         help="diagnose endpoint-heavy 2+2 split contact patterns in a bare quartic model",
@@ -2489,6 +2664,67 @@ def main() -> int:
             print(f"  affine Lambda preview = {preview}")
         else:
             print(f"  affine row skipped reason = {affine['reason']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_full_pair_gauge_choices:
+        if args.chart_json:
+            P, Q, gammas, _rows, source = load_chart_json(Path(args.chart_json))
+        elif args.toy_g2:
+            source = toy_g2_chart_source()
+            P = np.array(source["P"], dtype=float)
+            Q = np.array(source["Q"], dtype=float)
+            gammas = [float(x) for x in source["gammas"]]
+        else:
+            if not (args.P and args.Q and args.gammas):
+                parser.error("provide --toy-g2, --chart-json, or all of --P --Q --gammas")
+            P = np.array(parse_float_list(args.P), dtype=float)
+            Q = np.array(parse_float_list(args.Q), dtype=float)
+            gammas = parse_float_list(args.gammas)
+            source = {}
+        try:
+            audit = full_pair_gauge_choice_audit(
+                P,
+                Q,
+                gammas,
+                source=source,
+                samples=args.connection_samples,
+                nodes=args.connection_nodes,
+                lambda_min=args.lambda_min,
+                lambda_max=args.lambda_max,
+                lambda_samples=args.lambda_samples,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        print("Gate 1 full-pair gauge choice audit")
+        print(f"  model = {audit['model']}")
+        print(f"  Q roots = {audit['Q_roots']}")
+        print(f"  required fields = {audit['required_chart_fields_present']}")
+        print(f"  accepted choices = {audit['accepted_choice_count']} / {len(audit['choices'])}")
+        print(f"  pole-row summary = {audit['pole_row_subset_summary']}")
+        for choice in audit["choices"]:
+            print(
+                "  omitted index/root/location = "
+                f"{choice['omitted_q_pole_index']} / {choice['omitted_q_pole']} / "
+                f"{choice['omitted_pole_location']}; "
+                f"det sign = {choice['det_A_sign']}; "
+                f"endpoint signs = {choice['repaired_endpoint_constant_signs']}; "
+                f"LRLR = {choice['lrlr_residual_offrow_status']}"
+            )
+            if choice["lrlr_residual_offrow_status"] == "computed":
+                print(
+                    "    rho product signs = "
+                    f"{choice['lrlr_connection_times_rho_sign_counts']}; "
+                    f"rho fixed = {choice['lrlr_projective_sign_fixed_nonzero']}; "
+                    f"affine fixed lambdas = "
+                    f"{choice.get('affine_fixed_nonzero_lambda_count')} / "
+                    f"{choice.get('affine_lambda_samples')}"
+                )
+            else:
+                print(f"    LRLR skipped reason = {choice['lrlr_residual_offrow_reason']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

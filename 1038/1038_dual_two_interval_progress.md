@@ -16370,6 +16370,60 @@ theorem queue.
     be wrapped into the Gate 1 LRLR oracle.  The proof-grade path must produce
     a genuinely compact non-pinched \(g=2\) chart JSON.
 
+    Full-pair gauge-choice acceptance audit.
+
+    The extractor now has a higher-level command that chains the full-pair
+    square-gauge audit with the LRLR row tests:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --chart-json PATH --audit-full-pair-gauge-choices
+    ```
+
+    For every possible omitted \(Q\)-pole, it expands
+
+    ```json
+    {"kind":"full_pair_pole_gauge","omit_q_pole_index":i}
+    ```
+
+    computes \(A\), verifies the full-pair determinant and repaired endpoint
+    formula diagnostics, records the signs of the endpoint constants
+    \(a_\gamma(M)\), and, when \(c,u,v,a,b\) are present, immediately runs the
+    LRLR \(\rho\)-row and affine \(b-\Lambda\rho\) audits for that omitted pole.
+    The acceptance filter is deliberately narrow: \(A\) must be nonsingular,
+    the endpoint constants must have one common nonzero sign, and the omitted
+    pole must lie in an exterior component rather than on a cut or in the
+    connection gap.
+
+    On the synthetic full-pair smoke chart, the command
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py --toy-g2 \
+      --audit-full-pair-gauge-choices \
+      --connection-samples 32 --connection-nodes 60 \
+      --lambda-min -3 --lambda-max 3 --lambda-samples 7
+    ```
+
+    reports two accepted exterior omitted-pole choices out of three.  The
+    middle-gap omitted pole is rejected because the ordinary LRLR connection
+    path would cross the double pole.  For both accepted exterior choices the
+    toy LRLR projective signs still split:
+
+    \[
+    \begin{array}{c|c|c}
+    \text{omitted pole} & \operatorname{sgn}(I_{\rm gap}L_\rho)
+    & \#\{\Lambda\text{ with fixed affine sign}\}\\
+    \hline
+    -3.1 & 26(+),4(-) & 0/7\\
+    2.6 & 20(+),6(-) & 0/7.
+    \end{array}
+    \]
+
+    This again is only a pipeline smoke test.  Its proof value is procedural:
+    once a genuine compact chart JSON exists, the omitted-pole gauge selection
+    and both LRLR residual rows can be checked by a single command, without
+    manually rewriting the chart JSON for each gauge choice.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
