@@ -8457,6 +8457,25 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_continuousAt
   exact ⟨C, hbaseline_C, hright_C⟩
 
 /--
+Selected component from normalized endpoint lower bound plus local positivity
+and continuity at `0`.  The endpoint lower bound supplies the baseline
+`(-1,0)` positivity, and continuity at `0` supplies a right neighbourhood.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_and_continuousAt_zero
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hcont_zero : ContinuousAt (unitIntervalLogPotential μ) 0)
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact exists_positiveComponent_baseline_right_pos_of_baseline_and_continuousAt_zero
+    (normalized_endpoint_lower_bound_baseline_neg_one_zero_positive hp hendpoint)
+    hcont_zero hzero
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
