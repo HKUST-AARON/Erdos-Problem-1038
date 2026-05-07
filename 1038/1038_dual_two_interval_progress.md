@@ -12268,6 +12268,80 @@ theorem queue.
     collapsed fixed-\(Q\) endpoint table is audit-only and cannot be used as a
     proof-grade test bed.
 
+    2026-05-07 Gate 1 review correction: branch split.
+
+    The current review conclusion is accepted with this scope: Gate 1 is not
+    an unconditional PASS, and the endpoint-period quotient identity rules out
+    only quotient/rank/Schur-only closures.  It does not prove that every
+    first-order approach is impossible; the remaining first-order route must
+    use the actual \(Z_0\)-majorant/contact data.
+
+    The rank-defect fallback must therefore be split into two branches.
+
+    No-atom branch.  If the \(Z_0\)-atomic measure vanishes, the certificate
+    equations reduce to
+
+    \[
+    \eta b_S-\lambda\rho_S=0.
+    \]
+
+    In the nondegenerate interior a nonzero certificate has \(\eta>0\).  After
+    normalization, with \(\Lambda=\lambda/\eta\),
+
+    \[
+    b_S=\Lambda\rho_S.
+    \]
+
+    Hence the no-atom branch is a finite collinearity test: if
+    \(b_S\notin\mathbb R\rho_S\), no such certificate exists; if
+    \(b_S=\Lambda\rho_S\), the lifted scalar must satisfy
+
+    \[
+    b_\Pi-\Lambda\rho_\Pi<0
+    \]
+
+    or else this remains a genuine finite obstruction.  Degenerate cases such
+    as \(b_S=\rho_S=0\) are chart-rank boundary cases and route to Gate 3.
+
+    \(Z_0\)-atomic branch.  If the certificate has positive \(Z_0\)-atomic
+    mass, the regularized point-row Riesz load has positive logarithmic
+    blow-up, so a finite negative \(Q_{\rm eff}\) lift cannot directly exclude
+    this branch.  The correct object is the cone-envelope majorant problem:
+
+    \[
+    \Phi_Z(y)
+    =
+    \sup\left\{\sum_k w_kV_\Pi(x_k):
+    \sum_kw_kV_S(x_k)=y,\ w_k>0,\ x_k\in Z_0\right\}.
+    \]
+
+    The affine atom branch is excluded precisely by
+
+    \[
+    \Phi_Z(-b_S+\Lambda\rho_S)<-b_\Pi+\Lambda\rho_\Pi
+    \qquad(\forall\Lambda\in\mathbb R),
+    \]
+
+    and the homogeneous atom branch by
+
+    \[
+    \Phi_Z(\lambda\rho_S)<\lambda\rho_\Pi
+    \qquad(\lambda\ne0).
+    \]
+
+    Equivalently, one must construct dual majorants
+
+    \[
+    G_\theta=\theta\cdot V_S-V_\Pi\ge0\quad\text{on }Z_0
+    \]
+
+    with the strict residual inequalities recorded in
+    (G1AffineMarginTarget) and (G1HomMarginTarget).  Through
+    \(Q^2R\,G_\theta'=P_\theta\), this is the
+    \(P_\theta\)-alternation/sign-table problem for the repaired moving
+    Schiffer columns.  This is the next proof obligation; it is not replaced
+    by \(Q_{\rm eff}\), abstract Farkas, or quotient rank.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

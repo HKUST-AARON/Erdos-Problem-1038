@@ -291,6 +291,17 @@ Useful corrections already recorded:
 - the first-order endpoint-period quotient cannot close Gate 1, because the
   period lift \([Q^2]\) is already in the span of the endpoint classes
   \([PQD_\gamma]\) modulo the moving correction image.
+- the Gate 1 fallback must be split: the \(\zeta=0\) no-atom branch is a
+  finite collinearity test \(b_S=\Lambda\rho_S\) plus the lifted inequality
+  \(b_\Pi-\Lambda\rho_\Pi<0\), while the \(\zeta\ne0\) branch is a
+  \(Z_0\)-atomic cone-envelope problem.  The latter cannot be killed directly
+  by finite \(Q_{\rm eff}\), because point-row Riesz loads have positive
+  logarithmic blow-up.
+- the active next theorem is therefore `MovingSchifferMajorantSignTheorem`:
+  construct \(G_\theta=\theta\cdot V_S-V_\Pi\ge0\) on \(Z_0\), prove the
+  strict affine and homogeneous residuals, equivalently prove the
+  \(P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}\)
+  alternation/sign table for the repaired moving Schiffer columns.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
