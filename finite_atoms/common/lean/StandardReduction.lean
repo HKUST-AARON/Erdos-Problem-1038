@@ -23375,7 +23375,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_atomization_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentReplacementAugmentedSpanRightGapAtomizationDataFromVariation
@@ -23388,8 +23388,11 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
       R hcomponent_atomized
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap, hcomponent_atomized⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline,
+      C.right_not_mem_support_of_right_gap hδ hright_gap,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        hcomponent_atomized⟩
 
 /--
 Augmented-span/right-gap provider with normalized component atomization.  The
@@ -23437,7 +23440,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_atomization_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanRightGapNormalizedAtomizationDataFromVariation
@@ -23462,10 +23465,12 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   let R : ComponentReplacement μ C :=
     ComponentReplacement.of_mass_pos C hmass_pos
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap,
-      componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
-        R hnormalized_atomized⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline,
+      C.right_not_mem_support_of_right_gap hδ hright_gap,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+          R hnormalized_atomized)⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_augmented_gap_not_support_normalized_atomization_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanAugmentedGapNotSupportNormalizedAtomizationDataFromVariation :
@@ -23509,7 +23514,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_normalized_atomization_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanAugmentedGapNotSupportNormalizedAtomizationDataFromVariation
@@ -23517,12 +23522,29 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, δ₀, hε, hright_pos, hδ₀, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_support,
       hnormalized_atomized⟩
-  rcases C.right_gap_union_of_augmented_gap_not_mem_support
-      hδ₀ haug_gap hnot_support with
-    ⟨δ, hδ, hright_gap⟩
+  have hendpoint_real_pos :
+      0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hendpoint_mem : (-1 : ℝ) ∈ C.interval :=
+    C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+      hε hmax hbaseline
+      (by
+        intro x hx
+        exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩)
+      hendpoint_unit_pos
+  have hmass_pos : 0 < componentMass C :=
+    componentMass_pos_of_support_mem_interval
+      (realMeasure_mem_support_of_singleton_pos hendpoint_real_pos)
+      hendpoint_mem
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C hmass_pos
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap, hnormalized_atomized⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+          R hnormalized_atomized)⟩
 
 /--
 Augmented-span/right-gap provider with a concrete component replacement and
@@ -23594,9 +23616,11 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
               (1 -
                 (((μ : Measure UnitInterval1038)
                   {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
-    boundary_average_of_spanning_augmented_right_gap_normalized_atomized
-      μ R hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
-      hnormalized_atomized
+    boundary_average_of_spanning_augmented_not_support_zero_neighborhood
+      μ hright_pos hε hmax hbaseline hspan_aug
+      (C.right_not_mem_support_of_right_gap hδ hright_gap)
+      (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        hcomponent_atomized)
   have hleft_aug :
       Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
         unitIntervalAugmentedPositiveSet μ := by
