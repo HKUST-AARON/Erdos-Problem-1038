@@ -1047,7 +1047,8 @@ def endpoint_heavy_mixed_connection_continuation(
         )
 
     def sigmoid_interval(raw: float, left: float, right: float) -> float:
-        return left + (right - left) / (1.0 + math.exp(-raw))
+        margin = 1.0e-7 * max(1.0, abs(right - left))
+        return left + margin + (right - left - 2.0 * margin) / (1.0 + math.exp(-raw))
 
     pattern_specs = {
         "LR,LI": {
@@ -1145,6 +1146,186 @@ def endpoint_heavy_mixed_connection_continuation(
         "nodes": nodes,
         "summary_by_pattern": summary_by_pattern,
         "records_by_pattern": records_by_pattern,
+    }
+
+
+def endpoint_heavy_mixed_zero_crossing_audit(
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    samples: int = 7,
+    nodes: int = 80,
+) -> dict[str, Any]:
+    """Search for mixed-pattern solutions with zero connection integral.
+
+    For each mixed pattern, this solves the three equations
+
+        left component integral = 0,
+        right component integral = 0,
+        middle connection integral = 0,
+
+    in the three unknown contact/root parameters.  A regular solution would be
+    the numerical shadow of a connection-sign crossing.
+    """
+    from scipy.optimize import least_squares
+
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError(
+            f"omitted pole {omitted_pole} lies in the connection gap ({b1}, {a2}); "
+            "ordinary mixed zero-crossing audit requires an exterior omitted pole"
+        )
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        if right < left:
+            return -integrate_cut(poly, right, left)
+        if abs(right - left) < 1.0e-12:
+            return 0.0
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def sigmoid_interval(raw: float, left: float, right: float) -> float:
+        margin = 1.0e-7 * max(1.0, abs(right - left))
+        return left + margin + (right - left - 2.0 * margin) / (1.0 + math.exp(-raw))
+
+    pattern_specs = {
+        "LR,LI": {
+            "boxes": [(a2, b2), (a1, b1), (a2, b2)],
+            "decode": lambda y, r0, r1: {
+                "roots": [r0, r1, y],
+                "integrals": lambda poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, a2, y)],
+            },
+            "order_ok": lambda y, r0, r1: a2 < r1 < y < b2 and a1 < r0 < b1,
+        },
+        "LR,IR": {
+            "boxes": [(a2, b2), (a1, b1), (a2, b2)],
+            "decode": lambda y, r0, r1: {
+                "roots": [r0, y, r1],
+                "integrals": lambda poly: [integrate_cut(poly, a1, b1), integrate_cut(poly, y, b2)],
+            },
+            "order_ok": lambda y, r0, r1: a2 < y < r1 < b2 and a1 < r0 < b1,
+        },
+        "LI,LR": {
+            "boxes": [(a1, b1), (a1, b1), (a2, b2)],
+            "decode": lambda y, r0, r1: {
+                "roots": [r0, y, r1],
+                "integrals": lambda poly: [integrate_cut(poly, a1, y), integrate_cut(poly, a2, b2)],
+            },
+            "order_ok": lambda y, r0, r1: a1 < r0 < y < b1 and a2 < r1 < b2,
+        },
+        "IR,LR": {
+            "boxes": [(a1, b1), (a1, b1), (a2, b2)],
+            "decode": lambda y, r0, r1: {
+                "roots": [y, r0, r1],
+                "integrals": lambda poly: [integrate_cut(poly, y, b1), integrate_cut(poly, a2, b2)],
+            },
+            "order_ok": lambda y, r0, r1: a1 < y < r0 < b1 and a2 < r1 < b2,
+        },
+    }
+
+    records_by_pattern: dict[str, list[dict[str, Any]]] = {}
+    summary_by_pattern: dict[str, Any] = {}
+    raw_grid = np.linspace(-2.0, 2.0, samples)
+    starts = [np.array([u, v, w], dtype=float) for u in raw_grid for v in raw_grid for w in raw_grid]
+    for pattern, spec in pattern_specs.items():
+        boxes = spec["boxes"]
+
+        def decode(raw: Array) -> tuple[float, float, float, Array, list[float]]:
+            y = sigmoid_interval(float(raw[0]), boxes[0][0], boxes[0][1])
+            r0 = sigmoid_interval(float(raw[1]), boxes[1][0], boxes[1][1])
+            r1 = sigmoid_interval(float(raw[2]), boxes[2][0], boxes[2][1])
+            decoded = spec["decode"](y, r0, r1)
+            roots = decoded["roots"]
+            poly = poly_from_roots(roots)
+            return y, r0, r1, poly, roots
+
+        def residual(raw: Array) -> Array:
+            y, r0, r1, poly, _roots = decode(raw)
+            decoded = spec["decode"](y, r0, r1)
+            penalties = []
+            if not spec["order_ok"](y, r0, r1):
+                # Soft order penalty; least_squares still records near-boundary
+                # attempts so we can distinguish regular from degenerate zeros.
+                if pattern == "LR,LI":
+                    penalties.append(max(0.0, r1 - y))
+                elif pattern == "LR,IR":
+                    penalties.append(max(0.0, y - r1))
+                elif pattern == "LI,LR":
+                    penalties.append(max(0.0, r0 - y))
+                elif pattern == "IR,LR":
+                    penalties.append(max(0.0, y - r0))
+            else:
+                penalties.append(0.0)
+            return np.array([*decoded["integrals"](poly), integrate_gap(poly), *penalties], dtype=float)
+
+        solutions: list[dict[str, Any]] = []
+        best_norm = math.inf
+        best_payload: dict[str, Any] | None = None
+        for start in starts:
+            result = least_squares(
+                residual,
+                start,
+                xtol=1.0e-10,
+                ftol=1.0e-10,
+                gtol=1.0e-10,
+                max_nfev=2000,
+            )
+            norm = float(np.linalg.norm(residual(result.x)))
+            y, r0, r1, poly, roots = decode(result.x)
+            payload = {
+                "vector": result.x.tolist(),
+                "residual_norm": norm,
+                "y": y,
+                "r0": r0,
+                "r1": r1,
+                "roots": roots,
+                "residual": residual(result.x).tolist(),
+                "order_ok": bool(spec["order_ok"](y, r0, r1)),
+                "connection_integral": integrate_gap(poly),
+            }
+            if norm < best_norm:
+                best_norm = norm
+                best_payload = payload
+            if norm <= 1.0e-6 and payload["order_ok"]:
+                if not any(np.linalg.norm(result.x - np.array(item["vector"])) < 1.0e-5 for item in solutions):
+                    solutions.append(payload)
+        records_by_pattern[pattern] = solutions
+        summary_by_pattern[pattern] = {
+            "regular_zero_solutions": len(solutions),
+            "best_residual_norm": best_norm,
+            "best_attempt": best_payload,
+        }
+
+    return {
+        "model": "mixed endpoint-heavy zero-connection audit",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "samples_per_axis": samples,
+        "nodes": nodes,
+        "summary_by_pattern": summary_by_pattern,
+        "solutions_by_pattern": records_by_pattern,
     }
 
 
@@ -1586,6 +1767,11 @@ def main() -> int:
         action="store_true",
         help="continuation scan for the four mixed endpoint-heavy connection signs",
     )
+    parser.add_argument(
+        "--audit-mixed-zero-connection",
+        action="store_true",
+        help="search for mixed endpoint-heavy solutions with zero connection integral",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -1706,6 +1892,34 @@ def main() -> int:
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(continuation, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_mixed_zero_connection:
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = endpoint_heavy_mixed_zero_crossing_audit(
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 mixed endpoint-heavy zero-connection audit")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  samples per axis = {audit['samples_per_axis']}")
+        for pattern, summary in audit["summary_by_pattern"].items():
+            best = summary["best_attempt"]
+            print(
+                "  pattern = "
+                f"{pattern}, regular zero solutions = {summary['regular_zero_solutions']}, "
+                f"best residual norm = {summary['best_residual_norm']:.6e}, "
+                f"best order ok = {best['order_ok'] if best else None}, "
+                f"best connection = {best['connection_integral'] if best else None}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
         return 0
 

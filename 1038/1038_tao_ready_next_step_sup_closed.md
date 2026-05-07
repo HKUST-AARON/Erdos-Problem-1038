@@ -799,6 +799,17 @@ Useful corrections already recorded:
   `MixedConnectionMonotoneSignLemma`: along the one-parameter mixed branch,
   the connection integral cannot cross zero except through a Gate 3
   degeneration.
+- The new `--audit-mixed-zero-connection` command attacks that crossing
+  directly.  It solves the three equations
+  \[
+  I_L=0,\qquad I_R=0,\qquad I_{\rm gap}=0
+  \]
+  for the mixed contact/root parameters.  In both tested exterior-pole models
+  it finds no regular zero-connection solution.  Best attempts retain the
+  expected connection signs; some are driven to the ordering boundary.  The
+  next paper lemma should be `MixedZeroConnectionNoInteriorLemma`: the
+  three-integral zero system has no regular interior mixed solution, so any
+  sign crossing routes to Gate 3.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

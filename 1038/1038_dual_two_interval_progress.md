@@ -15750,6 +15750,75 @@ theorem queue.
     show that the solved root branches cannot hit a zero of the connection
     integral without forcing a double/contact degeneration routed to Gate 3.
 
+    Mixed zero-connection obstruction search.
+
+    The extractor now has a direct overdetermined obstruction search:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-mixed-zero-connection \
+      --connection-samples 5 --connection-nodes 60
+    ```
+
+    For each mixed pattern it solves, from a \(5^3\) grid of initial guesses,
+    the three equations
+
+    \[
+    \int_{\text{left contact pair}}\omega_F=0,\qquad
+    \int_{\text{right contact pair}}\omega_F=0,\qquad
+    \int_{\beta_1}^{\alpha_2}\omega_F=0.
+    \tag{G1MixedZeroConnectionSystem}
+    \]
+
+    A regular solution would be exactly a numerical shadow of a sign crossing
+    in (G1MixedContinuationSignTarget).  On
+
+    \[
+    \Gamma=(-2,-1,1,2),\quad p=-3,
+    \]
+
+    the search finds no regular zero solution in any of the four mixed
+    patterns.  The best residual norms are approximately
+
+    \[
+    0.4657,\quad 0.4688,\quad 0.2545,\quad 0.1532,
+    \]
+
+    and the best connection values retain the expected signs:
+
+    \[
+    -0.4617,\quad -0.4617,\quad 0.2042,\quad 0.1313.
+    \]
+
+    On the non-symmetric model
+
+    \[
+    \Gamma=(-3,-1.2,0.7,2.5),\quad p=3.5,
+    \]
+
+    the same search again finds no regular zero solution.  The best connection
+    values are
+
+    \[
+    -0.0958,\quad -0.1953,\quad 0.2823,\quad 0.2824.
+    \]
+
+    This does not prove the mixed sign theorem, but it identifies the right
+    paper lemma:
+
+    \[
+    \boxed{
+    \textbf{MixedZeroConnectionNoInteriorLemma.}
+    }
+    \]
+
+    For each mixed endpoint-heavy pattern, the three-zero-integral system
+    (G1MixedZeroConnectionSystem) has no regular interior solution.  Any
+    solution must collide with an endpoint, merge roots, or violate the mixed
+    root order, and is therefore routed to Gate 3.  Together with one endpoint
+    sign check on each continuation branch, this lemma proves
+    `MixedConnectionMonotoneSignLemma`.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
