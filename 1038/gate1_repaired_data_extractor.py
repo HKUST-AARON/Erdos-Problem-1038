@@ -2306,6 +2306,11 @@ def lrlr_anchor_projective_audit(
     omitted_pole: float = -3.0,
     samples: int = 720,
     nodes: int = 160,
+    lambda_value: float | None = None,
+    affine_u: float | None = None,
+    affine_v: float | None = None,
+    affine_a: float | None = None,
+    affine_b: float | None = None,
 ) -> dict[str, Any]:
     """Projective zero-angle audit for one LRLR anchor row."""
     if gammas is None:
@@ -2340,6 +2345,15 @@ def lrlr_anchor_projective_audit(
             lambda x, p=poly: omega_gap_value(p, x),
             b1 + 1.0e-8,
             a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def right_exterior_potential(poly: Array, start: float) -> float:
+        return integrate_to_infinity_right_exterior(
+            lambda y, p=poly: poly_eval(p, y)
+            / (((y - omitted_pole) ** 2) * real_R_value(y, gammas)),
+            start,
+            b2,
             nodes=nodes,
         )
 
@@ -2386,6 +2400,24 @@ def lrlr_anchor_projective_audit(
     kernel_basis = vh[-2:, :]
     gap_form = np.array([integrate_gap(kernel_basis[i]) for i in range(2)], dtype=float)
     rho_form = np.array([poly_eval(kernel_basis[i], c_value) / denom_c for i in range(2)], dtype=float)
+    affine_form: Array | None = None
+    b_form: Array | None = None
+    if lambda_value is not None or any(
+        value is not None for value in [affine_u, affine_v, affine_a, affine_b]
+    ):
+        if None in {affine_u, affine_v, affine_a, affine_b, lambda_value}:
+            raise ValueError("affine projective audit requires u,v,a,b and lambda")
+        if float(affine_u) <= b2 or float(affine_v) <= b2:
+            raise ValueError("bare affine projective audit currently requires u,v in right exterior")
+        b_form = np.array(
+            [
+                float(affine_a) * right_exterior_potential(kernel_basis[i], float(affine_u))
+                + float(affine_b) * right_exterior_potential(kernel_basis[i], float(affine_v))
+                for i in range(2)
+            ],
+            dtype=float,
+        )
+        affine_form = b_form - float(lambda_value) * rho_form
 
     def zero_angles(form: Array) -> list[float]:
         # form dot (cos a, sin a)=0, modulo pi.
@@ -2393,7 +2425,10 @@ def lrlr_anchor_projective_audit(
         return sorted({float((base + k * math.pi) % (2.0 * math.pi)) for k in range(2)})
 
     zero_records = []
-    for row_name, form in [("I_gap", gap_form), ("L_rho", rho_form)]:
+    row_forms: list[tuple[str, Array]] = [("I_gap", gap_form), ("L_rho", rho_form)]
+    if affine_form is not None:
+        row_forms.append(("L_b_minus_Lambda_rho", affine_form))
+    for row_name, form in row_forms:
         for angle in zero_angles(form):
             coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
             record = {
@@ -2406,14 +2441,23 @@ def lrlr_anchor_projective_audit(
 
     sample_records = []
     sign_counts: dict[str, int] = {}
+    affine_sign_counts: dict[str, int] = {}
     min_abs_product = math.inf
     min_abs_product_sample: dict[str, Any] | None = None
+    min_abs_affine_product = math.inf
+    min_abs_affine_product_sample: dict[str, Any] | None = None
     for angle in np.linspace(0.0, 2.0 * math.pi, samples + 1)[:-1]:
         coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
         classification = classify(coeff)
         gap_value = float(np.dot(gap_form, [math.cos(angle), math.sin(angle)]))
         rho_value = float(np.dot(rho_form, [math.cos(angle), math.sin(angle)]))
         product = gap_value * rho_value
+        affine_row_value = (
+            None
+            if affine_form is None
+            else float(np.dot(affine_form, [math.cos(angle), math.sin(angle)]))
+        )
+        affine_product = None if affine_row_value is None else gap_value * affine_row_value
         if classification["lrlr_order"]:
             sign = str(sign_label(product))
             sign_counts[sign] = sign_counts.get(sign, 0) + 1
@@ -2426,17 +2470,37 @@ def lrlr_anchor_projective_audit(
                     "projective_product": product,
                     "classification": classification,
                 }
+            if affine_product is not None:
+                affine_sign = str(sign_label(affine_product))
+                affine_sign_counts[affine_sign] = affine_sign_counts.get(affine_sign, 0) + 1
+                if abs(affine_product) < min_abs_affine_product:
+                    min_abs_affine_product = abs(affine_product)
+                    min_abs_affine_product_sample = {
+                        "angle": float(angle),
+                        "gap_value": gap_value,
+                        "affine_row_value": affine_row_value,
+                        "projective_product": affine_product,
+                        "classification": classification,
+                    }
         sample_records.append(
             {
                 "angle": float(angle),
                 "gap_value": gap_value,
                 "rho_value": rho_value,
+                "affine_row_value": affine_row_value,
                 "projective_product": product,
                 "projective_sign": sign_label(product),
+                "affine_projective_product": affine_product,
+                "affine_projective_sign": None
+                if affine_product is None
+                else sign_label(affine_product),
                 "classification": classification,
             }
         )
     nonzero_signs = {sign for sign, count in sign_counts.items() if sign != "0" and count}
+    affine_nonzero_signs = {
+        sign for sign, count in affine_sign_counts.items() if sign != "0" and count
+    }
     return {
         "model": "LRLR anchor projective zero-angle audit",
         "gammas": gammas,
@@ -2449,11 +2513,29 @@ def lrlr_anchor_projective_audit(
         "kernel_basis": kernel_basis.tolist(),
         "gap_form_on_kernel": gap_form.tolist(),
         "rho_form_on_kernel": rho_form.tolist(),
+        "b_form_on_kernel": None if b_form is None else b_form.tolist(),
+        "affine_form_on_kernel": None if affine_form is None else affine_form.tolist(),
+        "affine_parameters": None
+        if affine_form is None
+        else {
+            "Lambda": float(lambda_value),
+            "u": float(affine_u),
+            "v": float(affine_v),
+            "a": float(affine_a),
+            "b": float(affine_b),
+        },
         "zero_angle_records": zero_records,
         "lrlr_projective_sign_counts": sign_counts,
         "lrlr_projective_sign_fixed_nonzero": bool(sign_counts) and len(nonzero_signs) == 1,
         "min_abs_projective_product": None if math.isinf(min_abs_product) else min_abs_product,
         "min_abs_projective_product_sample": min_abs_product_sample,
+        "affine_lrlr_projective_sign_counts": affine_sign_counts,
+        "affine_lrlr_projective_sign_fixed_nonzero": bool(affine_sign_counts)
+        and len(affine_nonzero_signs) == 1,
+        "min_abs_affine_projective_product": None
+        if math.isinf(min_abs_affine_product)
+        else min_abs_affine_product,
+        "min_abs_affine_projective_product_sample": min_abs_affine_product_sample,
         "samples": sample_records,
     }
 
@@ -3311,6 +3393,11 @@ def main() -> int:
     parser.add_argument("--lambda-min", type=float, default=-10.0)
     parser.add_argument("--lambda-max", type=float, default=10.0)
     parser.add_argument("--lambda-samples", type=int, default=41)
+    parser.add_argument("--lambda-value", type=float)
+    parser.add_argument("--affine-u", type=float)
+    parser.add_argument("--affine-v", type=float)
+    parser.add_argument("--affine-a", type=float)
+    parser.add_argument("--affine-b", type=float)
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -3771,6 +3858,11 @@ def main() -> int:
             omitted_pole=args.connection_omitted_pole,
             samples=args.connection_samples,
             nodes=args.connection_nodes,
+            lambda_value=args.lambda_value,
+            affine_u=args.affine_u,
+            affine_v=args.affine_v,
+            affine_a=args.affine_a,
+            affine_b=args.affine_b,
         )
         print("Gate 1 LRLR anchor projective audit")
         print(f"  model = {audit['model']}")
@@ -3790,6 +3882,18 @@ def main() -> int:
         print(f"  fixed nonzero = {audit['lrlr_projective_sign_fixed_nonzero']}")
         print(f"  min |product| = {audit['min_abs_projective_product']}")
         print(f"  controlling sample = {audit['min_abs_projective_product_sample']}")
+        if audit["affine_parameters"] is not None:
+            print(f"  affine parameters = {audit['affine_parameters']}")
+            print(f"  affine LRLR sign counts = {audit['affine_lrlr_projective_sign_counts']}")
+            print(
+                "  affine fixed nonzero = "
+                f"{audit['affine_lrlr_projective_sign_fixed_nonzero']}"
+            )
+            print(f"  affine min |product| = {audit['min_abs_affine_projective_product']}")
+            print(
+                "  affine controlling sample = "
+                f"{audit['min_abs_affine_projective_product_sample']}"
+            )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

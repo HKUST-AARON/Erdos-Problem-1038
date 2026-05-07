@@ -16686,6 +16686,30 @@ theorem queue.
     closes the homogeneous \(\rho\)-row route as a no-go and forces the affine
     residual row as the next route.
 
+    Affine projective row audit.
+
+    The same projective command now optionally accepts
+
+    ```bash
+    --affine-u U --affine-v V --affine-a A --affine-b B --lambda-value L
+    ```
+
+    and adds the affine row
+
+    \[
+    L_{b,\rho,\Lambda}(F)=
+    aV_F(u)+bV_F(v)-\Lambda L_\rho(F).
+    \]
+
+    It records the zero angles of \(L_{b,\rho,\Lambda}\), classifies their
+    LRLR root pattern, and reports the projective signs of
+    \(I_{\rm gap}(F)L_{b,\rho,\Lambda}(F)\).  On the synthetic values
+    \(c=-0.355,u=2.2,v=3.0,a=0.4,b=0.6,\Lambda=0\), the affine row still
+    splits signs; its zero angles are LRLR cubics with a right-exterior free
+    root near \(48.78\).  This is not a proof-grade affine result, but it
+    gives the exact diagnostic to apply once the real compact chart supplies
+    \(u,v,a,b\) and the compact \(\Lambda\)-range.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

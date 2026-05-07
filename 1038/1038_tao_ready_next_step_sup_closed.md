@@ -964,6 +964,14 @@ Useful corrections already recorded:
   product \(I_{\rm gap}L_\rho\) either changes sign on LRLR or vanishes on an
   LRLR branch.  Thus homogeneous \(\rho\)-row closure is unavailable; move to
   affine \(b-\Lambda\rho\).
+- The projective command now also accepts affine row data
+  `--affine-u --affine-v --affine-a --affine-b --lambda-value` and audits
+  zero angles of \(L_b-\Lambda L_\rho\).  On the synthetic values
+  \(c=-0.355,u=2.2,v=3.0,a=0.4,b=0.6,\Lambda=0\), the affine row still splits;
+  its zero angles are LRLR cubics with a right-exterior free root near
+  \(48.78\).  This is only a pipeline diagnostic, but it is the correct next
+  acceptance test after a real compact chart supplies \(u,v,a,b\) and the
+  compact \(\Lambda\)-range.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
