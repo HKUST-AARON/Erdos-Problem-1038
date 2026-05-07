@@ -3405,6 +3405,54 @@ def PositiveComponent.IntervalMaximal
       Ioo l r ⊆ C.interval
 
 /--
+Interval maximality upgrades baseline placement plus a right positive
+neighbourhood into strict right-endpoint positivity.  The open interval
+`(-1/2, δ)` is positive by the baseline, the point `0`, and the right
+neighbourhood; since it intersects the selected component, maximality forces it
+inside the component, giving a positive point in `C.interval`.
+-/
+theorem PositiveComponent.right_pos_of_intervalMaximal_baseline_zero_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    0 < C.right := by
+  let l : ℝ := -(1 / 2)
+  have hlδ : l < δ := by
+    dsimp [l]
+    linarith
+  have hpos : Ioo l δ ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+    intro x hx
+    by_cases hxneg : x < 0
+    · exact C.pointwise_positive (hbaseline ⟨by
+        have hnegone_lt_l : (-1 : ℝ) < l := by
+          dsimp [l]
+          norm_num
+        exact lt_trans hnegone_lt_l hx.1, hxneg⟩)
+    · have hx_nonneg : 0 ≤ x := le_of_not_gt hxneg
+      by_cases hxzero : x = 0
+      · simpa [hxzero] using hzero
+      · have hxpos : 0 < x := lt_of_le_of_ne hx_nonneg (Ne.symm hxzero)
+        exact hright ⟨hxpos, hx.2⟩
+  have hinter : (Ioo l δ ∩ C.interval).Nonempty := by
+    refine ⟨-(1 / 4 : ℝ), ?_, ?_⟩
+    · constructor
+      · dsimp [l]
+        norm_num
+      · linarith
+    · exact hbaseline (by norm_num : (-(1 / 4 : ℝ)) ∈ Ioo (-1 : ℝ) 0)
+  have hsub : Ioo l δ ⊆ C.interval := hmax l δ hlδ hpos hinter
+  have hxright : δ / 2 ∈ C.interval := hsub (by
+    constructor
+    · dsimp [l]
+      linarith
+    · linarith)
+  exact C.right_pos_of_pos_mem_interval (by linarith : 0 < δ / 2) hxright
+
+/--
 If a packaged positive component is represented by the connected component of
 the positive set, its interval-maximality is automatic.  This is the
 `PositiveComponent`-level exit from the topological connected-component
