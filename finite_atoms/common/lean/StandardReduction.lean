@@ -25981,6 +25981,35 @@ noncomputable def unitInterval_standardReduction_from_supportUnique_boundary
       hbaseline hright_pos hboundary hunique
   exact Pack.toNormalizedEndpointPotential
 
+noncomputable def unitInterval_standardReduction_from_zeroNeighborhood_boundary
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hright_pos : 0 < C.right)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
+    )
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hcomponent_open : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  have hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 :=
+    unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero
+  exact
+    unitInterval_standardReduction_from_supportUnique_boundary
+      hright_pos hbaseline hboundary hunique
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
