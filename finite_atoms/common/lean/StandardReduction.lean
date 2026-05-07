@@ -3149,6 +3149,42 @@ theorem positiveSet_baseline_subset_connectedComponentIn_of_mem
   positiveSet_interval_subset_connectedComponentIn_of_mem
     (U := U) hx hbaseline
 
+/--
+For an open positive set on the real line, the selected connected component is
+open.  This is the topological step needed before representing the selected
+component by interval endpoints.
+-/
+theorem positiveSet_connectedComponentIn_isOpen
+    {U : ℝ → ℝ} (hopen : IsOpen (PositiveSet U)) (x : ℝ) :
+    IsOpen (connectedComponentIn (PositiveSet U) x) :=
+  hopen.connectedComponentIn
+
+/--
+Every point of an open selected connected component has an ordinary open
+interval neighbourhood contained in that component.  This is the local
+interval chart used in the later endpoint construction.
+-/
+theorem positiveSet_connectedComponentIn_exists_interval_around
+    {U : ℝ → ℝ} {x y : ℝ}
+    (hopen : IsOpen (PositiveSet U))
+    (hy : y ∈ connectedComponentIn (PositiveSet U) x) :
+    ∃ l r : ℝ,
+      l < y ∧ y < r ∧
+      Ioo l r ⊆ connectedComponentIn (PositiveSet U) x := by
+  have hcomp_open : IsOpen (connectedComponentIn (PositiveSet U) x) :=
+    positiveSet_connectedComponentIn_isOpen hopen x
+  rcases Metric.isOpen_iff.mp hcomp_open y hy with ⟨δ, hδ, hball⟩
+  refine ⟨y - δ / 2, y + δ / 2, ?_, ?_, ?_⟩
+  · linarith
+  · linarith
+  · intro z hz
+    exact hball (by
+      rw [Metric.mem_ball, Real.dist_eq]
+      have hleft : y - δ / 2 < z := hz.1
+      have hright : z < y + δ / 2 := hz.2
+      rw [abs_sub_lt_iff]
+      constructor <;> linarith)
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
