@@ -1693,13 +1693,22 @@ def lrlr_residual_offrow_audit_from_chart(
     path: Path,
     samples: int = 32,
     nodes: int = 100,
+    lambda_min: float = -10.0,
+    lambda_max: float = 10.0,
+    lambda_samples: int = 41,
 ) -> dict[str, Any]:
     """Audit LRLR kernel against the actual full-pair chart rho row.
 
     This is still a numerical diagnostic.  It uses the chart's full-pair
     omitted pole factor N and the anchor c to test the projective sign of
-    I_gap(F) * L_rho(F), where L_rho(F)=F(c)/(N(c)^2 R(c)).
+    I_gap(F) * L_rho(F), where L_rho(F)=F(c)/(N(c)^2 R(c)).  When
+    u,v,a,b are present and u,v lie in the right exterior component, it also
+    sweeps the affine row L_b(F)-Lambda L_rho(F).
     """
+    if lambda_samples < 1:
+        raise ValueError("--lambda-samples must be positive")
+    if lambda_samples > 1 and not lambda_min < lambda_max:
+        raise ValueError("--lambda-min must be smaller than --lambda-max")
     P, Q, gammas, rows, source = load_chart_json(path)
     if "row_gauge" not in source:
         raise ValueError("LRLR residual/off-row audit requires row_gauge")
@@ -1753,6 +1762,15 @@ def lrlr_residual_offrow_audit_from_chart(
     def rho_row_value(poly: Array) -> float:
         return poly_eval(poly, c_value) / (N_c * N_c * R_c)
 
+    def right_exterior_potential(poly: Array, start: float) -> float:
+        return integrate_to_infinity_right_exterior(
+            lambda y, p=poly: poly_eval(p, y)
+            / ((poly_eval(N, y) ** 2) * real_R_value(y, gammas)),
+            start,
+            b2,
+            nodes=nodes,
+        )
+
     def root_region(root: float) -> str:
         tol = 1.0e-7
         if root < a1 - tol:
@@ -1792,23 +1810,34 @@ def lrlr_residual_offrow_audit_from_chart(
         free_root = free_roots[0] if lrlr_order and len(free_roots) == 1 else None
         connection_integral = integrate_gap(coeff)
         rho_value = rho_row_value(coeff)
+        b_row_value: float | None = None
+        if {"a", "b", "u", "v"}.issubset(source):
+            u_value = float(source["u"])
+            v_value = float(source["v"])
+            if u_value > b2 and v_value > b2:
+                b_row_value = (
+                    float(source["a"]) * right_exterior_potential(coeff, u_value)
+                    + float(source["b"]) * right_exterior_potential(coeff, v_value)
+                )
         product = connection_integral * rho_value
-        sample_records.append(
-            {
-                "angle": float(angle),
-                "coefficients_ascending": coeff.tolist(),
-                "connection_integral": connection_integral,
-                "connection_sign": sign_label(connection_integral),
-                "rho_row_value": rho_value,
-                "rho_row_sign": sign_label(rho_value),
-                "connection_times_rho": product,
-                "connection_times_rho_sign": sign_label(product),
-                "real_roots": real_roots,
-                "lrlr_order": lrlr_order,
-                "free_root": free_root,
-                "free_root_region": root_region(free_root) if free_root is not None else "not_lrlr",
-            }
-        )
+        record: dict[str, Any] = {
+            "angle": float(angle),
+            "coefficients_ascending": coeff.tolist(),
+            "connection_integral": connection_integral,
+            "connection_sign": sign_label(connection_integral),
+            "rho_row_value": rho_value,
+            "rho_row_sign": sign_label(rho_value),
+            "connection_times_rho": product,
+            "connection_times_rho_sign": sign_label(product),
+            "real_roots": real_roots,
+            "lrlr_order": lrlr_order,
+            "free_root": free_root,
+            "free_root_region": root_region(free_root) if free_root is not None else "not_lrlr",
+        }
+        if b_row_value is not None:
+            record["b_row_value"] = b_row_value
+            record["b_row_sign"] = sign_label(b_row_value)
+        sample_records.append(record)
 
     lrlr_product_sign_counts: dict[str, int] = {}
     lrlr_connection_sign_counts: dict[str, int] = {}
@@ -1834,6 +1863,66 @@ def lrlr_residual_offrow_audit_from_chart(
     nonzero_product_signs = {
         int(sign) for sign, count in lrlr_product_sign_counts.items() if sign != "0" and count
     }
+    affine_row_audit: dict[str, Any]
+    if not {"a", "b", "u", "v"}.issubset(source):
+        affine_row_audit = {
+            "status": "skipped",
+            "reason": "chart JSON lacks one of a,b,u,v",
+        }
+    elif float(source["u"]) <= b2 or float(source["v"]) <= b2:
+        affine_row_audit = {
+            "status": "skipped",
+            "reason": "current affine row audit only integrates u,v in the right exterior component",
+            "u": float(source["u"]),
+            "v": float(source["v"]),
+            "right_endpoint": b2,
+        }
+    else:
+        if lambda_samples == 1:
+            lambda_values = [float(lambda_min)]
+        else:
+            lambda_values = [float(value) for value in np.linspace(lambda_min, lambda_max, lambda_samples)]
+        lambda_summaries = []
+        fixed_nonzero_lambdas = []
+        for lambda_value in lambda_values:
+            counts: dict[str, int] = {}
+            region_counts: dict[str, dict[str, int]] = {}
+            for sample in sample_records:
+                if not sample["lrlr_order"]:
+                    continue
+                row_value = float(sample["b_row_value"]) - lambda_value * float(sample["rho_row_value"])
+                product_value = float(sample["connection_integral"]) * row_value
+                product_sign = str(sign_label(product_value))
+                counts[product_sign] = counts.get(product_sign, 0) + 1
+                region = str(sample["free_root_region"])
+                region_counts.setdefault(region, {})
+                region_counts[region][product_sign] = region_counts[region].get(product_sign, 0) + 1
+            nonzero_signs = {sign for sign, count in counts.items() if sign != "0" and count}
+            fixed_nonzero = lrlr_count > 0 and len(nonzero_signs) == 1
+            if fixed_nonzero:
+                fixed_nonzero_lambdas.append(lambda_value)
+            lambda_summaries.append(
+                {
+                    "Lambda": lambda_value,
+                    "connection_times_affine_row_sign_counts": counts,
+                    "region_connection_times_affine_row_sign_counts": region_counts,
+                    "projective_sign_fixed_nonzero": fixed_nonzero,
+                }
+            )
+        affine_row_audit = {
+            "status": "computed",
+            "row": "L_b(F)-Lambda L_rho(F)",
+            "a": float(source["a"]),
+            "b": float(source["b"]),
+            "u": float(source["u"]),
+            "v": float(source["v"]),
+            "lambda_min": lambda_min,
+            "lambda_max": lambda_max,
+            "lambda_samples": lambda_samples,
+            "fixed_nonzero_lambda_count": len(fixed_nonzero_lambdas),
+            "fixed_nonzero_lambdas": fixed_nonzero_lambdas,
+            "lambda_summaries": lambda_summaries,
+        }
     return {
         "model": "LRLR residual/off-row rho audit",
         "path": str(path),
@@ -1856,6 +1945,7 @@ def lrlr_residual_offrow_audit_from_chart(
         "lrlr_connection_times_rho_sign_counts": lrlr_product_sign_counts,
         "lrlr_region_connection_times_rho_sign_counts": region_product_sign_counts,
         "lrlr_projective_sign_fixed_nonzero": lrlr_count > 0 and len(nonzero_product_signs) == 1,
+        "affine_row_audit": affine_row_audit,
         "samples": sample_records,
     }
 
@@ -2330,6 +2420,9 @@ def main() -> int:
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
     parser.add_argument("--connection-samples", type=int, default=30)
+    parser.add_argument("--lambda-min", type=float, default=-10.0)
+    parser.add_argument("--lambda-max", type=float, default=10.0)
+    parser.add_argument("--lambda-samples", type=int, default=41)
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -2346,6 +2439,9 @@ def main() -> int:
                 Path(args.chart_json),
                 samples=args.connection_samples,
                 nodes=args.connection_nodes,
+                lambda_min=args.lambda_min,
+                lambda_max=args.lambda_max,
+                lambda_samples=args.lambda_samples,
             )
         except ValueError as exc:
             parser.error(str(exc))
@@ -2368,6 +2464,19 @@ def main() -> int:
             "  LRLR projective sign fixed nonzero = "
             f"{audit['lrlr_projective_sign_fixed_nonzero']}"
         )
+        affine = audit["affine_row_audit"]
+        print(f"  affine row audit = {affine['status']}")
+        if affine["status"] == "computed":
+            print(
+                "  affine Lambda fixed/nonzero count = "
+                f"{affine['fixed_nonzero_lambda_count']} / {affine['lambda_samples']}"
+            )
+            preview = affine["lambda_summaries"][:3]
+            if len(affine["lambda_summaries"]) > 3:
+                preview = preview + affine["lambda_summaries"][-1:]
+            print(f"  affine Lambda preview = {preview}")
+        else:
+            print(f"  affine row skipped reason = {affine['reason']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

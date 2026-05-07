@@ -887,6 +887,12 @@ Useful corrections already recorded:
   samples, so the command is diagnostic rather than result-forcing.  A real
   compact \(g=2\) chart is still needed before the LRLR row claim is
   proof-grade.
+- The same LRLR audit now sweeps the affine row
+  \(I_{\rm gap}(F)(L_b(F)-\Lambda L_\rho(F))\) when \(u,v,a,b\) are present
+  and \(u,v\) lie in the right exterior.  The synthetic chart smoke sweep over
+  \(\Lambda\in[-5,5]\) found no fixed nonzero sign, which is only a pipeline
+  check.  The proof-grade next step is still to produce the compact \(g=2\)
+  chart JSON and run the same rho/affine LRLR audit on that chart.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

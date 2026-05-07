@@ -16291,6 +16291,34 @@ theorem queue.
     than force a positive result.  A real chart must be supplied before this
     audit has proof-grade meaning.
 
+    The same command now also performs an affine residual-row sweep when the
+    chart JSON includes right-exterior \(u,v\) and weights \(a,b\).  For each
+    sampled LRLR kernel numerator \(F\) it computes
+
+    \[
+    L_b(F)
+    =
+    a\int_u^\infty \frac{F(t)}{N(t)^2R(t)}\,dt
+    +
+    b\int_v^\infty \frac{F(t)}{N(t)^2R(t)}\,dt,
+    \qquad
+    L_\rho(F)=\frac{F(c)}{N(c)^2R(c)},
+    \]
+
+    and scans
+
+    \[
+    \operatorname{sgn}\bigl(I_{\rm gap}(F)
+    (L_b(F)-\Lambda L_\rho(F))\bigr).
+    \tag{G1LRLRAffineRowAudit}
+    \]
+
+    On the same synthetic full-pair chart, the smoke sweep
+    \(\Lambda\in[-5,5]\) with \(11\) grid values reports no fixed nonzero
+    projective sign.  This again has no proof-grade content: it only verifies
+    that the extractor can now test the actual affine row once a compact
+    \(g=2\) chart is available.
+
     The old two-interval JSONs still cannot be promoted to this schema: they
     do not contain the compact non-pinched \(\Gamma\), full-pair gauge choice,
     period orientation, or \(c,u,v,a,b,\kappa\).  Thus
