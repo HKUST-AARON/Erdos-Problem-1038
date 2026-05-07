@@ -1333,17 +1333,16 @@ def compact_equation_spec_audit(path: Path) -> dict[str, Any]:
         blocking_errors.append(f"not-ready blocks: {not_ready}")
     if not_ready:
         next_action = (
-            "replace every TODO/draft block with exact equations and theorem "
-            "references, then generate gate1_compact_g2_chart.json"
+            "historical solver spec only; current Route A uses "
+            "CompactChartExclusionAssembly instead of generating gate1_compact_g2_chart.json"
         )
     elif payload.get("proof_grade") is not True:
         next_action = (
-            "all contract blocks and provenance are ready; set proof_grade=true "
-            "only after the referenced compact-chart and boundary-routing proof "
-            "obligations are accepted, then generate gate1_compact_g2_chart.json"
+            "all contract blocks and provenance are ready, but current Route A "
+            "routes/excludes the compact chart branch; do not generate proof_grade chart JSON"
         )
     else:
-        next_action = "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
+        next_action = "do not generate gate1_compact_g2_chart.json; use CompactChartExclusionAssembly"
     return {
         "path": str(path),
         "schema": payload.get("schema"),
@@ -1453,8 +1452,10 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
     blocking_errors = []
     if not spec_audit.get("solver_ready"):
         blocking_errors.append("paper equation spec is not ready")
-    if missing_executable_blocks:
-        blocking_errors.append("missing executable compact-chart solver blocks")
+    blocking_errors.append(
+        "regular compact chart class is excluded or routed by RealPoleRoutingLemma "
+        "plus the all-real order-sign obstruction"
+    )
 
     derived_constraints = {
         "minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass": 4,
@@ -1469,14 +1470,16 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
             "The minimal d=4 branch has P=z-c; for the standard two-cut pole "
             "placement, positive residues force c between the two middle-gap "
             "poles, which makes the two cut-density signs split.  Thus the "
-            "next non-toy regular search must allow deg P>=2, hence deg Q>=5.  "
+            "next non-toy regular search would have to allow deg P>=2, hence deg Q>=5.  "
             "A finite order-sign enumeration for d=5 quadratic P has no "
             "feasible residue-positive, density-consistent ordering, so the "
-            "next live branch would have to allow deg P>=3, hence deg Q>=6.  "
+            "next all-real branch would have to allow deg P>=3, hence deg Q>=6.  "
             "The generic compact order-sign audit then shows the same "
             "obstruction at d=6,7,8: the residue/density signs require at "
             "least deg(Q)-1 real sign changes, while compact decay allows "
-            "only deg(Q)-3."
+            "only deg(Q)-3.  With RealPoleRoutingLemma, the regular compact "
+            "chart class is therefore excluded or routed rather than passed "
+            "to a numeric chart generator."
         ),
         "compact_decay_order_sign_obstruction": (
             "positive residues plus consistent two-cut density signs require "
@@ -1485,7 +1488,7 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         ),
     }
 
-    can_generate_chart = not blocking_errors
+    can_generate_chart = False
     return {
         "path": str(spec_path),
         "status": "computed",
@@ -1500,9 +1503,10 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         "derived_constraints": derived_constraints,
         "missing_executable_blocks": missing_executable_blocks,
         "next_action": (
-            "resolve the compact order-sign obstruction before implementing a numeric chart solver"
+            "do not implement a numeric compact chart solver for this excluded branch; "
+            "use CompactChartExclusionAssembly in the final theorem assembly"
             if not can_generate_chart
-            else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
+            else "unreachable: compact chart generation is disabled by the exclusion assembly"
         ),
         "spec_audit": spec_audit,
     }
@@ -1521,7 +1525,7 @@ def generate_compact_chart_from_solver_spec(spec_path: Path) -> dict[str, Any]:
             "status": "blocked",
             "chart_generated": False,
             "path": str(spec_path),
-            "reason": "compact g=2 executable solver is incomplete",
+            "reason": "regular compact g=2 chart class is excluded or routed",
             "solver_audit": audit,
             "next_action": audit["next_action"],
         }
@@ -1812,9 +1816,17 @@ def compact_order_sign_feasibility(degree_q: int, degree_p: int | None = None) -
         raise ValueError("degree_p must be nonnegative")
 
     def qprime_sign(index: int) -> int:
+        # Monic ordered-root convention:
+        # Q(x)=prod_j (x-p_j), p_0<...<p_{d-1}.  Any global leading-sign change
+        # is absorbed by the enumerated density/scale signs, so only the
+        # alternating derivative pattern matters in this order audit.
         return 1 if ((degree_q - 1 - index) % 2 == 0) else -1
 
     def p_sign_at_entity(entity_index: int, root_slots: tuple[int, ...]) -> int:
+        # Slots are counted with multiplicity.  Repeated slots model multiple
+        # real roots: even multiplicity creates no net sign flip, odd
+        # multiplicity does.  Missing real roots are represented by repeated
+        # slots giving the same real-line sign pattern as a complex pair.
         roots_to_left = sum(1 for slot in root_slots if slot <= entity_index)
         roots_to_right = degree_p - roots_to_left
         return -1 if roots_to_right % 2 else 1

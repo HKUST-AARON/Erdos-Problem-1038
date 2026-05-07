@@ -1,0 +1,28 @@
+{
+  "name": "full_domain_five_atom_180630_candidate",
+  "status": "numerical full-domain candidate; verifier checks analytic critical points",
+  "M": 1.8063,
+  "B": 1.7,
+  "K": 1,
+  "shifts": [
+    1.80650622062,
+    2.569946468152,
+    2.68375450413,
+    2.79028947924
+  ],
+  "blocks": [
+    {
+      "i": 0,
+      "A": 1.8063,
+      "C": 1.7,
+      "weights": [
+        1.171198733876,
+        0.025826760715,
+        0.119855590488,
+        0.1796615493
+      ]
+    }
+  ],
+  "domain_in_y": "[C-1, A+1]",
+  "source": "search_stronger_finite_atom_block.py smoke search, dense-grid checked"
+}

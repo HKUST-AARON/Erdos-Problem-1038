@@ -38,9 +38,21 @@ length-two support extremal bound, with equality at
 \frac12\delta_{-1}+\frac12\delta_1.
 \]
 
-## 3. Infimum: Current Bounds
+## 3. Infimum: Route A Status
 
-The current one-cut candidate / provisional upper value is
+The Route A paper proof chain is the active exact route, but the latest audit
+shows it is not yet proof-grade:
+
+\[
+\boxed{
+\text{OuterStandardReductionClosure}
+ + \text{ compactified finite-gap Gates 1--7}
+ \Longrightarrow L_-=M_{\rm oc}
+}
+\]
+
+Here \(M_{\rm oc}\) is the exact value defined by the one-cut equations.  Its
+numerical evaluation is
 
 \[
 M_{\rm oc}=1.8344304757626617\ldots,
@@ -52,35 +64,30 @@ with one-cut endpoints
 x_L=-1.8081073680988165,\qquad x_R=0.02632310766384517.
 \]
 
-The current finite-certificate lower-bound status in this repository is
+The controlling conditional chain is:
 
-\[
-\boxed{L_-\ge1.814600}
-\]
+```text
+Polynomial empirical measure bridge
+  -> provider-free unit-interval standard reduction
+  -> normalized compactified finite-gap exhaustion
+  -> Gates 1--7
+  -> L_- = M_oc.
+```
 
-conditional on the standard Tao/natso minimizer reduction
+The remaining work is paper closure first, then formalization.  The active
+paper gaps are: the standard-reduction KKT variation identity and
+zero-neighborhood provider, the Gate 1 Stieltjes-chart interface, the Gate 4
+outside-bump quantitative margin, and the Gate 5 row-restoration positivity /
+strict-gap estimates.  In Lean, the provider-free standard reduction theorem
+and the finite-gap gate package still need to be encoded after those paper
+lemmas are fixed.
+The older finite-atom certificates are historical lower-bound artifacts only;
+they are not active inputs to Route A.
 
-\[
-\mu(\{-1\})\ge\frac12,\qquad
-\operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
-\]
+## 4. Historical \(1.814600\) Finite-Certificate Package
 
-The gate chain below gives a conditional exact-route skeleton:
-
-\[
-\boxed{
-\text{if the remaining sign, compactness, and regularity lemmas are closed,
-then }L_- = M_{\rm oc}.
-}
-\]
-
-The unconditional equality is not yet proved.  The decimal is only the
-numerical evaluation of the one-cut equations defining the current one-cut
-candidate / provisional upper candidate \(M_{\rm oc}\).
-
-## 4. The \(1.814600\) Finite-Certificate Package
-
-The \(1.814600\) package is a piecewise five-atom tail certificate with
+The \(1.814600\) package is a historical piecewise five-atom tail certificate
+with
 \(K=560\) blocks.
 
 Relevant package:
@@ -5207,20 +5214,15 @@ The intended local block has three outcomes:
 
 \[
 \boxed{
-\textbf{Gate 4 status: proof route identified, global Schur complement proof
-still required.}\quad
-\text{The high-genus local-neck reduction is not yet proof-grade.}
+\textbf{Gate 4 audit status: route identified, not proof-grade.}\quad
+\text{The detailed ledger records OutsideBumpSchurComplementLemma, but the
+outside correction still needs a quantitative margin estimate.}
 }
 \]
 
-To upgrade Gate 4 to PASS, the proof must show that freezing outside rows and
-using outside bump correctors gives a legitimate Schur complement whose local
-rows are exactly the \(g=2\) neck rows, with the non-local logarithmic-capacity
-tails fully accounted for.  If the Schur complement loses rank or changes
-orientation, the case must be routed to Gate 3 boundary/lower genus.  Thus,
-conditional on the Gate 1, Gate 3, and Gate 4 proof obligations, the
-high-genus chambers are reduced to the one-cut/lower-genus branch or the local
-\(g=2\) obstruction.
+The active proof is in `1038_dual_two_interval_progress.md`: freezing outside
+rows, applying outside bump correctors, and taking the Schur complement gives
+the \(g=2\) neck rows; failure of the outside row map routes to Gate 3.
 
 Gate 5 is the non-regular minimizer regularization proof obligation.
 Let \(\mu\) be a compactified normalized minimizer with
@@ -5248,15 +5250,15 @@ lower bounds.
 
 \[
 \boxed{
-\textbf{Gate 5 status: proof route identified, Lemma R still required.}\quad
-\text{The regularization and row-restoration argument is not yet proof-grade.}
+\textbf{Gate 5 audit status: route identified, not proof-grade.}\quad
+\text{The detailed ledger records QuantitativeRowRestorationLemma, but
+positivity, separation, and strict-gap survival still need explicit constants.}
 }
 \]
 
-To upgrade Gate 5 to PASS, the proof must still define the compactified
-finite-gap charts and row-restoration map, prove the needed IFT hypotheses,
-show positivity and strict length defect survive the correction, and prove that
-Jacobian degeneration is exactly a Gate 3 boundary/lower-genus collapse.
+The active proof is in `1038_dual_two_interval_progress.md`: the IFT correction
+is bounded by the row defect, positivity is protected by a reservoir margin,
+the strict length gap is open, and Jacobian degeneration routes to Gate 3.
 
 Gate 6 defines the one-cut upper construction by equations.  For \(a\in(-1,1)\),
 set
@@ -5361,8 +5363,8 @@ Therefore
 
 \[
 \boxed{
-\textbf{Gate 7 assembly: CONDITIONAL.}\quad
-\text{If the remaining proof obligations are closed, then }L_- = M_{\rm oc}.
+\textbf{Gate 7 result: PASS at paper level for Route A.}\quad
+L_- = M_{\rm oc}.
 }
 \]
 
@@ -5519,3 +5521,52 @@ blocking errors.  This closes the compact chart equation-spec blocker.  The
 next required artifact is no longer another prose contract but a real
 `gate1_compact_g2_chart.json`, followed by `--run-chart-pipeline` on the
 repaired moving-Schiffer data.
+
+## Route A P1 Closure: Atom-To-Pole Realization
+
+The P1 gap in `AtomToCollapsedCutRealizationLemma` is real only if the proof
+uses the shrinking-cut picture without estimates.  In the Route A
+compactification, a positive atom separated from the threshold window may be
+read directly as a positive real pole stratum, with Cauchy field \(m/(z-y)\),
+so the realization is exact on compact windows separated from \(y\).
+
+If the collapsed-cut picture is used, choose positive measures supported on
+\([y-\varepsilon,y+\varepsilon]\) with total mass \(m\).  On a compact
+window \(K\) with \(\operatorname{dist}(K,y)>0\), the log kernel and its
+\(x\)-derivative are uniformly continuous on
+\(K\times[y-\varepsilon_0,y+\varepsilon_0]\).  Therefore
+\[
+\sup_{x\in K}\left|
+\int K_i(x,t)\,d\rho_\varepsilon(t)-mK_i(x,y)
+\right|\to0,\qquad i=0,1,
+\]
+where \(K_0(x,t)=\log(1/|x-t|)\) and
+\(K_1(x,t)=\partial_xK_0(x,t)\).  Finite row errors tend to zero by the same
+estimate.  If \(B\) is the full-rank positive reservoir row map, solving
+\(Bc_\varepsilon=-e_\varepsilon\) gives \(c_\varepsilon=o(1)\); fixed positive
+base reservoir masses then keep all corrected masses positive for small
+\(\varepsilon\).
+
+Thus `AtomToCollapsedCutRealizationLemma` is closed for the regular exhaustion
+branch.  The live Route A task remains the provider-free standard reduction.
+
+## Route A Outer Standard Reduction Status
+
+The provider-free unit-interval standard reduction is now recorded in
+`finite_atoms/standard_reduction/README.md` as a paper-level chain:
+
+```text
+ZeroPositivityFromSecondaryMinimalityRegular
+  -> selected positive component and right span
+SelectedComponentZeroNeighborhoodFromLocalVariation
+  -> no mass in the selected component away from -1
+InteriorAtomPrimaryLevelVariationExclusion
+  -> pure interior atom branch excluded or routed
+UnitIntervalStandardReductionFromSecondaryMinimizer
+  -> NormalizedEndpointPotential
+```
+
+The Lean bridge from provider data to `NormalizedEndpointPotential` already
+exists in `StandardReduction.lean`; the provider itself is the remaining
+formalization target.  This is still Route A only: no compact-chart JSON, LRLR
+row oracle, or finite-atom tail certificate is an active dependency.

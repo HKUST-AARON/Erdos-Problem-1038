@@ -1,0 +1,18 @@
+{
+  "name": "full_domain_five_atom_180630_certificate",
+  "candidate_file": "1038/full_domain_five_atom_180630_candidate.json",
+  "M": 1.8063,
+  "B": 1.7,
+  "K": 1,
+  "mode": "full-domain numerical certificate candidate",
+  "domain_in_y": "[C-1, A+1]",
+  "verifier": "python3 1038/verify_piecewise_tail_correct_domain.py 1038/full_domain_five_atom_180630_candidate.json --full-domain",
+  "result": "PASS",
+  "full_domain_worst": {
+    "value": 4.76003592105e-05,
+    "block": 0,
+    "argmin_y": 2.74289951754338
+  },
+  "bad_full_domain_blocks": 0,
+  "caveat": "Executable numerical certificate candidate; not a formal Lean certificate and not an M=1.8146 result."
+}

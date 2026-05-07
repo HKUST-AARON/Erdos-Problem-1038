@@ -188,7 +188,7 @@
         "todo_like": false
       }
     ],
-    "next_action": "generate gate1_compact_g2_chart.json and run --run-chart-pipeline",
+    "next_action": "do not generate gate1_compact_g2_chart.json; use CompactChartExclusionAssembly",
     "path": "1038/gate1_compact_g2_equation_spec_template.json",
     "schema": "gate1_compact_g2_equation_spec_v1",
     "solver_ready": true,

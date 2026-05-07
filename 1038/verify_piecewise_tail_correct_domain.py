@@ -131,6 +131,25 @@ def verify_required_domain(cert):
     return worst, bad_blocks
 
 
+def verify_full_domain(cert):
+    shifts = cert["shifts"]
+    worst = None
+    bad_blocks = []
+    for block in cert["blocks"]:
+        A = block["A"]
+        C = block["C"]
+        weights = block["weights"]
+        intervals = [(C - 1.0, A + 1.0)]
+        pts = critical_points(intervals, weights, shifts)
+        vals = [(V_value(y, weights, shifts), y) for y in pts]
+        block_min, block_y = min(vals, key=lambda t: t[0])
+        if worst is None or block_min < worst[0]:
+            worst = (block_min, block["i"], block_y)
+        if block_min <= 0:
+            bad_blocks.append((block["i"], block_min, block_y))
+    return worst, bad_blocks
+
+
 def scan_overcheck_gap(cert, samples_per_block=1000):
     """Scan the irrelevant middle gap [A-1, C] to reproduce overcheck negatives."""
     shifts = cert["shifts"]
@@ -158,18 +177,24 @@ def scan_overcheck_gap(cert, samples_per_block=1000):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("json_path")
+    ap.add_argument("--full-domain", action="store_true", help="check full y-domain [C-1,A+1]")
     ap.add_argument("--gap-scan", action="store_true", help="also scan irrelevant middle gap")
     args = ap.parse_args()
 
     with open(args.json_path, "r") as f:
         cert = json.load(f)
 
-    worst, bad = verify_required_domain(cert)
+    if args.full_domain:
+        worst, bad = verify_full_domain(cert)
+        label = "Full-domain"
+    else:
+        worst, bad = verify_required_domain(cert)
+        label = "Required-domain"
     print("Certificate:", cert.get("name", args.json_path))
     print("M =", cert["M"], "K =", cert["K"])
-    print("Required-domain worst margin:", "{:.12g}".format(worst[0]))
-    print("Required-domain worst block:", worst[1], "y =", "{:.15g}".format(worst[2]))
-    print("Bad required-domain blocks:", len(bad))
+    print(label + " worst margin:", "{:.12g}".format(worst[0]))
+    print(label + " worst block:", worst[1], "y =", "{:.15g}".format(worst[2]))
+    print("Bad " + label.lower() + " blocks:", len(bad))
 
     if args.gap_scan:
         gap_worst = scan_overcheck_gap(cert)

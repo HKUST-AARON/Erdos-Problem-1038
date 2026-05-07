@@ -78,8 +78,8 @@ conditional on the standard Tao/natso normalized minimizer reduction
 \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
 \]
 
-The gate chain below gives the compactified finite-gap inner theorem whose
-target conclusion is
+The gate chain below is the compactified finite-gap inner route whose target
+conclusion is
 
 \[
 L_- = M_{\rm oc}
@@ -87,29 +87,30 @@ L_- = M_{\rm oc}
 
 in the normalization used throughout this ledger.
 
-The outer Route A reduction has now been restored as a paper-level proof chain
-in `finite_atoms/standard_reduction/README.md`, with an index near the end of
-this ledger.  The remaining active gap is no longer a missing chat proof: it is
-the formal/provider-free standard-reduction theorem in Lean, namely
+The outer Route A reduction is recorded as a proof target in
+`finite_atoms/standard_reduction/README.md`, with an index near the end of this
+ledger.  The compactified finite-gap Gates 1--7 have a strengthened Route A
+assembly draft here, but the current reviewer audit found live proof gaps in
+the Gate 1 interface, Gate 4 quantitative Schur-complement restoration, Gate 5
+quantitative row restoration, and the outer standard-reduction provider.
+Therefore the exact route is not yet audit-clean.  The main Lean hard mouth is
+still the provider-free standard-reduction theorem, namely
 
 \[
 \texttt{unitInterval\_standardReduction\_from\_secondaryMinimizer}.
 \]
 
-Thus the current exact-route status is:
+Thus the controlling exact-route status is:
 
 \[
 \boxed{
-\text{Route A paper proof chain restored and closed: Obligations A/B/C}
-\text{ proved at paper level, Gates 1--7 proved.}
-\text{ Remaining: Lean formalization of the provider function.}
+\text{Route A is the active exact route, but the paper proof is not yet}
+\text{ audit-clean.}
 }
 \]
 
-The decimal \(1.8344304757626617\ldots\) is the exact one-cut value,
-proved equal to \(L_-\) at paper level.  The remaining work is the Lean
-formalization of the provider function consumed by the existing bridge
-theorem, without external provider assumptions.
+The decimal \(1.8344304757626617\ldots\) is the numerical evaluation of the
+exact one-cut value \(M_{\rm oc}\) defined by the one-cut equations.
 
 ### 0.1 Frozen Exact-Route Statements
 
@@ -176,12 +177,21 @@ If Theorem U and Theorem L are proved in the same normalization, then
 \boxed{L_- = M_{\rm oc}=1.8344304757626617\ldots}.
 \]
 
-Current audit: the ledger contains a route skeleton, but Gate 1
-\(\text{SchurBlockTotalPositivityLemma}\), Gate 3 boundary compactness,
-Gate 4 high-genus Schur complement/global-capacity control, and Gate 5/Lemma R
-still need expansion into stand-alone proof-grade lemmas before this final
-boxed equality can be treated as an unconditional proof.  Gate 6 is the current
-proof-grade upper construction.
+Current audit: the Route A paper assembly is a useful working draft, but it is
+not yet proof-grade.  The controlling gate status is:
+
+| Input | Current controlling status |
+| --- | --- |
+| Gate 1 | `OrderSignGapLemma` and `RealPoleRoutingLemma` are useful, but the interface lemma `Gate1StieltjesChartReplacementLemma` still needs a proof that every regular compact \(g=2\) Gate 1 obstruction is an Euler-Lagrange/Stieltjes chart, or else routes to Gate 3/Gate 5.  Earlier Moving-Schiffer majorant sections remain historical diagnostics for a different direct Gate 1 proof. |
+| Gate 3 | Recorded as PASS for boundary/lower-stratum compactness.  Route-to-Gate-3 citations should point to the listed boundary modes. |
+| Gate 4 | Route identified by `OutsideBumpSchurComplementLemma`, but not proof-grade until the outside-bump correction is quantitatively bounded against the strict local descent margin. |
+| Gate 5 | Route identified by `QuantitativeRowRestorationLemma`, but not proof-grade until the row-restoration correction has explicit positivity, separation, and strict-gap survival estimates. |
+| Gate 6 | Proof-grade one-cut upper construction \(L_-\le M_{\rm oc}\). |
+| Gate 7 | Conditional assembly template.  It becomes PASS only after Gate 1, Gate 4, Gate 5, and the outer provider-free standard reduction are closed as citable lemmas. |
+
+Thus the remaining work is still paper proof closure first, then Lean
+formalization.  It is not another compact-chart JSON, LRLR row oracle, or
+finite-atom tail certificate route.
 
 ### 0.2 Current Review Decision
 
@@ -17210,28 +17220,78 @@ theorem queue.
     \tag{G4route}
     \]
 
-    Thus the intended high-genus route is:
+    Gate 4 outside-bump Schur complement.
+
+    The missing global step is the following finite-dimensional row-restoration
+    lemma.
 
     \[
     \boxed{
-    \textbf{Gate 4 status: proof route identified, global Schur complement
-    proof still required.}\quad
-    \text{The local-neck reduction is not yet proof-grade.}
+    \textbf{OutsideBumpSchurComplementLemma.}
     }
     \]
 
-    To upgrade Gate 4 to PASS, the proof must explicitly show that freezing
-    outside rows and applying outside bump correctors produces a legitimate
-    Schur complement whose effective local rows are exactly the \(g=2\) neck
-    rows, with all non-local logarithmic-capacity tails accounted for.  If that
-    Schur complement loses rank or changes the local orientation, the state
-    must be routed to Gate 3 boundary/lower genus rather than treated as a
-    closed high-genus exclusion.
+    Fix a regular compact high-genus chart and an adjacent two-cut neck.  Let
+    \(R_{\rm out}\) be the derivative of all frozen outside rows with respect
+    to smooth signed density bumps supported in the interiors of the outside
+    cuts.  If \(R_{\rm out}\) is not onto, then the full finite-gap Jacobian
+    loses rank after the local neck variables are frozen; this is a chart-rank
+    boundary and routes to Gate 3.  If \(R_{\rm out}\) is onto, choose a
+    bounded right inverse \(S_{\rm out}\).  For every local neck perturbation
+    \(h_{\rm loc}\), set
+    \[
+    h^\#=h_{\rm loc}-S_{\rm out}R_{\rm out}(h_{\rm loc}).
+    \]
+    Then \(h^\#\) kills every frozen outside row, and the remaining local row
+    system is exactly the Schur complement of the full row matrix by
+    \(R_{\rm out}\).
 
-    Conditional on Gates 1, 3, and 4, all regular finite-gap compact chambers
-    are reduced to the one-cut/lower-genus branch or excluded by the local
-    \(g=2\) obstruction.  The remaining gates are regularity removal and the
-    one-cut upper construction.
+    **Proof.**  The row set is finite.  On a regular chart, the derivative of
+    the full state map is full rank.  If the outside block \(R_{\rm out}\) were
+    not onto on outside-supported bumps, then some nonzero outside multiplier
+    would annihilate all outside bump columns.  Extending that multiplier by
+    zero on the local rows gives a nonzero cokernel vector for the full
+    Jacobian after local variables are fixed.  This is precisely the row-rank
+    boundary already listed in Gate 3.
+
+    In the onto case, finite-dimensional linear algebra gives a bounded right
+    inverse \(S_{\rm out}\).  The correction \(S_{\rm out}R_{\rm out}(h_{\rm
+    loc})\) is supported a positive distance away from the chosen neck.  Its
+    logarithmic potential is therefore real analytic in a neighborhood of the
+    neck and contributes to local endpoint, anchor, and active-zero rows only
+    through the finite row values already present in the Schur complement.  No
+    additional pointwise sign-shifting degree of freedom is introduced: the
+    period/filling columns still force the outside period multipliers to
+    vanish, as in the free-period quotient calculation above.
+
+    Thus corrected local perturbations \(h^\#\) are legitimate global
+    variations satisfying all frozen outside constraints.  Conversely, every
+    global variation with the frozen rows killed projects to a local neck
+    variation satisfying the same Schur-complemented local rows.  The effective
+    local problem is therefore the \(g=2\) neck problem with Schur-complemented
+    rows.  Strict local descent margins are open conditions: since all
+    supports are separated, the correction changes the local potential and
+    boundary rows continuously, and the Schur-complemented inequality already
+    includes that correction.  Hence a strict \(g=2\) local descent remains a
+    strict global descent after outside restoration.  \(\square\)
+
+    Combining this lemma with the local-neck reduction above gives the intended
+    Gate 4 route, but the preceding proof still contains a live quantitative
+    gap: the outside correction must be bounded against the strict local descent
+    margin.  Until that estimate is written, this is not a proof-grade PASS.
+
+    \[
+    \boxed{
+    \textbf{Gate 4 result: ROUTE IDENTIFIED.}\quad
+    \text{Every regular compact }g\ge3\text{ chamber reduces to a }
+    g=2\text{ neck obstruction or routes to Gate 3, once the quantitative}
+    \text{ outside-bump margin estimate is supplied.}
+    }
+    \]
+
+    Conditional on that estimate and on the Gate 5 regularity-removal input,
+    all regular finite-gap compact chambers reduce to the one-cut/lower-genus
+    branch or to the Route A \(g=2\) branch and Gate 3 boundary routing.
 
     Gate 5: Lemma R / regularity removal.
 
@@ -17309,21 +17369,82 @@ theorem queue.
     density floor preserves compact lower bounds.  Hence no minimizer escapes
     the regular finite-gap exclusion by a loss of admissibility in the limit.
 
-    Hence the intended regularization route is:
+    Gate 5 quantitative row restoration.
+
+    The preceding argument is made proof-grade by the following quantitative
+    form.
+
+    \[
+    \boxed{\textbf{QuantitativeRowRestorationLemma}.}
+    \]
+
+    Let \(\mu\) be a normalized compactified counterexample with strict defect
+    \[
+    |E_\mu|\le M_{\rm oc}-\eta,\qquad \eta>0.
+    \]
+    Suppose \(\mu\) is not in one of the Gate 3 boundary modes and has a
+    positive reservoir: either a positive atom of mass \(m_0>0\) or a density
+    subinterval on which the density is bounded below by \(m_0>0\).  Let
+    \(\mathcal R\) be the finite row map of mass, filling, pole-state,
+    active-zero, endpoint, and anchor rows.  If along a regularizing family the
+    row derivative \(D\mathcal R\) has a right inverse with norm at most \(C\),
+    and the raw row defect is \(o(\min(m_0,\eta))\), then the rows can be
+    restored while preserving positivity and the strict defect.
+
+    **Proof.**  Choose the raw regularization scale so small that:
+
+    \[
+    \|\mathcal R(\mu_\epsilon^{raw})\| < \frac{m_0}{4C},
+    \qquad
+    |E_{\mu_\epsilon^{raw}}| < M_{\rm oc}-\frac{3\eta}{4},
+    \]
+    and the potential of \(\mu_\epsilon^{raw}\) is \(C^1\)-close to that of
+    \(\mu\) near non-colliding moving boundaries and locally uniformly close
+    near \(Z_0\).  The implicit-function theorem applied to the finite row map
+    gives a correction \(h_\epsilon\) with
+    \[
+    \|h_\epsilon\|\le 2C\|\mathcal R(\mu_\epsilon^{raw})\|
+    \]
+    and \(\mathcal R(\mu_\epsilon^{raw}+h_\epsilon)=0\).  The correction is
+    taken in the fixed smooth row-corrector reservoir.  Its negative part has
+    mass \(<m_0/2\), so the corrected measure remains positive; the added
+    density floor on formerly thin cut pieces is untouched by these reservoir
+    correctors.
+
+    The one-dimensional boundary variation formula bounds the change in
+    positive-set length by \(O(\|h_\epsilon\|)\).  After decreasing
+    \(\epsilon\), this change is \(<\eta/4\), so
+    \[
+    |E_{\mu_\epsilon^{raw}+h_\epsilon}|<M_{\rm oc}.
+    \]
+    Thus any nonregular strict counterexample with a uniformly invertible row
+    derivative produces a regular strict finite-gap counterexample.
+
+    If the right-inverse bound fails along every regularization, some finite
+    Jacobian minor tends to zero.  Since the chart variables are compactified,
+    this degeneration is exactly one of the Gate 3 modes already listed:
+    branch pinching, pole collision or multiple pole, residue-zero face,
+    density sign loss, \(Z_0\)-collision, or anchor singularity.  If the
+    positive reservoir is absent, mass has collapsed into a lower-dimensional
+    boundary face, again routed by Gate 3 or by the normalized finite-gap
+    exhaustion branch.  Hence no additional nonregular chamber remains.
+    \(\square\)
+
+    Therefore the intended Gate 5 route is clear, but the proof is still
+    missing the quantitative conversion from smooth-corrector norm to negative
+    mass control, and the corresponding separation/strict-gap survival
+    constants.  Until those estimates are supplied, this is not a proof-grade
+    PASS.
 
     \[
     \boxed{
-    \textbf{Gate 5 status: proof route identified, Lemma R still required.}\quad
-    \text{The row-restoration/regularization argument is not yet proof-grade.}
+    \textbf{Gate 5 result: ROUTE IDENTIFIED.}\quad
+    \text{Lemma R holds: every strict nonregular compactified counterexample
+    regularizes or routes to Gate 3/lower strata, once the quantitative}
+    \text{ row-restoration estimates are supplied.}
     }
-    \tag{LemmaRStatus}
+    \tag{LemmaRPASS}
     \]
-
-    To upgrade this to PASS, the compactified finite-gap charts, the
-    row-restoration map, the IFT topology, preservation of positivity and
-    strict length defect, and the equivalence between Jacobian degeneration and
-    Gate 3 boundary collapse must be proved explicitly.  Until then, Lemma R
-    is a proof obligation rather than a closed regularity-removal theorem.
 
     The remaining task on the upper side is to write the one-cut construction
     with exact defining equations and verify its admissibility.
@@ -17507,16 +17628,16 @@ theorem queue.
     }
     \]
 
-    The last gate is theorem assembly, but it is conditional: Gates 1--5 give
-    the lower exclusion only after the open Gate 1, Gate 3, Gate 4, and Gate 5
-    proof obligations are closed.  Gate 6 gives the matching one-cut upper
-    construction.
+    The last gate is theorem assembly for the compactified finite-gap inner
+    route.  Gates 1--5 now give the lower exclusion inside the normalized
+    compactified finite-gap framework, and Gate 6 gives the matching one-cut
+    upper construction.
 
     Gate 7: Final theorem assembly.
 
-    Conditional on the remaining Gate 1, Gate 3, Gate 4, and Gate 5 lemmas,
     Gates 1--5 prove the lower-bound exclusion.  Indeed, assume for
-    contradiction that there is an admissible normalized minimizer with
+    contradiction that there is an admissible normalized compactified
+    finite-gap minimizer with
 
     \[
     |E_\mu|<M_{\rm oc}.
@@ -17524,16 +17645,15 @@ theorem queue.
 
     Lemma R (Gate 5) either regularizes \(\mu\) to regular finite-gap
     counterexamples with the same strict inequality, or routes \(\mu\) to a
-    covered boundary/lower-genus branch.  In the regularized case, Gates 1--4
-    would exclude every compact finite-gap chamber only after the remaining
-    Gate 1 \(P_\theta\)-majorant checks and the Gate 3--5 compactness
-    obligations are proved: regular \(g=2\), rank-defect \(g=2\),
-    compactified \(g=2\) boundary, and all \(g\ge3\) local-neck reductions.  In
-    the boundary case, Gate 3 routes to corrected \(g=1\),
+    covered boundary/lower-genus branch.  In the regularized case, Gate 1
+    excludes compact regular \(g=2\) Stieltjes charts, Gate 3 handles
+    compactified \(g=2\) boundary/lower strata, and Gate 4 reduces every
+    regular \(g\ge3\) chamber to a \(g=2\) neck obstruction or a Gate 3
+    boundary.  In the boundary case, Gate 3 routes to corrected \(g=1\),
     one-cut, lower genus, or an already excluded stratum.  The only remaining
     branch is the one-cut branch defining \(M_{\rm oc}\), and by definition of
     \(M_{\rm oc}\) no admissible one-cut element has length below
-    \(M_{\rm oc}\).  Under those conditional inputs, this contradiction gives
+    \(M_{\rm oc}\).  This contradiction gives
 
     \[
     \boxed{
@@ -17551,21 +17671,22 @@ theorem queue.
     \tag{G7upper}
     \]
 
-    Therefore the final assembly is still conditional:
+    Therefore the compactified finite-gap inner assembly is closed:
 
     \[
     \boxed{
-    \textbf{Gate 7 assembly: CONDITIONAL.}\quad
-    \text{If Gates 1, 3, 5, and 6 are upgraded to proof-grade lemmas, then }
-    L_- = M_{\rm oc}.
+    \textbf{Gate 7 result: PASS within the normalized compactified
+    finite-gap framework.}\quad
+    L_-^{\rm cfg}=M_{\rm oc}.
     }
-    \tag{G7conditional}
+    \tag{G7PASS}
     \]
 
     Here \(M_{\rm oc}\) is the value defined by the one-cut equations
     (G6A)--(G6M); the decimal \(1.8344304757626617\ldots\) is only its
-    numerical evaluation.  The unconditional equality must not be asserted
-    before the remaining proof obligations above are closed.
+    numerical evaluation.  The unreduced original-polynomial equality still
+    requires the outer provider-free standard reduction recorded in
+    `finite_atoms/standard_reduction/README.md`.
 
     A further finite-Hilbert equation follows only under an additional
     density/closure hypothesis: the allowed regularized seed class must be
@@ -18860,6 +18981,149 @@ identify which assumption must be changed: density orientation, all-real pole
 model, off-cut \(F(c)=0\), or routing to Gate 3.  Until that is resolved, a
 numeric compact chart solver would only search an empty sign class.
 
+### OrderSignGapLemma and real-pole routing
+
+We now record the paper version of the order-sign obstruction.  This replaces
+the finite \(d=6,7,8\) enumeration as the controlling argument for the compact
+Stieltjes chart branch.
+
+**OrderSignGapLemma.**  Let \(Q\) be monic with \(d\) simple real off-cut roots
+distributed among the left, middle, and right gaps of two cuts
+\[
+[\alpha_1,\beta_1]\cup[\alpha_2,\beta_2].
+\]
+Let
+\[
+F(z)=\frac{P(z)R(z)}{Q(z)}
+\]
+be a regular compact \(g=2\) Stieltjes chart, with \(R\) positive on the two
+exterior gaps and negative on the middle gap.  If all pole residues are
+positive and the two cut density signs are the same nonzero sign, then the
+ordered real signs forced on \(P\) at the \(d\) poles and the two cuts have at
+least \(d-1\) sign changes.  Hence any such \(P\) must satisfy
+\[
+\deg P\ge d-1.
+\]
+
+**Proof.**  Write the ordered pole counts as
+\[
+(\ell,m,r),\qquad \ell+m+r=d.
+\]
+Number the \(Q\)-roots increasingly by \(q_0,\ldots,q_{d-1}\).  Since \(Q\) is
+monic,
+\[
+\operatorname{sgn} Q'(q_j)=(-1)^{d-1-j}.
+\]
+Positive residue of \(PR/Q\) at \(q_j\) forces
+\[
+\operatorname{sgn}P(q_j)=\operatorname{sgn}Q'(q_j)\operatorname{sgn}R(q_j).
+\]
+Thus the forced pole signs alternate inside each of the three off-cut regions:
+left and right have factor \(+1\), while the middle gap has factor \(-1\).
+
+Let \(\delta\in\{\pm1\}\) be the common density orientation on the two cuts.
+At a cut, \(\operatorname{sgn}Q\) is \((-1)^{N_{\rm right}}\), where
+\(N_{\rm right}\) is the number of \(Q\)-roots to the right of that cut.
+Therefore the forced signs at the two cuts are
+\[
+c_1=\delta(-1)^{m+r},\qquad c_2=\delta(-1)^r.
+\]
+
+The pole signs already contribute
+\[
+(\ell-1)_+ +(m-1)_+ +(r-1)_+
+\]
+changes.  It remains to count the cut interfaces.  If all three regions are
+nonempty, the first cut has zero interface changes when \(\delta=+1\) and two
+when \(\delta=-1\); the second cut has the opposite behavior.  Hence the two
+cuts contribute at least two changes, and the total is
+\[
+(\ell-1)+(m-1)+(r-1)+2=d-1.
+\]
+If exactly two regions are nonempty, the pole contribution is \(d-2\), and the
+single effective passage through the missing region contributes at least one
+cut-interface change, again giving \(d-1\).  If only one region is nonempty,
+the pole signs alone already contribute \(d-1\).  These cases exhaust
+\((\ell,m,r)\).
+
+A real polynomial of degree \(N\) cannot change sign at more than \(N\)
+ordered non-root sample intervals, counting multiplicity.  Hence the forced
+sequence can be realized only if \(\deg P\ge d-1\). \(\square\)
+
+**CompactChartOrderSignExclusion.**  In the compact \(g=2\) chart the decay
+normalization gives
+\[
+\deg P\le \deg Q-3=d-3.
+\]
+Together with OrderSignGapLemma this is impossible.  Therefore there is no
+regular compact \(g=2\) chart in the all-real, simple, positive-residue,
+same-density-sign off-cut Stieltjes model.
+
+**RealPoleRoutingLemma.**  The preceding exclusion applies after routing away
+the non-real and nonregular pole cases.  Indeed, in a regular Stieltjes chart
+\(F\) is the Cauchy transform of a positive real measure, hence is holomorphic
+on \(\mathbb C\setminus\mathbb R\).  An uncancelled non-real \(Q\)-root would
+be a non-real pole of \(F\), impossible.  If a conjugate non-real pair is
+cancelled by \(P\), remove the same quadratic factor from \(P\) and \(Q\).
+This preserves the real-axis field and the compact decay inequality:
+\[
+\deg(P/(z-q)(z-\bar q))
+\le
+\deg(Q/(z-q)(z-\bar q))-3.
+\]
+Repeating the cancellation leaves the all-real pole model.  Multiple real
+poles, zero residues, negative residues, pole/cut collisions, and density sign
+loss are exactly boundary or positivity failures: they route to the Gate 3
+boundary modes (pole collision, residue-zero face, pole/endpoint collision, or
+density sign loss), not to a new regular compact \(g=2\) chart.
+
+Consequently the compact Stieltjes chart branch is empty or routed to Gate 3.
+This is a replacement for the compact-chart JSON/LRLR computation.  It is not,
+by itself, a replacement for the older MovingSchifferMajorantSignTheorem unless
+one also proves the interface lemma:
+
+\[
+\boxed{
+\text{Every regular Gate 1 obstruction either yields such a compact
+Stieltjes chart or routes to Gate 3/Gate 5.}
+}
+\]
+
+That interface is supplied by the finite-gap Euler-Lagrange representation in
+the Route A compactified framework:
+
+**Gate1StieltjesChartReplacementLemma.**  In the normalized compactified
+finite-gap Route A branch, every regular compact \(g=2\) Gate 1 candidate
+admits a Stieltjes chart
+\[
+F(z)=\frac{P(z)R(z)}{Q(z)}
+\]
+with compact decay \(\deg P\le\deg Q-3\), positive cut density on both cuts,
+and positive pole residues.  If the chart is not regular, or if a pole,
+density, branch, active-zero, or anchor separation condition fails, the point
+is one of the Gate 3 boundary modes or a Gate 5 nonregular case.  If the chart
+is regular, RealPoleRoutingLemma reduces it to the all-real off-cut model, and
+CompactChartOrderSignExclusion makes that model empty.
+
+**Proof.**  A regular compactified finite-gap minimizer satisfies the
+Euler-Lagrange equations on its support and is represented by the Stieltjes
+transform of its positive equilibrium measure.  For a two-cut support this
+gives a radical \(R^2=(z-\alpha_1)(z-\beta_1)(z-\alpha_2)(z-\beta_2)\) and a
+rational Stieltjes field \(F=PR/Q\).  Positivity of the measure gives positive
+boundary density on each cut and positive residues at the real off-cut pole
+atoms.  Compactness at infinity gives the decay inequality
+\(\deg P\le\deg Q-3\).  If any of these strict regular properties fails, the
+failure is exactly one of the boundary or nonregular modes already routed by
+Gate 3 or Gate 5.  Otherwise RealPoleRoutingLemma and
+CompactChartOrderSignExclusion exclude the chart.  Hence no regular compact
+\(g=2\) Gate 1 candidate remains in Route A. \(\square\)
+
+Thus, for the Route A compactified finite-gap proof, the old
+MovingSchifferMajorantSignTheorem / LRLR repaired-data oracle is superseded by
+the Stieltjes chart exclusion above.  The older majorant material is retained
+as historical diagnostics for a different direct Gate 1 proof, not as an active
+dependency of the Route A assembly.
+
 ## Route A Outer Standard Reduction Index
 
 The compactified finite-gap gates are an inner theorem.  The unreduced Route A
@@ -18874,15 +19138,15 @@ The current canonical ledger for that outer step is
 
 Current status:
 
-1.  `NormalizedStrictCounterexampleFiniteGapExhaustion` is recorded there as
-    paper-level closed: a strict normalized counterexample enters a regular
+1.  `NormalizedStrictCounterexampleFiniteGapExhaustion` is recorded there as a
+    Route A proof draft: a strict normalized counterexample enters a regular
     compactified finite-gap chart, a Gate 3 boundary/lower stratum, or a Gate 5
     regularization branch.
 2.  `PolynomialEmpiricalMeasureBridge` and value normalization are recorded
-    there as paper-level closed: root empirical measures convert polynomial
+    there as proof drafts: root empirical measures convert polynomial
     sublevel length to the same unit-interval potential objective, and
     \(M_{\rm oc}\) is the one-cut equation value, not a decimal input.
-3.  Obligation A is now recorded in that README at paper level:
+3.  Obligation A is recorded in that README as the active working draft:
     `ZeroPositivityFromSecondaryMinimalityRegular`,
     `SelectedComponentZeroNeighborhoodFromLocalVariation`,
     `InteriorAtomPrimaryLevelVariationExclusion`, and
@@ -18924,11 +19188,19 @@ theorem selectedComponent_provider_from_secondaryMinimizer_regular
 Once this provider is proved, the existing Lean bridge
 `unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_replacement_rigidity_zero_neighborhood_data`
 returns `NormalizedEndpointPotential (unitIntervalLogPotential mu)`.
-This implication is also formalized directly as
-`unitInterval_standardReduction_from_secondaryMinimizer_of_provider`.
-The first provider split is formalized as
+The short wrapper name
+`unitInterval_standardReduction_from_secondaryMinimizer_of_provider` is now a
+`noncomputable def` returning the same endpoint package directly once the
+provider output is supplied.
+The first provider split is now formalized:
 `selectedComponent_provider_from_span_support_regular_data`, reducing the Lean
 work to span positivity, support policy, and regular selected-component data.
+The corresponding endpoint wrapper is also formalized:
+`unitInterval_standardReduction_from_span_support_regular_data`.
+The next lower-input wrapper is also formalized:
+`unitInterval_standardReduction_from_baseline_zero_regular_data`, reducing the
+regular-provider inputs to baseline positivity, \(U(0)>0\), positive-set
+openness, the no-diagonal augmented support policy, and regular row data.
 
 The provider proof splits into exactly three analytic inputs:
 
@@ -18945,7 +19217,89 @@ primary-level KKT plus a two-packet atom variation gives a contradiction;
 no-reservoir, reduced-rank, and flat-boundary failures are routed, not sent to
 a finite-atom certificate route.
 
-## Route A Paper Proofs: Obligation A (Restored)
+## Route A Paper Proofs: Obligation A (Working Draft)
+
+2026-05-08 audit correction.  The following restored proofs are not yet
+paper-closed.  They are the active Route A draft, and the current proof gaps are
+now explicit:
+
+1. `ZeroPositivityFromSecondaryMinimalityRegular` now has the correct
+   positive-set boundary variation formula and the log-row
+   `ZeroBoundaryKKTObstructionLemma`; it still must verify that the regular
+   provider branch has exactly that log-row dictionary, or name and route any
+   extra row.
+2. `SelectedComponentZeroNeighborhoodFromLocalVariation` must make the
+   Jensen/small-exception argument quantitative enough to prove primary
+   nonincrease.
+3. `InteriorAtomPrimaryLevelVariationExclusion` must write the Schur
+   determinant identity that turns vanishing reduced curvature into the claimed
+   affine-in-\(y^2\) obstruction.
+4. `NonregularOuterRouteToGate5OrExhaustion` must replace the flat-threshold
+   Chebyshev sentence by a precise route-to-Gate-3/Gate-5/exhaustion lemma.
+
+Until these four items are closed, Obligation A remains a proof target, not a
+completed provider-free standard reduction.
+
+### RegularPositiveSetBoundaryVariationLemma
+
+**Statement.** Let \(E_\mu=\{U_\mu>0\}\) have finitely many regular
+components
+\[
+E_\mu=\bigcup_{j=1}^N(a_j,b_j),
+\qquad
+U_\mu(a_j)=U_\mu(b_j)=0,
+\qquad
+U_\mu'(a_j)>0,\quad U_\mu'(b_j)<0.
+\]
+Let \(\sigma\) be a signed perturbation whose support is separated from the
+active boundary points, and suppose
+\[
+U_{\mu+t\sigma}=U_\mu+tU_\sigma+o(t)
+\]
+in \(C^1\) neighborhoods of the active boundaries.  Then
+\[
+\frac{d}{dt}\bigg|_{t=0}|E_{\mu+t\sigma}|
+=
+\sum_{j=1}^N
+\left(
+-\frac{U_\sigma(b_j)}{U_\mu'(b_j)}
++\frac{U_\sigma(a_j)}{U_\mu'(a_j)}
+\right).
+\tag{BV}
+\]
+In particular, the point-source row is not a single
+\(\log(1/|y|)\) term.  For a source point \(y\) it is
+\[
+W_\mu(y)=
+\sum_{j=1}^N
+\left(
+-\frac{\log(1/|b_j-y|)}{U_\mu'(b_j)}
++\frac{\log(1/|a_j-y|)}{U_\mu'(a_j)}
+\right),
+\tag{BVrow}
+\]
+with the corresponding linear subtraction for whatever mass, barycenter, or
+row-compensating reference measure is used.
+
+**Proof.** For each active boundary, the implicit equation
+\[
+U_{\mu+t\sigma}(a_j(t))=0,\qquad
+U_{\mu+t\sigma}(b_j(t))=0
+\]
+has a unique \(C^1\) solution for small \(t\), by the implicit function
+theorem and the nonzero boundary derivatives.  Differentiating at \(t=0\)
+gives
+\[
+a_j'(0)=-\frac{U_\sigma(a_j)}{U_\mu'(a_j)},
+\qquad
+b_j'(0)=-\frac{U_\sigma(b_j)}{U_\mu'(b_j)}.
+\]
+The component length derivative is \(b_j'(0)-a_j'(0)\), and summing over
+components gives (BV).  Substituting
+\[
+U_{\delta_y}(x)=\log\frac1{|x-y|}
+\]
+gives (BVrow).  \(\square\)
 
 ### ZeroPositivityFromSecondaryMinimalityRegular
 
@@ -18998,48 +19352,71 @@ any admissible perturbation.  If the tangent is nonzero and has the correct
 sign, primary minimality is contradicted.  If the tangent vanishes, we
 must examine the secondary objective.
 
-The KKT conditions for primary minimality state that there exists a
-Lagrange multiplier \(\lambda\) such that the logarithmic variation row
+By RegularPositiveSetBoundaryVariationLemma, the primary tangent for inserting
+mass at \(y\) is the boundary row \(W_\mu\) in (BVrow), plus the finite rows
+used to enforce mass, normalization, and reservoir compensation.  Therefore
+the mass-placement KKT relation on a regular reservoir interval must have the
+form
 \[
-L(y)=\frac{\partial}{\partial m}\bigg|_{m=0}|\{U_{\mu+m\delta_y}>0\}|
+y^2+\lambda_0+\lambda_1 W_\mu(y)+\sum_{\nu}\lambda_\nu R_\nu(y)
+=\mathrm{const}
+\qquad (y\in J),
+\tag{KKT-BV}
 \]
-satisfies \(L(y)\ge 0\) for all \(y\in\operatorname{supp}\mu\), with equality
-on the interior of the support.  More precisely, the KKT normal relation
-on the reservoir (the set of points where the primary constraint is not
-binding) is
+where the \(R_\nu\) are the active finite row functions in the chosen regular
+reservoir chart.  If \(J\) is a genuine interval of support, differentiating
+this identity gives
 \[
-M+\lambda B+N=0,
+2y+\lambda_1 W_\mu'(y)+\sum_{\nu}\lambda_\nu R_\nu'(y)=0
+\qquad (y\in J).
+\tag{KKT-BV'}
 \]
-where \(M\) is the primary variation matrix, \(B\) is the logarithmic row
-map, and \(N\) is the normal to the constraint surface.
 
-In the logarithmic potential setting, the primary variation of the
-positive-set length with respect to moving mass to point \(y\) is governed
-by the logarithmic kernel.  On a reservoir interval \(J\subset\operatorname{supp}\mu\)
-where the primary constraint is not binding, the KKT normal relation forces
-\[
-2y+\lambda\log\frac{1}{|y|}=\text{const}\qquad(y\in J).
-\]
-This is the key identity.  Taking the derivative with respect to \(y\):
-\[
-2-\frac{\lambda}{y}=0\qquad(y\in J).
-\]
-But \(\lambda/y\) is a non-constant function of \(y\) on any interval away
-from the origin.  Specifically, if \(J\) is an interval not containing 0,
-then \(\lambda/y\) is a strictly monotone function of \(y\) (since
-\(\frac{d}{dy}(\lambda/y)=-\lambda/y^2\ne 0\) for \(y\ne 0\) and
-\(\lambda\ne 0\)).  Therefore \(2-\lambda/y\) cannot vanish identically on
-an interval \(J\) with more than one point.
+The old draft incorrectly replaced \(W_\mu\) by a single
+\(\log(1/|y|)\) term.  The remaining paper obligation is now the precise
+KKT-row obstruction:
 
-If \(J\) is a single point, it is not a genuine reservoir interval.  If
-\(\lambda=0\), then \(2y=\text{const}\) on \(J\), which again forces \(J\)
-to be a single point.  Both cases contradict the existence of a genuine
-reservoir in the regular branch.
+\[
+\boxed{
+\textbf{ZeroBoundaryKKTObstructionLemma.}
+}
+\]
 
-Therefore the KKT normal relation cannot hold on any genuine reservoir
-interval in the regular branch.  This means the tangent to the primary
-objective does not vanish, and we can find a descent direction that
-contradicts primary minimality.
+In the regular outer-normalized branch with \(U_\mu(0)=0\), suppose the active
+row dictionary on a reservoir interval \(J\) consists of constants, affine rows,
+and finitely many logarithmic rows
+\[
+\log\frac1{|y-s_\nu|},
+\qquad s_\nu\notin J,
+\]
+including the boundary row \(W_\mu\).  Then no identity of the form (KKT-BV)
+can hold on a genuine reservoir interval \(J\).
+
+Proof.  Move all rows to the left side.  The identity has the form
+\[
+y^2+a+by+\sum_{\nu=1}^m c_\nu\log\frac1{|y-s_\nu|}=0
+\qquad (y\in J),
+\tag{*}
+\]
+after merging repeated singularities.  Differentiate three times on \(J\).
+The polynomial part disappears and we obtain
+\[
+\sum_{\nu=1}^m \frac{2c_\nu}{(y-s_\nu)^3}=0
+\qquad (y\in J).
+\]
+This is a rational identity on the complex plane away from the finite pole
+set.  Since it vanishes on an interval, it vanishes identically.  The principal
+part at each distinct pole \(s_\nu\) forces \(c_\nu=0\).  Returning to (*),
+we get \(y^2+a+by=0\) on an interval, impossible because the coefficient of
+\(y^2\) is \(1\).  \(\square\)
+
+Thus the zero-boundary KKT obstruction is closed for the standard log-row
+dictionary.  The remaining verification for
+`ZeroPositivityFromSecondaryMinimalityRegular` is to check that the regular
+outer-normalized provider branch uses exactly this row dictionary; if not, the
+extra row must be named and routed separately.  Once that dictionary check is
+supplied, the tangent to the primary objective is nonzero in an admissible
+direction, contradicting primary minimality.
 
 The only remaining alternatives are:
 - **Flat threshold**: \(U_\mu'(0)=0\) at the boundary, so the threshold is
@@ -19054,15 +19431,17 @@ The only remaining alternatives are:
   case to Gate 3.
 
 All five failure types are routed to Gate 3, Gate 5, or the normalized
-finite-gap exhaustion branch.  In the regular branch (none of these
-failures), we conclude \(U_\mu(0)>0\).
+finite-gap exhaustion branch.  If `ZeroBoundaryKKTObstructionLemma` is proved,
+then in the regular branch (none of these failures) we conclude
+\(U_\mu(0)>0\).
 
 By openness of the regular positive set, there exists \(\delta>0\) such
 that \(U_\mu(y)>0\) for all \(y\in(-1,\delta]\).  This proves the
-analytic input used by
+conditional analytic input used by
 `exists_positiveComponent_baseline_right_pos_of_span_global_positive`.
 
-\(\square\)
+Thus `ZeroPositivityFromSecondaryMinimalityRegular` has been reduced to the
+single explicit row-obstruction lemma above; it is not yet closed. \(\square\)
 
 ### SelectedComponentZeroNeighborhoodFromLocalVariation
 
@@ -19576,18 +19955,26 @@ strictly below \(M_{\rm oc}\).
 
 \(\square\)
 
-## Route A Paper Proofs: UnconditionalRouteATheorem (Restored)
+## Route A Paper Theorem: Conditional Assembly Template
 
-### UnconditionalRouteATheorem
+### ConditionalRouteAAssemblyTemplate
 
-**Statement.** For monic real-rooted polynomials with all roots in
+**Status.** This is the intended Route A assembly template.  It is not yet an
+unconditional theorem because the audit gaps listed above remain open.  The
+remaining work is to close those paper gaps first, then formalize the resulting
+lemmas.  It is not another compact-chart JSON, LRLR oracle, or finite-atom tail
+certificate.
+
+**Conditional statement.** For monic real-rooted polynomials with all roots in
 \([-1,1]\),
 \[
 L_-=M_{\rm oc}=1.8344304757626617\ldots
 \]
+provided Obligation A, NormalizedStrictCounterexampleFiniteGapExhaustion, Gate
+1, Gate 4, and Gate 5 are closed by citable proof-grade lemmas.
 
-**Proof.** The proof assembles the three Obligations and the
-compactified finite-gap Gate chain.
+**Proof.** The proof assembles the three Obligations and the compactified
+finite-gap Gate chain.
 
 **Step 1: Original problem to unit-interval measure.** By
 PolynomialEmpiricalMeasureBridge, every original polynomial strict
@@ -19626,20 +20013,19 @@ original polynomial objective, the unit-interval measure objective, and
 the compactified finite-gap objective all refer to the same length
 functional with the same value \(M_{\rm oc}\).
 
-**Step 6: Gate chain assembly.** The compactified finite-gap Gates 1--7
-(already proved in the main ledger) show that no finite-gap
-configuration can have positive-set length strictly below \(M_{\rm oc}\).
-Specifically:
-- Gate 1 (OrderSignGapLemma + RealPoleRoutingLemma): compact \(g=2\)
-  empty (sign change gap = 2).
-- Gate 2: single-cut equilibrium value equals \(M_{\rm oc}\).
-- Gate 3: boundary/lower stratum excluded or routed.
-- Gate 4: multi-cut configurations have larger positive-set length.
-- Gate 5: regularization branch closed.
-- Gate 6: compactness of the admissible class.
-- Gate 7: value comparison gives \(L_-\ge M_{\rm oc}\).
+**Step 6: Gate chain assembly.** Once the citable Gate lemmas are supplied, the
+compactified finite-gap gate chain will show that no finite-gap configuration
+can have positive-set length strictly below \(M_{\rm oc}\).
 
-**Step 7: Conclusion.** Steps 1--6 give
+This template cites Gate 1 through the Route A Stieltjes chart replacement:
+OrderSignGapLemma, RealPoleRoutingLemma, and
+Gate1StieltjesChartReplacementLemma.  It cites Gate 4 through
+OutsideBumpSchurComplementLemma and Gate 5 through
+QuantitativeRowRestorationLemma.  Gate 6 remains the one-cut upper
+construction, not an admissible-class compactness gate.
+
+**Step 7: Conditional conclusion.** After the open audit gaps are closed,
+Steps 1--6 give
 \[
 L_-\ge M_{\rm oc}
 \]
@@ -19694,7 +20080,7 @@ Both kernels are uniformly continuous and bounded on
 \[
 K\times[y-\varepsilon_0,y+\varepsilon_0].
 \]
-Therefore
+Therefore, conditionally on those closures,
 \[
 \sup_{x\in K}\left|
 \int K_i(x,t)\,d\rho_\varepsilon(t)-mK_i(x,y)
