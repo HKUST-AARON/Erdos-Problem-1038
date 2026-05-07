@@ -297,25 +297,35 @@ def diagnose_json_file(path: Path) -> dict[str, Any]:
             "reason": "top-level JSON is not an object",
         }
 
-    chart_required = ["P", "Q", "gammas", "rows"]
+    chart_required = ["P", "Q", "gammas"]
     missing_chart = [key for key in chart_required if key not in payload]
-    if not missing_chart:
+    has_rows = "rows" in payload
+    has_row_gauge = "row_gauge" in payload
+    if not missing_chart and (has_rows or has_row_gauge):
         raw_rows = payload.get("rows")
-        rows_ok = isinstance(raw_rows, list)
+        rows_ok = isinstance(raw_rows, list) if has_rows else True
+        row_source_ok = has_rows != has_row_gauge
         gammas_ok = isinstance(payload.get("gammas"), list) and len(payload["gammas"]) == 4
+        q_ok = isinstance(payload.get("Q"), list)
         return {
             "path": str(path),
-            "kind": "gate1_chart_json" if rows_ok and gammas_ok else "malformed_gate1_chart_json",
-            "gate1_chart_ready": bool(rows_ok and gammas_ok),
+            "kind": "gate1_chart_json" if rows_ok and row_source_ok and gammas_ok and q_ok else "malformed_gate1_chart_json",
+            "gate1_chart_ready": bool(rows_ok and row_source_ok and gammas_ok and q_ok),
             "missing_required_fields": [],
             "row_count": len(raw_rows) if isinstance(raw_rows, list) else None,
+            "row_source": "rows" if has_rows else "row_gauge",
             "gamma_count": len(payload.get("gammas", [])) if isinstance(payload.get("gammas"), list) else None,
             "optional_fields_present": {
                 key: key in payload
                 for key in ["kappa", "Z0", "u", "c", "v", "contact_points", "right_exterior_grid"]
             },
-            "reason": None if rows_ok and gammas_ok else "requires list rows and exactly four gammas",
+            "reason": (
+                None
+                if rows_ok and row_source_ok and gammas_ok and q_ok
+                else "requires exactly one of rows or row_gauge, list Q, list rows if present, and exactly four gammas"
+            ),
         }
+    missing_for_message = missing_chart + ([] if (has_rows or has_row_gauge) else ["rows_or_row_gauge"])
 
     rows = payload.get("rows")
     if isinstance(rows, list) and rows and isinstance(rows[0], dict) and "solution" in rows[0]:
@@ -323,7 +333,7 @@ def diagnose_json_file(path: Path) -> dict[str, Any]:
             "path": str(path),
             "kind": "old_two_interval_diagnostic",
             "gate1_chart_ready": False,
-            "missing_required_fields": missing_chart,
+            "missing_required_fields": missing_for_message,
             "row_count": len(rows),
             "reason": (
                 "old local ansatz data; lacks compact non-pinched g=2 "
@@ -335,7 +345,7 @@ def diagnose_json_file(path: Path) -> dict[str, Any]:
         "path": str(path),
         "kind": "other_json",
         "gate1_chart_ready": False,
-        "missing_required_fields": missing_chart,
+        "missing_required_fields": missing_for_message,
         "reason": "not a Gate 1 chart schema",
     }
 
@@ -370,6 +380,44 @@ def q_roots_real(Q: Array, tol: float = 1.0e-8) -> list[float]:
             raise ValueError(f"Q has non-real root {root}")
         real_roots.append(float(root.real))
     return sorted(real_roots)
+
+
+def rows_from_full_pair_pole_gauge(Q: Array, omitted_index: int) -> list[Row]:
+    roots = q_roots_real(Q)
+    if not 0 <= omitted_index < len(roots):
+        raise ValueError(
+            f"omit_q_pole_index={omitted_index} outside Q-pole range 0..{len(roots)-1}"
+        )
+    rows: list[Row] = []
+    for index, root in enumerate(roots):
+        if index == omitted_index:
+            continue
+        rows.append(Row("eval", root, name=f"Qpole_{index}_eval"))
+        rows.append(Row("deriv", root, order=1, name=f"Qpole_{index}_deriv"))
+    return rows
+
+
+def rows_from_gauge_json(Q: Array, gauge: dict[str, Any]) -> list[Row]:
+    kind = str(gauge.get("kind"))
+    if kind != "full_pair_pole_gauge":
+        raise ValueError(f"unsupported row_gauge kind {kind!r}")
+    if "omit_q_pole_index" not in gauge:
+        raise ValueError("full_pair_pole_gauge requires omit_q_pole_index")
+    return rows_from_full_pair_pole_gauge(Q, int(gauge["omit_q_pole_index"]))
+
+
+def omitted_factor_from_full_pair_gauge(Q: Array, gauge: dict[str, Any]) -> tuple[int, float, Array]:
+    kind = str(gauge.get("kind"))
+    if kind != "full_pair_pole_gauge":
+        raise ValueError("LRLR residual/off-row audit requires full_pair_pole_gauge")
+    roots = q_roots_real(Q)
+    omitted_index = int(gauge["omit_q_pole_index"])
+    if not 0 <= omitted_index < len(roots):
+        raise ValueError(
+            f"omit_q_pole_index={omitted_index} outside Q-pole range 0..{len(roots)-1}"
+        )
+    omitted_root = roots[omitted_index]
+    return omitted_index, omitted_root, np.array([-omitted_root, 1.0], dtype=float)
 
 
 def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, Any]:
@@ -1641,6 +1689,177 @@ def endpoint_heavy_lrlr_kernel_audit(
     }
 
 
+def lrlr_residual_offrow_audit_from_chart(
+    path: Path,
+    samples: int = 32,
+    nodes: int = 100,
+) -> dict[str, Any]:
+    """Audit LRLR kernel against the actual full-pair chart rho row.
+
+    This is still a numerical diagnostic.  It uses the chart's full-pair
+    omitted pole factor N and the anchor c to test the projective sign of
+    I_gap(F) * L_rho(F), where L_rho(F)=F(c)/(N(c)^2 R(c)).
+    """
+    P, Q, gammas, rows, source = load_chart_json(path)
+    if "row_gauge" not in source:
+        raise ValueError("LRLR residual/off-row audit requires row_gauge")
+    if "c" not in source:
+        raise ValueError("LRLR residual/off-row audit requires anchor c")
+    row_gauge = source["row_gauge"]
+    if not isinstance(row_gauge, dict):
+        raise ValueError("row_gauge must be an object")
+    omitted_index, omitted_root, N = omitted_factor_from_full_pair_gauge(Q, row_gauge)
+    a1, b1, a2, b2 = sorted(gammas)
+    if a1 < omitted_root < b1 or a2 < omitted_root < b2:
+        raise ValueError(
+            f"omitted Q-pole {omitted_root} lies on a cut for gammas={gammas}; "
+            "LRLR residual/off-row audit requires off-cut omitted pole"
+        )
+    if b1 < omitted_root < a2:
+        raise ValueError(
+            f"omitted Q-pole {omitted_root} lies in the connection gap ({b1}, {a2}); "
+            "ordinary LRLR residual/off-row audit would cross a double pole"
+        )
+    c_value = float(source["c"])
+    N_c = poly_eval(N, c_value)
+    if abs(N_c) < 1.0e-14:
+        raise ValueError(f"anchor c={c_value} hits omitted pole factor N")
+    R_c = real_R_value(c_value, gammas)
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = (poly_eval(N, x) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = (poly_eval(N, x) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def rho_row_value(poly: Array) -> float:
+        return poly_eval(poly, c_value) / (N_c * N_c * R_c)
+
+    def root_region(root: float) -> str:
+        tol = 1.0e-7
+        if root < a1 - tol:
+            return "left_exterior"
+        if a1 + tol < root < b1 - tol:
+            return "left_cut"
+        if b1 + tol < root < a2 - tol:
+            return "middle_gap"
+        if a2 + tol < root < b2 - tol:
+            return "right_cut"
+        if root > b2 + tol:
+            return "right_exterior"
+        return "endpoint"
+
+    basis = [monomial(k) for k in range(4)]
+    M = np.array(
+        [
+            [integrate_cut(poly, a1, b1) for poly in basis],
+            [integrate_cut(poly, a2, b2) for poly in basis],
+        ],
+        dtype=float,
+    )
+    _u, s, vh = np.linalg.svd(M)
+    kernel_basis = vh[-2:, :]
+
+    sample_records = []
+    for angle in np.linspace(0.0, 2.0 * math.pi, samples + 1)[:-1]:
+        coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
+        roots_complex = np.roots(list(reversed(coeff)))
+        real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
+        lrlr_order = (
+            len(real_roots) == 3
+            and sum(a1 < r < b1 for r in real_roots) == 1
+            and sum(a2 < r < b2 for r in real_roots) == 1
+        )
+        free_roots = [r for r in real_roots if not (a1 < r < b1 or a2 < r < b2)]
+        free_root = free_roots[0] if lrlr_order and len(free_roots) == 1 else None
+        connection_integral = integrate_gap(coeff)
+        rho_value = rho_row_value(coeff)
+        product = connection_integral * rho_value
+        sample_records.append(
+            {
+                "angle": float(angle),
+                "coefficients_ascending": coeff.tolist(),
+                "connection_integral": connection_integral,
+                "connection_sign": sign_label(connection_integral),
+                "rho_row_value": rho_value,
+                "rho_row_sign": sign_label(rho_value),
+                "connection_times_rho": product,
+                "connection_times_rho_sign": sign_label(product),
+                "real_roots": real_roots,
+                "lrlr_order": lrlr_order,
+                "free_root": free_root,
+                "free_root_region": root_region(free_root) if free_root is not None else "not_lrlr",
+            }
+        )
+
+    lrlr_product_sign_counts: dict[str, int] = {}
+    lrlr_connection_sign_counts: dict[str, int] = {}
+    lrlr_rho_sign_counts: dict[str, int] = {}
+    region_product_sign_counts: dict[str, dict[str, int]] = {}
+    lrlr_count = 0
+    for sample in sample_records:
+        if not sample["lrlr_order"]:
+            continue
+        lrlr_count += 1
+        product_sign = str(sample["connection_times_rho_sign"])
+        connection_sign = str(sample["connection_sign"])
+        rho_sign = str(sample["rho_row_sign"])
+        lrlr_product_sign_counts[product_sign] = lrlr_product_sign_counts.get(product_sign, 0) + 1
+        lrlr_connection_sign_counts[connection_sign] = lrlr_connection_sign_counts.get(connection_sign, 0) + 1
+        lrlr_rho_sign_counts[rho_sign] = lrlr_rho_sign_counts.get(rho_sign, 0) + 1
+        region = str(sample["free_root_region"])
+        region_product_sign_counts.setdefault(region, {})
+        region_product_sign_counts[region][product_sign] = (
+            region_product_sign_counts[region].get(product_sign, 0) + 1
+        )
+
+    nonzero_product_signs = {
+        int(sign) for sign, count in lrlr_product_sign_counts.items() if sign != "0" and count
+    }
+    return {
+        "model": "LRLR residual/off-row rho audit",
+        "path": str(path),
+        "gammas": gammas,
+        "Q_roots": q_roots_real(Q),
+        "row_gauge": row_gauge,
+        "expanded_rows": [row.to_json() for row in rows],
+        "omitted_q_pole_index": omitted_index,
+        "omitted_q_pole": omitted_root,
+        "N_coefficients_ascending": N.tolist(),
+        "c": c_value,
+        "R_c": R_c,
+        "N_c": N_c,
+        "samples_count": samples,
+        "nodes": nodes,
+        "singular_values": s.tolist(),
+        "lrlr_order_sample_count": lrlr_count,
+        "lrlr_connection_sign_counts": lrlr_connection_sign_counts,
+        "lrlr_rho_sign_counts": lrlr_rho_sign_counts,
+        "lrlr_connection_times_rho_sign_counts": lrlr_product_sign_counts,
+        "lrlr_region_connection_times_rho_sign_counts": region_product_sign_counts,
+        "lrlr_projective_sign_fixed_nonzero": lrlr_count > 0 and len(nonzero_product_signs) == 1,
+        "samples": sample_records,
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -1652,16 +1871,24 @@ def row_from_json(item: dict[str, Any]) -> Row:
 
 def load_chart_json(path: Path) -> tuple[Array, Array, list[float], list[Row], dict[str, Any]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    missing = [key for key in ["P", "Q", "gammas", "rows"] if key not in payload]
+    missing = [key for key in ["P", "Q", "gammas"] if key not in payload]
     if missing:
         raise ValueError(f"{path}: missing required chart fields {missing}")
+    if ("rows" in payload) == ("row_gauge" in payload):
+        raise ValueError(f"{path}: provide exactly one of rows or row_gauge")
     P = np.array([float(x) for x in payload["P"]], dtype=float)
     Q = np.array([float(x) for x in payload["Q"]], dtype=float)
     gammas = [float(x) for x in payload["gammas"]]
-    raw_rows = payload["rows"]
-    if not isinstance(raw_rows, list):
-        raise ValueError(f"{path}: rows must be a list")
-    rows = [row_from_json(item) for item in raw_rows]
+    if "rows" in payload:
+        raw_rows = payload["rows"]
+        if not isinstance(raw_rows, list):
+            raise ValueError(f"{path}: rows must be a list")
+        rows = [row_from_json(item) for item in raw_rows]
+    else:
+        row_gauge = payload["row_gauge"]
+        if not isinstance(row_gauge, dict):
+            raise ValueError(f"{path}: row_gauge must be an object")
+        rows = rows_from_gauge_json(Q, row_gauge)
     return P, Q, gammas, rows, payload
 
 
@@ -2094,6 +2321,11 @@ def main() -> int:
         action="store_true",
         help="audit the two-dimensional cubic kernel for the LRLR endpoint-heavy pattern",
     )
+    parser.add_argument(
+        "--audit-lrlr-residual-offrow",
+        action="store_true",
+        help="audit the LRLR kernel against the chart's actual full-pair rho off-row",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -2105,6 +2337,42 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.audit_lrlr_residual_offrow:
+        if not args.chart_json:
+            parser.error("--audit-lrlr-residual-offrow requires --chart-json")
+        try:
+            audit = lrlr_residual_offrow_audit_from_chart(
+                Path(args.chart_json),
+                samples=args.connection_samples,
+                nodes=args.connection_nodes,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
+        print("Gate 1 LRLR residual/off-row audit")
+        print(f"  model = {audit['model']}")
+        print(f"  path = {audit['path']}")
+        print(f"  omitted Q pole = {audit['omitted_q_pole']} (index {audit['omitted_q_pole_index']})")
+        print(f"  c = {audit['c']}, R(c) = {audit['R_c']:.12e}, N(c) = {audit['N_c']:.12e}")
+        print(f"  samples = {audit['samples_count']}")
+        print(f"  singular values = {audit['singular_values']}")
+        print(f"  LRLR-order samples = {audit['lrlr_order_sample_count']}")
+        print(f"  LRLR connection signs = {audit['lrlr_connection_sign_counts']}")
+        print(f"  LRLR rho-row signs = {audit['lrlr_rho_sign_counts']}")
+        print(f"  LRLR connection*rho signs = {audit['lrlr_connection_times_rho_sign_counts']}")
+        print(
+            "  LRLR region connection*rho signs = "
+            f"{audit['lrlr_region_connection_times_rho_sign_counts']}"
+        )
+        print(
+            "  LRLR projective sign fixed nonzero = "
+            f"{audit['lrlr_projective_sign_fixed_nonzero']}"
+        )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.audit_endpoint_heavy_patterns:
         audit = endpoint_heavy_split_pattern_audit()
@@ -2426,7 +2694,10 @@ def main() -> int:
         return 0
 
     if args.chart_json:
-        payload = run_chart_json(Path(args.chart_json))
+        try:
+            payload = run_chart_json(Path(args.chart_json))
+        except ValueError as exc:
+            parser.error(str(exc))
         repaired = payload["repaired"]
         period = payload["period_endpoint_quotient"]
         print("Gate 1 repaired chart JSON")

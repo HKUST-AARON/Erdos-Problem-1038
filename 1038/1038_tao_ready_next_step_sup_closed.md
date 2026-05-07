@@ -875,6 +875,18 @@ Useful corrections already recorded:
   \(b-\Lambda\rho\) row.  Once such a file exists, the next run should compute
   \(H_\gamma^{rep}\), \(AX_\gamma+r_\gamma\), \(\rho_S,b_S,\rho_\Pi,b_\Pi\),
   and then test `LRLRResidualOffRowLemma` directly.
+- The chart interface now also accepts
+  `{"row_gauge":{"kind":"full_pair_pole_gauge","omit_q_pole_index":i}}`,
+  which expands to all complete confluent \(Q\)-pole pairs except the omitted
+  pair.  It rejects files that provide both `rows` and `row_gauge`.
+- New command:
+  `--chart-json PATH --audit-lrlr-residual-offrow`.  For a full-pair chart
+  with anchor \(c\), it computes the LRLR projective sign
+  \(I_{\rm gap}(F)F(c)/(N(c)^2R(c))\).  A synthetic chart smoke test runs
+  end-to-end and gives split signs \(52(+),6(-)\) among \(58\) LRLR-order
+  samples, so the command is diagnostic rather than result-forcing.  A real
+  compact \(g=2\) chart is still needed before the LRLR row claim is
+  proof-grade.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

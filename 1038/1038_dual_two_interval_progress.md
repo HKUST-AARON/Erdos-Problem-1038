@@ -16238,6 +16238,65 @@ theorem queue.
     \boxed{\text{Gate 1 blocked at LRLRResidualOffRowLemma; chart data missing.}}
     \]
 
+    Row-gauge chart input and LRLR off-row audit.
+
+    The chart JSON interface now also accepts a TP-compatible row gauge:
+
+    ```json
+    {"row_gauge":{"kind":"full_pair_pole_gauge","omit_q_pole_index":0}}
+    ```
+
+    It expands to the complete confluent pole-pair rows
+
+    \[
+    H(p_i),\ H'(p_i)
+    \]
+
+    for every real \(Q\)-pole except the omitted one.  The parser requires
+    exactly one of `rows` or `row_gauge`; giving both is rejected before any
+    computation.  The repository scan treats either explicit rows or this
+    row-gauge form as chart-ready, provided \(P,Q,\Gamma\) are present.
+
+    There is also a direct LRLR residual/off-row command:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --chart-json PATH --audit-lrlr-residual-offrow
+    ```
+
+    For a full-pair chart with anchor \(c\), this extracts the omitted pole
+    factor \(N\), forms the LRLR two-integral kernel for
+
+    \[
+    \omega_F=\frac{F(t)}{N(t)^2R(t)}\,dt,
+    \]
+
+    and records the projective sign
+
+    \[
+    \operatorname{sgn}\left(I_{\rm gap}(F)\,
+    \frac{F(c)}{N(c)^2R(c)}\right).
+    \tag{G1LRLRRhoAudit}
+    \]
+
+    On a synthetic full-pair chart, this pipeline runs end-to-end and reports
+    split projective signs:
+
+    \[
+    \operatorname{sgn}\left(I_{\rm gap}L_\rho\right)=52(+),6(-)
+    \]
+
+    among \(58\) LRLR-order samples.  This is deliberately not a Gate 1 proof;
+    it is a smoke test showing that the new command can detect failure rather
+    than force a positive result.  A real chart must be supplied before this
+    audit has proof-grade meaning.
+
+    The old two-interval JSONs still cannot be promoted to this schema: they
+    do not contain the compact non-pinched \(\Gamma\), full-pair gauge choice,
+    period orientation, or \(c,u,v,a,b,\kappa\).  Thus
+    `CompactG2MovingChartEquations` remains the next mathematical input
+    needed for a real LRLR computation.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
