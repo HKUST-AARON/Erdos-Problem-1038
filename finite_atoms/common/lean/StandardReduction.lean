@@ -9654,6 +9654,27 @@ theorem unitIntervalTruncatedPositiveSet_baseline_Icc_subset_of_continuous_posit
     htruncε hcont hpos hno_diag htail
 
 /--
+Every point of the open baseline interval lies in a compact subinterval still
+contained in the baseline interval.  This is the local compact-cover step used
+to turn pointwise baseline positivity into compact-margin statements.
+-/
+theorem exists_baseline_Icc_neighborhood
+    {x : ℝ} (hx : x ∈ Ioo (-1 : ℝ) 0) :
+    ∃ a b : ℝ,
+      x ∈ Icc a b ∧
+      Icc a b ⊆ Ioo (-1 : ℝ) 0 := by
+  have hx_left : -1 < x := hx.1
+  have hx_right : x < 0 := hx.2
+  refine ⟨(x - 1) / 2, x / 2, ?_, ?_⟩
+  · constructor <;> linarith
+  · intro y hy
+    have hy_left : (x - 1) / 2 ≤ y := hy.1
+    have hy_right : y ≤ x / 2 := hy.2
+    constructor
+    · linarith
+    · linarith
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
