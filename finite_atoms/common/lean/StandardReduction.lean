@@ -9675,6 +9675,40 @@ theorem exists_baseline_Icc_neighborhood
     · linarith
 
 /--
+Local compact-to-truncated baseline bridge around a single baseline point.  The
+compact neighbourhood is chosen automatically; the analytic hypotheses are then
+required only on that chosen compact interval.
+-/
+theorem exists_baseline_Icc_neighborhood_subset_truncatedPositiveSet
+    {μ : ProbabilityMeasure UnitInterval1038} {x truncε : ℝ}
+    (hx : x ∈ Ioo (-1 : ℝ) 0)
+    (htruncε : 0 < truncε)
+    (hlocal :
+      ∀ a b : ℝ,
+        x ∈ Icc a b →
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+        ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+        (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+        Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+        (∀ threshold : ℝ, 0 < threshold →
+          (∀ y : ℝ, y ∈ Icc a b →
+            threshold < unitIntervalLogPotential μ y) →
+          ∀ y : ℝ, y ∈ Icc a b →
+            singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2))) :
+    ∃ a b : ℝ,
+      x ∈ Icc a b ∧
+      Icc a b ⊆ Ioo (-1 : ℝ) 0 ∧
+      Icc a b ⊆ unitIntervalTruncatedPositiveSet μ := by
+  rcases exists_baseline_Icc_neighborhood hx with
+    ⟨a, b, hxab, hsub_base⟩
+  rcases hlocal a b hxab hsub_base with
+    ⟨hcont, hpos, hno_diag, htail⟩
+  refine ⟨a, b, hxab, hsub_base, ?_⟩
+  exact
+    unitIntervalTruncatedPositiveSet_baseline_Icc_subset_of_continuous_positive_tailMass
+      hsub_base htruncε hcont hpos hno_diag htail
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
