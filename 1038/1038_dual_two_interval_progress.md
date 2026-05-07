@@ -18347,3 +18347,79 @@ Until that executable layer exists, the correct status remains:
 \text{paper spec ready, executable chart solver not ready.}
 }
 \]
+
+## Gate 1 executable solver template and generator guard
+
+The extractor now has the next engineering layer:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --write-compact-chart-solver-template \
+  --write-json 1038/gate1_compact_g2_executable_solver_template.json
+```
+
+This writes a machine-readable `executable_solver` template containing the
+required fields:
+
+```text
+unknown_layout
+initial_guess
+residual_maps
+normalizations
+inequality_checks
+acceptance_tests
+chart_json_export
+```
+
+The template is intentionally not chart-ready.  It still contains TODO values,
+so
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-solver \
+  --chart-json 1038/gate1_compact_g2_executable_solver_template.json
+```
+
+correctly reports
+
+```text
+spec solver ready = True
+can generate chart = False
+errors = ['missing executable compact-chart solver blocks']
+missing solver fields = []
+missing residual maps = []
+```
+
+The zero missing-field lists mean the schema is present; the failure is that
+the fields are not yet executable numeric data.  This is the intended
+distinction.
+
+There is also now a guarded generator:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --generate-compact-chart \
+  --chart-json 1038/gate1_compact_g2_executable_solver_template.json \
+  --write-json 1038/gate1_compact_g2_chart.json
+```
+
+It refuses to write a fake chart and instead writes
+
+```text
+1038/gate1_compact_g2_chart.json.blocked.json
+```
+
+with the solver audit embedded.  Thus the repository now has an executable
+guardrail:
+
+\[
+\boxed{
+\texttt{gate1\_compact\_g2\_chart.json}
+\text{ cannot be produced until the solver fields are numeric and non-TODO.}
+}
+\]
+
+The next real mathematical/computational step is therefore not another schema
+change.  It is to fill the `executable_solver.residual_maps` with actual
+callable residual equations for the endpoint-neck and period/filling blocks,
+then supply a numerical initial guess and strict inequality/acceptance tests.

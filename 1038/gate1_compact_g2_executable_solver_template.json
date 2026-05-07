@@ -1,0 +1,276 @@
+{
+  "equation_blocks": [
+    {
+      "equations": [
+        "F(z)=P(z)R(z)/Q(z)",
+        "R(z)^2=prod_gamma(z-gamma), R(z)~z^2",
+        "Q(z)=prod_{k=1}^d (z-p_k) is monic",
+        "gammas=(alpha_1,beta_1,alpha_2,beta_2) with alpha_1<beta_1<alpha_2<beta_2",
+        "Q-poles p_k are real, simple, and off-cut; collisions/non-real poles route to Gate 3"
+      ],
+      "name": "finite_gap_representation",
+      "status": "contract"
+    },
+    {
+      "equations": [
+        "F(z)=m_F/z+O(z^-2) at infinity with m_F>0 fixed by the global normalization",
+        "for genus g=2 and deg Q=d, deg P <= d-3",
+        "in the cubic compact target d=3, P is constant after the mass scale is fixed",
+        "endpoint Schiffer correction directions use the zero-mass tangent row when that mass is held fixed"
+      ],
+      "name": "mass_decay_normalization",
+      "status": "contract"
+    },
+    {
+      "equations": [
+        "F is the Cauchy transform of a positive dual measure",
+        "on every complementary real interval, F'(x)=-int d lambda(t)/(x-t)^2 < 0",
+        "each complementary interval contains at most one zero of F",
+        "zeros, real simple Q-poles, and branch endpoints interlace",
+        "residues Res_{z=p_k} F are positive at atom poles",
+        "cut density rho(x)=-(1/pi) Im F_+(x) is positive on both bands",
+        "non-real poles, multiple poles, zero residues, pole-cut collisions, or density sign loss route to Gate 3"
+      ],
+      "name": "positivity_interlacing",
+      "status": "contract"
+    },
+    {
+      "equations": [
+        "local variables y=(q,a,b,c) with u=c-a, v=c+b, q>0, a>0, b>0",
+        "U(x)=q log(1/|x-c|)+W(x), where W is the external field from all mass outside (u,v)",
+        "q log(1/a)+W(u)=0",
+        "q log(1/b)+W(v)=0",
+        "a W'(u)+b W'(v)=0",
+        "F(c)=0, F'(c)<0 is imposed as a finite-gap branch equation",
+        "first-order branch tangent: delta F(c)=F'(c) delta c + delta_xi F(c)=0",
+        "do not include an independent lambda_S S or lambda_F F(c) row in the chart Hessian"
+      ],
+      "name": "endpoint_neck_equations",
+      "status": "contract"
+    },
+    {
+      "equations": [
+        "canonical free-period chart: period/filling is quotiented by the filling variable tau and is not a row of A",
+        "period direction is exported as H_Pi(z)=kappa Q(z)^2",
+        "C_Pi(z)=kappa/R(z), V_Pi(s)=kappa int_s^infty dy/R(y)",
+        "choose kappa != 0 with sign so the associated boundary density has oriented positive period-transfer form",
+        "positive rescaling of kappa only rescales the period seed and does not change projective sign tests",
+        "EndpointPeriodColumnOrientationLemma remains a separate column-side Gate 1 proof obligation"
+      ],
+      "name": "period_filling_convention",
+      "status": "contract"
+    },
+    {
+      "equations": [
+        "export Z0 as the ordered regular contact set Z0=Z_L union Z_R with Z_nu=[s_nu^-,s_nu^+] after deleting empty components",
+        "Z_L and Z_R are compact real intervals disjoint from c,u,v,Q-poles, and branch singularities except at explicitly routed endpoint-contact degeneracies",
+        "use endpoint-neck variables u=c-a, v=c+b with a>0 and b>0",
+        "for every seed j in {Pi,alpha_1,beta_1,alpha_2,beta_2}, export rho_j=-C_j(c)",
+        "for every seed j in {Pi,alpha_1,beta_1,alpha_2,beta_2}, export b_j=a V_j(u)+b V_j(v)",
+        "V_j(s)=int_s^infty C_j(y) dy is evaluated with the real continuous boundary value on the relevant Z0 component",
+        "the Gate 1 affine residual row is exactly b-Lambda rho; the homogeneous off-row is exactly rho",
+        "collisions of Z0 with moving boundaries, c, u, v, Q-poles, branch endpoints, or loss of a,b positivity route to Gate 3"
+      ],
+      "name": "Z0_boundary_row_selection",
+      "status": "contract"
+    }
+  ],
+  "executable_solver": {
+    "acceptance_tests": {
+      "max_condition_number": "TODO: positive float",
+      "proof_grade_required": true,
+      "residual_tolerance": "TODO: positive float",
+      "strict_margin_tolerance": "TODO: positive float"
+    },
+    "chart_json_export": {
+      "output_schema": "gate1_compact_g2_chart_v1",
+      "proof_grade": "TODO: true only after all residual and inequality checks pass",
+      "required_fields": [
+        "P",
+        "Q",
+        "gammas",
+        "row_gauge",
+        "c",
+        "u",
+        "v",
+        "a",
+        "b",
+        "kappa",
+        "Z0",
+        "proof_grade",
+        "equation_provenance"
+      ]
+    },
+    "inequality_checks": {
+      "boundary_separation": "TODO: c,u,v,Z0,Q-poles,branch endpoints are separated",
+      "density_positivity": "TODO: checked with strict margins",
+      "interlacing": "TODO: checked with strict margins",
+      "residue_positivity": "TODO: checked with strict margins"
+    },
+    "initial_guess": {
+      "source": "TODO: exact source or certified box",
+      "values": "TODO: numeric vector matching unknown_layout"
+    },
+    "normalizations": {
+      "mass": "TODO: numeric mass normalization",
+      "period": "TODO: numeric kappa orientation convention",
+      "row_gauge": {
+        "kind": "full_pair_pole_gauge",
+        "omit_q_pole_index": "TODO"
+      }
+    },
+    "residual_maps": {
+      "Z0_boundary_row_selection": {
+        "kind": "selection",
+        "residuals": "TODO: rules producing numeric Z0,u,c,v,a,b and rejecting collisions"
+      },
+      "endpoint_neck_equations": {
+        "kind": "analytic",
+        "residuals": "TODO: q log(1/a)+W(u), q log(1/b)+W(v), a W'(u)+b W'(v), F(c)"
+      },
+      "finite_gap_representation": {
+        "kind": "algebraic",
+        "residuals": "TODO: numeric equations for P,Q,Gamma finite-gap representation"
+      },
+      "mass_decay_normalization": {
+        "kind": "algebraic",
+        "residuals": "TODO: mass scale and decay normalization residuals"
+      },
+      "period_filling_convention": {
+        "kind": "analytic",
+        "residuals": "TODO: period/filling convention fixing kappa orientation"
+      }
+    },
+    "status": "TODO: replace with executable numeric solver data before chart generation",
+    "unknown_layout": {
+      "P_coefficients": {
+        "degree_rule": "deg P <= deg Q - 3 for compact g=2",
+        "initial_values": "TODO: numeric list",
+        "names": [
+          "P_0",
+          "P_1",
+          "..."
+        ]
+      },
+      "Q_poles": {
+        "constraints": [
+          "real simple",
+          "off-cut",
+          "interlacing checked"
+        ],
+        "initial_values": "TODO: numeric list",
+        "names": [
+          "p_1",
+          "p_2",
+          "p_3",
+          "p_4 or chosen d"
+        ]
+      },
+      "branch_endpoints": {
+        "constraints": [
+          "alpha_1 < beta_1 < alpha_2 < beta_2"
+        ],
+        "initial_values": "TODO: numeric list",
+        "names": [
+          "alpha_1",
+          "beta_1",
+          "alpha_2",
+          "beta_2"
+        ]
+      },
+      "neck_and_boundary": {
+        "constraints": [
+          "q>0",
+          "a>0",
+          "b>0",
+          "u=c-a",
+          "v=c+b",
+          "kappa!=0"
+        ],
+        "initial_values": "TODO: numeric object",
+        "names": [
+          "q",
+          "a",
+          "b",
+          "c",
+          "u",
+          "v",
+          "kappa"
+        ]
+      }
+    }
+  },
+  "moving_chart_rows": {
+    "output_to_chart_json": {
+      "row_gauge": {
+        "kind": "full_pair_pole_gauge",
+        "omit_q_pole_index": "integer index of exterior omitted Q-pole"
+      }
+    },
+    "required_proofs": [
+      "G1FullPairGaugeDet gives det A_pair > 0 for real simple selected poles",
+      "G1FullPairRepairedEndpoint gives explicit H_gamma^rep formula",
+      "non-exterior omitted pole is rejected by the current LRLR audit contract",
+      "remaining pole/residue/period quantities are state outputs or open inequalities, not rows of A"
+    ],
+    "selected_gauge": {
+      "kind": "full_pair_pole_gauge",
+      "omitted_pair_rule": "omit exactly one complete Q-pole pair; for the ordinary LRLR connection audit the omitted pole must lie in an exterior component, otherwise that gauge is rejected or routed to a separate singular/connection-gap case",
+      "rows": "H(p_i), H'(p_i) for d-1 selected complete pole pairs"
+    },
+    "status": "proved_candidate"
+  },
+  "output_chart_json_fields": [
+    "P",
+    "Q",
+    "gammas",
+    "row_gauge or rows",
+    "c",
+    "u",
+    "v",
+    "a",
+    "b",
+    "kappa",
+    "Z0",
+    "proof_grade",
+    "equation_provenance"
+  ],
+  "proof_grade": true,
+  "provenance": {
+    "CompactG2MovingChartEquations": "1038_dual_two_interval_progress.md CompactG2MovingChartEquations row-by-row contract and subsequent ready equation-spec updates",
+    "FullPairGaugeDet": "G1FullPairGaugeDet",
+    "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
+    "Gate3_degeneration_routes": "G3modes/G3route and G3PASS PinchingBoundaryReduction",
+    "TPSquareMovingChartGaugeLemma": "1038_dual_two_interval_progress.md TPSquareMovingChartGaugeLemma full-pair pole-gauge contract",
+    "Z0_boundary_row_selection": "G1ExtractorRows and finite contact-pattern ledger",
+    "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
+    "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
+    "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
+    "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
+    "positivity_interlacing": "Lemma FG Sign and interlacing"
+  },
+  "purpose": "Executable mathematical contract for producing a proof-grade compact non-pinched g=2 chart JSON.",
+  "schema": "gate1_compact_g2_equation_spec_v1",
+  "unknown_vector": {
+    "P_coefficients": [
+      "P coefficients in the chart degree range fixed by mass_decay_normalization",
+      "degree and leading/decay normalization are not guessed here"
+    ],
+    "Q_poles": [
+      "p_1<...<p_d",
+      "Q(z)=prod_k (z-p_k)",
+      "d is the chart Q-degree; cubic d=3 is the current compact g=2 numerical target"
+    ],
+    "branch_endpoints": [
+      "alpha_1",
+      "beta_1",
+      "alpha_2",
+      "beta_2"
+    ],
+    "state_variables": [
+      "residue or pole-state variables subject to positivity/interlacing equations",
+      "u,c,v and positive boundary weights a,b, fixed by Z0_boundary_row_selection",
+      "period/filling variable fixing kappa, fixed by period_filling_convention"
+    ]
+  }
+}

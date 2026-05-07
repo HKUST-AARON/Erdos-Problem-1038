@@ -981,6 +981,99 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
     }
 
 
+def compact_g2_executable_solver_template_payload() -> dict[str, Any]:
+    """Machine-readable template for the missing compact g=2 numerical solver."""
+    payload = compact_g2_equation_spec_template_payload()
+    payload["executable_solver"] = {
+        "status": "TODO: replace with executable numeric solver data before chart generation",
+        "unknown_layout": {
+            "branch_endpoints": {
+                "names": ["alpha_1", "beta_1", "alpha_2", "beta_2"],
+                "constraints": ["alpha_1 < beta_1 < alpha_2 < beta_2"],
+                "initial_values": "TODO: numeric list",
+            },
+            "Q_poles": {
+                "names": ["p_1", "p_2", "p_3", "p_4 or chosen d"],
+                "constraints": ["real simple", "off-cut", "interlacing checked"],
+                "initial_values": "TODO: numeric list",
+            },
+            "P_coefficients": {
+                "names": ["P_0", "P_1", "..."],
+                "degree_rule": "deg P <= deg Q - 3 for compact g=2",
+                "initial_values": "TODO: numeric list",
+            },
+            "neck_and_boundary": {
+                "names": ["q", "a", "b", "c", "u", "v", "kappa"],
+                "constraints": ["q>0", "a>0", "b>0", "u=c-a", "v=c+b", "kappa!=0"],
+                "initial_values": "TODO: numeric object",
+            },
+        },
+        "initial_guess": {
+            "source": "TODO: exact source or certified box",
+            "values": "TODO: numeric vector matching unknown_layout",
+        },
+        "residual_maps": {
+            "finite_gap_representation": {
+                "kind": "algebraic",
+                "residuals": "TODO: numeric equations for P,Q,Gamma finite-gap representation",
+            },
+            "mass_decay_normalization": {
+                "kind": "algebraic",
+                "residuals": "TODO: mass scale and decay normalization residuals",
+            },
+            "endpoint_neck_equations": {
+                "kind": "analytic",
+                "residuals": "TODO: q log(1/a)+W(u), q log(1/b)+W(v), a W'(u)+b W'(v), F(c)",
+            },
+            "period_filling_convention": {
+                "kind": "analytic",
+                "residuals": "TODO: period/filling convention fixing kappa orientation",
+            },
+            "Z0_boundary_row_selection": {
+                "kind": "selection",
+                "residuals": "TODO: rules producing numeric Z0,u,c,v,a,b and rejecting collisions",
+            },
+        },
+        "normalizations": {
+            "mass": "TODO: numeric mass normalization",
+            "period": "TODO: numeric kappa orientation convention",
+            "row_gauge": {"kind": "full_pair_pole_gauge", "omit_q_pole_index": "TODO"},
+        },
+        "inequality_checks": {
+            "interlacing": "TODO: checked with strict margins",
+            "residue_positivity": "TODO: checked with strict margins",
+            "density_positivity": "TODO: checked with strict margins",
+            "boundary_separation": "TODO: c,u,v,Z0,Q-poles,branch endpoints are separated",
+        },
+        "acceptance_tests": {
+            "residual_tolerance": "TODO: positive float",
+            "max_condition_number": "TODO: positive float",
+            "strict_margin_tolerance": "TODO: positive float",
+            "proof_grade_required": True,
+        },
+        "chart_json_export": {
+            "output_schema": "gate1_compact_g2_chart_v1",
+            "required_fields": [
+                "P",
+                "Q",
+                "gammas",
+                "row_gauge",
+                "c",
+                "u",
+                "v",
+                "a",
+                "b",
+                "kappa",
+                "Z0",
+                "proof_grade",
+                "equation_provenance",
+            ],
+            "proof_grade": "TODO: true only after all residual and inequality checks pass",
+        },
+    }
+    return payload
+
+
 def _todo_like(value: Any) -> bool:
     if isinstance(value, str):
         return "TODO" in value or not value.strip()
@@ -1221,6 +1314,39 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
             else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
         ),
         "spec_audit": spec_audit,
+    }
+
+
+def generate_compact_chart_from_solver_spec(spec_path: Path) -> dict[str, Any]:
+    """Generate a compact chart only when the executable solver block is ready.
+
+    The current repository intentionally has no generic symbolic evaluator for
+    prose equation blocks.  This function therefore refuses to emit a chart
+    unless the stricter executable solver audit passes.
+    """
+    audit = compact_chart_solver_audit(spec_path)
+    if not audit["can_generate_chart"]:
+        return {
+            "status": "blocked",
+            "chart_generated": False,
+            "path": str(spec_path),
+            "reason": "compact g=2 executable solver is incomplete",
+            "solver_audit": audit,
+            "next_action": audit["next_action"],
+        }
+    return {
+        "status": "blocked",
+        "chart_generated": False,
+        "path": str(spec_path),
+        "reason": (
+            "executable_solver schema is ready, but no numeric evaluator has "
+            "been implemented in this extractor yet"
+        ),
+        "solver_audit": audit,
+        "next_action": (
+            "implement the numeric residual evaluator and certified exporter "
+            "for executable_solver"
+        ),
     }
 
 
@@ -4021,6 +4147,11 @@ def main() -> int:
         help="write the missing CompactG2MovingChartEquations spec template",
     )
     parser.add_argument(
+        "--write-compact-chart-solver-template",
+        action="store_true",
+        help="write a machine-readable executable solver template for the compact g=2 chart",
+    )
+    parser.add_argument(
         "--audit-chart-equation-spec",
         action="store_true",
         help="audit a CompactG2MovingChartEquations spec for solver readiness",
@@ -4029,6 +4160,11 @@ def main() -> int:
         "--audit-compact-chart-solver",
         action="store_true",
         help="audit whether the compact chart spec is executable as a numeric solver",
+    )
+    parser.add_argument(
+        "--generate-compact-chart",
+        action="store_true",
+        help="generate a proof-grade compact chart only if executable_solver is complete",
     )
     parser.add_argument("--run-chart-pipeline", action="store_true", help="run contract, repaired extraction, gauge choice, and LRLR audits")
     parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
@@ -4140,6 +4276,17 @@ def main() -> int:
         print("  next = replace TODO/draft blocks, then run --audit-chart-equation-spec")
         return 0
 
+    if args.write_compact_chart_solver_template:
+        if not args.write_json:
+            parser.error("--write-compact-chart-solver-template requires --write-json")
+        payload = compact_g2_executable_solver_template_payload()
+        with open(args.write_json, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+        print("Gate 1 compact g=2 executable solver template")
+        print(f"  wrote {args.write_json}")
+        print("  next = replace TODO executable_solver blocks, then run --audit-compact-chart-solver")
+        return 0
+
     if args.audit_chart_equation_spec:
         if not args.chart_json:
             parser.error("--audit-chart-equation-spec requires --chart-json")
@@ -4181,6 +4328,27 @@ def main() -> int:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.generate_compact_chart:
+        if not args.chart_json:
+            parser.error("--generate-compact-chart requires --chart-json")
+        payload = generate_compact_chart_from_solver_spec(Path(args.chart_json))
+        print("Gate 1 compact g=2 chart generator")
+        print(f"  status = {payload['status']}")
+        print(f"  chart generated = {payload['chart_generated']}")
+        print(f"  reason = {payload['reason']}")
+        print(f"  next = {payload['next_action']}")
+        if args.write_json:
+            if payload["chart_generated"]:
+                with open(args.write_json, "w", encoding="utf-8") as handle:
+                    json.dump(payload["chart"], handle, indent=2, sort_keys=True)
+                print(f"  wrote chart {args.write_json}")
+            else:
+                diagnostic_path = f"{args.write_json}.blocked.json"
+                with open(diagnostic_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                print(f"  refused to write chart; wrote diagnostic {diagnostic_path}")
         return 0
 
     if args.audit_chart_contract:
