@@ -16413,6 +16413,58 @@ theorem boundary_average_of_spanning_augmented_right_gap_zero_neighborhood
       hboundarySep hdist_lower hdist_int hlog_int hpotential_nonpos
       hdistance_upper
 
+theorem boundary_average_of_spanning_augmented_not_support_zero_neighborhood
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    1 ≤ (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) := by
+  rcases realMeasure_ae_separated_of_not_mem_support μ hnot_support with
+    ⟨boundarySep, hboundarySep, hdist_lower⟩
+  have hpotential_nonpos : unitIntervalLogPotential μ C.right ≤ 0 :=
+    C.right_potential_nonpos_of_augmentedIntervalMaximal_not_support
+      hmax hnot_support
+  have hdist_int : Integrable (fun t : ℝ => |C.right - t|) (realMeasure μ) :=
+    realMeasure_abs_sub_integrable μ C.right
+  have hlog_int : Integrable (fun t : ℝ => Real.log |C.right - t|)
+      (realMeasure μ) :=
+    realMeasure_log_abs_sub_integrable_of_ae_lower_bound μ
+      hboundarySep hdist_lower
+  have hdistance_upper :
+      (∫ t, |C.right - t| ∂realMeasure μ) ≤
+        (C.right + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - C.right) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_distance_upper_of_spanning_augmented_zero_neighborhood
+      μ hright_pos hε hmax hbaseline hspan_aug hzero
+  exact
+    tao_boundary_average_of_boundary_distance_upper
+      (μ := μ)
+      (xPlus := C.right)
+      (endpointMass :=
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal))
+      (ε := boundarySep)
+      hboundarySep hdist_lower hdist_int hlog_int hpotential_nonpos
+      hdistance_upper
+
 /--
 Tao boundary-average inequality from augmented span/right gap and component
 atomization.  Atomization supplies the zero-neighbourhood condition internally.
