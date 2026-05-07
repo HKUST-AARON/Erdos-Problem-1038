@@ -85,51 +85,36 @@ certificate route.
 
 ## Standard-reduction route review
 
-The route currently has three layers.
+The standard-reduction route should be read as conditional until the real Tao
+variation argument is supplied.  The downstream endpoint package is now strong:
+endpoint bookkeeping, endpoint-remainder integrability, support uniqueness,
+zero-neighborhood, component atomization, normalized atomization, replacement
+rigidity, and boundary-average bridges are all available under explicit
+hypotheses.
 
-Closed downstream layer:
+The remaining hard inputs are not bookkeeping:
 
-- endpoint lower-bound data imply baseline positivity;
-- endpoint punctures do not change Lebesgue length;
-- component endpoint/support hypotheses imply normalized support shape;
-- endpoint-mass algebra gives the `1/2` endpoint lower bound once the boundary-average input is available.
+- select the actual maximal/augmented maximal positive component from a
+  secondary minimizer;
+- prove baseline placement and the right-endpoint/boundary-average statement;
+- construct the barycenter replacement probability and prove primary
+  nonincrease;
+- use secondary minimality to force component atomization or support uniqueness;
+- remove `hPackageFromVariation`, `hEndpointFromVariation`,
+  `TaoVariationalReductionInput`, and `TaoEndpointReductionInput` as external
+  providers.
 
-Live standard-reduction layer:
-
-- prove the true positive component selected from the positive set has the open-left-cover property required by the existing endpoint package;
-- prove barycenter replacement for a positive component, using Jensen outside the component and variance decrease inside the component;
-- use the variance-minimizing minimizer to show component atomization;
-- connect the atomized component to the endpoint-normalized support/mass data.
-
-Infrastructure layer still to be closed:
-
-- lower semicontinuity of the actual logarithmic-potential objective;
-- minimizer existence and secondary variance-minimizing minimizer existence;
-- reflection/translation normalization from the selected component;
-- the final polynomial-to-measure bridge for the original polynomial statement.
-
-The main unproved standard-reduction entry points are still visible in the
-Lean interface:
+The current preferred temporary targets are the narrow endpoint bridges in
+`lean/StandardReduction.lean`:
 
 ```text
-TaoVariationalReductionInput
-TaoVariationalReductionInputENNReal
-EndpointRouteClosureENNReal.endpointFromVariation
+...from_support_unique_component_data
+...from_zero_neighborhood_component_data
+...from_component_atomization_component_data
 ```
 
-These names should be treated as TODO boundaries, not as completed reduction
-theorems.
-
-The most useful next proof step is the component-topology bridge:
-
-```text
-selected maximal positive component
-  -> open-left-cover near the endpoint
-  -> endpoint package input
-```
-
-After that bridge is closed, the next target is the barycenter replacement and
-variance-decrease argument that removes the remaining atomization input.
+They are useful milestones, but they are not the final Standard Reduction.
+The detailed concise ledger is `finite_atoms/standard_reduction/README.md`.
 
 Check command from the repository root:
 

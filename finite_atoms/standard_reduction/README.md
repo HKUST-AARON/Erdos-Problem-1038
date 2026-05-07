@@ -1,405 +1,130 @@
-# Standard reduction formalization
+# Standard Reduction ledger
 
-This directory contains the Lean-facing decomposition of the standard reduction
-used by the finite-atom route.
+Goal: prove the Tao/natso standard reduction in Lean, not merely package its
+consequences.  The target is to remove the remaining external variation-provider
+inputs and derive endpoint-normalized data from an actual secondary minimizer.
 
-The intent is to separate the analytic reduction into small, checkable layers
-instead of hiding it behind a single external hypothesis.
+## Current truth
 
-## Current layers
+The downstream endpoint package is now substantially formalized.  In particular,
+`finite_atoms/common/lean/StandardReduction.lean` proves the chain
 
-`lean/LogPotentialTruncation.lean` packages the truncated logarithmic potential
-objects already defined in `finite_atoms/common/lean/StandardReduction.lean`.
-It proves:
-
-- joint measurability of the truncated kernel on `R x [-1,1]`;
-- measurability of the truncated unit-interval potential;
-- measurability of truncated threshold and positive sets.
-
-This is the first layer needed for the lower-semicontinuity and minimizer
-existence part of the standard reduction.
-
-`lean/TruncatedObjective.lean` packages the countable truncated-sup surrogate
-objective.  It proves measurability of the truncated-sup positive set and,
-from compact threshold cores, lower semicontinuity and minimizer existence for
-the surrogate objective.
-
-`lean/LowerSemicontinuity.lean` packages the true relaxed objective
-
-```lean
-unitIntervalPositiveSetObjective
+```text
+selected component data
++ boundary average
++ support uniqueness / zero-neighborhood / component atomization
+  -> TaoVariationComponentPackage
+  -> TaoEndpointNormalizationData
+  -> NormalizedEndpointPotential
+  -> volume baseline lower bound sqrt 2
 ```
 
-and proves that the diagonal-safe one-sided compact-core input implies:
+The following pieces are already Lean-proved under their stated hypotheses:
 
-- lower semicontinuity of the true objective;
-- existence of a relaxed objective minimizer.
+- endpoint mass at `-1` plus normalized support gives positivity on
+  `BaselinePunctured`;
+- the puncture at `-1` has zero Lebesgue volume;
+- endpoint-remainder mass bookkeeping for
+  `(realMeasure μ).restrict ({-1}ᶜ)`;
+- support uniqueness inside the selected component gives endpoint-remainder
+  log-kernel integrability on `BaselinePunctured`;
+- zero-neighborhood data imply support uniqueness;
+- component-block atomization implies zero-neighborhood data;
+- normalized component-block atomization implies component-block atomization;
+- replacement/second-moment rigidity can convert secondary equality into
+  normalized Dirac atomization;
+- augmented span plus right-gap hypotheses can feed the boundary-average bridge.
 
-The preferred remaining analytic input at this layer is named
-`OneSidedCompactCore`.  This avoids the too-strong requirement that singular
-tail mass be uniformly stable under arbitrary weak perturbations.  A legacy
-wrapper `CompactTailMassStability` is still present because older internal
-bridges consume it, but it is not the preferred proof target.
+These are real formal bridges, not `sorry` placeholders.  They are still
+conditional bridges: their hypotheses must be produced by the actual variation
+argument.
 
-`lean/MinimizerExistence.lean` packages the minimizer consequence as a named
-`RelaxedMinimizer` object.  Its preferred constructor is
-`exists_relaxed_minimizer_of_oneSidedCompactCore`.
+## What is not closed
 
-`lean/VariationEndpoint.lean` isolates the hard endpoint input as
-`EndpointFromVariation`.  Given endpoint-normalized data for the potential
-presented to the finite-atom route, it proves the normalized endpoint-potential
-consequences for any `RelaxedMinimizer`.  Reflection/translation normalization
-and its objective invariance remain upstream work.  The file also provides the
-narrower `ComponentPackageFromVariation` interface: if Tao's concrete
-component/remainder package is supplied for each relaxed minimizer, the
-endpoint data and baseline consequences are produced by the existing formal
-packagers rather than by a generic endpoint-data hypothesis.
+Full Standard Reduction is not proved yet.  The remaining mathematical inputs
+are exactly these.
 
-`lean/ComponentAtomization.lean` packages the barycenter-replacement part of
-the variation argument.  It exposes objective non-increase from countable or
-finite support-hit certificates and the secondary-minimizer consequence that a
-caller-supplied tested block must already be a Dirac mass.  It now also
-specializes this rigidity statement to the canonical normalized component
-block and proves the measure-level bridge
+1. **Real positive-component selection.**
+   From a secondary minimizer `μ`, construct the correct maximal or augmented
+   maximal `PositiveComponent μ` containing the baseline interval `Ioo (-1) 0`.
 
-```lean
-componentBlock C = componentMass C • Measure.dirac (componentBarycenter C)
+2. **Right endpoint / boundary-average source.**
+   Prove the selected component has a right endpoint `xPlus > 0` and derive
+   Tao's boundary-average inequality from maximality, boundary nonpositivity,
+   support separation, and the already-formal distance/Jensen bridge.
+
+3. **Barycenter replacement construction.**
+   Construct the replacement probability measure for the selected component,
+   prove it is admissible, and prove its primary objective does not increase.
+
+4. **Secondary rigidity to atomization.**
+   Use secondary minimality plus replacement nonincrease to prove component
+   atomization or zero-neighborhood/support uniqueness inside the selected
+   component.
+
+5. **Provider removal.**
+   Replace the remaining external provider interfaces, especially
+   `hPackageFromVariation`, `hEndpointFromVariation`,
+   `TaoVariationalReductionInput`, and `TaoEndpointReductionInput`, by the real
+   component-selection/replacement/boundary proof.
+
+Until these five items are proved, the standard reduction is a conditional
+formal interface, not an unconditional theorem.
+
+## Do not overstate
+
+`0 sorry` / `0 axiom` is not the same as full closure.  Current Lean theorems
+are valid under explicit hypotheses.  The unproved content is represented by
+provider arguments and structure fields, not by `sorry`.
+
+The finite-atom lower-bound route can use the normalized endpoint interface once
+Standard Reduction supplies it.  The finite certificates do not by themselves
+prove the full standard reduction.
+
+## Next proof order
+
+Do not add more endpoint-wrapper theorems unless they remove a genuinely new
+mathematical input.  The useful order is:
+
+1. Prove the positive-set component/topology lemma that produces the selected
+   maximal component and baseline placement.
+2. Prove the right-endpoint boundary statement and feed it into the existing
+   boundary-average bridge.
+3. Build the actual barycenter replacement measure for that component.
+4. Prove primary nonincrease and secondary rigidity for the replacement.
+5. Use the existing atomization/zero-neighborhood/support-uniqueness bridges to
+   assemble `TaoVariationComponentPackage` without any external provider.
+6. Only after that, remove or demote the old provider-style theorems.
+
+## Current preferred Lean entry points
+
+The most useful endpoint-facing theorems are now the narrow high-level bridges
+in `StandardReduction.lean`:
+
+```text
+...from_support_unique_component_data
+...from_zero_neighborhood_component_data
+...from_component_atomization_component_data
 ```
 
-from normalized-block Dirac rigidity.  It also proves the support-order bridge
-which turns this atomization statement into the `unique_support_in_component`
-field once the selected support is contained in the actual topological support
-and the barycenter has been normalized to `-1`.  The remaining upstream input
-in this layer is the actual Tao variation data selecting the positive component
-and providing the replacement/secondary-objective hypotheses.
+They should be treated as temporary targets for the real variation proof.  They
+are not the final Standard Reduction theorem.
 
-The same file now also provides the canonical endpoint-remainder construction:
-the remainder is `realMeasure μ` restricted to the complement of `{-1}`.  This
-automatically supplies the a.e. support-in-support field, endpoint exclusion,
-mass identity, and mass nonnegativity once the selected support contains the
-actual topological support and the endpoint mass is identified with the mass at
-`-1`.  The remaining inputs for this remainder bridge are the genuine analytic
-ones: log-kernel integrability and the endpoint-plus-remainder potential lower
-bound.  For the unmodified potential `unitIntervalLogPotential μ`, the
-endpoint-plus-remainder decomposition is now proved as an equality, so the
-canonical-remainder data only needs support containment and log-kernel
-integrability.
+## Verification scope
 
-The canonical endpoint construction has also been lifted one level higher to
-the variation package itself.  The structure
-
-```lean
-CanonicalEndpointVariationPackageData
-```
-
-fixes the endpoint mass to `(realMeasure μ) {-1}` and fixes the remainder to
-`endpointRemainder μ`.  Its converters build:
-
-```lean
-TaoVariationComponentPackage
-TaoEndpointNormalizationData
-TaoReducedPotentialData
-NormalizedEndpointPotential
-```
-
-without asking downstream arguments to re-supply the endpoint/remainder
-bookkeeping.  For the unmodified potential there is a constructor
-
-```lean
-CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential
-```
-
-which only keeps the support-containment and endpoint-remainder kernel
-integrability inputs, because the potential decomposition is already proved by
-the canonical endpoint-remainder equality.
-
-The reusable theorem
-
-```lean
-endpointRemainder_kernel_integrable_of_normalized_support
-```
-
-derives endpoint-remainder kernel integrability from the normalized support
-shape.  After the endpoint atom `-1` is removed, the canonical remainder is
-a.e. supported on `[0,1]`, while every point in `BaselinePunctured` lies
-strictly to the left of `0`.  Hence the logarithmic kernel is continuous on the
-compact support region and is integrable against the endpoint remainder.  This
-theorem can be passed directly to the existing
-`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential` constructor,
-without adding another public constructor.
-
-The component-order data now also gives the canonical-remainder support-order
-form
-
-```lean
-endpointRemainder_ae_mem_Icc_xPlus_one_of_support_order
-```
-
-The same section records the small open-set boundary lemma
-
-```lean
-not_mem_of_isOpen_no_right_points
-not_mem_positiveSet_of_continuousAt_no_right_points
-no_right_positive_of_component_right_cover
-```
-
-which is the topological core for the later maximal-component step: if the
-positive set is open and the selected right endpoint has no positive points
-strictly to its right, then the endpoint is not itself positive.  The local
-continuous-at version is the preferred interface for the real-valued
-logarithmic potential, because global openness at diagonal atom points is not
-the right target; endpoint separation can instead supply continuity at the
-selected boundary point.
-
-This feeds the boundary-average bridge
-
-```lean
-boundary_average_of_endpointRemainder_boundary_distance
-```
-
-which reduces the algebraic `boundary_average` field to the analytic boundary
-distance lower bound at the component right endpoint plus distance
-integrability of the canonical endpoint remainder.
-
-The boundary-distance lower bound itself is now connected to the boundary
-potential sign through Jensen's logarithmic inequality:
-
-```lean
-endpointRemainder_boundary_distance_of_potential_nonpos
-boundary_average_of_boundary_potential_nonpos
-boundary_average_of_right_endpoint_not_positive
-boundary_average_of_component_right_endpoint_not_positive
-boundary_average_of_component_continuousAt_no_right_positive
-boundary_average_of_component_right_cover
-```
-
-Thus the `boundary_average` field can be obtained from a nonpositive boundary
-potential value at `xPlus`, standard distance/log integrability and separation
-hypotheses, and the canonical endpoint-remainder support-order theorem above.
-For a genuine maximal positive component, the latest bridge replaces the
-nonpositive boundary-potential input by the more natural topological statement
-that the right endpoint is not in the positive set.
-
-The component-order versions derive the `boundary_average` field either from
-right-endpoint non-positivity directly, or from the more primitive pair of
-inputs expected from the maximal-component argument: local endpoint continuity
-and absence of positive points strictly to the right.  The `right_cover`
-variant replaces the latter with a maximal-component coverage statement:
-every positive point to the right of `xMinus` lies in `(xMinus,xPlus)`.
-
-The boundary Jensen step now also discharges the routine integrability
-obligations from compact support and endpoint separation:
-
-```lean
-boundary_average_of_boundary_potential_nonpos_auto_integrable
-boundary_average_of_component_right_cover_auto_integrable
-CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover
-CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region
-```
-
-The constructor
-`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_region`
-is the direct maximal-component-facing entry point.  It consumes the
-right-region identity
-
-```lean
-component = PositiveSet (unitIntervalLogPotential μ) ∩ Ioi xMinus
-```
-
-and the endpoint support gap
-
-```lean
-xPlus ∉ (realMeasure μ).support
-```
-
-It derives component positivity, right-cover, the fact that `xPlus` is not in
-the positive set, and the required `∃ ε > 0` a.e. distance lower bound.  The
-lower-level constructor
-`CanonicalEndpointVariationPackageData.of_unitIntervalLogPotential_right_cover`
-remains available when a proof already has the cover statement directly.  These
-constructors no longer ask callers to separately provide
-integrability of `|xPlus - t|`, `Real.log |xPlus - t|`, the endpoint-remainder
-distance integral, the boundary-average inequality, or the baseline kernel
-integrability.  In the right-region constructor, no endpoint-continuity input is
-needed: the identity above directly implies `xPlus` is not in the positive set.
-
-At the relaxed-minimizer interface, the same file defines
-
-```lean
-CanonicalComponentPackageFromVariation
-```
-
-and converts it to the existing
-`VariationEndpoint.ComponentPackageFromVariation`.  This keeps the dependency
-direction acyclic: `VariationEndpoint.lean` stays independent of component
-atomization, while `ComponentAtomization.lean` provides the narrower canonical
-provider.  It now also gives the normalized endpoint-potential interface,
-baseline inclusion, and baseline-length consequence directly from the canonical
-provider:
-
-```lean
-normalizedEndpointPotential_from_canonical_componentPackage
-baseline_subset_positive_from_canonical_componentPackage
-baseline_length_from_canonical_componentPackage
-exists_relaxed_minimizer_with_normalizedEndpointPotential_from_canonical
-exists_baseline_length_from_canonical_componentPackage
-```
-
-The diagonal-safe path continues to use `OneSidedCompactCore`; it does not go
-through the older compact tail-mass stability interface.
-
-The same layer now exposes the still narrower right-region interface:
-
-```lean
-CanonicalRightRegionPackageData
-CanonicalRightRegionPackageFromVariation
-CanonicalRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
-CanonicalAtomizedRightRegionPackageData
-```
-
-This is the current closest formal entry point to the Tao maximal-component
-argument.  It asks for the selected right-region equality, interval endpoints,
-support order, and endpoint support gap; the canonical endpoint package and
-baseline consequences are then built internally through the canonical
-component-package bridge.
-
-The atomized right-region variant removes the direct
-`unique_support_in_component` input.  It takes the already-formal component
-block atomization conclusion together with `componentBarycenter = -1`, and uses
-`unique_support_in_component_endpoint_of_componentBlock_eq_dirac` to produce
-the uniqueness field internally.  In this narrower interface the selected
-support is fixed to `(realMeasure μ).support`, so the caller only proves the
-boundedness of the actual topological support rather than two opposite support
-containments.
-
-The constructor
-
-```lean
-CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_left_ne
-CanonicalAtomizedRightRegionPackageData.of_endpoint_mass_open_left_cover
-```
-
-is now the preferred direct constructor for this layer.  It keeps the
-component-block atomization input, but replaces the direct
-`componentBarycenter = -1` field by endpoint positive mass and the
-nondegenerate left-endpoint condition `component.left ≠ -1`.  The
-open-left-cover variant pushes this one step further: instead of asking for
-`component.left ≠ -1`, it asks for a set `S` that is open at `-1` and whose
-local left-neighborhood points are covered by the selected component.  In the
-intended maximal-component application, `S` is the positive set.
-
-At provider level, the file now exposes
-
-```lean
-CanonicalAtomizedRightRegionPackageFromVariation
-CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalRightRegionPackageFromVariation
-CanonicalAtomizedRightRegionPackageFromVariation.toCanonicalComponentPackageFromVariation
-normalizedEndpointPotential_from_atomized_rightRegionPackage
-baseline_subset_positive_from_atomized_rightRegionPackage
-baseline_length_from_atomized_rightRegionPackage
-exists_relaxed_minimizer_with_normalizedEndpointPotential_from_atomized
-exists_baseline_length_from_atomized_rightRegionPackage
-```
-
-so atomized right-region data for every relaxed minimizer feeds directly into
-the existing canonical component-package consequences without requiring callers
-to invoke the intermediate conversion manually.
-
-The constructors
-
-```lean
-CanonicalAtomizedRightRegionPackageData.of_countable_rigidity
-CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_lt
-CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_left_ne
-CanonicalAtomizedRightRegionPackageData.of_countable_rigidity_endpoint_mass_open_left_cover
-```
-
-remove the direct component-block atomization input when the caller has
-the countable-support-hit normalized rigidity package.  It uses
-`CountableSupportHitNormalizedBlockRigidityData.componentBlock_eq_dirac`
-internally.  The endpoint-mass/left-endpoint-order variant also removes the
-direct `componentBarycenter = -1` input from the canonical atomized right-region
-package.  The nondegenerate-left-endpoint variant replaces the strict order
-input by `component.left ≠ -1`, using baseline containment to recover
-`component.left < -1`.  The open-left-cover variant additionally replaces that
-nondegeneracy input by the local maximal-component cover condition.
-
-The theorem
-
-```lean
-componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac
-```
-
-removes the direct `componentBarycenter = -1` input at the proof level.  After
-atomization, if `-1` is a real support point lying in the selected component
-interval, the barycenter is the normalized endpoint.
-
-The endpoint-mass form
-
-```lean
-componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos
-```
-
-is the preferred bridge for the normalized route: after atomization, positive
-mass at `{-1}` and membership of `-1` in the selected component imply that the
-component barycenter is `-1`.  This removes the separate topological-support
-membership input from this step.
-
-The theorem
-
-```lean
-component_endpoint_order_of_baseline_inside
-```
-
-derives the correct endpoint-order consequence from the baseline inclusion
-`(-1,0) ⊆ component.interval`: the component's left endpoint is at or to the
-left of `-1`, and its right endpoint is at or to the right of `0`.  It does not
-claim `(-1) ∈ component.interval`, which would be false for an open interval
-with left endpoint exactly `-1`.
-
-The next bridge records the exact extra condition needed to make this endpoint
-membership true:
-
-```lean
-endpoint_mem_component_of_baseline_inside_left_lt
-endpoint_mem_component_of_baseline_inside_left_ne
-componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_lt
-componentBarycenter_eq_endpoint_of_componentBlock_eq_dirac_of_endpoint_mass_pos_left_ne
-```
-
-Thus the barycenter endpoint step can now be driven by atomization, positive
-mass at `{-1}`, baseline containment, and the strict endpoint order
-`component.left < -1`.  Equivalently, since baseline containment already gives
-`component.left ≤ -1`, it can be driven by the nondegeneracy condition
-`component.left ≠ -1`.  The remaining analytic normalization work is to derive
-that endpoint nondegeneracy from the genuine maximal-component/translation
-argument, not to re-supply topological support membership by hand.
-
-The local topological bridge for that nondegeneracy is now isolated as:
-
-```lean
-component_left_lt_endpoint_of_open_left_cover
-component_left_ne_endpoint_of_open_left_cover
-```
-
-It says that if a set `S` is open, contains `-1`, and the selected component
-covers all points of `S` in a left neighborhood of `-1`, then the component's
-left endpoint is strictly less than `-1`.  In the intended use, `S` is the
-positive set; this is the precise maximal-component input still needed
-upstream.
-
-## Check command
-
-From the repository root:
+For Standard Reduction work, the cheap check is the single-file compile:
 
 ```bash
-MATHLIB_WORKSPACE="/path/to/mathlib" bash finite_atoms/check_all.sh
+MATHLIB_WORKSPACE='/Users/aaron/Downloads/Frankl 并闭集猜想'
+REPO='/Users/aaron/Downloads/erdos数学问题'
+BUILD=/tmp/erdos1038_standard_reduction_olean
+rm -rf "$BUILD"
+mkdir -p "$BUILD/finite_atoms/common/lean"
+cd "$MATHLIB_WORKSPACE"
+lake env lean -R "$REPO" \
+  -o "$BUILD/finite_atoms/common/lean/StandardReduction.olean" \
+  "$REPO/finite_atoms/common/lean/StandardReduction.lean"
 ```
 
-The default check intentionally skips expensive certificate rebuilds that have
-already been verified repeatedly:
-
-- `CHECK_PIECEWISE_181460_CHUNKS=1` opts in to the `1.814600` 560-chunk rebuild;
-- `CHECK_FORCING_1708_FULL=1` opts in to the older `1.708` forcing aggregate check;
-- `CHECK_FORCING_1708_STRONG_FULL=1` opts in to the strong forcing box-arithmetic
-  and Python verifier.
+Do not run route, forcing, or 560-block checks for Standard Reduction-only doc
+or interface changes unless explicitly requested.

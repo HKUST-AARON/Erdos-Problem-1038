@@ -46,42 +46,31 @@ The finite certificates are meant to be read together with the standard minimize
 
 ## Standard-reduction status
 
-The current Lean files prove several downstream consequences of the Tao/natso standard reduction, but the full variational reduction is not yet closed.
+The full Tao/natso standard reduction is not yet closed in Lean.
 
 What is already formalized:
 
-- normalized endpoint-mass data imply the baseline positive interval, up to the logarithmic pole at the endpoint;
-- the puncture at the endpoint has zero Lebesgue length;
-- once the component argument supplies the right endpoint/support data, the support-shape and endpoint-mass algebra feeds into the normalized endpoint-potential interface;
-- the finite-atom route can use this normalized endpoint-potential interface as its input.
+- normalized endpoint data imply baseline positivity and the `sqrt 2` baseline
+  volume lower bound;
+- endpoint/remainder bookkeeping for the canonical endpoint remainder;
+- support uniqueness, zero-neighborhood, component atomization, normalized
+  atomization, and replacement-rigidity bridges into the endpoint package;
+- boundary-average bridge work once the needed right-endpoint hypotheses are
+  supplied.
 
-What remains to be proved:
+What remains genuinely unproved:
 
-- the true lower-semicontinuity/minimizer-existence layer for the logarithmic-potential objective;
-- the Tao positive-component/variation theorem that turns an arbitrary secondary minimizer into endpoint-normalized data;
-- the selection of the actual maximal positive component and its open-left-cover/topological bookkeeping;
-- the barycenter replacement and variance-minimization argument that atomizes each positive component.
+- select the real maximal positive component from a secondary minimizer;
+- derive baseline placement and right-endpoint boundary data from that component;
+- construct the barycenter replacement and prove primary objective nonincrease;
+- use secondary minimality to force atomization/support uniqueness;
+- remove the external provider interfaces such as `hPackageFromVariation`,
+  `hEndpointFromVariation`, `TaoVariationalReductionInput`, and
+  `TaoEndpointReductionInput`.
 
-In the Lean interfaces this remaining hard step is still represented by names such as
-
-```text
-TaoVariationalReductionInput
-TaoVariationalReductionInputENNReal
-EndpointRouteClosureENNReal.endpointFromVariation
-```
-
-These are not final theorems of the standard reduction. They mark the exact entry point where the remaining variational proof has to be supplied.
-
-The 1.814600 branch uses a required-domain interpretation of positivity:
-
-$$
-U_{\lambda_a}(x)>0\ \text{on}\ \{-1\}\cup[0,1]
-$$
-
-for each block parameter $a\in[-A,-C]$, which corresponds to the $y$-domains
-$[C-1,A-1]\cup[C,A+1]$ in the checker.
-
-The middle interval $[A-1,C]$ corresponds to $x\in(-1,0)$ and is not part of the normalized support. Some blocks are negative there; this is recorded by the diagnostic output and is not used by the finite-atom argument.
+The finite-atom certificates depend on this normalized endpoint interface for
+an unconditional original-problem statement.  Passing finite certificate checks
+is therefore not by itself a proof of the full Standard Reduction.
 
 ## Verification Status
 
