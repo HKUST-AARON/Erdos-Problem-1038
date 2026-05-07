@@ -12917,6 +12917,40 @@ theorem normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_
       (normalizedComponentBlock C) hfirst hsecond hvar
 
 /--
+Secondary-minimizer rigidity directly gives Dirac atomization at the component
+barycenter for a concrete replacement.  This is the local endpoint of the
+variance part of Tao's replacement argument; endpoint identification is handled
+separately.
+-/
+theorem normalizedComponentBlock_eq_dirac_barycenter_of_secondary_minimality
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    normalizedComponentBlock C = Measure.dirac (componentBarycenter C) := by
+  exact normalizedComponentBlock_eq_dirac_componentBarycenter_of_componentBlock_secondMoment_eq
+    R
+    (componentBlock_secondMoment_eq_of_secondary_minimality
+      R hmass_unit hsupport hPrimary hSecondary hprimary_replacement)
+
+/--
 If the normalized component block is the Dirac mass at its barycenter, then the
 barycenter lies in the selected component interval.
 -/
