@@ -16287,6 +16287,25 @@ theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_suppo
     exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
 
 /--
+Endpoint-atomized component-block version of the pointwise right-region
+support consequence.
+-/
+theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_componentBlock_atomized
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici C.right :=
+  realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_support_unique
+    hε hmax hbaseline hspan_aug
+    (unique_support_in_component_of_componentBlock_eq_smul_dirac_endpoint
+      hdirac)
+
+/--
 Distance upper bound at an intrinsic right boundary once a.e. every
 non-endpoint support point lies to its right.
 -/
@@ -16836,6 +16855,26 @@ theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
       rw [hdirac]
     _ = (componentMass C • Measure.dirac (-1 : ℝ)) s := by
       rfl
+
+/--
+Normalized endpoint atomization version of the pointwise right-region support
+consequence.
+-/
+theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_normalized_atomized
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici C.right :=
+  realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_componentBlock_atomized
+    hε hmax hbaseline hspan_aug
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hdirac)
 
 /--
 Tao boundary-average inequality from augmented span/right gap and normalized
