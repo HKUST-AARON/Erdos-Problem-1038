@@ -573,7 +573,9 @@ def right_exterior_offrow_grid_payload(
     alternating = 0
     singular = 0
     min_abs_det_E = math.inf
+    min_abs_det_tuple: dict[str, Any] | None = None
     first_failure: dict[str, Any] | None = None
+    sign_patterns: dict[str, int] = {}
 
     from itertools import combinations
 
@@ -582,9 +584,12 @@ def right_exterior_offrow_grid_payload(
         points = [float(grid[i]) for i in combo]
         matrix = np.array([rows_by_point[point] for point in points], dtype=float)
         det_E = float(np.linalg.det(matrix))
-        min_abs_det_E = min(min_abs_det_E, abs(det_E))
+        if abs(det_E) < min_abs_det_E:
+            min_abs_det_E = abs(det_E)
+            min_abs_det_tuple = {"points": points, "det_E": det_E}
         if sign_label(det_E) == 0:
             singular += 1
+            sign_patterns["singular"] = sign_patterns.get("singular", 0) + 1
             if first_failure is None:
                 first_failure = {"kind": "singular", "points": points, "det_E": det_E}
             continue
@@ -597,6 +602,8 @@ def right_exterior_offrow_grid_payload(
             sign_i = sign_label(det_i / det_E)
             signs.append(sign_i)
             cofactors.append(det_i)
+        pattern_key = ",".join(str(sign) for sign in signs)
+        sign_patterns[pattern_key] = sign_patterns.get(pattern_key, 0) + 1
         ok = all(signs[i] != 0 and signs[i + 1] == -signs[i] for i in range(3))
         if ok:
             alternating += 1
@@ -620,6 +627,9 @@ def right_exterior_offrow_grid_payload(
         "alternating_four_tuples": alternating,
         "singular_four_tuples": singular,
         "min_abs_det_E": None if math.isinf(min_abs_det_E) else min_abs_det_E,
+        "min_abs_det_tuple": min_abs_det_tuple,
+        "nonalternating_four_tuples": total - alternating - singular,
+        "sign_patterns": sign_patterns,
         "first_failure": first_failure,
         "all_nonsingular_alternating": total > 0 and alternating == total,
     }
@@ -757,6 +767,8 @@ def main() -> int:
                 f"{grid_payload['alternating_four_tuples']}/{grid_payload['total_four_tuples']}"
             )
             print(f"  right-exterior grid singular = {grid_payload['singular_four_tuples']}")
+            print(f"  right-exterior grid nonalternating = {grid_payload['nonalternating_four_tuples']}")
+            print(f"  right-exterior grid patterns = {grid_payload['sign_patterns']}")
             print(f"  right-exterior grid all ok = {grid_payload['all_nonsingular_alternating']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

@@ -14412,6 +14412,33 @@ theorem queue.
     misleading and that the grid/envelope scan is necessary before promoting
     numerical evidence into a sign claim.
 
+    The grid scan now also records sign-pattern frequencies and the smallest
+    \(|\det E|\) tuple.  For the same synthetic grid the pattern distribution is
+
+    \[
+    \begin{array}{c|c}
+    \text{relative sign pattern} & \text{count}\\ \hline
+    (-,-,+,-) & 40\\
+    (-,+,+,-) & 15\\
+    (+,-,+,-) & 15
+    \end{array}
+    \tag{G1RightExteriorGridPatternSmoke}
+    \]
+
+    while the smallest determinant magnitude occurs at
+
+    \[
+    (3.1514285714285712,\ 3.434285714285714,\ 3.717142857142857,\ 4.0),
+    \qquad
+    \det E=3.872350669859211\cdot10^{-8}.
+    \]
+
+    The first nonalternating tuple is not near this smallest determinant:
+    it has \(\det E=0.6096211894375172\).  Thus the synthetic failure is not
+    merely a near-singular determinant artifact.  For a real chart, passing a
+    grid scan with a healthy determinant floor would be meaningful evidence;
+    failing it would immediately localize the obstruction pattern.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

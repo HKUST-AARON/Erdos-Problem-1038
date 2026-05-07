@@ -552,6 +552,14 @@ Useful corrections already recorded:
   relative signs \((- ,+,+,-)\).  This shows why single four-point smoke tests
   are not evidence for Gate 1; the real chart must pass a grid/envelope scan
   before any interval proof attempt.
+- The same grid scan now records sign-pattern frequencies and determinant
+  floors.  On the synthetic grid the patterns are \((-,-,+,-)\) with count
+  \(40\), \((-,+,+,-)\) with count \(15\), and \((+,-,+,-)\) with count \(15\).
+  The smallest \(|\det E|\) tuple is at
+  \((3.1514285714285712,3.434285714285714,3.717142857142857,4.0)\) with
+  \(\det E=3.872350669859211\cdot10^{-8}\), while the first nonalternating
+  tuple has \(\det E=0.6096211894375172\).  Thus that synthetic failure is not
+  just a near-singular determinant artifact.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
