@@ -15891,6 +15891,36 @@ theorem queue.
     root ordering.  This lemma implies
     `MixedZeroConnectionNoInteriorLemma` without a nonlinear root search.
 
+    The same audit now also evaluates the kernel cubic at the prescribed
+    interior contact \(y\).  On \(\Gamma=(-2,-1,1,2),p=-3\), the signs are
+
+    \[
+    \begin{array}{c|c|c}
+    \text{pattern} & \operatorname{sgn}F_y(y) & \min|F_y(y)|\\
+    \hline
+    (LR,LI) & + & 8.5904\cdot10^{-2}\\
+    (LR,IR) & - & 1.6583\cdot10^{-1}\\
+    (LI,LR) & + & 1.0999\cdot10^{-1}\\
+    (IR,LR) & - & 5.3836\cdot10^{-2}
+    \end{array}
+    \tag{G1MixedKernelFySmoke}
+    \]
+
+    On the non-symmetric model \(\Gamma=(-3,-1.2,0.7,2.5),p=3.5\), the same
+    sign pattern occurs, with larger observed margins.  Moreover the sampled
+    kernel cubic roots always have one root in the left cut, one root in the
+    middle gap, and one root in the right cut.  Thus the working paper lemma
+    can be stated even more concretely:
+
+    \[
+    \boxed{
+    \text{the kernel cubic }F_y\text{ of }\mathcal M_y
+    \text{ has fixed nonzero }F_y(y)
+    \text{ and hence cannot realize the interior contact.}
+    }
+    \tag{G1MixedKernelFyTarget}
+    \]
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

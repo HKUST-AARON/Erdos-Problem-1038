@@ -819,6 +819,15 @@ Useful corrections already recorded:
   The sharper paper target is `MixedKernelRootOrderLemma`: the kernel cubic
   of this \(3\times4\) matrix always has the wrong root order, except at Gate
   3 degeneracy.
+- The kernel-root audit now also evaluates \(F_y(y)\).  In both tested
+  exterior-pole models its sign is fixed:
+  \[
+  (LR,LI),(LI,LR):F_y(y)>0,\qquad
+  (LR,IR),(IR,LR):F_y(y)<0.
+  \]
+  The sampled kernel roots always split as left-cut / middle-gap / right-cut.
+  Thus the paper lemma can be sharpened: the zero-connection kernel cubic never
+  has the prescribed interior-contact root \(y\).
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

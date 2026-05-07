@@ -1438,6 +1438,7 @@ def endpoint_heavy_mixed_kernel_root_audit(
                 kernel = kernel / kernel[-1]
             roots_complex = np.roots(list(reversed(kernel)))
             real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
+            value_at_y = poly_eval(kernel, float(y))
             root_order_ok = len(real_roots) == 3 and bool(spec["root_order_ok"](float(y), real_roots))
             if root_order_ok:
                 feasible += 1
@@ -1449,17 +1450,25 @@ def endpoint_heavy_mixed_kernel_root_audit(
                     "singular_values": s.tolist(),
                     "kernel_coefficients_ascending": kernel.tolist(),
                     "real_roots": real_roots,
+                    "value_at_y": value_at_y,
+                    "value_at_y_sign": sign_label(value_at_y),
                     "root_order_ok": root_order_ok,
                     "kernel_residual_norm": float(np.linalg.norm(M @ kernel)),
                 }
             )
         records_by_pattern[pattern] = records
+        value_sign_counts: dict[str, int] = {}
+        for record in records:
+            sign = str(record["value_at_y_sign"])
+            value_sign_counts[sign] = value_sign_counts.get(sign, 0) + 1
         summary_by_pattern[pattern] = {
             "samples": samples,
             "root_order_feasible_samples": feasible,
             "min_smallest_singular_value": min_sigma3,
             "max_kernel_residual_norm": max_kernel_residual,
             "all_samples_root_order_infeasible": feasible == 0,
+            "value_at_y_sign_counts": value_sign_counts,
+            "min_abs_value_at_y": min(abs(float(record["value_at_y"])) for record in records),
         }
 
     return {
@@ -2092,7 +2101,9 @@ def main() -> int:
                 f"{summary['root_order_feasible_samples']}/{summary['samples']}, "
                 f"all infeasible = {summary['all_samples_root_order_infeasible']}, "
                 f"min sigma = {summary['min_smallest_singular_value']:.6e}, "
-                f"max kernel residual = {summary['max_kernel_residual_norm']:.6e}"
+                f"max kernel residual = {summary['max_kernel_residual_norm']:.6e}, "
+                f"F(y) signs = {summary['value_at_y_sign_counts']}, "
+                f"min |F(y)| = {summary['min_abs_value_at_y']:.6e}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
