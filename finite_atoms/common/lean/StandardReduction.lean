@@ -8952,6 +8952,37 @@ theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd_
       hopen (by norm_num) hbaseline hzero hnoDiag
 
 /--
+Endpoint-package selected-component constructor for the augmented-maximal path.
+The endpoint package supplies the baseline positivity, so the remaining inputs
+are exactly the local positivity at `0`, openness, and the no-diagonal policy
+for augmented competitors.
+-/
+theorem NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_of_zero
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hendpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ))
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd_midpoint
+      (μ := μ) hopen
+      (normalized_endpoint_lower_bound_baseline_neg_one_zero_positive
+        hendpoint.halfMass hendpoint.endpointLowerBound)
+      hzero hnoDiag
+
+/--
 Truncated-positive analogue of
 `positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
 preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
