@@ -4145,6 +4145,71 @@ theorem PositiveComponent.right_potential_nonpos_of_intervalMaximal_continuous
     C.no_positive_interval_from_component_point_crosses_right
       hmax hx_interval hr hpos_interval
 
+theorem PositiveComponent.right_potential_nonpos_of_intervalMaximal_not_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    (hnot_support : C.right ∉ (realMeasure μ).support) :
+    unitIntervalLogPotential μ C.right ≤ 0 :=
+  C.right_potential_nonpos_of_intervalMaximal_continuous hmax
+    (unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hnot_support)
+
+theorem PositiveComponent.right_potential_nonpos_of_augmentedIntervalMaximal_not_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hnot_support : C.right ∉ (realMeasure μ).support) :
+    unitIntervalLogPotential μ C.right ≤ 0 := by
+  by_contra hnot
+  have hpos_right : 0 < unitIntervalLogPotential μ C.right := lt_of_not_ge hnot
+  have hcont : ContinuousAt (unitIntervalLogPotential μ) C.right :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hnot_support
+  have hpos_eventually :
+      ∀ᶠ y : ℝ in nhds C.right, 0 < unitIntervalLogPotential μ y :=
+    hcont.eventually (isOpen_Ioi.mem_nhds hpos_right)
+  rcases Metric.mem_nhds_iff.mp hpos_eventually with
+    ⟨ε, hε, hball⟩
+  let η : ℝ := min ε (C.right - C.left)
+  have hη_pos : 0 < η := by
+    dsimp [η]
+    exact lt_min hε (sub_pos.mpr C.left_lt_right)
+  let x : ℝ := C.right - η / 2
+  let r : ℝ := C.right + η / 2
+  have hx_interval : x ∈ C.interval := by
+    rw [C.interval_eq]
+    constructor
+    · dsimp [x, η]
+      have hη_le_width : min ε (C.right - C.left) ≤ C.right - C.left :=
+        min_le_right ε (C.right - C.left)
+      linarith
+    · dsimp [x]
+      linarith
+  have hr : C.right < r := by
+    dsimp [r]
+    linarith
+  have haug_interval :
+      Ioo x r ⊆ unitIntervalAugmentedPositiveSet μ := by
+    intro y hy
+    have hy_ball : y ∈ Metric.ball C.right ε := by
+      rw [Metric.mem_ball, Real.dist_eq, abs_sub_lt_iff]
+      constructor
+      · dsimp [r, η] at hy
+        have hy_right : y < C.right + min ε (C.right - C.left) / 2 :=
+          hy.2
+        have hη_le_ε : min ε (C.right - C.left) ≤ ε :=
+          min_le_left ε (C.right - C.left)
+        linarith
+      · dsimp [x, η] at hy
+        have hy_left : C.right - min ε (C.right - C.left) / 2 < y :=
+          hy.1
+        have hη_le_ε : min ε (C.right - C.left) ≤ ε :=
+          min_le_left ε (C.right - C.left)
+        linarith
+    exact unitInterval_positiveSet_subset_augmented μ (hball hy_ball)
+  exact
+    C.no_augmented_interval_from_component_point_crosses_right
+      hmax hx_interval hr haug_interval
+
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
 local no-diagonal condition for augmented competing intervals.  This combines
