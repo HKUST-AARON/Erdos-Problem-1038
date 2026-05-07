@@ -1,0 +1,315 @@
+{
+  "best_records": [
+    {
+      "blockers": [
+        "cut_density_raw_sign_consistent"
+      ],
+      "c": 0.4479786325511174,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": true,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": false,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 13,
+        "1": 13
+      },
+      "q_roots": [
+        -6.443407801216567,
+        -0.3828668275131657,
+        0.5970289071291326,
+        2.5968998557038265
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "1": 4
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -2.227474058909462,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -7.10712953333325,
+        -0.12800149747090436,
+        0.32166486729158844,
+        4.565568805957261
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 1,
+        "1": 3
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -3.719014309997846,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -2.697304013471554,
+        -0.3455214588307887,
+        0.5235714906981099,
+        7.549090534215604
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 2,
+        "1": 2
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": 6.748543017746574,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "1": 26
+      },
+      "q_roots": [
+        -2.9470438744941143,
+        -0.17756944441648073,
+        0.2744289114904833,
+        5.12364025504373
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 2,
+        "1": 2
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -7.289607491930719,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -3.879517115611658,
+        -0.3058517881663109,
+        0.043374157455151406,
+        3.3365291765631357
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 2,
+        "1": 2
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -5.40123151707955,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -3.8234006155033624,
+        -0.08278182032504348,
+        0.7556948794770335,
+        7.019340067919064
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 2,
+        "1": 2
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -2.960166545173108,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -6.921822953925629,
+        -0.7359975752884953,
+        0.1972304827986333,
+        2.1684689555826577
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 1,
+        "1": 3
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": 7.103059797938672,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "1": 26
+      },
+      "q_roots": [
+        -6.651574923013136,
+        0.10468368990594384,
+        0.3591515605822798,
+        2.299970144958682
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 2,
+        "1": 2
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -2.9903051607694753,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -3.331839098291501,
+        -0.9256209222922623,
+        -0.38640997364078483,
+        2.1083418268270546
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 1,
+        "1": 3
+      },
+      "score": 6
+    },
+    {
+      "blockers": [
+        "all_residues_positive"
+      ],
+      "c": -7.232877026881148,
+      "checks": {
+        "all_q_poles_off_cut": true,
+        "all_residues_positive": false,
+        "anchor_F_c_zero": true,
+        "boundary_separated": true,
+        "cut_density_raw_sign_consistent": true,
+        "cut_density_raw_sign_nonzero": true,
+        "degree_P_allowed": true
+      },
+      "cut_density_raw_sign_counts": {
+        "-1": 26
+      },
+      "q_roots": [
+        -7.343312825761075,
+        -0.840835160327843,
+        0.9155783520706874,
+        4.702925782520523
+      ],
+      "regular_chart_candidate": false,
+      "residue_sign_counts": {
+        "-1": 1,
+        "1": 3
+      },
+      "score": 6
+    }
+  ],
+  "blocker_counts": {
+    "all_residues_positive": 26806,
+    "cut_density_raw_sign_consistent": 9810
+  },
+  "density_samples": 13,
+  "first_found": null,
+  "found_count": 0,
+  "interpretation": "Smoke search only. Passing records are not proof-grade; failures identify which regularity condition blocks this minimal d=4 P(c)=0 family.",
+  "model": "Gate 1 d=4 smoke candidate search",
+  "seed": 2,
+  "trials_requested": 30000
+}

@@ -18440,7 +18440,7 @@ future solver output.  It checks:
 * the compact \(g=2\) decay bound \(\deg P\le\deg Q-3\);
 * real simple \(Q\)-poles and whether they lie off the cuts;
 * positive pole residues for \(F=P R/Q\);
-* sampled nonzero raw cut-density signs;
+* sampled nonzero and consistent raw cut-density signs;
 * separation of \(c,u,v\) from cuts and \(Q\)-poles;
 * the branch condition \(F(c)=0\) at tolerance \(10^{-8}\).
 
@@ -18507,3 +18507,79 @@ solver must use
 
 unless it deliberately routes \(c\) hitting a pole/cut as a Gate 3
 degeneration.  The solver template has been updated accordingly.
+
+## Gate 1 minimal \(d=4\) smoke search
+
+The extractor now has a non-proof smoke search:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --search-compact-d4-smoke \
+  --search-trials 30000 \
+  --random-seed 2 \
+  --density-samples 13 \
+  --write-json 1038/gate1_d4_smoke_search_audit.json
+```
+
+The search uses the minimal hand-built family
+
+\[
+P(z)=z-c,\qquad
+\Gamma=(-2,-1,1,2),
+\]
+
+with four real \(Q\)-poles sampled off the two cuts, one pole in each exterior
+region and two poles in the middle gap.  This is only a pipeline smoke test:
+it does not impose the real compact chart residual equations, period/filling
+conditions, or proof-grade provenance.
+
+The result was:
+
+```text
+found count = 0
+blocker counts =
+  {'cut_density_raw_sign_consistent': 9810,
+   'all_residues_positive': 26806}
+```
+
+The best records split into two failure types:
+
+* some samples have all four pole residues positive, but the raw cut-density
+  sign splits across the two cuts, e.g. sign counts \(\{+1:13,-1:13\}\);
+* some samples have consistent raw cut-density signs on the cuts, but at least
+  one pole residue is negative.
+
+Thus the minimal \(d=4\) family is not enough to generate a regular compact
+\(g=2\) Gate 1 chart.  This is useful negative information: the next chart
+attempt should not keep hand-picking \(P=z-c\) and four poles.  It must solve
+the real executable residual system, with nontrivial \(P,Q,\Gamma\) and the
+period/filling equations included.
+
+The regression commands still pass:
+
+```bash
+python3 -m py_compile 1038/gate1_repaired_data_extractor.py
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-lrlr-kernel --connection-samples 128 --connection-nodes 80
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-mixed-kernel-roots --connection-samples 20 --connection-nodes 60
+python3 1038/gate1_repaired_data_extractor.py --scan-jsons 1038
+```
+
+The final scan remains:
+
+```text
+gate1 chart ready = 0
+```
+
+So the current honest status is:
+
+\[
+\boxed{
+\text{proof-grade Gate 1 chart data are still absent.}
+}
+\]
+
+The best next route is to implement the actual \(d\ge4\) compact chart residual
+maps in the executable solver template, rather than adding more schema or
+searching more hand-built toy families.

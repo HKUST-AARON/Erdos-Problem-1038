@@ -635,6 +635,9 @@ def compact_chart_numeric_condition_audit(path: Path, density_samples: int = 25)
         "all_q_poles_off_cut": all(record["location"] not in {"cut", "endpoint"} for record in pole_records),
         "all_residues_positive": all(record["residue"] > 1.0e-10 for record in pole_records),
         "cut_density_raw_sign_nonzero": all(record["sign"] != 0 for record in cut_density_records),
+        "cut_density_raw_sign_consistent": (
+            len({record["sign"] for record in cut_density_records if record["sign"] != 0}) == 1
+        ),
         "boundary_separated": not boundary_separation_errors,
         "anchor_F_c_zero": (
             anchor_record is not None
@@ -1510,6 +1513,102 @@ def generate_compact_chart_from_solver_spec(spec_path: Path) -> dict[str, Any]:
         "next_action": (
             "implement the numeric residual evaluator and certified exporter "
             "for executable_solver"
+        ),
+    }
+
+
+def compact_d4_smoke_payload(
+    q_roots: list[float],
+    c_value: float,
+    gammas: list[float] | None = None,
+) -> dict[str, Any]:
+    """Build a non-proof d=4 smoke chart with P(z)=z-c."""
+    chart_gammas = [-2.0, -1.0, 1.0, 2.0] if gammas is None else gammas
+    return {
+        "schema": "gate1_compact_g2_chart_v1",
+        "description": "d=4 smoke candidate satisfying P(c)=0 shape; not proof-grade",
+        "proof_grade": False,
+        "P": [-float(c_value), 1.0],
+        "Q": poly_from_roots(q_roots).tolist(),
+        "gammas": chart_gammas,
+        "row_gauge": {"kind": "full_pair_pole_gauge", "omit_q_pole_index": 0},
+        "c": float(c_value),
+        "u": max(chart_gammas) + 0.5,
+        "v": max(chart_gammas) + 2.0,
+        "a": 0.5,
+        "b": 0.5,
+        "kappa": 1.0,
+        "Z0": [[chart_gammas[0], chart_gammas[1]], [chart_gammas[2], chart_gammas[3]]],
+        "equation_provenance": {"candidate": "d=4 smoke search only; not proof-grade"},
+    }
+
+
+def search_compact_d4_smoke_candidates(
+    trials: int = 10000,
+    seed: int = 1,
+    density_samples: int = 13,
+) -> dict[str, Any]:
+    """Randomly search the minimal d=4 P(c)=0 smoke family."""
+    rng = np.random.default_rng(seed)
+    gammas = [-2.0, -1.0, 1.0, 2.0]
+    found: list[dict[str, Any]] = []
+    best: list[dict[str, Any]] = []
+    blocker_counts: dict[str, int] = {}
+    for _ in range(trials):
+        q_roots = sorted(
+            [
+                float(rng.uniform(-8.0, -2.05)),
+                float(rng.uniform(-0.95, 0.95)),
+                float(rng.uniform(-0.95, 0.95)),
+                float(rng.uniform(2.05, 8.0)),
+            ]
+        )
+        c_region = int(rng.integers(0, 3))
+        if c_region == 0:
+            c_value = float(rng.uniform(-7.5, -2.05))
+        elif c_region == 1:
+            c_value = float(rng.uniform(-0.98, 0.98))
+        else:
+            c_value = float(rng.uniform(2.05, 7.5))
+        payload = compact_d4_smoke_payload(q_roots, c_value, gammas)
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as handle:
+            json.dump(payload, handle)
+            temp_path = Path(handle.name)
+        try:
+            audit = compact_chart_numeric_condition_audit(temp_path, density_samples=density_samples)
+        finally:
+            temp_path.unlink(missing_ok=True)
+        for blocker in audit["blocking_errors"]:
+            blocker_counts[blocker] = blocker_counts.get(blocker, 0) + 1
+        score = sum(1 for ok in audit["checks"].values() if ok)
+        record = {
+            "score": score,
+            "q_roots": q_roots,
+            "c": c_value,
+            "regular_chart_candidate": audit["regular_chart_candidate"],
+            "blockers": audit["blocking_errors"],
+            "checks": audit["checks"],
+            "residue_sign_counts": audit["residue_sign_counts"],
+            "cut_density_raw_sign_counts": audit["cut_density_raw_sign_counts"],
+        }
+        if audit["regular_chart_candidate"]:
+            found.append(record)
+            break
+        best.append(record)
+        best.sort(key=lambda item: item["score"], reverse=True)
+        best = best[:10]
+    return {
+        "model": "Gate 1 d=4 smoke candidate search",
+        "trials_requested": trials,
+        "seed": seed,
+        "density_samples": density_samples,
+        "found_count": len(found),
+        "first_found": found[0] if found else None,
+        "blocker_counts": blocker_counts,
+        "best_records": best,
+        "interpretation": (
+            "Smoke search only. Passing records are not proof-grade; failures identify "
+            "which regularity condition blocks this minimal d=4 P(c)=0 family."
         ),
     }
 
@@ -4331,6 +4430,11 @@ def main() -> int:
         help="audit numeric finite-gap regularity conditions for a candidate chart",
     )
     parser.add_argument(
+        "--search-compact-d4-smoke",
+        action="store_true",
+        help="random-search a minimal non-proof d=4 P(c)=0 compact chart smoke family",
+    )
+    parser.add_argument(
         "--generate-compact-chart",
         action="store_true",
         help="generate a proof-grade compact chart only if executable_solver is complete",
@@ -4411,6 +4515,8 @@ def main() -> int:
     parser.add_argument("--lambda-samples", type=int, default=41)
     parser.add_argument("--lambda-value", type=float)
     parser.add_argument("--density-samples", type=int, default=25)
+    parser.add_argument("--search-trials", type=int, default=10000)
+    parser.add_argument("--random-seed", type=int, default=1)
     parser.add_argument("--affine-u", type=float)
     parser.add_argument("--affine-v", type=float)
     parser.add_argument("--affine-a", type=float)
@@ -4520,6 +4626,28 @@ def main() -> int:
             print(f"  raw cut-density signs = {audit['cut_density_raw_sign_counts']}")
         if "anchor" in audit:
             print(f"  anchor = {audit['anchor']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.search_compact_d4_smoke:
+        audit = search_compact_d4_smoke_candidates(
+            trials=args.search_trials,
+            seed=args.random_seed,
+            density_samples=args.density_samples,
+        )
+        print("Gate 1 d=4 compact chart smoke search")
+        print(f"  trials requested = {audit['trials_requested']}")
+        print(f"  seed = {audit['seed']}")
+        print(f"  density samples = {audit['density_samples']}")
+        print(f"  found count = {audit['found_count']}")
+        print(f"  blocker counts = {audit['blocker_counts']}")
+        if audit["first_found"] is not None:
+            print(f"  first found = {audit['first_found']}")
+        else:
+            print(f"  best preview = {audit['best_records'][:3]}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
