@@ -7020,6 +7020,46 @@ theorem mem_unitIntervalTruncatedPositiveSet_of_pos_truncatedPotential
   exact unitIntervalTruncatedPotential_mono_scale μ x
     (unitIntervalPositiveTruncationScale_pos n) hn
 
+/--
+The truncated-sup positive set is open because it is a countable union of open
+strict threshold sets.
+-/
+theorem unitIntervalTruncatedPositiveSet_isOpen
+    (μ : ProbabilityMeasure UnitInterval1038) :
+    IsOpen (unitIntervalTruncatedPositiveSet μ) := by
+  rw [show unitIntervalTruncatedPositiveSet μ =
+      ⋃ n : ℕ, {x : ℝ |
+        0 < unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x} by
+    ext x
+    simp [unitIntervalTruncatedPositiveSet]]
+  exact isOpen_iUnion (fun n =>
+    unitIntervalTruncatedPotential_threshold_isOpen
+      (μ := μ) (ε := unitIntervalPositiveTruncationScale n)
+      (τ := 0) (unitIntervalPositiveTruncationScale_pos n))
+
+/--
+Every point of the truncated-sup positive set has an open interval
+neighbourhood contained in the truncated-sup positive set.
+-/
+theorem unitIntervalTruncatedPositiveSet_exists_interval_around
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∈ unitIntervalTruncatedPositiveSet μ) :
+    ∃ l r : ℝ,
+      l < x ∧ x < r ∧
+      Ioo l r ⊆ unitIntervalTruncatedPositiveSet μ := by
+  rcases hx with ⟨n, hxpos⟩
+  rcases unitIntervalTruncatedPotential_exists_positive_interval_around
+      (μ := μ)
+      (ε := unitIntervalPositiveTruncationScale n)
+      (x := x)
+      (unitIntervalPositiveTruncationScale_pos n)
+      hxpos with
+    ⟨l, r, hlx, hxr, hsub⟩
+  refine ⟨l, r, hlx, hxr, ?_⟩
+  intro y hy
+  exact ⟨n, hsub hy⟩
+
 theorem unitIntervalTruncatedPositiveSet_subset_Ioo_neg_two_two
     (μ : ProbabilityMeasure UnitInterval1038) :
     unitIntervalTruncatedPositiveSet μ ⊆ Ioo (-2 : ℝ) 2 := by
