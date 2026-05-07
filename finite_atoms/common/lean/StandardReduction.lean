@@ -15297,6 +15297,63 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         hendpoint_unit_pos,
       hendpoint_unit_pos, hbaseline, hright, hboundary, hzero⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_atomization_data
+    (hAugmentedMaximalComponentUnitEndpointAtomAtomizationDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < C.right ∧
+          1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomAtomizationDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, hε, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hright, hboundary, hcomponent_atomized⟩
+  exact
+    ⟨C, ε, hε, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hright, hboundary,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        hcomponent_atomized⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
