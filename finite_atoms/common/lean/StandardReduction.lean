@@ -10598,6 +10598,26 @@ theorem exists_positiveComponent_baseline_right_pos_of_span_global_data
       hspan_no_diag_compact hspan_tail_compact
 
 /--
+Short span-global constructor.  When ordinary positivity is already known on
+the whole span `Ioc (-1) δ`, the selected component follows directly; the
+continuity, off-diagonal, tail, truncation, and log-integrability data are not
+needed for component selection itself.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_span_global_positive
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases exists_positiveComponent_baseline_right_pos_of_Ioc_positive_spanning
+      hδ (fun y hy => hspan_pos y hy) with
+    ⟨C, _hinterval, hbaseline, hright⟩
+  exact ⟨C, hbaseline, hright⟩
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
