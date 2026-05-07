@@ -16877,6 +16877,30 @@ theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_norma
       R hdirac)
 
 /--
+Endpoint-remainder version of the right-region support consequence.  After
+removing the endpoint atom, almost every remaining point lies on/to the right
+of the selected component's right endpoint.
+-/
+theorem endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint_or_right
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hsupport_right :
+      (realMeasure μ).support ⊆ ({-1} : Set ℝ) ∪ Ici C.right) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, C.right ≤ t := by
+  have hsupport_ae :
+      ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ,
+        t ∈ (realMeasure μ).support :=
+    realMeasure_endpointRemainder_support_in_support μ
+      (realMeasure μ).support (realMeasure_ae_mem_support μ)
+  have hnot_endpoint :
+      ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, t ≠ -1 :=
+    realMeasure_endpointRemainder_no_endpoint μ
+  filter_upwards [hsupport_ae, hnot_endpoint] with t htSupport ht_ne
+  rcases hsupport_right htSupport with ht_endpoint | ht_right
+  · exfalso
+    exact ht_ne ht_endpoint
+  · exact ht_right
+
+/--
 Tao boundary-average inequality from augmented span/right gap and normalized
 component atomization, using the concrete component replacement to unnormalize.
 -/
