@@ -719,6 +719,29 @@ Useful corrections already recorded:
   endpoint-heavy \(2+2\) patterns with one-sided derivative signs.  The next
   sign lemma should be stated for those endpoint-heavy contact patterns, not
   for arbitrary four interior contacts.
+- The surviving \(2+2\) types are only
+  \[
+  (LR,LR),\quad (LR,LI),\quad (LR,IR),\quad (LI,LR),\quad (IR,LR),
+  \]
+  where \(L,R\) are component endpoints and \(I\) is an interior contact.  All
+  other \(2+2\) patterns force at least four derivative zeros and are excluded
+  by the cubic numerator except for Gate 3 degeneracy.  The next computation is
+  the one-sided endpoint derivative plus connection-integral sign check for
+  these five patterns.
+- A bare quartic primitive check on model intervals \([-2,-1]\cup[1,2]\)
+  shows these survivor contact sets are not automatically feasible: the
+  interpolating quartics are negative somewhere on the components.  So the
+  immediate finite check is even sharper: for each of the five survivor types,
+  first test inward endpoint derivative signs and component nonnegativity; only
+  patterns surviving that test need the split-connection integral.
+- The extractor now has `--audit-endpoint-heavy-patterns` for this bare model.
+  It reports that none of the five survivor types is sampled-nonnegative, and
+  none satisfies all inward endpoint derivative signs.  This is diagnostic, not
+  a Gate 1 proof.  The next proof target is the stronger
+  `EndpointHeavyInwardSignLemma`: for the full-pair kernel \(1/(N^2R)\), no
+  nonzero cubic numerator can realize those five endpoint-heavy contact
+  patterns with the required one-sided inward signs.  Only if this fails should
+  the split-connection integral be used.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

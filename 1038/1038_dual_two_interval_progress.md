@@ -15398,6 +15398,115 @@ theorem queue.
     In particular, an all-interior \(2+2\) pattern is already impossible, while
     endpoint-heavy patterns require the connection integral/off-row sign.
 
+    Endpoint-heavy pattern ledger.
+
+    Write \(L\) and \(R\) for the two endpoints of one component and \(I\) for
+    an interior contact.  A two-contact component can have type
+
+    \[
+    LR,\quad LI,\quad IR,\quad II.
+    \]
+
+    For a \(2+2\) split pattern, the number of forced derivative zeros is at
+    least the sum over components of
+
+    \[
+    1+\#\{\text{interior contacts on that component}\},
+    \]
+
+    because two contact values in one component give one Rolle zero between
+    them, and each interior contact is itself a local minimum.  Since the
+    numerator \(F\) is cubic, all patterns forcing at least four derivative
+    zeros are impossible in the regular case.
+
+    Thus only the following endpoint-heavy \(2+2\) types survive the cubic
+    count:
+
+    \[
+    \boxed{
+    (LR,LR),\quad (LR,LI),\quad (LR,IR),\quad (LI,LR),\quad (IR,LR).
+    }
+    \tag{G1EndpointHeavySurvivors}
+    \]
+
+    Every other \(2+2\) type forces at least four derivative zeros and hence
+    routes either to \(F\equiv0\) or to a degeneracy/Gate 3 boundary.  Therefore
+    `SplitConnectionSignLemma` only has to exclude the five survivor types in
+    (G1EndpointHeavySurvivors).  This is now a finite sign problem with
+    endpoint one-sided derivative inequalities and one cross-component
+    connection integral.
+
+    A bare quartic primitive check on the model intervals
+
+    \[
+    [-2,-1]\cup[1,2]
+    \]
+
+    gives another useful warning.  Interpolating a monic quartic primitive
+    through the survivor contact sets above produces functions that are
+    negative somewhere on the components in the tested symmetric model.  For
+    example the \((LR,LR)\) interpolation gives
+
+    \[
+    G(x)=(x+2)(x+1)(x-1)(x-2)=x^4-5x^2+4,
+    \]
+
+    which is negative between the two endpoint contacts on each component.
+    Thus endpoint-heavy survivors are not automatically feasible; they must
+    also pass the one-sided endpoint derivative signs and nonnegativity on
+    each component.
+
+    The next finite check is therefore sharper:
+
+    \[
+    \boxed{
+    \text{for each of the five survivor types, solve the endpoint/interior
+    contact equations and test the inward derivative signs.}
+    }
+    \]
+
+    If these signs already contradict the cubic numerator sign pattern, the
+    connection integral is not needed for that type.  Only any survivor that
+    passes the inward derivative sign test needs the split-connection
+    integral.
+
+    Endpoint-heavy toy audit.
+
+    The extractor now includes
+
+    \[
+    \texttt{--audit-endpoint-heavy-patterns}
+    \]
+
+    as a bare quartic-model diagnostic.  It tests the five survivor types on
+    the normalized model
+
+    \[
+    [-2,-1]\cup[1,2]
+    \]
+
+    by interpolating a monic quartic primitive through the prescribed contacts
+    and sampling nonnegativity plus inward endpoint derivative signs.  The
+    command reports that none of the five survivor types is nonnegative on the
+    sampled components, and none satisfies all inward endpoint derivative
+    signs in this bare model.
+
+    This is not a proof for Gate 1, but it changes the next priority.  Before
+    using the split-connection integral, try to prove the stronger endpoint
+    sign contradiction:
+
+    \[
+    \boxed{
+    \textbf{EndpointHeavyInwardSignLemma.}
+    }
+    \]
+
+    For the full-pair kernel \(1/(N^2R)\), no nonzero cubic numerator \(F\)
+    can produce one of the five endpoint-heavy contact patterns while also
+    satisfying the required inward one-sided derivative signs on both
+    components.  Only if this lemma fails does one need the connection
+    integral (G1SplitConnectionTarget).
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

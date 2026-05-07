@@ -534,6 +534,86 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
     }
 
 
+def endpoint_heavy_split_pattern_audit() -> dict[str, Any]:
+    """Diagnostic quartic primitive audit for endpoint-heavy 2+2 split patterns.
+
+    This is a bare model on [-2,-1] union [1,2].  It is not a Gate 1 chart
+    certificate; it only checks which contact pattern types are plausible
+    before the actual split-connection row is used.
+    """
+    intervals = [(-2.0, -1.0), (1.0, 2.0)]
+    patterns = [
+        (("L", "R"), ("L", "R")),
+        (("L", "R"), ("L", "I")),
+        (("L", "R"), ("I", "R")),
+        (("L", "I"), ("L", "R")),
+        (("I", "R"), ("L", "R")),
+    ]
+
+    def contact_x(component_index: int, marker: str) -> float:
+        left, right = intervals[component_index]
+        if marker == "L":
+            return left
+        if marker == "R":
+            return right
+        if marker == "I":
+            return 0.5 * (left + right)
+        raise ValueError(marker)
+
+    records = []
+    for pattern in patterns:
+        xs = [
+            contact_x(component_index, marker)
+            for component_index, component in enumerate(pattern)
+            for marker in component
+        ]
+        matrix = np.array([[1.0, x, x * x, x * x * x] for x in xs], dtype=float)
+        rhs = np.array([-x**4 for x in xs], dtype=float)
+        coefficients = np.linalg.solve(matrix, rhs)
+        primitive = np.array([*coefficients, 1.0], dtype=float)
+        derivative = poly_derivative(primitive)
+        grid = np.concatenate(
+            [
+                np.linspace(intervals[0][0], intervals[0][1], 201),
+                np.linspace(intervals[1][0], intervals[1][1], 201),
+            ]
+        )
+        values = np.polynomial.polynomial.polyval(grid, primitive)
+        endpoint_derivatives = {
+            "left_component_left_endpoint": poly_eval(derivative, intervals[0][0]),
+            "left_component_right_endpoint": poly_eval(derivative, intervals[0][1]),
+            "right_component_left_endpoint": poly_eval(derivative, intervals[1][0]),
+            "right_component_right_endpoint": poly_eval(derivative, intervals[1][1]),
+        }
+        inward_signs_ok = (
+            endpoint_derivatives["left_component_left_endpoint"] >= -1.0e-10
+            and endpoint_derivatives["left_component_right_endpoint"] <= 1.0e-10
+            and endpoint_derivatives["right_component_left_endpoint"] >= -1.0e-10
+            and endpoint_derivatives["right_component_right_endpoint"] <= 1.0e-10
+        )
+        records.append(
+            {
+                "pattern": pattern,
+                "contact_points": xs,
+                "primitive_coefficients_ascending": primitive.tolist(),
+                "derivative_coefficients_ascending": derivative.tolist(),
+                "sample_min_on_components": float(np.min(values)),
+                "endpoint_derivatives": endpoint_derivatives,
+                "all_endpoint_inward_signs_ok": bool(inward_signs_ok),
+            }
+        )
+    return {
+        "model": "monic quartic primitive on [-2,-1] union [1,2]",
+        "records": records,
+        "patterns_with_nonnegative_sample": [
+            record["pattern"] for record in records if record["sample_min_on_components"] >= -1.0e-10
+        ],
+        "patterns_with_all_endpoint_inward_signs_ok": [
+            record["pattern"] for record in records if record["all_endpoint_inward_signs_ok"]
+        ],
+    }
+
+
 def row_from_json(item: dict[str, Any]) -> Row:
     kind = str(item["kind"])
     x = float(item["x"])
@@ -952,6 +1032,11 @@ def main() -> int:
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
+    parser.add_argument(
+        "--audit-endpoint-heavy-patterns",
+        action="store_true",
+        help="diagnose endpoint-heavy 2+2 split contact patterns in a bare quartic model",
+    )
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -959,6 +1044,30 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.audit_endpoint_heavy_patterns:
+        audit = endpoint_heavy_split_pattern_audit()
+        print("Gate 1 endpoint-heavy split pattern audit")
+        print(f"  model = {audit['model']}")
+        for record in audit["records"]:
+            print(
+                "  pattern = "
+                f"{record['pattern']}, sample min = {record['sample_min_on_components']:.12e}, "
+                f"inward signs = {record['all_endpoint_inward_signs_ok']}"
+            )
+        print(
+            "  nonnegative sampled patterns = "
+            f"{audit['patterns_with_nonnegative_sample']}"
+        )
+        print(
+            "  all-inward-sign patterns = "
+            f"{audit['patterns_with_all_endpoint_inward_signs_ok']}"
+        )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.audit_pole_row_subsets:
         if args.chart_json:
