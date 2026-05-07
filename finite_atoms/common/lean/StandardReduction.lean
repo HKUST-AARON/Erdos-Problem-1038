@@ -4047,6 +4047,36 @@ theorem unitIntervalLogPotential_componentReplacementProbability_eq
     C hmass_unit hsupport]
   rfl
 
+/--
+Concrete replacement package from the single real mass input
+`0 < componentMass C`.  This removes the need to separately provide the
+replacement data, barycenter support, replacement mass-on-`[-1,1]`, and
+replacement-potential equality.
+-/
+theorem exists_componentReplacement_probability_data_of_componentMass_pos
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hmass_pos : 0 < componentMass C) :
+    ∃ R : ComponentReplacement μ C,
+    ∃ hmass_unit : componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1,
+      componentBarycenter C ∈ Icc (-1 : ℝ) 1 ∧
+      (∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1) ∧
+      unitIntervalLogPotential
+          (componentReplacementProbability C hmass_unit) =
+        componentReplacementPotential C := by
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C hmass_pos
+  have hbary : componentBarycenter C ∈ Icc (-1 : ℝ) 1 :=
+    componentBarycenter_mem_Icc R
+  let hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1 :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc hbary
+  have hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1 :=
+    componentReplacementMeasure_ae_mem_Icc_of_barycenter_mem_Icc hbary
+  refine ⟨R, hmass_unit, hbary, hsupport, ?_⟩
+  exact unitIntervalLogPotential_componentReplacementProbability_eq
+    C hmass_unit hsupport
+
 theorem componentReplacement_potential_eq_outside_add_replacementAtom
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     (x : ℝ)
