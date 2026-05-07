@@ -523,6 +523,12 @@ Useful corrections already recorded:
   \(5.329070518201\cdot10^{-15}\).  Thus the remaining computational blocker
   is now specifically the absence of a real compact non-pinched \(g=2\) chart
   file, not extractor infrastructure.
+- If the chart JSON includes an off-cut anchor `c`, the entry point now also
+  computes \(\rho_\gamma=-H_\gamma^{rep}(c)/(Q(c)^2R(c))\) using the real
+  branch \(R(z)\sim z^2\).  A synthetic anchor test at \(c=-0.4\) gives
+  \(R(c)=-2.087103255711\) and \(\max_\gamma|\rho_\gamma|=2.992534365488\).
+  It intentionally does not invent \(V_S,b_S\); those require the cut-density
+  logarithmic potential normalization.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

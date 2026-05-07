@@ -14237,6 +14237,36 @@ theorem queue.
         quadrature for \(V_S,\rho_S,b_S\);
     4.  compact affine contact/envelope search.
 
+    The entry point already implements the first part of item 3 when an
+    off-cut anchor \(c\) is supplied.  With the branch convention
+    \(R(z)\sim z^2\) at \(+\infty\), it evaluates the real off-cut branch
+
+    \[
+    R(c)=\sqrt{\prod_{\gamma\in\Gamma}(c-\gamma)}
+    \]
+
+    with the sign flipped on the middle gap, and returns
+
+    \[
+    \rho_\gamma=-C_\gamma(c)
+    =
+    -\frac{H_\gamma^{rep}(c)}{Q(c)^2R(c)}.
+    \tag{G1ChartJsonRho}
+    \]
+
+    On the synthetic chart with \(c=-0.4\), the smoke output is
+
+    \[
+    R(c)=-2.087103255711,\qquad
+    \max_\gamma|\rho_\gamma|=2.992534365488.
+    \tag{G1ChartJsonRhoSmoke}
+    \]
+
+    The absolute potential rows \(V_S,b_S\) are deliberately not faked by a
+    path integral; they require the cut density and the chosen logarithmic
+    potential normalization.  That is the next numerical layer after a real
+    chart file is available.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

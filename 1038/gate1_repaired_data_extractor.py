@@ -332,11 +332,51 @@ def period_endpoint_quotient_residual(P: Array, Q: Array, gammas: list[float]) -
     }
 
 
+def real_R_value(x: float, gammas: list[float]) -> float:
+    ordered = sorted(gammas)
+    if len(ordered) != 4:
+        raise ValueError("real_R_value currently expects four g=2 branch endpoints")
+    a1, b1, a2, b2 = ordered
+    if a1 <= x <= b1 or a2 <= x <= b2:
+        raise ValueError(f"x={x} lies on a cut; real off-cut R is not defined")
+    radicand = math.prod(x - gamma for gamma in ordered)
+    if radicand <= 0.0:
+        raise ValueError(f"x={x}: nonpositive off-cut radicand {radicand}")
+    # Branch convention R(z)~z^2 at +infinity. Crossing each cut flips the sign.
+    sign = -1.0 if b1 < x < a2 else 1.0
+    return sign * math.sqrt(radicand)
+
+
+def cauchy_column_value(h_coefficients: list[float], Q: Array, gammas: list[float], x: float) -> float:
+    R_x = real_R_value(x, gammas)
+    Q_x = poly_eval(Q, x)
+    if abs(Q_x) < 1.0e-14:
+        raise ValueError(f"x={x}: Q vanishes, C column is singular")
+    return poly_eval(np.array(h_coefficients, dtype=float), x) / (Q_x * Q_x * R_x)
+
+
+def anchor_rho_payload(repaired: dict[str, Any], c_value: float) -> dict[str, Any]:
+    Q = np.array(repaired["Q_coefficients_ascending"], dtype=float)
+    gammas = [float(x) for x in repaired["gammas"]]
+    rho: dict[str, float] = {}
+    C_values: dict[str, float] = {}
+    for key, endpoint in repaired["endpoints"].items():
+        C_c = cauchy_column_value(endpoint["h_rep_coefficients_ascending"], Q, gammas, c_value)
+        C_values[key] = C_c
+        rho[key] = -C_c
+    return {
+        "c": c_value,
+        "R_c": real_R_value(c_value, gammas),
+        "C_gamma_at_c": C_values,
+        "rho_S": rho,
+    }
+
+
 def run_chart_json(path: Path) -> dict[str, Any]:
     P, Q, gammas, rows, source = load_chart_json(path)
     repaired = extract_repaired_data(P, Q, gammas, rows)
     period_residual = period_endpoint_quotient_residual(P, Q, gammas)
-    return {
+    result = {
         "path": str(path),
         "description": source.get("description"),
         "repaired": repaired,
@@ -345,6 +385,9 @@ def run_chart_json(path: Path) -> dict[str, Any]:
             key: key in source for key in ["kappa", "Z0", "u", "c", "v", "contact_points"]
         },
     }
+    if "c" in source:
+        result["anchor_rho"] = anchor_rho_payload(repaired, float(source["c"]))
+    return result
 
 
 def parse_float_list(raw: str) -> list[float]:
@@ -423,6 +466,11 @@ def main() -> int:
             f"{period['max_abs_remainder_after_dividing_by_D']:.12e}"
         )
         print(f"  optional fields = {payload['optional_fields_present']}")
+        if "anchor_rho" in payload:
+            rho = payload["anchor_rho"]
+            max_abs_rho = max(abs(value) for value in rho["rho_S"].values())
+            print(f"  R(c) = {rho['R_c']:.12e}")
+            print(f"  max |rho_S| = {max_abs_rho:.12e}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, indent=2, sort_keys=True)
