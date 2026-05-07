@@ -3416,6 +3416,54 @@ theorem PositiveComponent.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom
   exact hJ_subset (by constructor <;> norm_num [hε])
 
 /--
+Endpoint membership from augmented maximality with an augmented left
+neighbourhood.  This is the direct pole-as-win form: it does not first require
+the left neighbourhood to be transferred to the ordinary positive set.
+-/
+theorem PositiveComponent.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_aug : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    (-1 : ℝ) ∈ C.interval := by
+  have hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ :=
+    unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_atom)
+  have hJ_aug :
+      Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro q hq
+    by_cases hq_left : q < -1
+    · exact hleft_aug ⟨hq.1, hq_left⟩
+    · have hq_ge : -1 ≤ q := le_of_not_gt hq_left
+      by_cases hq_endpoint : q = -1
+      · simpa [hq_endpoint] using hendpoint_aug
+      · have hq_base_left : -1 < q := lt_of_le_of_ne hq_ge (Ne.symm hq_endpoint)
+        have hq_base_right : q < 0 := by linarith [hq.2]
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet
+            (hbaseline ⟨hq_base_left, hq_base_right⟩))
+  have hJ_inter :
+      (Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ∩ C.interval).Nonempty := by
+    refine ⟨-(3 : ℝ) / 4, ?_⟩
+    constructor
+    · constructor
+      · linarith [hε]
+      · norm_num
+    · exact hbaseline (by norm_num)
+  have hJ_subset :
+      Ioo (-(1 : ℝ) - ε) (-(1 : ℝ) / 2) ⊆ C.interval :=
+    hmax (-(1 : ℝ) - ε) (-(1 : ℝ) / 2)
+      (by linarith [hε]) hJ_aug hJ_inter
+  exact hJ_subset (by constructor <;> norm_num [hε])
+
+/--
 Combined component-selection conclusion around the endpoint.
 
 Under augmented maximality, endpoint atom mass, right-baseline membership, and a
@@ -3444,6 +3492,37 @@ theorem PositiveComponent.endpoint_neighborhood_subset_of_augmentedIntervalMaxim
     · simpa [hx_endpoint] using
         C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom
           hε hmax hbaseline hleft_pos hendpoint_atom
+    · have hx_base_left : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
+      exact hbaseline ⟨hx_base_left, hx.2⟩
+
+/--
+Combined component-selection conclusion around the endpoint from an augmented
+left neighbourhood.  This is the form used by the augmented-span route.
+-/
+theorem PositiveComponent.endpoint_neighborhood_subset_of_augmentedIntervalMaximal_endpointAtom_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hleft_aug : Ioo (-(1 : ℝ) - ε) (-1) ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_atom :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    Ioo (-(1 : ℝ) - ε) 0 ⊆ C.interval := by
+  intro x hx
+  by_cases hx_left : x < -1
+  · exact C.left_open_cover_of_augmentedIntervalMaximal
+      hε hmax hbaseline hleft_aug
+      (unitInterval_diagonalAtomSet_subset_augmented μ
+        (by simpa [diagonalAtomSet] using hendpoint_atom))
+      ⟨hx.1, hx_left⟩
+  · have hx_ge : -1 ≤ x := le_of_not_gt hx_left
+    by_cases hx_endpoint : x = -1
+    · simpa [hx_endpoint] using
+        C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+          hε hmax hbaseline hleft_aug hendpoint_atom
     · have hx_base_left : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
       exact hbaseline ⟨hx_base_left, hx.2⟩
 
