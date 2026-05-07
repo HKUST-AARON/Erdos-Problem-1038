@@ -11325,6 +11325,126 @@ theorem realMeasure_ae_endpoint_or_right_of_spanning_positive_zero_neighborhood
     exact ht_endpoint (hunique t htSupport (hspan_interval ht_span))
 
 /--
+Distance upper bound at an intrinsic right boundary once a.e. every
+non-endpoint support point lies to its right.
+-/
+theorem boundary_distance_upper_of_ae_endpoint_or_right
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx_pos : 0 < x)
+    (hae_right : ∀ᵐ t ∂realMeasure μ, t = -1 ∨ x ≤ t) :
+    (∫ t, |x - t| ∂realMeasure μ) ≤
+      (x + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - x) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) := by
+  let p : ℝ :=
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)
+  let f : ℝ → ℝ := fun t => |x - t|
+  let endpoint : Set ℝ := ({-1} : Set ℝ)
+  have hp_real : realMeasure μ endpoint = ENNReal.ofReal p := by
+    simpa [p, endpoint] using
+      realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq μ
+        (unitInterval_endpoint_atom_eq_ofReal_toReal μ)
+  have hp_nonneg : 0 ≤ p := by
+    dsimp [p]
+    exact unitInterval_endpoint_atom_toReal_nonneg μ
+  have hrem_mass :
+      ((realMeasure μ).restrict endpointᶜ Set.univ).toReal = 1 - p := by
+    have hrem_eq :
+        (realMeasure μ).restrict endpointᶜ Set.univ =
+          ENNReal.ofReal (1 - p) := by
+      simpa [endpoint] using
+        realMeasure_endpointRemainder_mass μ hp_real hp_nonneg
+    rw [hrem_eq]
+    exact ENNReal.toReal_ofReal (by
+      dsimp [p]
+      exact unitInterval_endpoint_atom_remainderMass_nonneg μ)
+  have hf_int : Integrable f (realMeasure μ) := by
+    simpa [f] using realMeasure_abs_sub_integrable μ x
+  have hendpoint_int : Integrable f ((realMeasure μ).restrict endpoint) :=
+    hf_int.mono_measure Measure.restrict_le_self
+  have hcompl_int : Integrable f ((realMeasure μ).restrict endpointᶜ) :=
+    hf_int.mono_measure Measure.restrict_le_self
+  have hsplit :
+      (∫ t, f t ∂realMeasure μ) =
+        (∫ t, f t ∂(realMeasure μ).restrict endpointᶜ) +
+          (∫ t, f t ∂(realMeasure μ).restrict endpoint) := by
+    have hmeasure :
+        (realMeasure μ).restrict endpointᶜ +
+            (realMeasure μ).restrict endpoint =
+          realMeasure μ := by
+      simpa [endpoint] using
+        (Measure.restrict_compl_add_restrict
+          (measurableSet_singleton (-1 : ℝ)) : (realMeasure μ).restrict ({-1} : Set ℝ)ᶜ +
+            (realMeasure μ).restrict ({-1} : Set ℝ) = realMeasure μ)
+    calc
+      (∫ t, f t ∂realMeasure μ)
+          = ∫ t, f t ∂((realMeasure μ).restrict endpointᶜ +
+              (realMeasure μ).restrict endpoint) := by rw [hmeasure]
+      _ = (∫ t, f t ∂(realMeasure μ).restrict endpointᶜ) +
+          (∫ t, f t ∂(realMeasure μ).restrict endpoint) :=
+          integral_add_measure hcompl_int hendpoint_int
+  have hendpoint_eq :
+      (∫ t, f t ∂(realMeasure μ).restrict endpoint) = (x + 1) * p := by
+    rw [Measure.restrict_singleton]
+    rw [integral_smul_measure]
+    rw [integral_dirac]
+    rw [hp_real]
+    have hx_abs : |x - (-1 : ℝ)| = x + 1 := by
+      rw [abs_of_nonneg]
+      · ring
+      · linarith
+    simp [f, endpoint, hx_abs, smul_eq_mul, mul_comm,
+      ENNReal.toReal_ofReal hp_nonneg]
+  have hcompl_le :
+      (∫ t, f t ∂(realMeasure μ).restrict endpointᶜ) ≤
+        (1 - x) * (1 - p) := by
+    have hconst_int :
+        Integrable (fun _ : ℝ => 1 - x) ((realMeasure μ).restrict endpointᶜ) :=
+      integrable_const (1 - x)
+    have hle_ae :
+        f ≤ᵐ[(realMeasure μ).restrict endpointᶜ] fun _ : ℝ => 1 - x := by
+      filter_upwards [ae_restrict_mem₀
+          (measurableSet_singleton (-1 : ℝ)).compl.nullMeasurableSet,
+        ae_restrict_of_ae (realMeasure_ae_mem_unitInterval μ),
+        ae_restrict_of_ae hae_right] with t ht_endpoint ht_unit ht_right
+      have ht_ne : t ≠ -1 := by
+        simpa [endpoint] using ht_endpoint
+      have hx_le_t : x ≤ t := by
+        rcases ht_right with ht_eq | ht_ge
+        · exact (ht_ne ht_eq).elim
+        · exact ht_ge
+      have ht_le_one : t ≤ 1 := ht_unit.2
+      have hdist : |x - t| = t - x := by
+        rw [abs_of_nonpos]
+        · ring
+        · exact sub_nonpos.mpr hx_le_t
+      dsimp [f]
+      rw [hdist]
+      linarith
+    have hle_int :
+        (∫ t, f t ∂(realMeasure μ).restrict endpointᶜ) ≤
+          ∫ _ : ℝ, (1 - x) ∂(realMeasure μ).restrict endpointᶜ :=
+      integral_mono_ae hcompl_int hconst_int hle_ae
+    have hconst :
+        (∫ _ : ℝ, (1 - x) ∂(realMeasure μ).restrict endpointᶜ) =
+          (1 - p) * (1 - x) := by
+      rw [integral_const]
+      change (((realMeasure μ).restrict endpointᶜ) Set.univ).toReal * (1 - x) =
+        (1 - p) * (1 - x)
+      rw [hrem_mass]
+    rw [hconst] at hle_int
+    linarith
+  rw [show (∫ t, |x - t| ∂realMeasure μ) = ∫ t, f t ∂realMeasure μ by rfl]
+  rw [hsplit, hendpoint_eq]
+  dsimp [p]
+  linarith
+
+/--
 Endpoint atomization of the selected component produces a genuine endpoint atom
 of the real push-forward measure.
 -/
@@ -16514,6 +16634,74 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
       hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
       hpotential_nonpos, hdistance_upper, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_not_positive_separated_data
+    (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryNotPositiveSeparatedDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε boundarySep : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          0 < boundarySep ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          (∀ᵐ t ∂realMeasure μ, boundarySep ≤ |C.right - t|) ∧
+          C.right ∉ PositiveSet (unitIntervalLogPotential μ) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_not_positive_separated_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryNotPositiveSeparatedDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      hright_not_pos, hzero⟩
+  have hae_right :
+      ∀ᵐ t ∂realMeasure μ, t = -1 ∨ C.right ≤ t :=
+    realMeasure_ae_endpoint_or_right_of_spanning_positive_zero_neighborhood
+      hε hmax hbaseline hspan_pos hzero
+  have hdistance_upper :
+      (∫ t, |C.right - t| ∂realMeasure μ) ≤
+        (C.right + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - C.right) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_distance_upper_of_ae_endpoint_or_right μ hright_pos hae_right
+  exact
+    ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
+      hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
+      hright_not_pos, hdistance_upper, hzero⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
