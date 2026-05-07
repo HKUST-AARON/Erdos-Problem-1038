@@ -18973,5 +18973,51 @@ theorem PolynomialEmpiricalPotentialData.baseline_length_le_polynomial_sublevel
   D.measure_lower_bound_transfers_to_polynomial_sublevel
     hEndpoint.baseline_length_le_positiveSet
 
+/-!
+## Direct rigidity-to-support-uniqueness bridges
+
+These are not endpoint-consequence wrappers.  They close a local piece of the
+Tao variation route: once the replacement/second-moment argument has atomized
+the normalized component block, the topological support inside the selected
+component is forced to be the endpoint.
+-/
+
+theorem support_unique_in_component_of_normalizedComponentBlock_eq_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 := by
+  have hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) :=
+    componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized
+  have hzero :
+      ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0 :=
+    component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized
+  have hcomponent_open : IsOpen C.interval := by
+    rw [C.interval_eq]
+    exact isOpen_Ioo
+  exact unique_support_in_component_of_support_neighborhood_zero
+    hcomponent_open
+    (realMeasure_support_open_neighborhood_pos μ)
+    hzero
+
+theorem support_unique_in_component_of_normalizedComponentBlock_eq_dirac_barycenter
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hbarycenter : componentBarycenter C = -1) :
+    ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1 := by
+  have hendpoint :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+    simpa [hbarycenter] using hnormalized
+  exact
+    support_unique_in_component_of_normalizedComponentBlock_eq_dirac_endpoint
+      R hendpoint
+
 end StandardReduction
 end Erdos1038
