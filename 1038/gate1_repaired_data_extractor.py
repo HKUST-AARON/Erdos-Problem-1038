@@ -1472,7 +1472,16 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
             "next non-toy regular search must allow deg P>=2, hence deg Q>=5.  "
             "A finite order-sign enumeration for d=5 quadratic P has no "
             "feasible residue-positive, density-consistent ordering, so the "
-            "next live branch must allow deg P>=3, hence deg Q>=6."
+            "next live branch would have to allow deg P>=3, hence deg Q>=6.  "
+            "The generic compact order-sign audit then shows the same "
+            "obstruction at d=6,7,8: the residue/density signs require at "
+            "least deg(Q)-1 real sign changes, while compact decay allows "
+            "only deg(Q)-3."
+        ),
+        "compact_decay_order_sign_obstruction": (
+            "positive residues plus consistent two-cut density signs require "
+            "more real sign changes than deg(P)<=deg(Q)-3 allows, under the "
+            "current all-real off-cut pole model"
         ),
     }
 
@@ -1491,8 +1500,7 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         "derived_constraints": derived_constraints,
         "missing_executable_blocks": missing_executable_blocks,
         "next_action": (
-            "implement executable_solver with deg(Q)>=6 unknown_layout, residual_maps, "
-            "initial_guess, inequality_checks, acceptance_tests, and chart_json_export"
+            "resolve the compact order-sign obstruction before implementing a numeric chart solver"
             if not can_generate_chart
             else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
         ),
@@ -1784,6 +1792,239 @@ def compact_d5_quadratic_sign_obstruction() -> dict[str, Any]:
             "must allow deg(P)>=3, hence deg(Q)>=6 under deg(P)<=deg(Q)-3."
         ),
         "proof_status": "finite exhaustive order-sign enumeration",
+    }
+
+
+def compact_order_sign_feasibility(degree_q: int, degree_p: int | None = None) -> dict[str, Any]:
+    """Exhaustively audit order-level residue/density sign feasibility.
+
+    This is a symbolic order audit, not a numerical chart solver.  It assumes
+    all Q-poles are real, simple, and off-cut, distributed among the left
+    exterior, middle gap, and right exterior.  P is modeled by real root slots
+    of degree ``degree_p``; repeated slots allow even-multiplicity/no-sign-flip
+    behavior and cover real-polynomial sign patterns with fewer real roots.
+    """
+    if degree_q < 2:
+        raise ValueError("degree_q must be at least 2")
+    if degree_p is None:
+        degree_p = degree_q - 3
+    if degree_p < 0:
+        raise ValueError("degree_p must be nonnegative")
+
+    def qprime_sign(index: int) -> int:
+        return 1 if ((degree_q - 1 - index) % 2 == 0) else -1
+
+    def p_sign_at_entity(entity_index: int, root_slots: tuple[int, ...]) -> int:
+        roots_to_left = sum(1 for slot in root_slots if slot <= entity_index)
+        roots_to_right = degree_p - roots_to_left
+        return -1 if roots_to_right % 2 else 1
+
+    def root_slot_tuples(slot_count: int, root_count: int) -> list[tuple[int, ...]]:
+        if root_count == 0:
+            return [()]
+        tuples: list[tuple[int, ...]] = []
+
+        def rec(start: int, remaining: int, acc: list[int]) -> None:
+            if remaining == 0:
+                tuples.append(tuple(acc))
+                return
+            for slot in range(start, slot_count):
+                acc.append(slot)
+                rec(slot, remaining - 1, acc)
+                acc.pop()
+
+        rec(0, root_count, [])
+        return tuples
+
+    feasible: list[dict[str, Any]] = []
+    checked_cases = 0
+    by_pole_counts: list[dict[str, Any]] = []
+    minimum_required_sign_changes = math.inf
+    minimum_sign_change_examples: list[dict[str, Any]] = []
+    for left_count in range(degree_q + 1):
+        for middle_count in range(degree_q + 1 - left_count):
+            right_count = degree_q - left_count - middle_count
+            entities: list[tuple[str, str | int, str | None]] = []
+            q_locations: list[str] = []
+            q_index = 0
+            for _ in range(left_count):
+                entities.append(("q", q_index, "L"))
+                q_locations.append("L")
+                q_index += 1
+            entities.append(("cut", "C1", None))
+            for _ in range(middle_count):
+                entities.append(("q", q_index, "M"))
+                q_locations.append("M")
+                q_index += 1
+            entities.append(("cut", "C2", None))
+            for _ in range(right_count):
+                entities.append(("q", q_index, "R"))
+                q_locations.append("R")
+                q_index += 1
+
+            for density_sign in [1, -1]:
+                required_sequence = []
+                for entity_index, entity in enumerate(entities):
+                    kind, raw_index, location = entity
+                    if kind == "q":
+                        pole_index = int(raw_index)
+                        assert location is not None
+                        r_sign = -1 if location == "M" else 1
+                        required_sequence.append(qprime_sign(pole_index) * r_sign)
+                    else:
+                        poles_to_right = sum(
+                            1 for later in entities[entity_index + 1 :] if later[0] == "q"
+                        )
+                        q_cut_sign = 1 if poles_to_right % 2 == 0 else -1
+                        required_sequence.append(density_sign * q_cut_sign)
+                sign_changes = sum(
+                    1
+                    for left, right in zip(required_sequence, required_sequence[1:])
+                    if left != right
+                )
+                if sign_changes < minimum_required_sign_changes:
+                    minimum_required_sign_changes = sign_changes
+                    minimum_sign_change_examples = []
+                if sign_changes == minimum_required_sign_changes and len(minimum_sign_change_examples) < 10:
+                    minimum_sign_change_examples.append(
+                        {
+                            "pole_counts_LMR": [left_count, middle_count, right_count],
+                            "q_locations": q_locations,
+                            "density_sign": density_sign,
+                            "required_entity_sign_sequence": required_sequence,
+                            "required_entity_sign_string": "".join(
+                                "+" if sign > 0 else "-" for sign in required_sequence
+                            ),
+                            "sign_changes": sign_changes,
+                        }
+                    )
+
+            count_feasible = 0
+            for root_slots in root_slot_tuples(len(entities) + 1, degree_p):
+                checked_cases += 1
+                required_at_poles = []
+                actual_at_poles = []
+                for entity_index, entity in enumerate(entities):
+                    kind, raw_index, location = entity
+                    if kind != "q":
+                        continue
+                    pole_index = int(raw_index)
+                    assert location is not None
+                    r_sign = -1 if location == "M" else 1
+                    required_at_poles.append(qprime_sign(pole_index) * r_sign)
+                    actual_at_poles.append(p_sign_at_entity(entity_index, root_slots))
+
+                for scale in [1, -1]:
+                    if [scale * sign for sign in actual_at_poles] != required_at_poles:
+                        continue
+                    cut_density_signs = []
+                    for entity_index, entity in enumerate(entities):
+                        kind, _raw_name, _location = entity
+                        if kind != "cut":
+                            continue
+                        poles_to_right = sum(
+                            1 for later in entities[entity_index + 1 :] if later[0] == "q"
+                        )
+                        q_cut_sign = 1 if poles_to_right % 2 == 0 else -1
+                        cut_density_signs.append(
+                            scale * p_sign_at_entity(entity_index, root_slots) * q_cut_sign
+                        )
+                    if len(cut_density_signs) == 2 and cut_density_signs[0] == cut_density_signs[1]:
+                        count_feasible += 1
+                        feasible.append(
+                            {
+                                "pole_counts_LMR": [left_count, middle_count, right_count],
+                                "q_locations": q_locations,
+                                "root_slots": list(root_slots),
+                                "scale": scale,
+                                "required_pole_signs": required_at_poles,
+                                "actual_pole_signs_before_scale": actual_at_poles,
+                                "cut_density_signs": cut_density_signs,
+                            }
+                        )
+            by_pole_counts.append(
+                {
+                    "pole_counts_LMR": [left_count, middle_count, right_count],
+                    "q_locations": q_locations,
+                    "feasible_count": count_feasible,
+                }
+            )
+
+    next_degree_q = degree_q + 1 if len(feasible) == 0 and degree_p == degree_q - 3 else degree_q
+    return {
+        "model": "compact two-cut order-sign feasibility audit",
+        "degree_Q": degree_q,
+        "degree_P": degree_p,
+        "uses_compact_decay_degree": degree_p == degree_q - 3,
+        "assumptions": {
+            "branch_endpoints": "a1 < b1 < a2 < b2",
+            "q_poles": "real simple Q-poles in the three off-cut gaps L,M,R",
+            "R_branch": "R~z^2 at +infinity; R is positive on exteriors and negative on the middle gap",
+            "P": "real polynomial sign pattern represented by ordered root slots; P(c)=0 is treated as one off-cut root among the slots",
+        },
+        "checked_order_cases": checked_cases,
+        "minimum_required_sign_changes": (
+            None if math.isinf(minimum_required_sign_changes) else int(minimum_required_sign_changes)
+        ),
+        "sign_change_degree_gap": (
+            None
+            if math.isinf(minimum_required_sign_changes)
+            else int(minimum_required_sign_changes - degree_p)
+        ),
+        "minimum_sign_change_examples": minimum_sign_change_examples,
+        "feasible_count": len(feasible),
+        "by_pole_counts": by_pole_counts,
+        "feasible_examples": feasible[:25],
+        "next_degree_Q_if_infeasible": next_degree_q,
+        "conclusion": (
+            "No feasible order-sign class exists at this degree."
+            if not feasible
+            else "At least one order-sign class survives; pass feasible examples to the numeric residual solver."
+        ),
+        "proof_status": "finite exhaustive order-sign enumeration",
+    }
+
+
+def solve_compact_chart_guarded(degree_q: int, order_sign_path: Path | None = None) -> dict[str, Any]:
+    """Guarded entrypoint for compact chart solving.
+
+    This function deliberately does not fabricate chart data.  It either routes
+    sign-infeasible degrees to a blocked diagnostic, or reports that true
+    analytic residual maps are still required before chart export.
+    """
+    if order_sign_path is not None:
+        order_sign = json.loads(order_sign_path.read_text(encoding="utf-8"))
+    else:
+        order_sign = compact_order_sign_feasibility(degree_q)
+    feasible_count = int(order_sign.get("feasible_count", 0))
+    if feasible_count <= 0:
+        return {
+            "status": "blocked",
+            "chart_generated": False,
+            "degree_Q": degree_q,
+            "reason": "order-sign feasibility audit has no surviving classes",
+            "order_sign": order_sign,
+            "next_action": (
+                f"record degree {degree_q} sign obstruction and try degree "
+                f"{order_sign.get('next_degree_Q_if_infeasible', degree_q + 1)}"
+            ),
+        }
+    return {
+        "status": "blocked",
+        "chart_generated": False,
+        "degree_Q": degree_q,
+        "reason": (
+            "order-sign classes survive, but executable analytic residual maps "
+            "for finite_gap, endpoint_neck, period/filling, and Z0 boundary "
+            "selection are not implemented; refusing to write a fake chart"
+        ),
+        "order_sign": {
+            "degree_Q": order_sign.get("degree_Q"),
+            "degree_P": order_sign.get("degree_P"),
+            "feasible_count": feasible_count,
+            "feasible_examples": order_sign.get("feasible_examples", [])[:5],
+        },
+        "next_action": "implement analytic residual evaluator for the surviving order classes",
     }
 
 
@@ -4619,6 +4860,16 @@ def main() -> int:
         help="exhaustively audit order signs for d=5 quadratic P smoke branches",
     )
     parser.add_argument(
+        "--audit-compact-order-sign",
+        action="store_true",
+        help="exhaustively audit compact two-cut order signs for degree-Q/degree-P",
+    )
+    parser.add_argument(
+        "--solve-compact-chart",
+        action="store_true",
+        help="guarded compact chart solver entrypoint; refuses fake charts when blocked",
+    )
+    parser.add_argument(
         "--generate-compact-chart",
         action="store_true",
         help="generate a proof-grade compact chart only if executable_solver is complete",
@@ -4701,6 +4952,9 @@ def main() -> int:
     parser.add_argument("--density-samples", type=int, default=25)
     parser.add_argument("--search-trials", type=int, default=10000)
     parser.add_argument("--random-seed", type=int, default=1)
+    parser.add_argument("--degree-Q", type=int, default=6)
+    parser.add_argument("--degree-P", type=int)
+    parser.add_argument("--order-sign-json")
     parser.add_argument("--affine-u", type=float)
     parser.add_argument("--affine-v", type=float)
     parser.add_argument("--affine-a", type=float)
@@ -4867,6 +5121,46 @@ def main() -> int:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_compact_order_sign:
+        audit = compact_order_sign_feasibility(args.degree_Q, args.degree_P)
+        print("Gate 1 compact order-sign feasibility audit")
+        print(f"  degree Q/P = {audit['degree_Q']} / {audit['degree_P']}")
+        print(f"  checked order cases = {audit['checked_order_cases']}")
+        print(f"  minimum required sign changes = {audit['minimum_required_sign_changes']}")
+        print(f"  sign-change degree gap = {audit['sign_change_degree_gap']}")
+        print(f"  feasible count = {audit['feasible_count']}")
+        print(f"  conclusion = {audit['conclusion']}")
+        if audit["feasible_examples"]:
+            print(f"  first feasible examples = {audit['feasible_examples'][:3]}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.solve_compact_chart:
+        payload = solve_compact_chart_guarded(
+            args.degree_Q,
+            Path(args.order_sign_json) if args.order_sign_json else None,
+        )
+        print("Gate 1 compact chart solver")
+        print(f"  status = {payload['status']}")
+        print(f"  chart generated = {payload['chart_generated']}")
+        print(f"  degree Q = {payload['degree_Q']}")
+        print(f"  reason = {payload['reason']}")
+        print(f"  next = {payload['next_action']}")
+        if args.write_json:
+            if payload["chart_generated"]:
+                with open(args.write_json, "w", encoding="utf-8") as handle:
+                    json.dump(payload["chart"], handle, indent=2, sort_keys=True)
+                print(f"  wrote chart {args.write_json}")
+            else:
+                diagnostic_path = f"{args.write_json}.blocked.json"
+                with open(diagnostic_path, "w", encoding="utf-8") as handle:
+                    json.dump(payload, handle, indent=2, sort_keys=True)
+                print(f"  refused to write chart; wrote diagnostic {diagnostic_path}")
         return 0
 
     if args.generate_compact_chart:

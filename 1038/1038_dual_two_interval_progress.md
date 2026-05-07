@@ -18760,3 +18760,92 @@ next = implement executable_solver with deg(Q)>=6 ...
 This does not close Gate 1, but it removes the two lowest-degree compact chart
 search targets and prevents further time being spent on \(d=4\) or quadratic
 \(d=5\) toy charts.
+
+## Gate 1 generic compact order-sign audit
+
+The extractor now has a generic order-sign audit:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-order-sign \
+  --degree-Q 6 \
+  --write-json 1038/gate1_d6_cubic_order_sign_audit.json
+```
+
+For compact \(g=2\) it uses
+
+\[
+\deg P=\deg Q-3
+\]
+
+unless `--degree-P` is supplied.  The audit is still only an order-sign test:
+it does not solve the endpoint-neck or period equations.  It enumerates the
+three off-cut pole regions \(L,M,R\), inserts the two cuts as ordered entities,
+and checks whether the real-line sign pattern of \(P\) can simultaneously make:
+
+1. every pole residue of \(P R/Q\) positive;
+2. the raw cut-density factor \(P|R_+|/Q\) have the same nonzero sign on both
+   cuts.
+
+The requested \(d=6,\deg P=3\) case gives:
+
+```text
+checked order cases = 4620
+minimum required sign changes = 5
+degree P = 3
+sign-change degree gap = 2
+feasible count = 0
+```
+
+The next two degrees show the same obstruction:
+
+```text
+d=7, deg P=4: checked order cases = 25740, feasible count = 0
+d=8, deg P=5: checked order cases = 135135, feasible count = 0
+```
+
+The structural reason is visible in the audit field
+`minimum_required_sign_changes`: for the current all-real off-cut pole model,
+positive residues plus consistent two-cut density signs require at least
+
+\[
+\deg Q-1
+\]
+
+real sign changes in \(P\), while compact \(g=2\) decay allows only
+
+\[
+\deg P\le \deg Q-3.
+\]
+
+So the requested \(d=6\) executable chart solver is correctly blocked before
+any numerical solve:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --solve-compact-chart \
+  --degree-Q 6 \
+  --order-sign-json 1038/gate1_d6_cubic_order_sign_audit.json \
+  --write-json 1038/gate1_compact_g2_chart.json
+```
+
+It refuses to write a fake chart and records:
+
+```text
+status = blocked
+chart generated = False
+reason = order-sign feasibility audit has no surviving classes
+```
+
+in
+
+```text
+1038/gate1_compact_g2_chart.json.blocked.json
+```
+
+This changes the next step.  Under the current sign convention and all-real
+off-cut pole model, simply increasing \(d\) is not the right route.  The next
+mathematical task is to turn the order-sign obstruction into a paper lemma or
+identify which assumption must be changed: density orientation, all-real pole
+model, off-cut \(F(c)=0\), or routing to Gate 3.  Until that is resolved, a
+numeric compact chart solver would only search an empty sign class.

@@ -1,147 +1,475 @@
 {
   "chart_generated": false,
-  "next_action": "implement executable_solver with numeric unknown_layout, residual_maps, initial_guess, inequality_checks, acceptance_tests, and chart_json_export",
-  "path": "1038/gate1_compact_g2_executable_solver_template.json",
-  "reason": "compact g=2 executable solver is incomplete",
-  "solver_audit": {
-    "blocking_errors": [
-      "missing executable compact-chart solver blocks"
-    ],
-    "can_generate_chart": false,
-    "missing_executable_blocks": [
+  "degree_Q": 6,
+  "next_action": "record degree 6 sign obstruction and try degree 7",
+  "order_sign": {
+    "assumptions": {
+      "P": "real polynomial sign pattern represented by ordered root slots; P(c)=0 is treated as one off-cut root among the slots",
+      "R_branch": "R~z^2 at +infinity; R is positive on exteriors and negative on the middle gap",
+      "branch_endpoints": "a1 < b1 < a2 < b2",
+      "q_poles": "real simple Q-poles in the three off-cut gaps L,M,R"
+    },
+    "by_pole_counts": [
       {
-        "name": "executable_solver.unknown_layout",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          0,
+          6
+        ],
+        "q_locations": [
+          "R",
+          "R",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.initial_guess",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          1,
+          5
+        ],
+        "q_locations": [
+          "M",
+          "R",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.residual_maps",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          2,
+          4
+        ],
+        "q_locations": [
+          "M",
+          "M",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.normalizations",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          3,
+          3
+        ],
+        "q_locations": [
+          "M",
+          "M",
+          "M",
+          "R",
+          "R",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.inequality_checks",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          4,
+          2
+        ],
+        "q_locations": [
+          "M",
+          "M",
+          "M",
+          "M",
+          "R",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.acceptance_tests",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          5,
+          1
+        ],
+        "q_locations": [
+          "M",
+          "M",
+          "M",
+          "M",
+          "M",
+          "R"
+        ]
       },
       {
-        "name": "executable_solver.chart_json_export",
-        "required": "machine-readable non-TODO numeric solver data",
-        "status": "missing_or_non_executable"
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          0,
+          6,
+          0
+        ],
+        "q_locations": [
+          "M",
+          "M",
+          "M",
+          "M",
+          "M",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          0,
+          5
+        ],
+        "q_locations": [
+          "L",
+          "R",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          1,
+          4
+        ],
+        "q_locations": [
+          "L",
+          "M",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          2,
+          3
+        ],
+        "q_locations": [
+          "L",
+          "M",
+          "M",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          3,
+          2
+        ],
+        "q_locations": [
+          "L",
+          "M",
+          "M",
+          "M",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          4,
+          1
+        ],
+        "q_locations": [
+          "L",
+          "M",
+          "M",
+          "M",
+          "M",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          1,
+          5,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "M",
+          "M",
+          "M",
+          "M",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          2,
+          0,
+          4
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "R",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          2,
+          1,
+          3
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "M",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          2,
+          2,
+          2
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "M",
+          "M",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          2,
+          3,
+          1
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "M",
+          "M",
+          "M",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          2,
+          4,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "M",
+          "M",
+          "M",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          3,
+          0,
+          3
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "R",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          3,
+          1,
+          2
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "M",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          3,
+          2,
+          1
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "M",
+          "M",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          3,
+          3,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "M",
+          "M",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          4,
+          0,
+          2
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "R",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          4,
+          1,
+          1
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "M",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          4,
+          2,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "M",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          5,
+          0,
+          1
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "L",
+          "R"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          5,
+          1,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "L",
+          "M"
+        ]
+      },
+      {
+        "feasible_count": 0,
+        "pole_counts_LMR": [
+          6,
+          0,
+          0
+        ],
+        "q_locations": [
+          "L",
+          "L",
+          "L",
+          "L",
+          "L",
+          "L"
+        ]
       }
     ],
-    "missing_residual_maps": [],
-    "missing_solver_fields": [],
-    "next_action": "implement executable_solver with numeric unknown_layout, residual_maps, initial_guess, inequality_checks, acceptance_tests, and chart_json_export",
-    "path": "1038/gate1_compact_g2_executable_solver_template.json",
-    "required_residual_maps": [
-      "finite_gap_representation",
-      "mass_decay_normalization",
-      "endpoint_neck_equations",
-      "period_filling_convention",
-      "Z0_boundary_row_selection"
-    ],
-    "required_solver_fields": [
-      "unknown_layout",
-      "initial_guess",
-      "residual_maps",
-      "normalizations",
-      "inequality_checks",
-      "acceptance_tests",
-      "chart_json_export"
-    ],
-    "solver_field_ready": {
-      "acceptance_tests": false,
-      "chart_json_export": false,
-      "inequality_checks": false,
-      "initial_guess": false,
-      "normalizations": false,
-      "residual_maps": false,
-      "unknown_layout": false
-    },
-    "spec_audit": {
-      "blocking_errors": [],
-      "blocks": [
-        {
-          "name": "unknown_vector",
-          "ready": true,
-          "todo_like": false
-        },
-        {
-          "name": "equation:finite_gap_representation",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "equation:mass_decay_normalization",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "equation:positivity_interlacing",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "equation:endpoint_neck_equations",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "equation:period_filling_convention",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "equation:Z0_boundary_row_selection",
-          "ready": true,
-          "status": "contract",
-          "todo_like": false
-        },
-        {
-          "name": "moving_chart_rows",
-          "ready": true,
-          "todo_like": false
-        },
-        {
-          "name": "output_chart_json_fields",
-          "ready": true,
-          "todo_like": false
-        },
-        {
-          "name": "provenance",
-          "ready": true,
-          "todo_like": false
-        }
-      ],
-      "next_action": "generate gate1_compact_g2_chart.json and run --run-chart-pipeline",
-      "path": "1038/gate1_compact_g2_executable_solver_template.json",
-      "schema": "gate1_compact_g2_equation_spec_v1",
-      "solver_ready": true,
-      "status": "computed"
-    },
-    "spec_solver_ready": true,
-    "status": "computed"
+    "checked_order_cases": 4620,
+    "conclusion": "No feasible order-sign class exists at this degree.",
+    "degree_P": 3,
+    "degree_Q": 6,
+    "feasible_count": 0,
+    "feasible_examples": [],
+    "model": "compact two-cut order-sign feasibility audit",
+    "next_degree_Q_if_infeasible": 7,
+    "proof_status": "finite exhaustive order-sign enumeration",
+    "uses_compact_decay_degree": true
   },
+  "reason": "order-sign feasibility audit has no surviving classes",
   "status": "blocked"
 }

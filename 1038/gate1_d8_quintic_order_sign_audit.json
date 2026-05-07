@@ -1,0 +1,1154 @@
+{
+  "assumptions": {
+    "P": "real polynomial sign pattern represented by ordered root slots; P(c)=0 is treated as one off-cut root among the slots",
+    "R_branch": "R~z^2 at +infinity; R is positive on exteriors and negative on the middle gap",
+    "branch_endpoints": "a1 < b1 < a2 < b2",
+    "q_poles": "real simple Q-poles in the three off-cut gaps L,M,R"
+  },
+  "by_pole_counts": [
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        0,
+        8
+      ],
+      "q_locations": [
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        1,
+        7
+      ],
+      "q_locations": [
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        2,
+        6
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        3,
+        5
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        4,
+        4
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        5,
+        3
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        6,
+        2
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        7,
+        1
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        0,
+        8,
+        0
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        0,
+        7
+      ],
+      "q_locations": [
+        "L",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        1,
+        6
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        2,
+        5
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        3,
+        4
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        4,
+        3
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        5,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        6,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        1,
+        7,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        0,
+        6
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        1,
+        5
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        2,
+        4
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        3,
+        3
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        4,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        5,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        2,
+        6,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        0,
+        5
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        1,
+        4
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        2,
+        3
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        3,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        4,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        3,
+        5,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        4,
+        0,
+        4
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "R",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        4,
+        1,
+        3
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        4,
+        2,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        4,
+        3,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        4,
+        4,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        5,
+        0,
+        3
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "R",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        5,
+        1,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        5,
+        2,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        5,
+        3,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        6,
+        0,
+        2
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "R",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        6,
+        1,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        6,
+        2,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        7,
+        0,
+        1
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "R"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        7,
+        1,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "M"
+      ]
+    },
+    {
+      "feasible_count": 0,
+      "pole_counts_LMR": [
+        8,
+        0,
+        0
+      ],
+      "q_locations": [
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L"
+      ]
+    }
+  ],
+  "checked_order_cases": 135135,
+  "conclusion": "No feasible order-sign class exists at this degree.",
+  "degree_P": 5,
+  "degree_Q": 8,
+  "feasible_count": 0,
+  "feasible_examples": [],
+  "minimum_required_sign_changes": 7,
+  "minimum_sign_change_examples": [
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        0,
+        8
+      ],
+      "q_locations": [
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "---+-+-+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        1,
+        7
+      ],
+      "q_locations": [
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+++-+-+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        2,
+        6
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+---+-+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        3,
+        5
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+-+++-+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        4,
+        4
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+-+---+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        5,
+        3
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+-+-+++-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        6,
+        2
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        -1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+-+-+---+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        0,
+        7,
+        1
+      ],
+      "q_locations": [
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "M",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        1
+      ],
+      "required_entity_sign_string": "-+-+-+-+++",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": 1,
+      "pole_counts_LMR": [
+        1,
+        0,
+        7
+      ],
+      "q_locations": [
+        "L",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "---+-+-+-+",
+      "sign_changes": 7
+    },
+    {
+      "density_sign": -1,
+      "pole_counts_LMR": [
+        1,
+        0,
+        7
+      ],
+      "q_locations": [
+        "L",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R",
+        "R"
+      ],
+      "required_entity_sign_sequence": [
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        1
+      ],
+      "required_entity_sign_string": "-+++-+-+-+",
+      "sign_changes": 7
+    }
+  ],
+  "model": "compact two-cut order-sign feasibility audit",
+  "next_degree_Q_if_infeasible": 9,
+  "proof_status": "finite exhaustive order-sign enumeration",
+  "sign_change_degree_gap": 2,
+  "uses_compact_decay_degree": true
+}
