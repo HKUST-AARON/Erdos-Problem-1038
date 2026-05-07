@@ -4092,6 +4092,59 @@ theorem PositiveComponent.no_positive_interval_from_component_point_crosses_righ
         linarith [hx.2]
   exact C.no_positive_interval_crosses_right hmax hx.2 hr hpos hinter
 
+theorem PositiveComponent.right_potential_nonpos_of_intervalMaximal_continuous
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) C.right) :
+    unitIntervalLogPotential μ C.right ≤ 0 := by
+  by_contra hnot
+  have hpos_right : 0 < unitIntervalLogPotential μ C.right := lt_of_not_ge hnot
+  have hpos_eventually :
+      ∀ᶠ y : ℝ in nhds C.right, 0 < unitIntervalLogPotential μ y :=
+    hcont.eventually (isOpen_Ioi.mem_nhds hpos_right)
+  rcases Metric.mem_nhds_iff.mp hpos_eventually with
+    ⟨ε, hε, hball⟩
+  let η : ℝ := min ε (C.right - C.left)
+  have hη_pos : 0 < η := by
+    dsimp [η]
+    exact lt_min hε (sub_pos.mpr C.left_lt_right)
+  let x : ℝ := C.right - η / 2
+  let r : ℝ := C.right + η / 2
+  have hx_interval : x ∈ C.interval := by
+    rw [C.interval_eq]
+    constructor
+    · dsimp [x, η]
+      have hη_le_width : min ε (C.right - C.left) ≤ C.right - C.left :=
+        min_le_right ε (C.right - C.left)
+      linarith
+    · dsimp [x]
+      linarith
+  have hr : C.right < r := by
+    dsimp [r]
+    linarith
+  have hpos_interval :
+      Ioo x r ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+    intro y hy
+    have hy_ball : y ∈ Metric.ball C.right ε := by
+      rw [Metric.mem_ball, Real.dist_eq, abs_sub_lt_iff]
+      constructor
+      · dsimp [r, η] at hy
+        have hy_right : y < C.right + min ε (C.right - C.left) / 2 :=
+          hy.2
+        have hη_le_ε : min ε (C.right - C.left) ≤ ε :=
+          min_le_left ε (C.right - C.left)
+        linarith
+      · dsimp [x, η] at hy
+        have hy_left : C.right - min ε (C.right - C.left) / 2 < y :=
+          hy.1
+        have hη_le_ε : min ε (C.right - C.left) ≤ ε :=
+          min_le_left ε (C.right - C.left)
+        linarith
+    exact hball hy_ball
+  exact
+    C.no_positive_interval_from_component_point_crosses_right
+      hmax hx_interval hr hpos_interval
+
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
 local no-diagonal condition for augmented competing intervals.  This combines
