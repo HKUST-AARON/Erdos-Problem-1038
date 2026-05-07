@@ -2669,6 +2669,18 @@ theorem disjoint_diagonalAtomSet_of_disjoint_realMeasure_support
     exact hsupport.le_bot ⟨hx, hxsupport⟩
   exact (notMem_diagonalAtomSet_of_not_mem_realMeasure_support hxnot_support) hxdiag
 
+theorem subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
+    (haug : s ⊆ unitIntervalAugmentedPositiveSet μ)
+    (hsupport : Disjoint s (realMeasure μ).support) :
+    s ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+  intro x hx
+  rcases haug hx with hxpos | hxdiag
+  · exact hxpos
+  · exfalso
+    exact hsupport.le_bot
+      ⟨hx, diagonalAtomSet_subset_realMeasure_support μ hxdiag⟩
+
 /-! ## Concrete reflection/translation normalization map -/
 
 /-- Point map used by the concrete Tao normalization: optional reflection,
@@ -3990,13 +4002,11 @@ theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_support_di
         (Ioo l r ∩ C.interval).Nonempty →
         Disjoint (Ioo l r) (realMeasure μ).support) :
     C.AugmentedIntervalMaximal := by
-  refine C.augmentedIntervalMaximal_of_intervalMaximal_no_diagonal hmax ?_
   intro l r hlr haug hinter
-  have hdisjoint_support := hsupport l r hlr haug hinter
-  rw [Set.disjoint_left]
-  intro x hx hxdiag
-  exact hdisjoint_support.le_bot
-    ⟨hx, diagonalAtomSet_subset_realMeasure_support μ hxdiag⟩
+  exact hmax l r hlr
+    (subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
+      haug (hsupport l r hlr haug hinter))
+    hinter
 
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
