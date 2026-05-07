@@ -14689,6 +14689,80 @@ theorem realMeasure_exists_right_Icc_disjoint_support_and_diagonal_of_not_mem_su
   · intro hy
     exact False.elim hy
 
+theorem PositiveComponent.right_not_mem_augmented_of_spanning_positive_continuous_not_support
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_pos :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        PositiveSet (unitIntervalLogPotential μ))
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hcont : ContinuousAt (unitIntervalLogPotential μ) C.right) :
+    C.right ∉ unitIntervalAugmentedPositiveSet μ := by
+  intro hright_aug
+  have hright_not_diag :
+      C.right ∉ diagonalAtomSet μ :=
+    notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support
+  rcases hright_aug with hright_pos_potential | hright_diag
+  · have hpos_eventually :
+        ∀ᶠ y : ℝ in nhds C.right, 0 < unitIntervalLogPotential μ y :=
+      hcont.eventually (isOpen_Ioi.mem_nhds hright_pos_potential)
+    rcases Metric.mem_nhds_iff.mp hpos_eventually with
+      ⟨δ, hδ, hball⟩
+    let r : ℝ := C.right + δ / 2
+    have hr_gt : C.right < r := by
+      dsimp [r]
+      linarith
+    have hlr : (-(1 : ℝ) - ε) < r := by
+      linarith [hε, hright_pos, hδ]
+    have haug : Ioo (-(1 : ℝ) - ε) r ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+      intro y hy
+      by_cases hyleft : y < C.right
+      · exact unitInterval_positiveSet_subset_augmented μ
+          (hspan_pos ⟨hy.1, hyleft⟩)
+      · have hyr : C.right ≤ y := le_of_not_gt hyleft
+        by_cases hyright : y = C.right
+        · exact unitInterval_positiveSet_subset_augmented μ
+            (by simpa [hyright] using hright_pos_potential)
+        · have hy_gt_right : C.right < y := lt_of_le_of_ne hyr (Ne.symm hyright)
+          have hy_ball : y ∈ Metric.ball C.right δ := by
+            have hy_lt_delta : y - C.right < δ := by
+              dsimp [r] at hy
+              linarith [hy.2, hδ]
+            rw [Metric.mem_ball, Real.dist_eq]
+            have hdiff_nonneg : 0 ≤ y - C.right := by linarith
+            rw [abs_of_nonneg hdiff_nonneg]
+            exact hy_lt_delta
+          exact unitInterval_positiveSet_subset_augmented μ (hball hy_ball)
+    have hinter : (Ioo (-(1 : ℝ) - ε) r ∩ C.interval).Nonempty := by
+      refine ⟨-(1 : ℝ) / 2, ?_⟩
+      constructor
+      · constructor
+        · linarith
+        · have hmem :=
+            hbaseline (by norm_num : (-(1 : ℝ) / 2) ∈ Ioo (-1 : ℝ) 0)
+          rw [C.interval_eq] at hmem
+          linarith [hmem.2, hδ]
+      · exact hbaseline (by norm_num)
+    have hsubset : Ioo (-(1 : ℝ) - ε) r ⊆ C.interval :=
+      hmax (-(1 : ℝ) - ε) r hlr haug hinter
+    let z : ℝ := C.right + δ / 4
+    have hz_interval : z ∈ C.interval := by
+      apply hsubset
+      constructor
+      · dsimp [z]
+        linarith [hε, hright_pos, hδ]
+      · dsimp [z, r]
+        linarith [hδ]
+    rw [C.interval_eq] at hz_interval
+    dsimp [z] at hz_interval
+    linarith [hz_interval.2, hδ]
+  · exact hright_not_diag hright_diag
+
 theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (hdirac : componentBlock C =
@@ -21395,6 +21469,62 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, boundarySep, hε, hright_pos, hboundarySep,
       hmax, hspan_pos, hendpoint_unit_pos, hbaseline, hdist_lower,
       hright_not_aug, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_spanning_positive_continuous_not_support_data
+    (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundarySpanningPositiveContinuousNotSupportDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < C.right ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
+          C.right ∉ (realMeasure μ).support ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_not_augmented_not_support_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundarySpanningPositiveContinuousNotSupportDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
+      hendpoint_unit_pos, hbaseline, hright_cont, hright_not_support, hzero⟩
+  have hright_not_aug :
+      C.right ∉ unitIntervalAugmentedPositiveSet μ :=
+    C.right_not_mem_augmented_of_spanning_positive_continuous_not_support
+      hε hright_pos hmax hbaseline hspan_pos hright_not_support hright_cont
+  exact
+    ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
+      hendpoint_unit_pos, hbaseline, hright_not_aug,
+      hright_not_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_excluded_data
     (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryExcludedDataFromVariation :
