@@ -10432,6 +10432,88 @@ theorem exists_positiveComponent_baseline_right_pos_of_separated_baseline_compac
       hright_cont hright_pos hright_no_diag hright_tail
 
 /--
+Span-compact-data version of selected-component construction.  A single
+compact-subinterval data source on the span `Ioc (-1) δ` supplies the baseline
+compact data and the closed right interval data.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_span_compact_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε) (hδ : 0 < δ)
+    (hspan_cont :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b))
+    (hspan_pos :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y)
+    (hspan_no_diag :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          Disjoint (Icc a b) (diagonalAtomSet μ))
+    (hspan_tail :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_subset_span :
+      Ioo (-1 : ℝ) 0 ⊆ Ioc (-1 : ℝ) δ := by
+    intro x hx
+    exact ⟨hx.1, le_of_lt (lt_trans hx.2 hδ)⟩
+  have hright_subset_span :
+      Icc (0 : ℝ) δ ⊆ Ioc (-1 : ℝ) δ := by
+    intro x hx
+    exact ⟨lt_of_lt_of_le (by norm_num) hx.1, hx.2⟩
+  have hbaseline_cont :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) := by
+    intro a b hsubset
+    exact hspan_cont a b (fun x hx => hbaseline_subset_span (hsubset hx))
+  have hbaseline_pos :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y := by
+    intro a b hsubset
+    exact hspan_pos a b (fun x hx => hbaseline_subset_span (hsubset hx))
+  have hbaseline_no_diag :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (diagonalAtomSet μ) := by
+    intro a b hsubset
+    exact hspan_no_diag a b (fun x hx => hbaseline_subset_span (hsubset hx))
+  have hbaseline_tail :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2) := by
+    intro a b hsubset
+    exact hspan_tail a b (fun x hx => hbaseline_subset_span (hsubset hx))
+  exact
+    exists_positiveComponent_baseline_right_pos_of_separated_baseline_compact_data_and_closed_right_compact_data
+      μ hlog_int htruncε
+      hbaseline_cont hbaseline_pos hbaseline_no_diag hbaseline_tail
+      hδ
+      (hspan_cont 0 δ hright_subset_span)
+      (hspan_pos 0 δ hright_subset_span)
+      (hspan_no_diag 0 δ hright_subset_span)
+      (hspan_tail 0 δ hright_subset_span)
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
