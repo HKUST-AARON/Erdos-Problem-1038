@@ -4179,6 +4179,35 @@ theorem exists_positiveComponent_augmentedMaximal_of_span_positive_auto_bdd_midp
       (μ := μ) (x := (-1 / 2 : ℝ)) (δ := δ)
       hopen hxbase hδ hspan hnoDiag
 
+theorem exists_positiveComponent_augmentedMaximal_of_span_positive_off_support_auto_bdd_midpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {δ : ℝ}
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support)
+    (hδ : 0 < δ)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_augmentedMaximal_of_span_positive_auto_bdd_midpoint
+      (μ := μ) (δ := δ)
+      (unitInterval_positiveSet_isOpen_of_positive_not_mem_realMeasure_support
+        μ hpositive_not_support)
+      hδ hspan_pos hnoDiag
+
 /--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
