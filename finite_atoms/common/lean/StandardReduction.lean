@@ -9630,6 +9630,30 @@ theorem unitIntervalTruncatedPositiveSet_Icc_subset_of_continuous_positive_tailM
     (htail threshold hthreshold hthreshold_le x hx)
 
 /--
+Baseline-compact-subinterval specialization of
+`unitIntervalTruncatedPositiveSet_Icc_subset_of_continuous_positive_tailMass`.
+The interval-position hypothesis is kept explicit because the final baseline
+selection proof will cover `(-1,0)` by such compact subintervals.
+-/
+theorem unitIntervalTruncatedPositiveSet_baseline_Icc_subset_of_continuous_positive_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {a b truncε : ℝ}
+    (_hsub_base : Icc a b ⊆ Ioo (-1 : ℝ) 0)
+    (htruncε : 0 < truncε)
+    (hcont : ContinuousOn (unitIntervalLogPotential μ) (Icc a b))
+    (hpos :
+      ∀ x : ℝ, x ∈ Icc a b → 0 < unitIntervalLogPotential μ x)
+    (hno_diag : Disjoint (Icc a b) (diagonalAtomSet μ))
+    (htail :
+      ∀ threshold : ℝ, 0 < threshold →
+        (∀ x : ℝ, x ∈ Icc a b →
+          threshold < unitIntervalLogPotential μ x) →
+        ∀ x : ℝ, x ∈ Icc a b →
+          singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    Icc a b ⊆ unitIntervalTruncatedPositiveSet μ := by
+  exact unitIntervalTruncatedPositiveSet_Icc_subset_of_continuous_positive_tailMass
+    htruncε hcont hpos hno_diag htail
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
