@@ -7594,6 +7594,52 @@ theorem unitIntervalTruncatedPositiveSet_exists_augmented_interval_around
     unitIntervalTruncatedPositiveSet_subset_augmented_of_logKernel_integrable
       μ hlog_int (hsub_trunc hy)
 
+/--
+Off-diagonal version of the truncated-to-ordinary positive bridge.  A truncated
+positive point which is not a diagonal atom and has an integrable log kernel is
+an ordinary positive point of the logarithmic potential.
+-/
+theorem unitIntervalTruncatedPositiveSet_mem_positiveSet_of_not_diagonal
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {x : ℝ} (hx : x ∈ unitIntervalTruncatedPositiveSet μ)
+    (hxdiag : x ∉ diagonalAtomSet μ) :
+    x ∈ PositiveSet (unitIntervalLogPotential μ) := by
+  rcases hx with ⟨n, hpos⟩
+  have hle :
+      unitIntervalTruncatedPotential
+          (unitIntervalPositiveTruncationScale n) μ x ≤
+        unitIntervalLogPotential μ x :=
+    unitIntervalTruncatedPotential_le_logPotential_of_ae_ne
+      (unitIntervalPositiveTruncationScale_pos n)
+      (ae_ne_of_notMem_diagonalAtomSet hxdiag)
+      (hlog_int x hxdiag)
+  exact lt_of_lt_of_le hpos hle
+
+/--
+If a truncated-positive interval avoids the diagonal atom set, then it is an
+ordinary positive interval for the logarithmic potential.  This is the exact
+bridge needed to turn an off-diagonal truncated interval into a
+`PositiveComponent`.
+-/
+theorem unitIntervalTruncatedPositiveSet_interval_subset_positiveSet_of_disjoint_diagonal
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {l r : ℝ}
+    (hsub_trunc : Ioo l r ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hno_diag : Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+  intro x hx
+  exact unitIntervalTruncatedPositiveSet_mem_positiveSet_of_not_diagonal
+    μ hlog_int (hsub_trunc hx)
+    (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
