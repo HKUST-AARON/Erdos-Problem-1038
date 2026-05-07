@@ -499,6 +499,19 @@ Useful corrections already recorded:
   \(g=2\) chart input \((P,Q,D,\Gamma,\ell)\), because the existing
   `solve_two_interval_finite_gap.py` is still a local branch diagnostic and
   does not output the repaired Gate 1 data.
+- The extractor now has `--audit-two-interval-json`.  Auditing
+  `two_interval_branch_certificate_skeleton.json`,
+  `two_interval_branch_certificate_top_split.json`,
+  `two_interval_small_eta_certificate.json`, and
+  `two_interval_tiny_eta_certificate.json` gives `gate1_ready = False` for
+  all four.  They encode the old local ansatz
+  \(F=(z+A)\sqrt{(z-\alpha)(z-\beta)}/((z-\ell)(z-r)(z-1))\), so they supply
+  at most \(P=z+A\), \(Q=(z-\ell)(z-r)(z-1)\), and one moving cut
+  \([\alpha,\beta]\).  They do not contain the required compact non-pinched
+  \(g=2\) data \(\Gamma=\{\alpha_1,\beta_1,\alpha_2,\beta_2\}\),
+  moving-chart rows \(\ell\), period orientation \(\kappa\), or
+  \(Z_0,u,c,v\).  Therefore they cannot be wrapped into a Gate 1 repaired
+  oracle input.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

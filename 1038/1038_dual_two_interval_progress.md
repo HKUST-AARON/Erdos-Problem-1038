@@ -14089,6 +14089,74 @@ theorem queue.
     input to this extractor, then compute \(C_\gamma=H_\gamma^{rep}/(Q^2R)\),
     \(V_S,\rho_S,b_S\), and the endpoint/off-row determinant smoke tests.
 
+    Old two-interval JSON audit.
+
+    The extractor now also has a guard mode
+
+    \[
+    \texttt{--audit-two-interval-json}
+    \]
+
+    to check whether an existing diagnostic JSON can be used as Gate 1 input.
+    Running it on
+
+    \[
+    \texttt{two\_interval\_branch\_certificate\_skeleton.json},\quad
+    \texttt{two\_interval\_branch\_certificate\_top\_split.json},\quad
+    \texttt{two\_interval\_small\_eta\_certificate.json},\quad
+    \texttt{two\_interval\_tiny\_eta\_certificate.json}
+    \]
+
+    gives
+
+    \[
+    \texttt{gate1\_ready = False}.
+    \tag{G1OldTwoIntervalAudit}
+    \]
+
+    The reason is structural, not a missing Python dependency.  These files
+    record the old local ansatz
+
+    \[
+    F(z)=\frac{(z+A)\sqrt{(z-\alpha)(z-\beta)}}
+    {(z-\ell)(z-r)(z-1)},
+    \]
+
+    so the audit can reconstruct only
+
+    \[
+    P(z)=z+A,\qquad Q(z)=(z-\ell)(z-r)(z-1),
+    \]
+
+    and a single moving cut \([\alpha,\beta]\).  For the first skeleton row it
+    reports
+
+    \[
+    P=[1.2627187696571671,\ 1.0],
+    \]
+
+    \[
+    Q=[0.04754235870292919,\ -1.8273266191379003,\ 0.7797842604349712,\ 1.0]
+    \]
+
+    in ascending-coefficient order.  What is missing is exactly the Gate 1
+    input:
+
+    \[
+    \Gamma=\{\alpha_1,\beta_1,\alpha_2,\beta_2\},
+    \quad
+    \ell_1,\ldots,\ell_N,
+    \quad
+    \kappa,
+    \quad
+    Z_0,u,c,v.
+    \]
+
+    Therefore the old branch JSONs cannot be converted into repaired Gate 1
+    data by a harmless wrapper.  They remain useful local branch diagnostics,
+    but any computation of \(M_\eta(\Lambda)\), endpoint/off-row determinants,
+    or \(P_\theta\)-sign tables from them would be testing the wrong object.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

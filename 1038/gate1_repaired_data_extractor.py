@@ -25,6 +25,7 @@ import argparse
 import json
 import math
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -210,6 +211,72 @@ def toy_g2_inputs() -> tuple[Array, Array, list[float], list[Row]]:
     return P, Q, gammas, rows
 
 
+def audit_two_interval_json(path: Path) -> dict[str, Any]:
+    """Inspect an old two-interval diagnostic JSON for Gate 1 input readiness.
+
+    The existing two-interval solver records the local ansatz
+
+        F=(z+A) R / ((z-ell)(z-r)(z-1)).
+
+    That is useful diagnostic data, but it is not the compact non-pinched g=2
+    moving chart required by this extractor.  This audit makes the mismatch
+    explicit and computes the old ansatz P,Q candidates so they are not
+    confused with proof-grade Gate 1 inputs.
+    """
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = payload.get("rows")
+    if not isinstance(rows, list) or not rows:
+        raise ValueError(f"{path}: expected nonempty rows list")
+
+    audits: list[dict[str, Any]] = []
+    for index, row in enumerate(rows):
+        solution = row.get("solution")
+        if not isinstance(solution, dict):
+            raise ValueError(f"{path}: rows[{index}].solution missing")
+        required = ["A", "alpha", "beta", "ell", "r"]
+        missing = [key for key in required if key not in solution]
+        if missing:
+            raise ValueError(f"{path}: rows[{index}].solution missing {missing}")
+
+        A_value = float(solution["A"])
+        ell = float(solution["ell"])
+        r = float(solution["r"])
+        alpha = float(solution["alpha"])
+        beta = float(solution["beta"])
+        old_P = np.array([A_value, 1.0])
+        old_Q = poly_from_roots([ell, r, 1.0])
+        audits.append(
+            {
+                "row_index": index,
+                "epsilon": row.get("epsilon"),
+                "old_ansatz_P_coefficients_ascending": old_P.tolist(),
+                "old_ansatz_Q_coefficients_ascending": old_Q.tolist(),
+                "old_ansatz_cut_endpoints": [alpha, beta],
+                "old_ansatz_poles": [ell, r, 1.0],
+                "gate1_ready": False,
+                "missing_gate1_inputs": [
+                    "compact_non_pinched_four_branch_endpoints_Gamma",
+                    "regular_moving_chart_rows_ell",
+                    "period_orientation_kappa",
+                    "Z0_components_and_anchor_rows_u_c_v",
+                ],
+            }
+        )
+
+    return {
+        "path": str(path),
+        "description": payload.get("description"),
+        "row_count": len(rows),
+        "gate1_ready": False,
+        "reason": (
+            "old two-interval ansatz has one moving cut [alpha,beta] and "
+            "three poles; Gate 1 extractor needs a compact non-pinched g=2 "
+            "moving chart with four branch endpoints Gamma and chart rows"
+        ),
+        "rows": audits,
+    }
+
+
 def parse_float_list(raw: str) -> list[float]:
     return [float(part) for part in raw.split(",") if part.strip()]
 
@@ -238,12 +305,30 @@ def parse_rows(raw: str) -> list[Row]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--toy-g2", action="store_true", help="run a synthetic g=2 smoke test")
+    parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
     parser.add_argument("--gammas", help="branch endpoints, comma-separated")
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.audit_two_interval_json:
+        audit = audit_two_interval_json(Path(args.audit_two_interval_json))
+        print("Gate 1 old two-interval input audit")
+        print(f"  path = {audit['path']}")
+        print(f"  rows = {audit['row_count']}")
+        print(f"  gate1_ready = {audit['gate1_ready']}")
+        print(f"  reason = {audit['reason']}")
+        first = audit["rows"][0]
+        print(f"  first old ansatz P = {first['old_ansatz_P_coefficients_ascending']}")
+        print(f"  first old ansatz Q = {first['old_ansatz_Q_coefficients_ascending']}")
+        print(f"  missing = {', '.join(first['missing_gate1_inputs'])}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.toy_g2:
         P, Q, gammas, rows = toy_g2_inputs()
