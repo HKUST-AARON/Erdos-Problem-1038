@@ -16901,6 +16901,79 @@ theorem endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint
   · exact ht_right
 
 /--
+Zero-neighbourhood version of the endpoint-remainder right-region consequence.
+-/
+theorem endpointRemainder_ae_right_of_spanning_augmented_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, C.right ≤ t :=
+  endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint_or_right
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_zero_neighborhood
+      hε hmax hbaseline hspan_aug hzero)
+
+/--
+Support-uniqueness version of the endpoint-remainder right-region consequence.
+-/
+theorem endpointRemainder_ae_right_of_spanning_augmented_support_unique
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, C.right ≤ t :=
+  endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint_or_right
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_support_unique
+      hε hmax hbaseline hspan_aug hunique)
+
+/--
+Component-block atomization version of the endpoint-remainder right-region
+consequence.
+-/
+theorem endpointRemainder_ae_right_of_spanning_augmented_componentBlock_atomized
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, C.right ≤ t :=
+  endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint_or_right
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_componentBlock_atomized
+      hε hmax hbaseline hspan_aug hdirac)
+
+/--
+Normalized atomization version of the endpoint-remainder right-region
+consequence.
+-/
+theorem endpointRemainder_ae_right_of_spanning_augmented_normalized_atomized
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ}
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    ∀ᵐ t ∂(realMeasure μ).restrict ({-1} : Set ℝ)ᶜ, C.right ≤ t :=
+  endpointRemainder_ae_right_of_spanning_augmented_support_subset_endpoint_or_right
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_normalized_atomized
+      R hε hmax hbaseline hspan_aug hdirac)
+
+/--
 Tao boundary-average inequality from augmented span/right gap and normalized
 component atomization, using the concrete component replacement to unnormalize.
 -/
