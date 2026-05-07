@@ -1432,6 +1432,8 @@ def endpoint_heavy_mixed_kernel_root_audit(
         max_kernel_residual = 0.0
         for y in ys:
             M = np.array([[row_value for row_value in spec["rows"](float(y), poly)] for poly in basis], dtype=float).T
+            eval_row = np.array([poly_eval(poly, float(y)) for poly in basis], dtype=float)
+            augmented_det = float(np.linalg.det(np.vstack([M, eval_row])))
             _u, s, vh = np.linalg.svd(M)
             kernel = vh[-1, :]
             if abs(kernel[-1]) > 1.0e-12:
@@ -1448,6 +1450,8 @@ def endpoint_heavy_mixed_kernel_root_audit(
                 {
                     "y": float(y),
                     "singular_values": s.tolist(),
+                    "augmented_eval_det": augmented_det,
+                    "augmented_eval_det_sign": sign_label(augmented_det),
                     "kernel_coefficients_ascending": kernel.tolist(),
                     "real_roots": real_roots,
                     "value_at_y": value_at_y,
@@ -1458,9 +1462,12 @@ def endpoint_heavy_mixed_kernel_root_audit(
             )
         records_by_pattern[pattern] = records
         value_sign_counts: dict[str, int] = {}
+        det_sign_counts: dict[str, int] = {}
         for record in records:
             sign = str(record["value_at_y_sign"])
             value_sign_counts[sign] = value_sign_counts.get(sign, 0) + 1
+            det_sign = str(record["augmented_eval_det_sign"])
+            det_sign_counts[det_sign] = det_sign_counts.get(det_sign, 0) + 1
         summary_by_pattern[pattern] = {
             "samples": samples,
             "root_order_feasible_samples": feasible,
@@ -1469,6 +1476,8 @@ def endpoint_heavy_mixed_kernel_root_audit(
             "all_samples_root_order_infeasible": feasible == 0,
             "value_at_y_sign_counts": value_sign_counts,
             "min_abs_value_at_y": min(abs(float(record["value_at_y"])) for record in records),
+            "augmented_eval_det_sign_counts": det_sign_counts,
+            "min_abs_augmented_eval_det": min(abs(float(record["augmented_eval_det"])) for record in records),
         }
 
     return {
@@ -2103,7 +2112,9 @@ def main() -> int:
                 f"min sigma = {summary['min_smallest_singular_value']:.6e}, "
                 f"max kernel residual = {summary['max_kernel_residual_norm']:.6e}, "
                 f"F(y) signs = {summary['value_at_y_sign_counts']}, "
-                f"min |F(y)| = {summary['min_abs_value_at_y']:.6e}"
+                f"min |F(y)| = {summary['min_abs_value_at_y']:.6e}, "
+                f"det signs = {summary['augmented_eval_det_sign_counts']}, "
+                f"min |det| = {summary['min_abs_augmented_eval_det']:.6e}"
             )
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

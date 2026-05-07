@@ -828,6 +828,12 @@ Useful corrections already recorded:
   The sampled kernel roots always split as left-cut / middle-gap / right-cut.
   Thus the paper lemma can be sharpened: the zero-connection kernel cubic never
   has the prescribed interior-contact root \(y\).
+- The same check is now determinant-form: append the evaluation row
+  \(F\mapsto F(y)\) to the three rows \(I_L,I_R,I_{\rm gap}\), giving a
+  \(4\times4\) matrix \(\mathcal A_y\) on \(1,x,x^2,x^3\).  The determinant
+  has the same fixed signs as \(F_y(y)\) in both tested exterior-pole models.
+  The next proof target is `MixedAugmentedDeterminantSignLemma`: prove the
+  sign of \(\det\mathcal A_y\) for all regular mixed \(y\).
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

@@ -15921,6 +15921,64 @@ theorem queue.
     \tag{G1MixedKernelFyTarget}
     \]
 
+    Augmented determinant form.
+
+    The value \(F_y(y)\) can be expressed without choosing a kernel vector.
+    Append the evaluation row
+
+    \[
+    \operatorname{ev}_y:F\mapsto F(y)
+    \]
+
+    to the three integral rows \(I_L,I_R,I_{\rm gap}\).  This gives a
+    \(4\times4\) coefficient matrix
+
+    \[
+    \mathcal A_y=
+    \begin{pmatrix}
+    I_L\\
+    I_R\\
+    I_{\rm gap}\\
+    \operatorname{ev}_y
+    \end{pmatrix}_{1,x,x^2,x^3}.
+    \tag{G1MixedAugDetMatrix}
+    \]
+
+    The audit now records
+
+    \[
+    \det\mathcal A_y
+    \]
+
+    directly.  On \(\Gamma=(-2,-1,1,2),p=-3\), the determinant signs are
+
+    \[
+    \begin{array}{c|c|c}
+    \text{pattern} & \operatorname{sgn}\det\mathcal A_y
+    & \min|\det\mathcal A_y|\\
+    \hline
+    (LR,LI) & + & 3.2145\cdot10^{-4}\\
+    (LR,IR) & - & 7.5904\cdot10^{-4}\\
+    (LI,LR) & + & 1.1193\cdot10^{-3}\\
+    (IR,LR) & - & 4.2920\cdot10^{-5}
+    \end{array}
+    \tag{G1MixedAugDetSmoke}
+    \]
+
+    The non-symmetric exterior-pole model has the same signs.  Thus the
+    current paper target is:
+
+    \[
+    \boxed{
+    \textbf{MixedAugmentedDeterminantSignLemma.}
+    }
+    \]
+
+    Prove the sign of \(\det\mathcal A_y\) for every regular mixed \(y\).
+    This implies \(F_y(y)\ne0\), hence proves
+    `MixedKernelRootOrderLemma` and excludes regular mixed zero-connection
+    crossings.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
