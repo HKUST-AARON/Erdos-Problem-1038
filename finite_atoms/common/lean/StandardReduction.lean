@@ -15114,6 +15114,38 @@ theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
       rfl
 
 /--
+Tao boundary-average inequality from augmented span/right gap and normalized
+component atomization, using the concrete component replacement to unnormalize.
+-/
+theorem boundary_average_of_spanning_augmented_right_gap_normalized_atomized
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε δ : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    1 ≤ (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_average_of_spanning_augmented_right_gap_component_atomized
+    μ hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized)
+
+/--
 Normalized endpoint atomization also produces a genuine endpoint atom of the
 original subtype probability measure.
 -/
@@ -21602,18 +21634,43 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_atomization_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_left_zero_neighborhood_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentReplacementAugmentedSpanRightGapNormalizedAtomizationDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hbaseline, hright_gap, hnormalized_atomized⟩
+  have hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ) :=
+    componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized
+  have hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} :=
+    unitInterval_endpoint_atom_pos_of_componentBlock_eq_smul_dirac_endpoint
+      R hcomponent_atomized
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_average_of_spanning_augmented_right_gap_normalized_atomized
+      μ R hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+      hnormalized_atomized
+  have hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩
   exact
-    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hbaseline, hright_gap,
-      componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
-        R hnormalized_atomized⟩
+    ⟨C, ε, hε, hmax, hleft_aug, hendpoint_unit_pos, hbaseline,
+      hright_pos, hboundary,
+      component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+        hcomponent_atomized⟩
 
 /--
 Augmented-span/right-gap provider where normalized atomization is derived from
