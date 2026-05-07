@@ -14665,6 +14665,30 @@ theorem notMem_diagonalAtomSet_of_not_mem_realMeasure_support
     simpa [diagonalAtomSet, Set.preimage, Set.mem_singleton_iff] using hxdiag
   exact hnot_support (realMeasure_mem_support_of_singleton_pos hreal_pos)
 
+theorem realMeasure_exists_right_Icc_disjoint_support_and_diagonal_of_not_mem_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Icc x (x + δ) ∩ (realMeasure μ).support = ∅ ∧
+      Icc x (x + δ) ∩ diagonalAtomSet μ = ∅ := by
+  rcases realMeasure_exists_right_Icc_disjoint_support_of_not_mem_support
+      μ hx with
+    ⟨δ, hδ, hsupport_gap⟩
+  refine ⟨δ, hδ, hsupport_gap, ?_⟩
+  ext y
+  constructor
+  · intro hy
+    rcases hy with ⟨hyIcc, hydiag⟩
+    have hynot_support : y ∉ (realMeasure μ).support := by
+      intro hysupport
+      have hyempty : y ∈ Icc x (x + δ) ∩ (realMeasure μ).support :=
+        ⟨hyIcc, hysupport⟩
+      rw [hsupport_gap] at hyempty
+      exact False.elim hyempty
+    exact (notMem_diagonalAtomSet_of_not_mem_realMeasure_support hynot_support) hydiag
+  · intro hy
+    exact False.elim hy
+
 theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (hdirac : componentBlock C =
