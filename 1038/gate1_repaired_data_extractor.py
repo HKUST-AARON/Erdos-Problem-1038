@@ -664,6 +664,16 @@ def endpoint_heavy_connection_audit(
     if gammas is None:
         gammas = [-2.0, -1.0, 1.0, 2.0]
     a1, b1, a2, b2 = sorted(gammas)
+    # The omitted full-pair pole is an off-cut pole.  Allowing it to lie on a
+    # cut creates a singular density in the diagnostic model.  Allowing it in
+    # the middle gap makes the connection path cross a double pole, so the
+    # ordinary connection integral used here is not finite.
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError(
+            f"omitted pole {omitted_pole} lies in the connection gap ({b1}, {a2}); "
+            "ordinary endpoint-heavy connection audit requires an exterior omitted pole"
+        )
     left_interval = (a1, b1)
     right_interval = (a2, b2)
     patterns = [
@@ -948,6 +958,40 @@ def endpoint_heavy_connection_audit(
         "records": records,
         "connection_sign_counts": sign_counts,
         "solved_connection_sign_counts_by_pattern": solved_sign_counts_by_pattern,
+    }
+
+
+def endpoint_heavy_connection_sweep(nodes: int = 32) -> dict[str, Any]:
+    """Run a small valid exterior omitted-pole sweep for the connection audit."""
+    cases = [
+        ([-2.0, -1.0, 1.0, 2.0], -3.0),
+        ([-2.0, -1.0, 1.0, 2.0], 3.0),
+        ([-3.0, -1.2, 0.7, 2.5], -4.0),
+        ([-3.0, -1.2, 0.7, 2.5], 3.5),
+        ([-2.5, -0.8, 0.5, 3.0], -3.5),
+        ([-2.5, -0.8, 0.5, 3.0], 4.0),
+    ]
+    records = []
+    aggregate: dict[str, dict[str, int]] = {}
+    for gammas, omitted_pole in cases:
+        audit = endpoint_heavy_connection_audit(gammas=gammas, omitted_pole=omitted_pole, nodes=nodes)
+        by_pattern = audit["solved_connection_sign_counts_by_pattern"]
+        records.append(
+            {
+                "gammas": gammas,
+                "omitted_pole": omitted_pole,
+                "solved_connection_sign_counts_by_pattern": by_pattern,
+            }
+        )
+        for pattern, signs in by_pattern.items():
+            aggregate.setdefault(pattern, {})
+            for sign, count in signs.items():
+                aggregate[pattern][sign] = aggregate[pattern].get(sign, 0) + count
+    return {
+        "model": "valid off-cut omitted-pole endpoint-heavy connection sweep",
+        "nodes": nodes,
+        "cases": records,
+        "aggregate_solved_connection_sign_counts_by_pattern": aggregate,
     }
 
 
@@ -1379,6 +1423,11 @@ def main() -> int:
         action="store_true",
         help="diagnose endpoint-heavy connection integrals in a normalized two-cut model",
     )
+    parser.add_argument(
+        "--sweep-endpoint-heavy-connection",
+        action="store_true",
+        help="sweep endpoint-heavy connection integrals over valid off-cut omitted-pole models",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=0.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
@@ -1450,6 +1499,27 @@ def main() -> int:
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.sweep_endpoint_heavy_connection:
+        sweep = endpoint_heavy_connection_sweep(nodes=args.connection_nodes)
+        print("Gate 1 endpoint-heavy connection sweep")
+        print(f"  model = {sweep['model']}")
+        print(f"  nodes = {sweep['nodes']}")
+        print(
+            "  aggregate solved signs by pattern = "
+            f"{sweep['aggregate_solved_connection_sign_counts_by_pattern']}"
+        )
+        for case in sweep["cases"]:
+            print(
+                "  case = "
+                f"gammas {case['gammas']}, omitted pole {case['omitted_pole']}, "
+                f"signs {case['solved_connection_sign_counts_by_pattern']}"
+            )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(sweep, handle, indent=2, sort_keys=True)
             print(f"  wrote {args.write_json}")
         return 0
 

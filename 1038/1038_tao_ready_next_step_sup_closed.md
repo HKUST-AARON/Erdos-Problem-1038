@@ -768,6 +768,19 @@ Useful corrections already recorded:
   The next proof should split: prove the four mixed connection signs first,
   and handle \((LR,LR)\) with its extra free third root via a separate
   residual/off-row condition.
+- The connection oracle now rejects omitted poles on the cuts and in the
+  middle connection gap.  A pole on a cut makes the density singular; a pole in
+  \((\beta_1,\alpha_2)\) lies on the connection path as a double pole, so the
+  ordinary connection integral is not finite.  The new
+  `--sweep-endpoint-heavy-connection` command sweeps six valid exterior
+  omitted-pole models.  Aggregate solved signs:
+  \[
+  (LR,LI),(LR,IR):\ 29(-),\qquad
+  (LI,LR),(IR,LR):\ 29(+),
+  \]
+  while \((LR,LR)\) remains mixed, \(15(-),15(+)\).  Thus the most plausible
+  next theorem is the four-pattern mixed connection sign theorem, not a
+  five-pattern theorem.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

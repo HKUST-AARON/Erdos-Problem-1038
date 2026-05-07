@@ -15638,6 +15638,53 @@ theorem queue.
     }
     \]
 
+    Valid exterior-pole sweep.
+
+    The diagnostic has also been hardened: the omitted full-pair pole \(p\)
+    is now required to be off the cuts and off the middle connection gap.
+    Putting \(p\) inside a cut makes the model density singular.  Putting
+    \(p\) inside \((\beta_1,\alpha_2)\) makes the connection path cross a
+    double pole, so the ordinary connection integral is not finite.  Such runs
+    are now rejected by the oracle.
+
+    The command
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --sweep-endpoint-heavy-connection --connection-nodes 32
+    ```
+
+    sweeps six valid exterior omitted-pole models.  The aggregate solved
+    signs are
+
+    \[
+    \begin{array}{c|c}
+    \text{pattern} & \text{aggregate solved signs}\\
+    \hline
+    (LR,LR) & 15(+),\ 15(-)\\
+    (LR,LI) & 29(-)\\
+    (LR,IR) & 29(-)\\
+    (LI,LR) & 29(+)\\
+    (IR,LR) & 29(+)
+    \end{array}
+    \]
+
+    The missing mixed solves are solver misses, not opposite signs.  This
+    strengthens the working conjecture:
+
+    \[
+    \boxed{
+    (LR,LI),(LR,IR)\text{ should have negative connection sign,}
+    \quad
+    (LI,LR),(IR,LR)\text{ should have positive connection sign.}
+    }
+    \tag{G1MixedConnectionSignTarget}
+    \]
+
+    By contrast, \((LR,LR)\) cannot be killed by a fixed connection sign and
+    must be routed through a separate free-third-root residual or off-row
+    determinant condition.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
