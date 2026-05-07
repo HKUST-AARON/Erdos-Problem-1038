@@ -4297,10 +4297,34 @@ theorem PositiveComponent.right_not_mem_augmented_union_support_of_right_gap
   have hright_mem :
       C.right ∈ Icc C.right (C.right + δ) ∩
           (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) := by
-    constructor
-    · exact ⟨le_rfl, by linarith⟩
-    · exact hmem
+    exact ⟨⟨le_rfl, by linarith⟩, hmem⟩
   simpa [hright_gap] using hright_mem
+
+/-- The right-gap condition excludes the right endpoint from the augmented set. -/
+theorem PositiveComponent.right_not_mem_augmented_of_right_gap
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅) :
+    C.right ∉ unitIntervalAugmentedPositiveSet μ := by
+  intro hmem
+  exact C.right_not_mem_augmented_union_support_of_right_gap hδ hright_gap
+    (Or.inl hmem)
+
+/-- The right-gap condition excludes the right endpoint from real support. -/
+theorem PositiveComponent.right_not_mem_support_of_right_gap
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅) :
+    C.right ∉ (realMeasure μ).support := by
+  intro hmem
+  exact C.right_not_mem_augmented_union_support_of_right_gap hδ hright_gap
+    (Or.inr hmem)
 
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
