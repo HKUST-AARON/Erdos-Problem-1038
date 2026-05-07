@@ -1,7 +1,6 @@
 {
   "blocking_errors": [
-    "equation spec does not declare proof_grade=true",
-    "not-ready blocks: ['provenance']"
+    "equation spec does not declare proof_grade=true"
   ],
   "blocks": [
     {
@@ -57,11 +56,11 @@
     },
     {
       "name": "provenance",
-      "ready": false,
-      "todo_like": true
+      "ready": true,
+      "todo_like": false
     }
   ],
-  "next_action": "replace every TODO/draft block with exact equations and theorem references, then generate gate1_compact_g2_chart.json",
+  "next_action": "all contract blocks and provenance are ready; set proof_grade=true only after the referenced compact-chart and boundary-routing proof obligations are accepted, then generate gate1_compact_g2_chart.json",
   "path": "1038/gate1_compact_g2_equation_spec_template.json",
   "schema": "gate1_compact_g2_equation_spec_v1",
   "solver_ready": false,

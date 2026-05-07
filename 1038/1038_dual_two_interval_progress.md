@@ -18043,3 +18043,42 @@ is provenance, namely replacing the remaining TODO theorem references
 (`CompactG2MovingChartEquations`, `TPSquareMovingChartGaugeLemma`, and Gate 3
 degeneration routes) by exact ledger theorem references and only then setting
 `proof_grade=true`.
+
+The provenance block has now been replaced by exact ledger references.  The
+remaining provenance map points to the row-by-row
+`CompactG2MovingChartEquations` contract, the full-pair
+`TPSquareMovingChartGaugeLemma` contract, (G1FullPairGaugeDet),
+(G1FullPairRepairedEndpoint), (PeriodTransferColumn), (G1ExtractorRows), and
+the Gate 3 boundary-routing ledger (G3modes/G3route).  It also records the
+important caveat that Gate 3 compactness remains a separate proof obligation.
+
+The equation-spec audit therefore now reports:
+
+```text
+block = provenance, ready = True
+solver ready = False
+errors = ['equation spec does not declare proof_grade=true']
+next = all contract blocks and provenance are ready; set proof_grade=true only
+       after the referenced compact-chart and boundary-routing proof
+       obligations are accepted, then generate gate1_compact_g2_chart.json
+```
+
+This is the sharpest current state of the chart handoff:
+
+\[
+\boxed{
+\text{all compact }g=2\text{ chart spec blocks are executable contracts,}
+\quad
+\texttt{proof\_grade=false}\text{ is the only remaining spec blocker.}
+}
+\]
+
+Consequently the next proof/computation route is no longer another spec pass.
+It is either:
+
+1. accept the referenced compact-chart and Gate 3 routing obligations as the
+   current proof basis, set `proof_grade=true`, generate
+   `gate1_compact_g2_chart.json`, and run `--run-chart-pipeline`; or
+2. if proof-grade status is required before computation, close the still-open
+   Gate 3 compactness lemma first, because the chart spec already records the
+   regular/interior equations and routes every excluded failure to Gate 3.

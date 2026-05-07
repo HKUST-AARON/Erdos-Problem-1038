@@ -5485,3 +5485,13 @@ mathematical block ready; `solver ready` remains false only because
 `proof_grade=true` and non-TODO provenance have not yet been supplied.  The
 next executable step is therefore provenance closure, not another boundary-row
 definition pass.
+
+Update: provenance is now closed as a spec block.  The audit reports
+`provenance, ready = True`; the only remaining error is that the equation spec
+does not declare `proof_grade=true`.  The provenance points to the row-by-row
+compact chart contract, the full-pair gauge contract, (G1FullPairGaugeDet),
+(G1FullPairRepairedEndpoint), the period-transfer column convention, the
+extractor rows, and the Gate 3 boundary-routing ledger.  The caveat is explicit:
+Gate 3 compactness is still a separate proof obligation.  Therefore the next
+route is either to accept these routed obligations and generate the real chart,
+or to close Gate 3 compactness before setting `proof_grade=true`.

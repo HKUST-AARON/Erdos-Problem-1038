@@ -966,8 +966,8 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "equation_provenance",
         ],
         "provenance": {
-            "CompactG2MovingChartEquations": "TODO: ledger theorem/line reference",
-            "TPSquareMovingChartGaugeLemma": "TODO: ledger theorem/line reference",
+            "CompactG2MovingChartEquations": "1038_dual_two_interval_progress.md CompactG2MovingChartEquations row-by-row contract and subsequent ready equation-spec updates",
+            "TPSquareMovingChartGaugeLemma": "1038_dual_two_interval_progress.md TPSquareMovingChartGaugeLemma full-pair pole-gauge contract",
             "FullPairGaugeDet": "G1FullPairGaugeDet",
             "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
             "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
@@ -976,7 +976,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
             "period_filling_convention": "PeriodTransferColumn and canonical free-period row realization",
             "Z0_boundary_row_selection": "G1ExtractorRows and finite contact-pattern ledger",
-            "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
+            "Gate3_degeneration_routes": "G3modes/G3route boundary-routing ledger; Gate 3 compactness remains a separate proof obligation",
         },
     }
 
@@ -1076,6 +1076,19 @@ def compact_equation_spec_audit(path: Path) -> dict[str, Any]:
     not_ready = [block["name"] for block in blocks if not block["ready"]]
     if not_ready:
         blocking_errors.append(f"not-ready blocks: {not_ready}")
+    if not_ready:
+        next_action = (
+            "replace every TODO/draft block with exact equations and theorem "
+            "references, then generate gate1_compact_g2_chart.json"
+        )
+    elif payload.get("proof_grade") is not True:
+        next_action = (
+            "all contract blocks and provenance are ready; set proof_grade=true "
+            "only after the referenced compact-chart and boundary-routing proof "
+            "obligations are accepted, then generate gate1_compact_g2_chart.json"
+        )
+    else:
+        next_action = "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
     return {
         "path": str(path),
         "schema": payload.get("schema"),
@@ -1083,10 +1096,7 @@ def compact_equation_spec_audit(path: Path) -> dict[str, Any]:
         "solver_ready": not blocking_errors,
         "blocking_errors": blocking_errors,
         "blocks": blocks,
-        "next_action": (
-            "replace every TODO/draft block with exact equations and theorem "
-            "references, then generate gate1_compact_g2_chart.json"
-        ),
+        "next_action": next_action,
     }
 
 
