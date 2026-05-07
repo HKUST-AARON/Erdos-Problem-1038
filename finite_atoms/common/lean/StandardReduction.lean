@@ -2224,6 +2224,86 @@ theorem realMeasure_log_inv_abs_sub_integrable_of_ae_lower_bound
   have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
   simp
 
+theorem measureLogPotential_continuousAt_of_ae_lower_bound
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|) :
+    ContinuousAt (measureLogPotential (realMeasure μ)) x := by
+  let r : ℝ := min 1 (ε / 2)
+  have hr_pos : 0 < r := lt_min zero_lt_one (by linarith)
+  let K : ℝ := |Real.log (ε / 2)| + (|x| + 2)
+  unfold measureLogPotential
+  refine MeasureTheory.continuousAt_of_dominated
+    (F := fun y t : ℝ => Real.log (1 / |y - t|))
+    (bound := fun _ : ℝ => K)
+    ?h_meas ?h_bound (integrable_const K) ?h_cont
+  · exact Filter.Eventually.of_forall (fun y =>
+      (Real.measurable_log.comp
+        (measurable_const.div
+          ((continuous_const.sub continuous_id).abs.measurable))).aestronglyMeasurable)
+  · refine Filter.mem_of_superset (Metric.ball_mem_nhds x hr_pos) ?_
+    intro y hy
+    filter_upwards [realMeasure_ae_mem_unitInterval μ, hdist_lower] with t ht hdist
+    have hyx_lt : |y - x| < r := by
+      simpa [Metric.mem_ball, Real.dist_eq] using hy
+    have hyx_le_half : |y - x| < ε / 2 := lt_of_lt_of_le hyx_lt (min_le_right _ _)
+    have hxt_le : |x - t| ≤ |x - y| + |y - t| := by
+      calc
+        |x - t| = |(x - y) + (y - t)| := by ring_nf
+        _ ≤ |x - y| + |y - t| := abs_add_le _ _
+    have hyt_lower : ε / 2 ≤ |y - t| := by
+      have hxy_lt : |x - y| < ε / 2 := by simpa [abs_sub_comm] using hyx_le_half
+      linarith
+    have hyt_pos : 0 < |y - t| := lt_of_lt_of_le (by linarith) hyt_lower
+    have hy_abs : |y| ≤ |x| + 1 := by
+      have hyx_lt_one : |y - x| < 1 := lt_of_lt_of_le hyx_lt (min_le_left _ _)
+      have hle : |y| ≤ |y - x| + |x| := by
+        calc
+          |y| = |(y - x) + x| := by ring_nf
+          _ ≤ |y - x| + |x| := abs_add_le _ _
+      linarith
+    have ht_abs : |t| ≤ 1 := abs_le.mpr ht
+    have hyt_upper : |y - t| ≤ |x| + 2 := by
+      have hle : |y - t| ≤ |y| + |t| := by
+        calc
+          |y - t| = |y + -t| := by ring_nf
+          _ ≤ |y| + |-t| := abs_add_le _ _
+          _ = |y| + |t| := by rw [abs_neg]
+      linarith
+    have hlog_lower : Real.log (ε / 2) ≤ Real.log |y - t| :=
+      Real.log_le_log (by linarith) hyt_lower
+    have hlog_upper : Real.log |y - t| ≤ |x| + 2 :=
+      (Real.log_le_self (abs_nonneg (y - t))).trans hyt_upper
+    have hK_lower : -K ≤ Real.log (ε / 2) := by
+      dsimp [K]
+      have hneg_abs : -|Real.log (ε / 2)| ≤ Real.log (ε / 2) :=
+        neg_abs_le (Real.log (ε / 2))
+      have hnonneg : 0 ≤ |x| + 2 := by positivity
+      linarith
+    have hK_upper : |x| + 2 ≤ K := by
+      dsimp [K]
+      have hnonneg : 0 ≤ |Real.log (ε / 2)| := abs_nonneg _
+      linarith
+    have habs_log_abs : |Real.log (|y - t|)| ≤ K :=
+      abs_le.mpr ⟨le_trans hK_lower hlog_lower,
+        le_trans hlog_upper hK_upper⟩
+    have hlog_inv_eq : Real.log (1 / |y - t|) = -Real.log |y - t| := by
+      simp [one_div, Real.log_inv]
+    rw [hlog_inv_eq]
+    simpa [Real.norm_eq_abs, abs_neg] using habs_log_abs
+  · filter_upwards [hdist_lower] with t hdist
+    have hne : x ≠ t := by
+      exact sub_ne_zero.mp (abs_pos.mp (lt_of_lt_of_le hε hdist))
+    exact logKernel_continuousAt_of_ne hne
+
+theorem measureLogPotential_continuousAt_of_not_mem_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ContinuousAt (measureLogPotential (realMeasure μ)) x := by
+  rcases realMeasure_ae_separated_of_not_mem_support μ hx with
+    ⟨ε, hε, hdist_lower⟩
+  exact measureLogPotential_continuousAt_of_ae_lower_bound μ hε hdist_lower
+
 theorem realMeasure_endpointRemainder_support_in_support
     (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
     (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
@@ -2475,6 +2555,20 @@ lemma unitIntervalLogPotential_eq_realMeasure
     (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
     unitIntervalLogPotential μ x = measureLogPotential (realMeasure μ) x := by
   simpa [realMeasure] using unitIntervalLogPotential_eq_map_subtypeVal μ x
+
+theorem unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038) {x : ℝ}
+    (hx : x ∉ (realMeasure μ).support) :
+    ContinuousAt (unitIntervalLogPotential μ) x := by
+  have hcont :
+      ContinuousAt (measureLogPotential (realMeasure μ)) x :=
+    measureLogPotential_continuousAt_of_not_mem_realMeasure_support μ hx
+  have hfun :
+      unitIntervalLogPotential μ = measureLogPotential (realMeasure μ) := by
+    funext y
+    exact unitIntervalLogPotential_eq_realMeasure μ y
+  rw [hfun]
+  exact hcont
 
 /-! ## Concrete reflection/translation normalization map -/
 
