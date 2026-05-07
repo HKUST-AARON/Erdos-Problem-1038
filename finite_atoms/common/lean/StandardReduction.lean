@@ -12453,14 +12453,11 @@ def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization
     (hnormalized_atomized :
       normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
     TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
-  taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_data
-    μ mean_choice reflected translation C R xMinus xPlus hcomponent_interval
+  taoVariationComponentPackage_of_canonicalEndpointMass_component_atomization_baseline_data
+    μ mean_choice reflected translation C xMinus xPlus hcomponent_interval
     hbaseline hright_endpoint_positive hboundary_average
-    (endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
-      (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
-        R hnormalized_atomized)
-      hbaseline)
-    hnormalized_atomized
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized)
 
 theorem measure_barycenter_second_moment_eq_imp_eq_dirac_at_mean
     (μ : Measure ℝ) [IsProbabilityMeasure μ]
