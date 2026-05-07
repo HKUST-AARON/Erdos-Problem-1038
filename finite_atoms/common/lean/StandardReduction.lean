@@ -7640,6 +7640,31 @@ theorem unitIntervalTruncatedPositiveSet_interval_subset_positiveSet_of_disjoint
     μ hlog_int (hsub_trunc hx)
     (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
 
+/--
+An off-diagonal truncated-positive interval packages into a genuine
+`PositiveComponent` for the ordinary logarithmic positive set.  This is the
+first concrete constructor that turns truncated objective topology into the
+existing component API.
+-/
+theorem exists_positiveComponent_of_truncated_interval_disjoint_diagonal
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {l r : ℝ}
+    (hlr : l < r)
+    (hsub_trunc : Ioo l r ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hno_diag : Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.left = l ∧ C.right = r ∧ C.interval = Ioo l r := by
+  have hpos :
+      Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ) :=
+    unitIntervalTruncatedPositiveSet_interval_subset_positiveSet_of_disjoint_diagonal
+      μ hlog_int hsub_trunc hno_diag
+  refine ⟨PositiveComponent.of_interval_subset_positiveSet hlr hpos,
+    rfl, rfl, rfl⟩
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
