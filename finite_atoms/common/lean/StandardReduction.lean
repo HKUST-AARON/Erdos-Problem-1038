@@ -8392,6 +8392,60 @@ theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_neighborh
       hnoDiag
 
 /--
+If the ordinary logarithmic positive set is open and `0` is positive, then
+ordinary positivity holds on a right neighbourhood of `0`.
+-/
+theorem positiveSet_exists_right_neighborhood_of_zero
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ δ : ℝ,
+      0 < δ ∧
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ) := by
+  have hzero_mem : 0 ∈ PositiveSet (unitIntervalLogPotential μ) := hzero
+  rcases Metric.isOpen_iff.mp hopen 0 hzero_mem with ⟨δ, hδ, hball⟩
+  refine ⟨δ / 2, by positivity, ?_⟩
+  intro x hx
+  exact hball (by
+    rw [Metric.mem_ball, Real.dist_eq]
+    rw [sub_zero, abs_of_pos hx.1]
+    have hxlt : x < δ / 2 := hx.2
+    linarith)
+
+/--
+Augmented-maximal selected-component constructor from baseline positivity and
+positivity at `0`, assuming ordinary positive-set openness.  This removes the
+right-neighbourhood input from the ordinary selected-component path.
+-/
+theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_auto_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases positiveSet_exists_right_neighborhood_of_zero
+      (μ := μ) hopen hzero with
+    ⟨δ, hδ, hright⟩
+  exact
+    exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_neighborhood_auto_bdd
+      (μ := μ) (x := x) (δ := δ)
+      hopen hxbase hδ hbaseline hright hzero hnoDiag
+
+/--
 Truncated-positive analogue of
 `positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
 preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
