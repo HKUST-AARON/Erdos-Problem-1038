@@ -12279,6 +12279,41 @@ def taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_da
     hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
     hcomponent_atomized
 
+/--
+Baseline version of the unit-interval-support component-atomization constructor.
+Component atomization and baseline placement generate endpoint-remainder kernel
+integrability internally.
+-/
+def taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_baseline_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_data
+    μ mean_choice reflected translation C endpointMass xMinus xPlus
+    hcomponent_interval hbaseline hright_endpoint_positive hboundary_average
+    hunit_endpoint_mass hendpoint_mass_nonneg hremainder_mass_nonneg
+    (endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_component
+      hcomponent_atomized hbaseline)
+    hcomponent_atomized
+
 /-- Variant where component atomization is supplied in normalized form.  This is
 the natural output of the barycenter/secondary-minimizer rigidity argument, and
 the scaled component-block statement is derived internally. -/
@@ -12355,6 +12390,42 @@ def taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization
     (unitInterval_endpoint_atom_toReal_nonneg μ)
     (unitInterval_endpoint_atom_remainderMass_nonneg μ)
     hkernel_integrable hnormalized_atomized
+
+/--
+Canonical-endpoint-mass component-atomization constructor with baseline-generated
+endpoint-remainder kernel integrability.
+-/
+def taoVariationComponentPackage_of_canonicalEndpointMass_component_atomization_baseline_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_unitIntervalSupport_component_atomization_baseline_data
+    μ mean_choice reflected translation C
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)
+    xMinus xPlus hcomponent_interval hbaseline hright_endpoint_positive
+    hboundary_average
+    (unitInterval_endpoint_atom_eq_ofReal_toReal μ)
+    (unitInterval_endpoint_atom_toReal_nonneg μ)
+    (unitInterval_endpoint_atom_remainderMass_nonneg μ)
+    hcomponent_atomized
 
 /-- Fully mechanical endpoint-remainder version of the canonical constructor:
 once the component contains the baseline interval and normalized atomization has
