@@ -26605,6 +26605,57 @@ noncomputable def unitInterval_standardReduction_from_supportPoint_positiveSpan_
       (componentMass_pos_of_support_mem_interval htSupport htInterval)
       hbaseline hnot_support hzero
 
+noncomputable def unitInterval_standardReduction_from_replacement_leftAugmented_notSupport_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1})
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hendpoint_aug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ :=
+    unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_unit_pos)
+  have hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    by_cases hx_left : x < -1
+    · exact hleft_aug ⟨hx.1, hx_left⟩
+    · have hx_ge : -1 ≤ x := le_of_not_gt hx_left
+      by_cases hx_endpoint : x = -1
+      · simpa [hx_endpoint] using hendpoint_aug
+      · have hx_gt : -1 < x := lt_of_le_of_ne hx_ge (Ne.symm hx_endpoint)
+        exact unitInterval_positiveSet_subset_augmented μ
+          (C.interval_subset_positiveSet
+            (C.baseline_to_right_subset_interval hright_pos hbaseline
+              ⟨hx_gt, hx.2⟩))
+  exact
+    unitInterval_standardReduction_from_replacement_notSupport_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hmax hspan_aug hbaseline
+      hnot_support hzero
+
 noncomputable def unitInterval_standardReduction_from_replacement_augmentedGap_zeroNeighborhood
     {μ : ProbabilityMeasure UnitInterval1038}
     (hPrimary :
