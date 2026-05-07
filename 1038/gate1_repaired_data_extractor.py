@@ -863,8 +863,13 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
             {
                 "name": "mass_decay_normalization",
-                "status": "TODO",
-                "equations": ["TODO: exact zero-mass/fixed-mass/infinity row"],
+                "status": "contract",
+                "equations": [
+                    "F(z)=m_F/z+O(z^-2) at infinity with m_F>0 fixed by the global normalization",
+                    "for genus g=2 and deg Q=d, deg P <= d-3",
+                    "in the cubic compact target d=3, P is constant after the mass scale is fixed",
+                    "endpoint Schiffer correction directions use the zero-mass tangent row when that mass is held fixed",
+                ],
             },
             {
                 "name": "positivity_interlacing",
@@ -948,6 +953,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "FullPairGaugeDet": "G1FullPairGaugeDet",
             "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
             "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
+            "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
             "period_filling_convention": "TODO: ledger theorem/line reference",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },

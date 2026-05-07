@@ -17784,3 +17784,54 @@ Thus the next mathematical choice is forced: fix the mass/decay convention
 and its compatibility with the period/filling convention.  Until that is done,
 the degree range of \(P\), the scalar normalization, and the orientation
 \(\kappa\) cannot be exported to a proof-grade chart JSON.
+
+The mass/decay block has now been upgraded to a contract using Lemma FG.  The
+normalization is:
+
+\[
+F(z)=\frac{m_F}{z}+O(z^{-2}),\qquad m_F>0
+\]
+
+with \(m_F\) fixed by the global normalization.  Since
+
+\[
+F(z)=\frac{P(z)}{Q(z)}R(z),\qquad R(z)\sim z^g,\qquad Q(z)\sim z^d,
+\]
+
+the decay condition gives
+
+\[
+\deg P\le d-g-1.
+\]
+
+For the compact \(g=2\) target this is
+
+\[
+\boxed{\deg P\le d-3.}
+\]
+
+In particular, for the cubic \(Q\) case \(d=3\), \(P\) is constant after the
+mass scale is fixed.  Endpoint Schiffer correction directions are therefore
+zero-mass tangent directions whenever the mass is held fixed.
+
+Rerunning the equation-spec audit now gives:
+
+```text
+block = mass_decay_normalization, ready = True
+solver ready = False
+```
+
+The remaining not-ready blocks are:
+
+```text
+positivity_interlacing
+endpoint_neck_equations
+period_filling_convention
+Z0_boundary_row_selection
+provenance
+```
+
+Thus the next bottleneck is no longer the degree of \(P\); it is the global
+period/filling convention and the selection of \(Z_0,u,c,v,a,b\), with
+positivity/interlacing and endpoint-neck equations still needing proof-grade
+status.

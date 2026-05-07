@@ -5440,3 +5440,10 @@ in the equation-spec audit, alongside `moving_chart_rows` and
 mass/decay normalization for \(P,Q,R\) and its compatibility with the
 period/filling row fixing \(\kappa\); this should not be guessed from the toy
 chart.
+
+Update: `mass_decay_normalization` is now a ready contract.  It uses Lemma FG:
+\(F(z)=m_F/z+O(z^{-2})\), \(m_F>0\), so for \(g=2\) and \(\deg Q=d\),
+\(\deg P\le d-3\).  In the cubic compact target \(d=3\), \(P\) is constant
+after the mass scale is fixed.  The remaining not-ready blocks are
+`positivity_interlacing`, `endpoint_neck_equations`,
+`period_filling_convention`, `Z0_boundary_row_selection`, and `provenance`.
