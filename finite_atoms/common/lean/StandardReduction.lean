@@ -1352,6 +1352,14 @@ lemma measure_log_abs_integral_nonpos_of_abs_integral_le_one
 def measureLogPotential (μ : Measure ℝ) (x : ℝ) : ℝ :=
   ∫ t, Real.log (1 / |x - t|) ∂μ
 
+theorem logKernel_continuousAt_of_ne {x t : ℝ} (hxt : x ≠ t) :
+    ContinuousAt (fun y : ℝ => Real.log (1 / |y - t|)) x := by
+  have hdist_pos : 0 < |x - t| := abs_pos.mpr (sub_ne_zero.mpr hxt)
+  have hdist_ne : |x - t| ≠ 0 := ne_of_gt hdist_pos
+  have hinv_ne : 1 / |x - t| ≠ 0 := one_div_ne_zero hdist_ne
+  exact (continuousAt_const.div₀
+    ((continuousAt_id.sub continuousAt_const).abs) hdist_ne).log hinv_ne
+
 lemma measureLogPotential_eq_neg_log_abs_integral
     (μ : Measure ℝ) {x : ℝ}
     (hdist_pos : ∀ᵐ t ∂μ, 0 < |x - t|) :
