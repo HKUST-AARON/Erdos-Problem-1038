@@ -8417,6 +8417,24 @@ theorem unitIntervalTruncatedPositiveSet_spanning_interval_of_baseline_and_zero_
       exact hright ⟨hxpos, hx.2⟩
 
 /--
+If `0` is truncated-positive, then truncated positivity holds on a genuine
+right neighbourhood of `0`.  This uses the already-proved openness of
+`unitIntervalTruncatedPositiveSet` and removes the need to provide the right
+neighbourhood by hand in the truncated component-selection path.
+-/
+theorem unitIntervalTruncatedPositiveSet_exists_right_neighborhood_of_zero
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ) :
+    ∃ δ : ℝ,
+      0 < δ ∧
+      Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ := by
+  rcases unitIntervalTruncatedPositiveSet_exists_interval_around μ hzero with
+    ⟨l, r, hl0, h0r, hsub⟩
+  refine ⟨r, h0r, ?_⟩
+  intro x hx
+  exact hsub ⟨lt_trans hl0 hx.1, hx.2⟩
+
+/--
 Component constructor from truncated baseline positivity plus a truncated
 positive right neighbourhood of `0`.  The remaining off-diagonal hypothesis is
 exactly the existing truncated-to-ordinary bridge requirement.
