@@ -12277,6 +12277,36 @@ theorem exists_positiveComponent_baseline_right_pos_of_span_global_support_data_
     exists_positiveComponent_baseline_right_pos_of_span_global_support_data
       μ hlog_int htruncε hδ hspan_support hspan_pos hspan_tail
 
+theorem exists_positiveComponent_baseline_right_pos_of_span_positive_disjoint_support_and_global_tail_finite
+    (μ : ProbabilityMeasure UnitInterval1038)
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε) (hδ : 0 < δ)
+    (hglobal_tail :
+      ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+        singularTailMass truncε μ x < ∞)
+    (hpositive_disjoint_support :
+      Disjoint (PositiveSet (unitIntervalLogPotential μ))
+        (realMeasure μ).support)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y)
+    (hspan_tail :
+      ∀ threshold' : ℝ, 0 < threshold' →
+        ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+          singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hspan_support :
+      Disjoint (Ioc (-1 : ℝ) δ) (realMeasure μ).support := by
+    rw [Set.disjoint_left]
+    intro y hy hysupport
+    exact hpositive_disjoint_support.le_bot
+      ⟨hspan_pos y hy, hysupport⟩
+  exact
+    exists_positiveComponent_baseline_right_pos_of_span_global_support_data_and_global_tail_finite
+      μ htruncε hδ hglobal_tail hspan_support hspan_pos hspan_tail
+
 /--
 Span-global-data version of selected-component construction.  Continuity,
 positivity, off-diagonal disjointness, and tail control are supplied on the
