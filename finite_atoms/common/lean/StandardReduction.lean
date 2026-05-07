@@ -4709,6 +4709,22 @@ theorem PositiveComponent.not_mem_closure_contradicts_spanning_augmented
     (C.right_mem_closure_augmented_of_spanning_augmented
       hε hright_pos hspan_aug)
 
+theorem PositiveComponent.not_mem_closure_union_contradicts_spanning_augmented
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {ε : ℝ} (hε : 0 < ε) (hright_pos : 0 < C.right)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hclosure :
+      C.right ∉ closure
+        (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support)) :
+    False := by
+  have hright_closure_aug :
+      C.right ∈ closure (unitIntervalAugmentedPositiveSet μ) :=
+    C.right_mem_closure_augmented_of_spanning_augmented
+      hε hright_pos hspan_aug
+  exact hclosure
+    (closure_mono (by intro x hx; exact Or.inl hx) hright_closure_aug)
+
 theorem PositiveComponent.right_not_mem_augmented_of_augmented_gap
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ : ℝ} (hδ : 0 < δ)
@@ -24094,58 +24110,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hbaseline, haug_gap, hnot_support, hzero⟩
-
-theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_closure_union_excluded_replacement_rigidity_zero_neighborhood_data
-    (hAugmentedMaximalComponentReplacementAugmentedSpanClosureUnionExcludedReplacementRigidityZeroNeighborhoodDataFromVariation :
-      ∀ μ : ProbabilityMeasure UnitInterval1038,
-        (∀ ν : ProbabilityMeasure UnitInterval1038,
-          unitIntervalTruncatedPositiveSetObjective μ ≤
-            unitIntervalTruncatedPositiveSetObjective ν) →
-        (∀ ν : ProbabilityMeasure UnitInterval1038,
-          (∀ η : ProbabilityMeasure UnitInterval1038,
-            unitIntervalTruncatedPositiveSetObjective ν ≤
-              unitIntervalTruncatedPositiveSetObjective η) →
-          unitIntervalSecondMomentObjective μ ≤
-            unitIntervalSecondMomentObjective ν) →
-        ∃ C : PositiveComponent μ,
-        ∃ R : ComponentReplacement μ C,
-        ∃ ε : ℝ,
-          0 < ε ∧
-          0 < C.right ∧
-          C.AugmentedIntervalMaximal ∧
-          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
-            unitIntervalAugmentedPositiveSet μ ∧
-          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
-          C.right ∉ closure
-            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) ∧
-          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
-            realMeasure μ U = 0)) :
-    ∃ μ : ProbabilityMeasure UnitInterval1038,
-      (∀ ν : ProbabilityMeasure UnitInterval1038,
-        unitIntervalTruncatedPositiveSetObjective μ ≤
-          unitIntervalTruncatedPositiveSetObjective ν) ∧
-      (∀ ν : ProbabilityMeasure UnitInterval1038,
-        (∀ η : ProbabilityMeasure UnitInterval1038,
-          unitIntervalTruncatedPositiveSetObjective ν ≤
-            unitIntervalTruncatedPositiveSetObjective η) →
-        unitIntervalSecondMomentObjective μ ≤
-          unitIntervalSecondMomentObjective ν) ∧
-      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
-        ENNReal.ofReal (Real.sqrt 2) ≤
-          volume (PositiveSet (unitIntervalLogPotential μ)) := by
-  refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_right_gap_replacement_rigidity_zero_neighborhood_data
-      ?_
-  intro μ hPrimary hSecondary
-  rcases hAugmentedMaximalComponentReplacementAugmentedSpanClosureUnionExcludedReplacementRigidityZeroNeighborhoodDataFromVariation
-      μ hPrimary hSecondary with
-    ⟨C, R, ε, hε, hright_pos, hmax, hspan_aug,
-      hbaseline, hclosure, hzero⟩
-  rcases C.right_gap_union_of_not_mem_closure_union hclosure with
-    ⟨δ, hδ, hright_gap⟩
-  exact
-    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hbaseline, hright_gap, hzero⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
