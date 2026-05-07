@@ -17876,3 +17876,63 @@ Thus the regular finite-gap structural part of the chart contract is mostly
 fixed.  The active bottleneck has moved to the neck equations and, more
 importantly, to the period/filling convention and the \(Z_0,u,c,v,a,b\)
 selection rule that determine the actual Gate 1 residual rows.
+
+The endpoint-neck block is now also a contract.  It uses the branch
+parametrized compact \(g=2\) convention:
+
+\[
+y=(q,a,b,c),\qquad u=c-a,\qquad v=c+b,\qquad q,a,b>0,
+\]
+
+\[
+U(x)=q\log\frac1{|x-c|}+W(x),
+\]
+
+where \(W\) is the external field from all mass outside \((u,v)\).  The
+endpoint equations are
+
+\[
+q\log(1/a)+W(u)=0,\qquad
+q\log(1/b)+W(v)=0,
+\]
+
+and endpoint stationarity gives
+
+\[
+aW'(u)+bW'(v)=0.
+\]
+
+The branch row is imposed separately:
+
+\[
+F(c)=0,\qquad F'(c)<0,
+\]
+
+with tangent equation
+
+\[
+\delta F(c)=F'(c)\delta c+\delta_\xi F(c)=0.
+\]
+
+The chart contract explicitly does not include an independent
+\(\lambda_SS\) or \(\lambda_FF(c)\) row in the Hessian.  This follows the
+branch-parametrized convention already recorded in the ledger.
+
+The equation-spec audit now reports:
+
+```text
+block = endpoint_neck_equations, ready = True
+solver ready = False
+```
+
+The only mathematical blocks still not ready are:
+
+```text
+period_filling_convention
+Z0_boundary_row_selection
+provenance
+```
+
+Thus the remaining obstruction to producing `gate1_compact_g2_chart.json` is
+now exactly the global row convention: how \(\kappa\) is fixed and how
+\(Z_0,u,c,v,a,b\) are selected/exported for the Gate 1 residual rows.

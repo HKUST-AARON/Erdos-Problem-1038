@@ -5454,3 +5454,11 @@ pole/interlacing requirement, positive residues, positive cut density, and
 Gate 3 routing for failures.  The remaining not-ready blocks are now
 `endpoint_neck_equations`, `period_filling_convention`,
 `Z0_boundary_row_selection`, and `provenance`.
+
+Update: `endpoint_neck_equations` is now ready.  The contract uses
+\(y=(q,a,b,c)\), \(u=c-a\), \(v=c+b\), the endpoint equations
+\(q\log(1/a)+W(u)=0\), \(q\log(1/b)+W(v)=0\), stationarity
+\(aW'(u)+bW'(v)=0\), and treats \(F(c)=0,F'(c)<0\) as a finite-gap branch
+equation with tangent \(\delta F(c)=F'(c)\delta c+\delta_\xi F(c)=0\).  The
+only not-ready mathematical blocks are now `period_filling_convention` and
+`Z0_boundary_row_selection`, plus provenance.

@@ -886,12 +886,16 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             },
             {
                 "name": "endpoint_neck_equations",
-                "status": "draft",
+                "status": "contract",
                 "equations": [
+                    "local variables y=(q,a,b,c) with u=c-a, v=c+b, q>0, a>0, b>0",
+                    "U(x)=q log(1/|x-c|)+W(x), where W is the external field from all mass outside (u,v)",
                     "q log(1/a)+W(u)=0",
                     "q log(1/b)+W(v)=0",
                     "a W'(u)+b W'(v)=0",
-                    "F(c)=0, F'(c)<0",
+                    "F(c)=0, F'(c)<0 is imposed as a finite-gap branch equation",
+                    "first-order branch tangent: delta F(c)=F'(c) delta c + delta_xi F(c)=0",
+                    "do not include an independent lambda_S S or lambda_F F(c) row in the chart Hessian",
                 ],
             },
             {
@@ -959,6 +963,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
             "mass_decay_normalization": "Lemma FG finite-gap decay F=m_F/z+O(z^-2)",
             "positivity_interlacing": "Lemma FG Sign and interlacing",
+            "endpoint_neck_equations": "Compact g=2 local equations and Branch-Parametrized Phi convention",
             "period_filling_convention": "TODO: ledger theorem/line reference",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },

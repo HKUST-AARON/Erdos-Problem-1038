@@ -1,7 +1,7 @@
 {
   "blocking_errors": [
     "equation spec does not declare proof_grade=true",
-    "not-ready blocks: ['equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
+    "not-ready blocks: ['equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
   ],
   "blocks": [
     {
@@ -29,8 +29,8 @@
     },
     {
       "name": "equation:endpoint_neck_equations",
-      "ready": false,
-      "status": "draft",
+      "ready": true,
+      "status": "contract",
       "todo_like": false
     },
     {
