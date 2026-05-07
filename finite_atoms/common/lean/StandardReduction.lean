@@ -26112,6 +26112,26 @@ noncomputable def unitInterval_standardReduction_from_componentAtomization_leftA
     unitInterval_standardReduction_from_componentAtomization_boundary
       hright_pos hbaseline hboundary hcomponent_atomized
 
+noncomputable def unitInterval_standardReduction_from_normalizedAtomization_leftAugmented_notSupport
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  exact
+    unitInterval_standardReduction_from_componentAtomization_leftAugmented_notSupport
+      R hε hright_pos hmax hleft_aug hbaseline hnot_support
+      (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+        R hnormalized)
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
