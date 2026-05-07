@@ -4413,6 +4413,49 @@ theorem PositiveComponent.exists_right_Icc_disjoint_augmented_of_not_mem_closure
   · intro hy
     exact False.elim hy
 
+theorem PositiveComponent.right_gap_union_of_open_augmented_gap_not_mem
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
+    (haug_gap :
+      Ioo C.right (C.right + δ₀) ∩ unitIntervalAugmentedPositiveSet μ = ∅)
+    (hnot_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ)
+    (hnot_support : C.right ∉ (realMeasure μ).support) :
+    ∃ δ : ℝ, 0 < δ ∧
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ := by
+  rcases realMeasure_exists_right_Icc_disjoint_support_of_not_mem_support
+      μ hnot_support with
+    ⟨δ₁, hδ₁, hsupport_gap⟩
+  have hmin_pos : 0 < min δ₀ δ₁ := lt_min hδ₀ hδ₁
+  refine ⟨min δ₀ δ₁ / 2, by linarith, ?_⟩
+  ext y
+  constructor
+  · intro hy
+    rcases hy with ⟨hyIcc, hyUnion⟩
+    cases hyUnion with
+    | inl hyAug =>
+        by_cases hy_right : y = C.right
+        · exact hnot_aug (by simpa [hy_right] using hyAug)
+        · have hy_gt : C.right < y := lt_of_le_of_ne hyIcc.1 (Ne.symm hy_right)
+          have hyIoo₀ : y ∈ Ioo C.right (C.right + δ₀) := by
+            exact ⟨hy_gt, by linarith [hyIcc.2, min_le_left δ₀ δ₁, hmin_pos]⟩
+          have hyEmpty : y ∈
+              Ioo C.right (C.right + δ₀) ∩ unitIntervalAugmentedPositiveSet μ :=
+            ⟨hyIoo₀, hyAug⟩
+          rw [haug_gap] at hyEmpty
+          exact False.elim hyEmpty
+    | inr hySupport =>
+        have hyIcc₁ : y ∈ Icc C.right (C.right + δ₁) := by
+          exact ⟨hyIcc.1, by linarith [hyIcc.2, min_le_right δ₀ δ₁]⟩
+        have hyEmpty : y ∈ Icc C.right (C.right + δ₁) ∩
+            (realMeasure μ).support :=
+          ⟨hyIcc₁, hySupport⟩
+        rw [hsupport_gap] at hyEmpty
+        exact False.elim hyEmpty
+  · intro hy
+    exact False.elim hy
+
 theorem PositiveComponent.right_gap_union_of_augmented_gap_not_mem_support
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
