@@ -17966,6 +17966,73 @@ theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_zero_
       (realMeasure_support_open_neighborhood_pos μ)
       hzero)
 
+/--
+Endpoint atomization from the concrete small-exception Jensen comparison and
+zero-neighbourhood support exclusion.  This packages the standard-reduction
+replacement step in the form produced by the singular-tail machinery.
+-/
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ} (hε : 0 < ε)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hsmall : ∀ η : NNReal, 0 < η →
+      ∃ N : Set ℝ,
+        volume N ≤ (η : ℝ≥0∞) ∧
+        ∀ x : ℝ, StrictOutsideComponent C x →
+          x ∉ diagonalAtomSet μ → x ∉ N →
+            singularTailMass ε μ x < ∞)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Set.Icc (-1 : ℝ) 1 :=
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+      μ
+  have hreplacement_positive_le :
+      unitIntervalPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalPositiveSetObjective μ := by
+    rw [unitIntervalPositiveSetObjective]
+    rw [unitIntervalLogPotential_componentReplacementProbability_eq
+      C hmass_unit hsupport]
+    exact componentReplacement_objective_le_of_forall_small_tailMass_exception
+      R hε hsmall
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ := by
+    calc
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit)
+          ≤ unitIntervalPositiveSetObjective
+              (componentReplacementProbability C hmass_unit) :=
+            unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_tailMass_small_exceptions
+              (componentReplacementProbability C hmass_unit)
+              (by positivity : (0 : ℝ) < 1)
+      _ ≤ unitIntervalPositiveSetObjective μ := hreplacement_positive_le
+      _ ≤ unitIntervalTruncatedPositiveSetObjective μ :=
+            horiginal_positive_le_truncated
+  exact normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_zero_neighborhood
+    R hmass_unit hsupport hPrimary hSecondary hprimary_replacement hzero
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
