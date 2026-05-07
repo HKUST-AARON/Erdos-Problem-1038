@@ -1,14 +1,13 @@
-# Standard Reduction ledger
+# Standard Reduction proof ledger
 
-Goal: prove the Tao/natso standard reduction in Lean.  The final theorem must
-start from an actual secondary minimizer and derive endpoint-normalized data.  It
-must not take `hPackageFromVariation`, `hEndpointFromVariation`,
-`TaoVariationalReductionInput`, or `TaoEndpointReductionInput` as external
-providers.
+This file records the provider-free Standard Reduction proof target.  It is not a
+route/forcing ledger.  It only tracks what must be proved in
+`finite_atoms/common/lean/StandardReduction.lean` to derive endpoint-normalized
+data from an actual secondary minimizer.
 
-## Target statement
+## Final target
 
-For a probability measure `mu` on `[-1,1]`, write
+For a probability measure `mu : ProbabilityMeasure UnitInterval1038`, define
 
 $$
   U_\mu(x)=\int_{[-1,1]} \log {1\over |x-y|}\,d\mu(y),
@@ -16,29 +15,20 @@ $$
   E_\mu=\{x:U_\mu(x)>0\}.
 $$
 
-Let the primary objective be
+In Lean these are represented by `unitIntervalLogPotential mu` and
+`PositiveSet (unitIntervalLogPotential mu)`.  The primary objective is handled
+first through `unitIntervalTruncatedPositiveSetObjective`, and only then related
+back to the ordinary positive set by the existing tail-exception machinery.
 
-$$
-  F(\mu)=\lambda(E_\mu),
-$$
-
-implemented in Lean first through the truncated objective
-`unitIntervalTruncatedPositiveSetObjective`.  Let the secondary objective be the
-second moment
-
-$$
-  Q(\mu)=\int_{[-1,1]} y^2\,d\mu(y).
-$$
-
-The intended theorem is:
+The final theorem should have this logical shape:
 
 ```lean
 theorem unitInterval_standardReduction_from_secondaryMinimizer
     {mu : ProbabilityMeasure UnitInterval1038}
-    (hPrimary : forall nu,
+    (hPrimary : forall nu : ProbabilityMeasure UnitInterval1038,
       unitIntervalTruncatedPositiveSetObjective mu <=
         unitIntervalTruncatedPositiveSetObjective nu)
-    (hSecondary : forall nu,
+    (hSecondary : forall nu : ProbabilityMeasure UnitInterval1038,
       unitIntervalTruncatedPositiveSetObjective nu <=
           unitIntervalTruncatedPositiveSetObjective mu ->
       unitIntervalSecondMomentObjective mu <=
@@ -46,15 +36,18 @@ theorem unitInterval_standardReduction_from_secondaryMinimizer
     NormalizedEndpointPotential (unitIntervalLogPotential mu)
 ```
 
-A baseline-length corollary then gives
+This theorem must not take any of the old provider inputs:
 
-$$
-  \lambda(E_\mu)\ge \sqrt2.
-$$
+```lean
+hPackageFromVariation
+hEndpointFromVariation
+TaoVariationalReductionInput
+TaoEndpointReductionInput
+```
 
-## Mathematical proof spine
+## Downstream endpoint argument
 
-The proof must produce two normalized facts:
+The endpoint theorem to be produced is:
 
 $$
   \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1],
@@ -62,8 +55,7 @@ $$
   \mu(\{-1\})\ge {1\over2}.
 $$
 
-Once these are known, the downstream argument is short.  For
-`x in (-sqrt 2,0)`, `x != -1`, write
+Once this is known, the baseline lower bound follows as follows.  Put
 
 $$
   p=\mu(\{-1\}),
@@ -73,7 +65,7 @@ $$
   \operatorname{supp}\rho\subseteq[0,1].
 $$
 
-For `y in [0,1]`,
+For `x in (-sqrt 2,0)`, `x != -1`, and `y in [0,1]`,
 
 $$
   |x-y|\le 1-x.
@@ -92,38 +84,38 @@ $$
 \end{aligned}
 $$
 
-If `-1 < x < 0`, then
+For `x in (-sqrt 2,0)`, `x != -1`,
 
 $$
-  |x+1|(1-x)=1-x^2<1.
+  |x+1|(1-x)<1.
 $$
 
-If `-sqrt 2 < x < -1`, then
-
-$$
-  |x+1|(1-x)=x^2-1<1.
-$$
-
-Hence `U_mu(x) > 0`, so
+Hence `U_mu x > 0`, so
 
 $$
   (-\sqrt2,0)\setminus\{-1\}\subseteq E_\mu.
 $$
 
-Since `{-1}` has Lebesgue measure zero,
+Since `volume ({-1} : Set Real) = 0`,
 
 $$
   \lambda(E_\mu)\ge\lambda((-\sqrt2,0))=\sqrt2.
 $$
 
-The real work is proving the two normalized facts from secondary minimality.
+Lean status: this downstream part is mostly already represented by the existing
+`NormalizedEndpointPotential` and baseline-volume lemmas.  The hard work is to
+prove the endpoint theorem from `hPrimary` and `hSecondary`.
 
-## Variation proof obligations
+## Provider-free proof obligations
 
-### 1. Select the positive component
+The proof must be closed by the following theorem chain.  Each item is a real
+Lean theorem obligation; none should be replaced by a new broad provider
+structure.
 
-From the secondary minimizer, construct a genuine positive component
-`C=(a,b)` such that
+### 1. Positive component selection
+
+Mathematical statement: from the actual secondary minimizer, select the positive
+component `C = (a,b)` satisfying
 
 $$
   (-1,0)\subseteq C,
@@ -131,38 +123,83 @@ $$
   b>0,
 $$
 
-and `C` is maximal or augmented maximal in the exact sense needed by the
-boundary-distance lemmas.  This is a topology/positive-set theorem and cannot
-use finite-atom route information.
+and the required maximality condition.
 
-### 2. Build the barycenter replacement
+Lean target shape:
 
-Decompose
+```lean
+theorem selected_positiveComponent_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective mu <=
+        unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective nu <=
+          unitIntervalTruncatedPositiveSetObjective mu ->
+      unitIntervalSecondMomentObjective mu <=
+        unitIntervalSecondMomentObjective nu) :
+    exists C : PositiveComponent mu,
+    exists a b : Real,
+      C.interval = Set.Ioo a b /\
+      Set.Ioo (-1 : Real) 0 <= C.interval /\
+      0 < b /\
+      C.AugmentedIntervalMaximal
+```
+
+Lean acceptance requirements:
+
+- State explicitly whether the component is from `PositiveSet` or
+  `unitIntervalAugmentedPositiveSet`.
+- Prove `C.interval = Set.Ioo C.left C.right` or provide `a b` with equality.
+- Prove measurability/open-set facts needed by later replacement lemmas.
+- Do not import finite-atom route/forcing facts.
+
+### 2. Component mass and barycenter replacement
+
+Mathematical construction:
 
 $$
   \mu=\mu_C+\mu_{C^c},
   \qquad
   m=\mu_C(\mathbb R)>0,
+  \qquad
+  c={1\over m}\int_C y\,d\mu_C(y),
 $$
 
-and define the barycenter
-
-$$
-  c={1\over m}\int_C y\,d\mu_C(y).
-$$
-
-The replacement measure is
+and
 
 $$
   \nu=\mu_{C^c}+m\delta_c.
 $$
 
-Lean must prove this is an admissible probability measure on `UnitInterval1038`
-and that its potential is the existing `componentReplacementPotential`.
+Lean target shape:
 
-### 3. Prove primary objective nonincrease
+```lean
+theorem componentReplacement_from_selected_positiveComponent
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (hmass : 0 < componentMass C) :
+    exists R : ComponentReplacement mu C,
+      componentBarycenter C in Set.Icc (-1 : Real) 1 /\
+      -- the replacement measure/probability object is admissible
+      True
+```
 
-For `x notin C`, Jensen gives
+The final conclusion should use the actual replacement API already present in
+`StandardReduction.lean`, for example `ComponentReplacement.of_mass_pos`,
+`componentReplacementProbability`, and `componentReplacementPotential`.
+
+Lean acceptance requirements:
+
+- Prove `componentMass C != 0` and `componentMass C != top` from `hmass` and
+  finiteness of `realMeasure mu`.
+- Prove the normalized component block is a probability measure.
+- Prove `componentBarycenter C in Icc (-1) 1`.
+- Prove the replacement stays inside `UnitInterval1038`.
+
+### 3. Jensen and primary objective nonincrease
+
+Mathematical inequality: for `x notin C`, Jensen gives
 
 $$
   m\log {1\over |x-c|}
@@ -176,27 +213,54 @@ $$
   U_\nu(x)\le U_\mu(x)
 $$
 
-outside the component, modulo diagonal/tail exceptions.  The exceptions must be
-finite, null, or arbitrarily small; the full support of `mu` cannot be used as
-an exception.  Using the existing small-exception machinery, this must yield
+outside the component, away from explicitly controlled singular exceptions.
+Since the inside of `C` is already contained in the original positive set,
 
 $$
   F(\nu)\le F(\mu).
 $$
 
-### 4. Use secondary rigidity
+Lean target shape:
 
-The replacement decreases second moment by the component variance:
+```lean
+theorem componentReplacement_primary_nonincrease_from_selected_component
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hcomponent_pos : C.interval <= PositiveSet (unitIntervalLogPotential mu))
+    (hJensen : forall x : Real,
+      StrictOutsideComponent C x ->
+      componentReplacementPotential C x <= unitIntervalLogPotential mu x) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability mu C R) <=
+      unitIntervalTruncatedPositiveSetObjective mu
+```
+
+Lean acceptance requirements:
+
+- Use the existing small-exception theorem rather than a support-as-exception
+  shortcut.
+- Diagonal/pole sets must be finite, null, or arbitrarily small with an explicit
+  limiting theorem.
+- State every integrability hypothesis for the log kernel before Jensen.
+- The objective must be the truncated objective unless an explicit transfer to
+  the ordinary objective is part of the theorem.
+
+### 4. Secondary rigidity to Dirac atomization
+
+Mathematical computation:
 
 $$
+\begin{aligned}
   Q(\nu)
-  =Q(\mu)-\int_C y^2\,d\mu_C(y)+mc^2
-  =Q(\mu)-\int_C (y-c)^2\,d\mu_C(y)
+  &=Q(\mu)-\int_C y^2\,d\mu_C(y)+mc^2 \\
+  &=Q(\mu)-\int_C (y-c)^2\,d\mu_C(y)
   \le Q(\mu).
+\end{aligned}
 $$
 
-Since `mu` is primary-minimizing and `F(nu) <= F(mu)`, `nu` is also primary
-minimizing.  Secondary minimality gives `Q(mu) <= Q(nu)`.  Therefore
+Primary minimality plus `F(nu) <= F(mu)` makes `nu` another primary minimizer.
+Secondary minimality gives `Q(mu) <= Q(nu)`.  Therefore
 
 $$
   \int_C (y-c)^2\,d\mu_C(y)=0,
@@ -204,31 +268,94 @@ $$
   \mu_C=m\delta_c.
 $$
 
-The endpoint-identification part of the variation argument must then prove
+Lean target shape:
+
+```lean
+theorem normalizedComponentBlock_eq_dirac_barycenter_from_secondary_rigidity
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hPrimary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective mu <=
+        unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective nu <=
+          unitIntervalTruncatedPositiveSetObjective mu ->
+      unitIntervalSecondMomentObjective mu <=
+        unitIntervalSecondMomentObjective nu)
+    (hPrimaryReplacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability mu C R) <=
+        unitIntervalTruncatedPositiveSetObjective mu) :
+    normalizedComponentBlock C = Measure.dirac (componentBarycenter C)
+```
+
+Lean acceptance requirements:
+
+- Prove second-moment nonincrease for the actual replacement probability.
+- Use `hPrimary` to show the replacement is also primary-minimizing.
+- Use `hSecondary` to force equality.
+- Convert zero variance into `Measure.dirac` via the existing normalized block
+  rigidity lemma.
+
+### 5. Endpoint identification and support uniqueness
+
+The previous step gives atomization at the barycenter.  The Standard Reduction
+must identify that barycenter with the endpoint:
 
 $$
-  c=-1,
+  c=-1.
+$$
+
+Then
+
+$$
+  \mu_C=m\delta_{-1},
   \qquad
-  \mu_C=m\delta_{-1}.
-$$
-
-### 5. Derive support uniqueness and endpoint mass
-
-Atomization gives support uniqueness inside the component:
-
-$$
   \operatorname{supp}\mu\cap C\subseteq\{-1\}.
 $$
 
-Together with component placement, this must give the normalized support
-condition
+Lean target shape:
+
+```lean
+theorem endpoint_atomization_from_secondary_rigidity
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hbarycenter : componentBarycenter C = -1) :
+    componentBlock C = componentMass C • Measure.dirac (-1 : Real)
+```
+
+and then:
+
+```lean
+theorem support_unique_in_component_from_secondary_rigidity
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hnormalized :
+      normalizedComponentBlock C = Measure.dirac (componentBarycenter C))
+    (hbarycenter : componentBarycenter C = -1) :
+    forall t : Real,
+      t in (realMeasure mu).support -> t in C.interval -> t = -1
+```
+
+Lean status: the second theorem is now essentially proved by the current bridge
+`support_unique_in_component_of_normalizedComponentBlock_eq_dirac_barycenter`.
+The still-hard part is proving `componentBarycenter C = -1` from the real
+variation/normalization argument.
+
+### 6. Boundary average and endpoint mass
+
+Let `C=(a,b)` with `b>0`, and let
 
 $$
-  \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
+  p=\mu(\{-1\}).
 $$
 
-The boundary variation must also prove, for `C=(a,b)` and
-`p=mu({-1})`,
+The boundary variation must prove
 
 $$
   1\le (b+1)p+(1-b)(1-p).
@@ -246,16 +373,60 @@ $$
   p\ge {1\over2}.
 $$
 
-This boundary inequality is the only legitimate source of the half-mass bound.
-It must not remain a provider hypothesis in the final theorem.
+Lean target shape:
+
+```lean
+theorem boundary_average_from_selected_component
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (hright : 0 < C.right)
+    (hboundary_source : -- right-boundary nonpositivity / distance source
+      True) :
+    1 <= (C.right + 1) *
+          (((mu : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : Real) = -1}).toReal) +
+        (1 - C.right) *
+          (1 - (((mu : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : Real) = -1}).toReal))
+```
+
+Lean acceptance requirements:
+
+- The boundary point must have the required off-diagonal or integrability proof.
+- The proof should feed the existing `tao_boundary_average_of_boundary_distance_upper`
+  or its current narrowed bridge.
+- The half-mass conclusion must come from the displayed inequality, not from a
+  provider field.
+
+### 7. Assemble provider-free Standard Reduction
+
+After obligations 1--6 are proved, assemble:
+
+```lean
+theorem taoVariationComponentPackage_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective mu <=
+        unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary : forall nu : ProbabilityMeasure UnitInterval1038,
+      unitIntervalTruncatedPositiveSetObjective nu <=
+          unitIntervalTruncatedPositiveSetObjective mu ->
+      unitIntervalSecondMomentObjective mu <=
+        unitIntervalSecondMomentObjective nu) :
+    TaoVariationComponentPackage (unitIntervalLogPotential mu)
+```
+
+Then prove the final target theorem by applying the existing endpoint package
+bridge.  At that point the old provider theorem can remain only as a backwards
+compatibility wrapper.
 
 ## Current Lean status
 
-Already proved under explicit hypotheses:
+Already proved, under explicit hypotheses:
 
 - compact-threshold-core and lower-semicontinuity infrastructure for the
   truncated objective;
-- existence of a primary minimizer and second-moment secondary minimizer;
+- primary minimizer and second-moment secondary minimizer existence;
 - endpoint mass plus normalized support implies positivity on
   `BaselinePunctured`;
 - puncturing `{-1}` costs zero Lebesgue measure;
@@ -271,41 +442,36 @@ Already proved under explicit hypotheses:
 - augmented span/right-gap data can feed the boundary-distance and
   boundary-average bridges.
 
-These are real Lean theorems.  They are still conditional: the variation proof
-must produce their hypotheses.
+These are valid Lean theorems.  They do not close Standard Reduction until the
+provider-free variation proof supplies their hypotheses.
 
-## Remaining hard mouths
+## Remaining hard points
 
-1. **Component selection.**  Select the correct maximal positive component from
-the actual secondary minimizer and prove `(-1,0) subset C`, `C=(a,b)`, `b>0`.
-
-2. **Replacement construction.**  Build the actual barycenter replacement
-probability measure and identify its potential.
-
-3. **Primary nonincrease.**  Prove the replacement does not increase the
-truncated positive-set objective, using Jensen plus the already-formal
-small-exception machinery.
-
-4. **Secondary rigidity to endpoint atomization.**  Turn primary nonincrease and
-secondary minimality into `mu_C = m delta_{-1}`.
-
-5. **Boundary average.**  Prove
-`1 <= (b+1)p + (1-b)(1-p)` from the right-boundary variation argument.
-
-6. **Provider removal.**  Assemble the above into `NormalizedEndpointPotential`
-without `hPackageFromVariation`, `hEndpointFromVariation`,
-`TaoVariationalReductionInput`, or `TaoEndpointReductionInput`.
+1. Select the maximal positive component from the real secondary minimizer.
+2. Build the actual barycenter replacement probability measure.
+3. Prove Jensen and primary objective nonincrease for that replacement.
+4. Prove secondary rigidity for the real replacement.
+5. Identify the barycenter with `-1`.
+6. Prove the boundary-average source.
+7. Assemble the provider-free final theorem.
 
 ## Next proof order
 
-Do not add more endpoint consequence wrappers.  The useful order is:
+Do not add endpoint consequence wrappers.  The next useful theorem is the first
+one that removes a real provider input:
 
-1. prove the component-selection/topology theorem;
-2. build the concrete barycenter replacement;
-3. prove Jensen/primary nonincrease for that replacement;
-4. prove secondary rigidity and endpoint atomization;
-5. prove the boundary-average source;
-6. assemble the final provider-free theorem.
+```lean
+selected_positiveComponent_from_secondaryMinimizer
+```
+
+If that is too large, split it into the following strict subgoals:
+
+1. prove the positive set is open on the nonsingular region needed by the
+   selected component;
+2. construct the connected component containing `Ioo (-1) 0`;
+3. prove the component is an interval `Set.Ioo a b`;
+4. prove `0 < b`;
+5. prove the maximal or augmented-maximal property.
 
 ## Verification scope
 
