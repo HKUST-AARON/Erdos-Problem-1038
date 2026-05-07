@@ -12116,6 +12116,46 @@ def taoVariationComponentPackage_of_realSupport_support_unique_data
       μ hunit_endpoint_mass)
     hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
 
+/--
+Canonical-endpoint-mass version of the real-support support-uniqueness
+constructor.  Endpoint mass equality, nonnegativity, and remainder
+nonnegativity are all filled from the actual subtype endpoint atom.
+-/
+def taoVariationComponentPackage_of_canonicalEndpointMass_support_unique_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_realSupport_support_unique_data
+    μ mean_choice reflected translation C
+    (((μ : Measure UnitInterval1038)
+      {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)
+    xMinus xPlus hcomponent_interval hbaseline hright_endpoint_positive
+    hboundary_average
+    (unitInterval_endpoint_atom_eq_ofReal_toReal μ)
+    (unitInterval_endpoint_atom_toReal_nonneg μ)
+    (unitInterval_endpoint_atom_remainderMass_nonneg μ)
+    hkernel_integrable hunique
+
 /-- Variant of `taoVariationComponentPackage_of_realSupport_component_atomization_data`
 where the support bound is filled automatically from the real pushforward of the
 unit-interval measure.  The remaining explicit inputs are the genuinely
