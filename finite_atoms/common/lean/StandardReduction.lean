@@ -26328,6 +26328,44 @@ noncomputable def unitInterval_standardReduction_from_supportPoint_leftAugmented
       (componentMass_pos_of_support_mem_interval htSupport htInterval)
       hbaseline hnot_support hzero
 
+noncomputable def unitInterval_standardReduction_from_supportPoint_leftAugmented_rightGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε δ t : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (htSupport : t ∈ (realMeasure μ).support)
+    (htInterval : t ∈ C.interval)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  exact
+    unitInterval_standardReduction_from_supportPoint_leftAugmented_notSupport_zeroNeighborhood
+      hPrimary hSecondary hε hright_pos hmax hleft_aug htSupport
+      htInterval hbaseline
+      (C.right_not_mem_support_of_right_gap hδ hright_gap)
+      hzero
+
 /-!
 ## Fixed-minimizer endpoint bridge
 
