@@ -15508,6 +15508,122 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, hε, hmax, hleft_pos, hendpoint_unit_pos,
       hbaseline, hright, hboundary, hnormalized_atomized⟩
 
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_replacement_rigidity_zero_neighborhood_data
+    (hAugmentedMaximalComponentUnitEndpointAtomReplacementRigidityZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+        ∃ ε : ℝ,
+          0 < ε ∧
+          C.AugmentedIntervalMaximal ∧
+          Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+            PositiveSet (unitIntervalLogPotential μ) ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < C.right ∧
+          1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_moment_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hAugmentedMaximalComponentUnitEndpointAtomReplacementRigidityZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, ε, hε, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hright, hboundary, hzero⟩
+  have hendpoint_real_pos :
+      0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hendpoint_mem : (-1 : ℝ) ∈ C.interval :=
+    C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom
+      hε hmax hbaseline hleft_pos hendpoint_unit_pos
+  have hmass_pos : 0 < componentMass C :=
+    componentMass_pos_of_support_mem_interval
+      (realMeasure_mem_support_of_singleton_pos hendpoint_real_pos)
+      hendpoint_mem
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C hmass_pos
+  let hmass_unit :=
+    componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+      (componentBarycenter_mem_Icc R)
+  have hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Set.Icc (-1 : ℝ) 1 :=
+    componentReplacementMeasure_ae_mem_Icc_of_mass_unit hmass_unit
+  have horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ :=
+    unitIntervalPositiveSetObjective_le_truncatedObjective_of_threshold_tail_small_exceptions
+      μ
+  have hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ := by
+    simpa [hmass_unit] using
+      componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+        R horiginal_positive_le_truncated
+  have hreplacement_primary_min :
+      ∀ η : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective
+            (componentReplacementProbability C hmass_unit) ≤
+          unitIntervalTruncatedPositiveSetObjective η := by
+    intro η
+    exact le_trans hprimary_replacement (hPrimary η)
+  have hsecondary_ge :
+      unitIntervalSecondMomentObjective μ ≤
+        unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) :=
+    hSecondary (componentReplacementProbability C hmass_unit)
+      hreplacement_primary_min
+  have hsecondary_le :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalSecondMomentObjective μ :=
+    unitIntervalSecondMomentObjective_componentReplacement_nonincrease
+      R hmass_unit hsupport
+  have hsecondary_eq :
+      unitIntervalSecondMomentObjective
+          (componentReplacementProbability C hmass_unit) =
+        unitIntervalSecondMomentObjective μ :=
+    le_antisymm hsecondary_le hsecondary_ge
+  have hsecondMoment_eq :
+      (componentMass C).toReal * (componentBarycenter C) ^ 2 =
+        ∫ t : ℝ, t ^ 2 ∂componentBlock C :=
+    componentBlock_secondMoment_eq_of_unitIntervalSecondMomentObjective_eq
+      hmass_unit hsupport hsecondary_eq
+  exact
+    ⟨C, ε, hε, hmax, hleft_pos, hendpoint_unit_pos,
+      hbaseline, hright, hboundary, hsecondMoment_eq, hzero⟩
+
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
 
