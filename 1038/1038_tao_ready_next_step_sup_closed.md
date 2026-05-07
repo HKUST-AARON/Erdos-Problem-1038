@@ -5402,3 +5402,23 @@ more toy-row searching; it is to write
 equation fixing \(\kappa\) and the rule fixing \(Z_0,u,c,v,a,b\).  Only after
 that should `gate1_compact_g2_chart.json` be generated and passed to
 `--run-chart-pipeline`.
+
+There is now a separate equation-spec template and audit:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --write-chart-equation-spec \
+  --write-json 1038/gate1_compact_g2_equation_spec_template.json
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-chart-equation-spec \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json \
+  --write-json 1038/gate1_compact_g2_equation_spec_audit.json
+```
+
+The audit currently says `solver ready = False`.  This records the precise
+answer to the latest row-gauge question: the full-pair pole gauge is the right
+canonical square-gauge candidate, and the determinant/repaired-endpoint
+formulas are real progress, but they are not yet a full compact chart solver.
+The remaining equation-spec gaps are the period/filling convention, the rule
+selecting \(Z_0,u,c,v,a,b\), and proof-grade provenance for the moving-chart
+rows and global finite-gap equations.

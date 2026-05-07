@@ -1,0 +1,69 @@
+{
+  "blocking_errors": [
+    "equation spec does not declare proof_grade=true",
+    "not-ready blocks: ['unknown_vector', 'equation:finite_gap_representation', 'equation:mass_decay_normalization', 'equation:positivity_interlacing', 'equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'moving_chart_rows', 'provenance']"
+  ],
+  "blocks": [
+    {
+      "name": "unknown_vector",
+      "ready": false,
+      "todo_like": true
+    },
+    {
+      "name": "equation:finite_gap_representation",
+      "ready": false,
+      "status": "draft",
+      "todo_like": false
+    },
+    {
+      "name": "equation:mass_decay_normalization",
+      "ready": false,
+      "status": "TODO",
+      "todo_like": true
+    },
+    {
+      "name": "equation:positivity_interlacing",
+      "ready": false,
+      "status": "draft",
+      "todo_like": true
+    },
+    {
+      "name": "equation:endpoint_neck_equations",
+      "ready": false,
+      "status": "draft",
+      "todo_like": false
+    },
+    {
+      "name": "equation:period_filling_convention",
+      "ready": false,
+      "status": "TODO",
+      "todo_like": true
+    },
+    {
+      "name": "equation:Z0_boundary_row_selection",
+      "ready": false,
+      "status": "TODO",
+      "todo_like": true
+    },
+    {
+      "name": "moving_chart_rows",
+      "ready": false,
+      "todo_like": true
+    },
+    {
+      "name": "output_chart_json_fields",
+      "ready": true,
+      "todo_like": false
+    },
+    {
+      "name": "provenance",
+      "ready": false,
+      "todo_like": true
+    }
+  ],
+  "next_action": "replace every TODO/draft block with exact equations and theorem references, then generate gate1_compact_g2_chart.json",
+  "path": "1038/gate1_compact_g2_equation_spec_template.json",
+  "schema": "gate1_compact_g2_equation_spec_v1",
+  "solver_ready": false,
+  "status": "computed"
+}

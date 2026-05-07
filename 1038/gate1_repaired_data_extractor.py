@@ -823,6 +823,113 @@ def compact_g2_chart_template_payload(toy: bool = False) -> dict[str, Any]:
     }
 
 
+def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
+    """Template for the missing CompactG2MovingChartEquations contract."""
+    return {
+        "schema": "gate1_compact_g2_equation_spec_v1",
+        "proof_grade": False,
+        "purpose": (
+            "Executable mathematical contract for producing a proof-grade "
+            "compact non-pinched g=2 chart JSON."
+        ),
+        "unknown_vector": {
+            "branch_endpoints": ["alpha_1", "beta_1", "alpha_2", "beta_2"],
+            "Q_poles": "TODO: ordered real simple off-cut Q-poles, monic Q",
+            "P_coefficients": "TODO: degree and normalization for P",
+            "state_variables": [
+                "TODO: residue or pole-state variables",
+                "TODO: u,c,v and boundary weights a,b",
+                "TODO: period/filling variable fixing kappa",
+            ],
+        },
+        "equation_blocks": [
+            {
+                "name": "finite_gap_representation",
+                "status": "draft",
+                "equations": [
+                    "F(z)=P(z)R(z)/Q(z)",
+                    "R(z)^2=prod_gamma(z-gamma), R(z)~z^2",
+                    "Q monic with real simple off-cut roots",
+                ],
+            },
+            {
+                "name": "mass_decay_normalization",
+                "status": "TODO",
+                "equations": ["TODO: exact zero-mass/fixed-mass/infinity row"],
+            },
+            {
+                "name": "positivity_interlacing",
+                "status": "draft",
+                "equations": [
+                    "TODO: positive residues at Q-poles",
+                    "TODO: positive cut density on both bands",
+                    "TODO: Gate 3 route for pole/endpoint collisions",
+                ],
+            },
+            {
+                "name": "endpoint_neck_equations",
+                "status": "draft",
+                "equations": [
+                    "q log(1/a)+W(u)=0",
+                    "q log(1/b)+W(v)=0",
+                    "a W'(u)+b W'(v)=0",
+                    "F(c)=0, F'(c)<0",
+                ],
+            },
+            {
+                "name": "period_filling_convention",
+                "status": "TODO",
+                "equations": [
+                    "TODO: exact period/filling row",
+                    "TODO: definition and orientation of kappa",
+                ],
+            },
+            {
+                "name": "Z0_boundary_row_selection",
+                "status": "TODO",
+                "equations": [
+                    "TODO: rule selecting Z0 components",
+                    "TODO: rule selecting u,c,v,a,b used by Gate 1 residual rows",
+                ],
+            },
+        ],
+        "moving_chart_rows": {
+            "candidate": {
+                "kind": "full_pair_pole_gauge",
+                "rows": "H(p_i), H'(p_i) for d-1 selected complete pole pairs",
+            },
+            "status": "TODO",
+            "required_proofs": [
+                "TPSquareMovingChartGaugeLemma",
+                "A_{ell,X} invertible on regular chart",
+                "omitted pole pair is exterior or otherwise routed away",
+                "omitted pole/residue/period rows are state outputs or inequalities",
+            ],
+        },
+        "output_chart_json_fields": [
+            "P",
+            "Q",
+            "gammas",
+            "row_gauge or rows",
+            "c",
+            "u",
+            "v",
+            "a",
+            "b",
+            "kappa",
+            "Z0",
+            "proof_grade",
+            "equation_provenance",
+        ],
+        "provenance": {
+            "CompactG2MovingChartEquations": "TODO: ledger theorem/line reference",
+            "TPSquareMovingChartGaugeLemma": "TODO: ledger theorem/line reference",
+            "period_filling_convention": "TODO: ledger theorem/line reference",
+            "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
+        },
+    }
+
+
 def _todo_like(value: Any) -> bool:
     if isinstance(value, str):
         return "TODO" in value or not value.strip()
@@ -831,6 +938,105 @@ def _todo_like(value: Any) -> bool:
     if isinstance(value, dict):
         return any(_todo_like(item) for item in value.values())
     return False
+
+
+def compact_equation_spec_audit(path: Path) -> dict[str, Any]:
+    """Check whether the compact chart equation specification is solver-ready."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "path": str(path),
+            "status": "unreadable_json",
+            "solver_ready": False,
+            "blocking_errors": [str(exc)],
+            "blocks": [],
+        }
+    if not isinstance(payload, dict):
+        return {
+            "path": str(path),
+            "status": "json_non_object",
+            "solver_ready": False,
+            "blocking_errors": ["top-level JSON is not an object"],
+            "blocks": [],
+        }
+
+    required_top = [
+        "unknown_vector",
+        "equation_blocks",
+        "moving_chart_rows",
+        "output_chart_json_fields",
+        "provenance",
+    ]
+    missing_top = [key for key in required_top if key not in payload]
+    blocks: list[dict[str, Any]] = []
+
+    blocks.append(
+        {
+            "name": "unknown_vector",
+            "ready": "unknown_vector" in payload and not _todo_like(payload.get("unknown_vector")),
+            "todo_like": _todo_like(payload.get("unknown_vector")),
+        }
+    )
+    equation_blocks = payload.get("equation_blocks")
+    if isinstance(equation_blocks, list):
+        for block in equation_blocks:
+            if isinstance(block, dict):
+                blocks.append(
+                    {
+                        "name": f"equation:{block.get('name', '<unnamed>')}",
+                        "ready": not _todo_like(block) and block.get("status") not in {"TODO", "draft"},
+                        "todo_like": _todo_like(block),
+                        "status": block.get("status"),
+                    }
+                )
+            else:
+                blocks.append(
+                    {
+                        "name": "equation:<malformed>",
+                        "ready": False,
+                        "todo_like": True,
+                        "status": "malformed",
+                    }
+                )
+    else:
+        blocks.append(
+            {
+                "name": "equation_blocks",
+                "ready": False,
+                "todo_like": True,
+                "status": "missing_or_not_list",
+            }
+        )
+    for key in ["moving_chart_rows", "output_chart_json_fields", "provenance"]:
+        blocks.append(
+            {
+                "name": key,
+                "ready": key in payload and not _todo_like(payload.get(key)),
+                "todo_like": _todo_like(payload.get(key)),
+            }
+        )
+
+    blocking_errors = []
+    if missing_top:
+        blocking_errors.append(f"missing top-level fields: {missing_top}")
+    if payload.get("proof_grade") is not True:
+        blocking_errors.append("equation spec does not declare proof_grade=true")
+    not_ready = [block["name"] for block in blocks if not block["ready"]]
+    if not_ready:
+        blocking_errors.append(f"not-ready blocks: {not_ready}")
+    return {
+        "path": str(path),
+        "schema": payload.get("schema"),
+        "status": "computed",
+        "solver_ready": not blocking_errors,
+        "blocking_errors": blocking_errors,
+        "blocks": blocks,
+        "next_action": (
+            "replace every TODO/draft block with exact equations and theorem "
+            "references, then generate gate1_compact_g2_chart.json"
+        ),
+    }
 
 
 def compact_chart_blocker_audit(
@@ -3624,6 +3830,16 @@ def main() -> int:
         action="store_true",
         help="report the exact blockers before a proof-grade compact g=2 chart can be generated",
     )
+    parser.add_argument(
+        "--write-chart-equation-spec",
+        action="store_true",
+        help="write the missing CompactG2MovingChartEquations spec template",
+    )
+    parser.add_argument(
+        "--audit-chart-equation-spec",
+        action="store_true",
+        help="audit a CompactG2MovingChartEquations spec for solver readiness",
+    )
     parser.add_argument("--run-chart-pipeline", action="store_true", help="run contract, repaired extraction, gauge choice, and LRLR audits")
     parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
@@ -3721,6 +3937,39 @@ def main() -> int:
         print(f"  toy = {args.toy_g2}")
         print(f"  wrote {args.write_json}")
         print("  next = run --audit-chart-contract on the written JSON")
+        return 0
+
+    if args.write_chart_equation_spec:
+        if not args.write_json:
+            parser.error("--write-chart-equation-spec requires --write-json")
+        payload = compact_g2_equation_spec_template_payload()
+        with open(args.write_json, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=2, sort_keys=True)
+        print("Gate 1 compact g=2 equation spec template")
+        print(f"  wrote {args.write_json}")
+        print("  next = replace TODO/draft blocks, then run --audit-chart-equation-spec")
+        return 0
+
+    if args.audit_chart_equation_spec:
+        if not args.chart_json:
+            parser.error("--audit-chart-equation-spec requires --chart-json")
+        audit = compact_equation_spec_audit(Path(args.chart_json))
+        print("Gate 1 compact g=2 equation spec audit")
+        print(f"  path = {audit['path']}")
+        print(f"  schema = {audit['schema']}")
+        print(f"  solver ready = {audit['solver_ready']}")
+        print(f"  errors = {audit['blocking_errors']}")
+        for block in audit["blocks"]:
+            print(
+                "  block = "
+                f"{block['name']}, ready = {block['ready']}, "
+                f"todo_like = {block['todo_like']}, status = {block.get('status')}"
+            )
+        print(f"  next = {audit['next_action']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
         return 0
 
     if args.audit_chart_contract:

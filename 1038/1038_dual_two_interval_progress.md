@@ -17614,3 +17614,60 @@ python3 1038/gate1_repaired_data_extractor.py \
 
 Until then, the LRLR \(\rho\)-row and affine-row audits remain smoke/diagnostic
 evidence, not Gate 1 proof.
+
+## Gate 1 compact chart equation-spec audit
+
+The colleague's current diagnosis is right on the row-gauge point but too
+strong on the JSON-generation conclusion.  The full-pair pole gauge is now the
+canonical TP-compatible square-gauge candidate: the determinant identity
+(G1FullPairGaugeDet) gives a positive \(A\)-orientation, and
+(G1FullPairRepairedEndpoint) removes the opaque \(BA^{-1}r_\gamma\) term for
+endpoint columns.  This is enough to make `TPSquareMovingChartGaugeLemma` a
+realistic next lemma, not an arbitrary row-selection problem.
+
+However, a proof-grade chart JSON still needs more than this row-gauge lemma.
+It must also specify the global compact chart equations that produce
+\(P,Q,\Gamma\), the period/filling convention fixing \(\kappa\), and the rule
+selecting \(Z_0,u,c,v,a,b\).  Therefore the blocker is now tracked by a
+separate equation-spec template:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --write-chart-equation-spec \
+  --write-json 1038/gate1_compact_g2_equation_spec_template.json
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-chart-equation-spec \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json \
+  --write-json 1038/gate1_compact_g2_equation_spec_audit.json
+```
+
+The audit currently reports `solver ready = False`.  The only ready block is
+the output field list.  The not-ready blocks are:
+
+```text
+unknown_vector
+finite_gap_representation
+mass_decay_normalization
+positivity_interlacing
+endpoint_neck_equations
+period_filling_convention
+Z0_boundary_row_selection
+moving_chart_rows
+provenance
+```
+
+Some of these are already mathematically drafted in the ledger, but the audit
+requires them to be upgraded from prose/draft status to exact executable
+equations with provenance.  The most serious remaining gaps are still
+`period_filling_convention`, `Z0_boundary_row_selection`, and the proof-grade
+status of `moving_chart_rows`.  Thus the next action is:
+
+\[
+\boxed{
+\text{first complete the equation spec; only then write the compact chart
+solver and JSON.}
+}
+\]
+
+In particular, writing `TPSquareMovingChartGaugeLemma` is necessary but not
+sufficient for `gate1_compact_g2_chart.json`.

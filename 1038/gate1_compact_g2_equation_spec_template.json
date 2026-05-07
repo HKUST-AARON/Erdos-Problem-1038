@@ -1,0 +1,107 @@
+{
+  "equation_blocks": [
+    {
+      "equations": [
+        "F(z)=P(z)R(z)/Q(z)",
+        "R(z)^2=prod_gamma(z-gamma), R(z)~z^2",
+        "Q monic with real simple off-cut roots"
+      ],
+      "name": "finite_gap_representation",
+      "status": "draft"
+    },
+    {
+      "equations": [
+        "TODO: exact zero-mass/fixed-mass/infinity row"
+      ],
+      "name": "mass_decay_normalization",
+      "status": "TODO"
+    },
+    {
+      "equations": [
+        "TODO: positive residues at Q-poles",
+        "TODO: positive cut density on both bands",
+        "TODO: Gate 3 route for pole/endpoint collisions"
+      ],
+      "name": "positivity_interlacing",
+      "status": "draft"
+    },
+    {
+      "equations": [
+        "q log(1/a)+W(u)=0",
+        "q log(1/b)+W(v)=0",
+        "a W'(u)+b W'(v)=0",
+        "F(c)=0, F'(c)<0"
+      ],
+      "name": "endpoint_neck_equations",
+      "status": "draft"
+    },
+    {
+      "equations": [
+        "TODO: exact period/filling row",
+        "TODO: definition and orientation of kappa"
+      ],
+      "name": "period_filling_convention",
+      "status": "TODO"
+    },
+    {
+      "equations": [
+        "TODO: rule selecting Z0 components",
+        "TODO: rule selecting u,c,v,a,b used by Gate 1 residual rows"
+      ],
+      "name": "Z0_boundary_row_selection",
+      "status": "TODO"
+    }
+  ],
+  "moving_chart_rows": {
+    "candidate": {
+      "kind": "full_pair_pole_gauge",
+      "rows": "H(p_i), H'(p_i) for d-1 selected complete pole pairs"
+    },
+    "required_proofs": [
+      "TPSquareMovingChartGaugeLemma",
+      "A_{ell,X} invertible on regular chart",
+      "omitted pole pair is exterior or otherwise routed away",
+      "omitted pole/residue/period rows are state outputs or inequalities"
+    ],
+    "status": "TODO"
+  },
+  "output_chart_json_fields": [
+    "P",
+    "Q",
+    "gammas",
+    "row_gauge or rows",
+    "c",
+    "u",
+    "v",
+    "a",
+    "b",
+    "kappa",
+    "Z0",
+    "proof_grade",
+    "equation_provenance"
+  ],
+  "proof_grade": false,
+  "provenance": {
+    "CompactG2MovingChartEquations": "TODO: ledger theorem/line reference",
+    "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
+    "TPSquareMovingChartGaugeLemma": "TODO: ledger theorem/line reference",
+    "period_filling_convention": "TODO: ledger theorem/line reference"
+  },
+  "purpose": "Executable mathematical contract for producing a proof-grade compact non-pinched g=2 chart JSON.",
+  "schema": "gate1_compact_g2_equation_spec_v1",
+  "unknown_vector": {
+    "P_coefficients": "TODO: degree and normalization for P",
+    "Q_poles": "TODO: ordered real simple off-cut Q-poles, monic Q",
+    "branch_endpoints": [
+      "alpha_1",
+      "beta_1",
+      "alpha_2",
+      "beta_2"
+    ],
+    "state_variables": [
+      "TODO: residue or pole-state variables",
+      "TODO: u,c,v and boundary weights a,b",
+      "TODO: period/filling variable fixing kappa"
+    ]
+  }
+}
