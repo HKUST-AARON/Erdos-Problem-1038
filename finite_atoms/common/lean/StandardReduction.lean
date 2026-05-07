@@ -15615,6 +15615,27 @@ theorem realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_
     hbaseline
     (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint hdirac)
 
+theorem realMeasure_support_disjoint_baseline_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    Disjoint (Ioo (-1 : ℝ) 0) (realMeasure μ).support := by
+  exact disjoint_baseline_of_support_subset_endpoint_union_nonnegative
+    (realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_eq_smul_dirac_endpoint
+      hbaseline hdirac)
+
+theorem realMeasure_support_disjoint_baseline_Icc_of_componentBlock_eq_smul_dirac_endpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {a b : ℝ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ))
+    (hsubset : Icc a b ⊆ Ioo (-1 : ℝ) 0) :
+    Disjoint (Icc a b) (realMeasure μ).support := by
+  exact disjoint_baseline_Icc_of_support_subset_endpoint_union_nonnegative
+    (realMeasure_support_subset_endpoint_union_nonnegative_of_componentBlock_eq_smul_dirac_endpoint
+      hbaseline hdirac)
+    hsubset
+
 /--
 After a spanning positive interval has been glued into the selected component,
 the zero-neighbourhood condition forces almost every non-endpoint support point
