@@ -11069,6 +11069,20 @@ theorem componentMass_pos_of_support_mem_interval
   unfold componentMass
   exact lt_of_le_of_ne bot_le (Ne.symm hne)
 
+theorem realMeasure_mem_support_of_singleton_pos
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
+    x ∈ (realMeasure μ).support := by
+  rw [Measure.mem_support_iff_forall]
+  intro U hU
+  have hxU : x ∈ U := mem_of_mem_nhds hU
+  have hsingleton_subset : ({x} : Set ℝ) ⊆ U := by
+    intro y hy
+    simpa [Set.mem_singleton_iff.mp hy] using hxU
+  have hle : realMeasure μ ({x} : Set ℝ) ≤ realMeasure μ U :=
+    measure_mono hsingleton_subset
+  exact lt_of_lt_of_le hpos hle
+
 theorem component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (hdirac : componentBlock C =
@@ -15102,6 +15116,57 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   exact
     ⟨C, componentMass_pos_of_support_mem_interval htSupport htInterval,
       hbaseline, hright, hboundary, hzero⟩
+
+theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_endpoint_atom_zero_neighborhood_data
+    (hComponentEndpointAtomZeroNeighborhoodDataFromVariation :
+      ∀ μ : ProbabilityMeasure UnitInterval1038,
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective μ ≤
+            unitIntervalTruncatedPositiveSetObjective ν) →
+        (∀ ν : ProbabilityMeasure UnitInterval1038,
+          (∀ η : ProbabilityMeasure UnitInterval1038,
+            unitIntervalTruncatedPositiveSetObjective ν ≤
+              unitIntervalTruncatedPositiveSetObjective η) →
+          unitIntervalSecondMomentObjective μ ≤
+            unitIntervalSecondMomentObjective ν) →
+        ∃ C : PositiveComponent μ,
+          0 < realMeasure μ ({-1} : Set ℝ) ∧
+          (-1 : ℝ) ∈ C.interval ∧
+          Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+          0 < C.right ∧
+          1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ μ : ProbabilityMeasure UnitInterval1038,
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν) ∧
+      (∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν) ∧
+      ∃ _hEndpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ),
+        ENNReal.ofReal (Real.sqrt 2) ≤
+          volume (PositiveSet (unitIntervalLogPotential μ)) := by
+  refine
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_component_support_point_zero_neighborhood_data
+      ?_
+  intro μ hPrimary hSecondary
+  rcases hComponentEndpointAtomZeroNeighborhoodDataFromVariation
+      μ hPrimary hSecondary with
+    ⟨C, hendpoint_pos, hendpoint_mem, hbaseline, hright, hboundary, hzero⟩
+  exact
+    ⟨C, -1,
+      realMeasure_mem_support_of_singleton_pos hendpoint_pos,
+      hendpoint_mem, hbaseline, hright, hboundary, hzero⟩
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
