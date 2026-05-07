@@ -6682,6 +6682,60 @@ theorem unitIntervalTruncatedPotential_continuous
     linarith
   simpa [Real.dist_eq, abs_sub_comm] using hlt
 
+/--
+The strict threshold set of the truncated potential is open.  This is the
+topological entry point for selecting genuine positive components before the
+singular, untruncated potential is recovered by the tail-exception machinery.
+-/
+theorem unitIntervalTruncatedPotential_threshold_isOpen
+    (μ : ProbabilityMeasure UnitInterval1038) {ε τ : ℝ} (hε : 0 < ε) :
+    IsOpen {x : ℝ | τ < unitIntervalTruncatedPotential ε μ x} := by
+  exact isOpen_lt continuous_const
+    (unitIntervalTruncatedPotential_continuous μ hε)
+
+/--
+The positive set of the truncated potential is open.  This is the exact local
+topology fact needed before constructing a selected open component.
+-/
+theorem unitIntervalTruncatedPotential_positiveSet_isOpen
+    (μ : ProbabilityMeasure UnitInterval1038) {ε : ℝ} (hε : 0 < ε) :
+    IsOpen (PositiveSet (fun x : ℝ =>
+      unitIntervalTruncatedPotential ε μ x)) := by
+  simpa [PositiveSet] using
+    unitIntervalTruncatedPotential_threshold_isOpen
+      (μ := μ) (ε := ε) (τ := 0) hε
+
+/--
+Every positive point of the truncated potential has an open interval
+neighbourhood contained in the truncated positive set.  This is the local
+interval-selection step used before upgrading to a maximal component.
+-/
+theorem unitIntervalTruncatedPotential_exists_positive_interval_around
+    (μ : ProbabilityMeasure UnitInterval1038) {ε x : ℝ} (hε : 0 < ε)
+    (hxpos : 0 < unitIntervalTruncatedPotential ε μ x) :
+    ∃ l r : ℝ,
+      l < x ∧ x < r ∧
+      Ioo l r ⊆ PositiveSet (fun y : ℝ =>
+        unitIntervalTruncatedPotential ε μ y) := by
+  have hopen :
+      IsOpen (PositiveSet (fun y : ℝ =>
+        unitIntervalTruncatedPotential ε μ y)) :=
+    unitIntervalTruncatedPotential_positiveSet_isOpen μ hε
+  have hxmem :
+      x ∈ PositiveSet (fun y : ℝ =>
+        unitIntervalTruncatedPotential ε μ y) := hxpos
+  rcases Metric.isOpen_iff.mp hopen x hxmem with ⟨δ, hδ, hball⟩
+  refine ⟨x - δ / 2, x + δ / 2, ?_, ?_, ?_⟩
+  · linarith
+  · linarith
+  · intro y hy
+    exact hball (by
+      rw [Metric.mem_ball, Real.dist_eq]
+      have hleft : x - δ / 2 < y := hy.1
+      have hright : y < x + δ / 2 := hy.2
+      rw [abs_lt]
+      constructor <;> linarith)
+
 lemma eventually_forall_mem_finset
     {ι β : Type*} {L : Filter ι} (s : Finset β) (P : ι → β → Prop)
     (h : ∀ b ∈ s, ∀ᶠ i in L, P i b) :
