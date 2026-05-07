@@ -17721,3 +17721,66 @@ provenance
 This narrows the next step.  The row-gauge selection is no longer the active
 engineering blocker; the active blockers are the global finite-gap equations
 and especially the period/filling convention and boundary-row selection.
+
+The equation spec has now been narrowed one step further.  The unknown vector
+and finite-gap representation blocks have been upgraded to executable
+contracts:
+
+```text
+block = unknown_vector, ready = True
+block = finite_gap_representation, ready = True
+block = moving_chart_rows, ready = True
+block = output_chart_json_fields, ready = True
+```
+
+The finite-gap representation contract is:
+
+\[
+F(z)=\frac{P(z)R(z)}{Q(z)},\qquad
+R(z)^2=\prod_{\gamma\in\Gamma}(z-\gamma),\qquad R(z)\sim z^2,
+\]
+
+with
+
+\[
+\Gamma=(\alpha_1,\beta_1,\alpha_2,\beta_2),\quad
+\alpha_1<\beta_1<\alpha_2<\beta_2,
+\]
+
+and
+
+\[
+Q(z)=\prod_{k=1}^d(z-p_k)
+\]
+
+monic, with real simple off-cut poles.  Non-real poles, pole collisions, or
+pole/cut collisions are Gate 3 routes.
+
+The unknown vector is now a symbolic chart contract:
+
+\[
+\alpha_1,\beta_1,\alpha_2,\beta_2;\quad
+p_1,\ldots,p_d;\quad
+P\text{-coefficients};\quad
+\text{residue/pole-state variables};\quad
+u,c,v,a,b;\quad
+\text{period/filling variable fixing }\kappa .
+\]
+
+The \(P\)-degree and leading/decay normalization have deliberately not been
+guessed from the toy chart.  They belong to the still-open
+`mass_decay_normalization` block.  The current not-ready blocks are now:
+
+```text
+mass_decay_normalization
+positivity_interlacing
+endpoint_neck_equations
+period_filling_convention
+Z0_boundary_row_selection
+provenance
+```
+
+Thus the next mathematical choice is forced: fix the mass/decay convention
+and its compatibility with the period/filling convention.  Until that is done,
+the degree range of \(P\), the scalar normalization, and the orientation
+\(\kappa\) cannot be exported to a proof-grade chart JSON.

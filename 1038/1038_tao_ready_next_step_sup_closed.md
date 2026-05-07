@@ -5430,3 +5430,13 @@ colleague's diagnosis: the canonical row choice is the full-pair omitted-pole
 gauge.  It also confirms the missing part: the chart JSON still cannot be
 generated until the global finite-gap equations, period/filling convention,
 and \(Z_0,u,c,v,a,b\) selection rule are specified.
+
+Update: `unknown_vector` and `finite_gap_representation` are now ready blocks
+in the equation-spec audit, alongside `moving_chart_rows` and
+`output_chart_json_fields`.  The remaining not-ready blocks are
+`mass_decay_normalization`, `positivity_interlacing`,
+`endpoint_neck_equations`, `period_filling_convention`,
+`Z0_boundary_row_selection`, and `provenance`.  The next hard choice is the
+mass/decay normalization for \(P,Q,R\) and its compatibility with the
+period/filling row fixing \(\kappa\); this should not be guessed from the toy
+chart.

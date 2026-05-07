@@ -1,18 +1,18 @@
 {
   "blocking_errors": [
     "equation spec does not declare proof_grade=true",
-    "not-ready blocks: ['unknown_vector', 'equation:finite_gap_representation', 'equation:mass_decay_normalization', 'equation:positivity_interlacing', 'equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
+    "not-ready blocks: ['equation:mass_decay_normalization', 'equation:positivity_interlacing', 'equation:endpoint_neck_equations', 'equation:period_filling_convention', 'equation:Z0_boundary_row_selection', 'provenance']"
   ],
   "blocks": [
     {
       "name": "unknown_vector",
-      "ready": false,
-      "todo_like": true
+      "ready": true,
+      "todo_like": false
     },
     {
       "name": "equation:finite_gap_representation",
-      "ready": false,
-      "status": "draft",
+      "ready": true,
+      "status": "contract",
       "todo_like": false
     },
     {

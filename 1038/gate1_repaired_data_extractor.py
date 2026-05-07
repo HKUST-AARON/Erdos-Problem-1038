@@ -834,22 +834,31 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
         ),
         "unknown_vector": {
             "branch_endpoints": ["alpha_1", "beta_1", "alpha_2", "beta_2"],
-            "Q_poles": "TODO: ordered real simple off-cut Q-poles, monic Q",
-            "P_coefficients": "TODO: degree and normalization for P",
+            "Q_poles": [
+                "p_1<...<p_d",
+                "Q(z)=prod_k (z-p_k)",
+                "d is the chart Q-degree; cubic d=3 is the current compact g=2 numerical target",
+            ],
+            "P_coefficients": [
+                "P coefficients in the chart degree range fixed by mass_decay_normalization",
+                "degree and leading/decay normalization are not guessed here",
+            ],
             "state_variables": [
-                "TODO: residue or pole-state variables",
-                "TODO: u,c,v and boundary weights a,b",
-                "TODO: period/filling variable fixing kappa",
+                "residue or pole-state variables subject to positivity/interlacing equations",
+                "u,c,v and positive boundary weights a,b, fixed by Z0_boundary_row_selection",
+                "period/filling variable fixing kappa, fixed by period_filling_convention",
             ],
         },
         "equation_blocks": [
             {
                 "name": "finite_gap_representation",
-                "status": "draft",
+                "status": "contract",
                 "equations": [
                     "F(z)=P(z)R(z)/Q(z)",
                     "R(z)^2=prod_gamma(z-gamma), R(z)~z^2",
-                    "Q monic with real simple off-cut roots",
+                    "Q(z)=prod_{k=1}^d (z-p_k) is monic",
+                    "gammas=(alpha_1,beta_1,alpha_2,beta_2) with alpha_1<beta_1<alpha_2<beta_2",
+                    "Q-poles p_k are real, simple, and off-cut; collisions/non-real poles route to Gate 3",
                 ],
             },
             {
@@ -938,6 +947,7 @@ def compact_g2_equation_spec_template_payload() -> dict[str, Any]:
             "TPSquareMovingChartGaugeLemma": "TODO: ledger theorem/line reference",
             "FullPairGaugeDet": "G1FullPairGaugeDet",
             "FullPairRepairedEndpoint": "G1FullPairRepairedEndpoint",
+            "finite_gap_representation": "G1ChartSolverOutput and finite-gap representation ledger",
             "period_filling_convention": "TODO: ledger theorem/line reference",
             "Gate3_degeneration_routes": "TODO: ledger theorem/line reference",
         },
