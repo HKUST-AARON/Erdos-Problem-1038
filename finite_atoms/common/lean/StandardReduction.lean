@@ -27506,6 +27506,122 @@ noncomputable def unitInterval_standardReduction_from_replacement_openGap_zeroNe
       hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
       hbaseline hright_gap hzero
 
+noncomputable def unitInterval_standardReduction_from_replacement_positiveSpan_openGap_notSupport_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε δ₀ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_pos :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        PositiveSet (unitIntervalLogPotential μ))
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Ioo C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ :=
+    fun x hx => unitInterval_positiveSet_subset_augmented μ (hspan_pos hx)
+  have hnot_aug : C.right ∉ unitIntervalAugmentedPositiveSet μ :=
+    C.right_not_mem_augmented_of_spanning_positive_continuous_not_support
+      hε hright_pos hmax hbaseline hspan_pos hnot_support
+  exact
+    unitInterval_standardReduction_from_replacement_openGap_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hδ₀ hmax hspan_aug
+      hbaseline haug_gap hnot_aug hnot_support hzero
+
+noncomputable def unitInterval_standardReduction_from_componentMass_positiveSpan_openGap_notSupport_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε δ₀ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_pos :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        PositiveSet (unitIntervalLogPotential μ))
+    (hmass_pos : 0 < componentMass C)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Ioo C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) :=
+  unitInterval_standardReduction_from_replacement_positiveSpan_openGap_notSupport_zeroNeighborhood
+    hPrimary hSecondary (ComponentReplacement.of_mass_pos C hmass_pos)
+    hε hright_pos hδ₀ hmax hspan_pos hbaseline haug_gap hnot_support
+    hzero
+
+noncomputable def unitInterval_standardReduction_from_supportPoint_positiveSpan_openGap_notSupport_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε δ₀ t : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ₀ : 0 < δ₀)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_pos :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        PositiveSet (unitIntervalLogPotential μ))
+    (htSupport : t ∈ (realMeasure μ).support)
+    (htInterval : t ∈ C.interval)
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (haug_gap :
+      Set.Ioo C.right (C.right + δ₀) ∩
+          unitIntervalAugmentedPositiveSet μ =
+        ∅)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) :=
+  unitInterval_standardReduction_from_componentMass_positiveSpan_openGap_notSupport_zeroNeighborhood
+    hPrimary hSecondary hε hright_pos hδ₀ hmax hspan_pos
+    (componentMass_pos_of_support_mem_interval htSupport htInterval)
+    hbaseline haug_gap hnot_support hzero
+
 noncomputable def unitInterval_standardReduction_from_secondaryMinimizer_of_provider
     {μ : ProbabilityMeasure UnitInterval1038}
     (hPrimary :
