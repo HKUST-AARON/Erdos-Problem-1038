@@ -3381,6 +3381,60 @@ theorem PositiveComponent.intervalMaximal_of_interval_eq_connectedComponentIn
     (U := unitIntervalLogPotential μ) l r hlr hpos hinter
 
 /--
+Package a bounded open connected component of the logarithmic positive set as
+a `PositiveComponent`.  The interval endpoints are the component's `sInf` and
+`sSup`, and interval maximality is inherited from the connected-component
+construction.
+-/
+theorem exists_positiveComponent_of_connectedComponentIn_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxpos : x ∈ PositiveSet (unitIntervalLogPotential μ))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x)) :
+    ∃ C : PositiveComponent μ,
+      C.interval =
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x ∧
+      C.IntervalMaximal := by
+  let S : Set ℝ :=
+    connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x
+  have hEq :
+      S = Ioo (sInf S) (sSup S) := by
+    simpa [S] using
+      positiveSet_connectedComponentIn_eq_Ioo_csInf_csSup
+        (U := unitIntervalLogPotential μ)
+        (x := x) hopen hxpos hbddBelow hbddAbove
+  have hxS : x ∈ S := by
+    simpa [S] using mem_connectedComponentIn hxpos
+  have hxIoo : x ∈ Ioo (sInf S) (sSup S) := by
+    rw [hEq] at hxS
+    exact hxS
+  have hlr : sInf S < sSup S := lt_trans hxIoo.1 hxIoo.2
+  have hpos :
+      Ioo (sInf S) (sSup S) ⊆
+        PositiveSet (unitIntervalLogPotential μ) := by
+    intro y hy
+    have hyS : y ∈ S := by
+      rw [hEq]
+      exact hy
+    exact connectedComponentIn_subset
+      (PositiveSet (unitIntervalLogPotential μ)) x (by simpa [S] using hyS)
+  let C : PositiveComponent μ :=
+    PositiveComponent.of_interval_subset_positiveSet hlr hpos
+  refine ⟨C, ?_, ?_⟩
+  · dsimp [C]
+    exact hEq.symm
+  · exact
+      PositiveComponent.intervalMaximal_of_interval_eq_connectedComponentIn
+        C (x := x) (by
+          dsimp [C]
+          exact hEq.symm)
+
+/--
 The local component-selection bridge for the endpoint `-1`.
 
 If the selected positive component contains the right baseline `(-1,0)`, the
