@@ -8983,6 +8983,32 @@ theorem NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_of
       hzero hnoDiag
 
 /--
+Continuous-potential version of the endpoint-package augmented component
+selection.  Continuity supplies openness of the ordinary positive set.
+-/
+theorem NormalizedEndpointPotential.exists_positiveComponent_augmentedMaximal_of_zero_continuous
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hendpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ))
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    hendpoint.exists_positiveComponent_augmentedMaximal_of_zero
+      (positiveSet_isOpen_of_continuous hcont) hzero hnoDiag
+
+/--
 Truncated-positive analogue of
 `positive_spanning_interval_of_baseline_and_zero_neighborhood`.  This is the
 preferred upstream shape because `unitIntervalTruncatedPositiveSet` already has
