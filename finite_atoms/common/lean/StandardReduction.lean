@@ -2623,6 +2623,21 @@ theorem unitIntervalLogPotential_continuousOn_of_disjoint_realMeasure_support
   exact (unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
     (fun hxsupport => hsupport.le_bot ⟨hx, hxsupport⟩)).continuousWithinAt
 
+theorem unitInterval_positiveSet_isOpen_of_positive_not_mem_realMeasure_support
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support) :
+    IsOpen (PositiveSet (unitIntervalLogPotential μ)) := by
+  rw [isOpen_iff_mem_nhds]
+  intro x hxpos
+  have hcont :
+      ContinuousAt (unitIntervalLogPotential μ) x :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      (hpositive_not_support x hxpos)
+  simpa [PositiveSet] using
+    hcont (isOpen_Ioi.mem_nhds hxpos)
+
 theorem disjoint_diagonalAtomSet_of_disjoint_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
     (hsupport : Disjoint s (realMeasure μ).support) :
