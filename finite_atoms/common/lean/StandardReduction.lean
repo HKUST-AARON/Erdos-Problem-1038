@@ -4281,6 +4281,27 @@ theorem PositiveComponent.spanning_augmented_subset_interval_of_augmentedInterva
     hspan_aug
     hinter
 
+/--
+A right gap excluding augmented-positive/support points also excludes the right
+endpoint itself.
+-/
+theorem PositiveComponent.right_not_mem_augmented_union_support_of_right_gap
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ : ℝ} (hδ : 0 < δ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅) :
+    C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support := by
+  intro hmem
+  have hright_mem :
+      C.right ∈ Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) := by
+    constructor
+    · exact ⟨le_rfl, by linarith⟩
+    · exact hmem
+  simpa [hright_gap] using hright_mem
+
 def componentBlock
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Measure ℝ :=
   (realMeasure μ).restrict C.interval
@@ -21043,15 +21064,8 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_pos,
       hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
   have hright_excluded :
-      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support := by
-    intro hmem
-    have hright_mem :
-        C.right ∈ Set.Icc C.right (C.right + δ) ∩
-            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) := by
-      constructor
-      · exact ⟨le_rfl, by linarith⟩
-      · exact hmem
-    simpa [hright_gap] using hright_mem
+      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support :=
+    C.right_not_mem_augmented_union_support_of_right_gap hδ hright_gap
   exact
     ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
       hendpoint_unit_pos, hbaseline, hright_excluded, hzero⟩
@@ -21106,15 +21120,8 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
   have hright_excluded :
-      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support := by
-    intro hmem
-    have hright_mem :
-        C.right ∈ Set.Icc C.right (C.right + δ) ∩
-            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) := by
-      constructor
-      · exact ⟨le_rfl, by linarith⟩
-      · exact hmem
-    simpa [hright_gap] using hright_mem
+      C.right ∉ unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support :=
+    C.right_not_mem_augmented_union_support_of_right_gap hδ hright_gap
   have hspan_interval :
       Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
     C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
