@@ -89,6 +89,313 @@ not a new assumption layer.  Each item below must eventually become a theorem in
 take `hPackageFromVariation`, `hEndpointFromVariation`,
 `TaoVariationalReductionInput`, or `TaoEndpointReductionInput` as inputs.
 
+### Formula-level mathematical proof text
+
+The intended mathematical proof is the following.  The purpose of the Lean work
+is to turn each displayed implication into a theorem with the same hypotheses.
+
+Let
+
+$$
+  U_\mu(x)=\int_{[-1,1]} \log {1\over |x-y|}\,d\mu(y),
+  \qquad
+  E_\mu=\{x\in \mathbb R:U_\mu(x)>0\},
+$$
+
+and let
+
+$$
+  F(\mu)=\lambda(E_\mu),
+  \qquad
+  Q(\mu)=\int_{[-1,1]} y^2\,d\mu(y).
+$$
+
+In Lean the actual objective is the truncated version
+`unitIntervalTruncatedPositiveSetObjective`; the proof below must therefore be
+implemented with the truncated objective first, and only then transferred to the
+ordinary positive set through the existing tail-exception bridges.
+
+Choose a probability measure `mu` which minimizes `F`, and among all such
+minimizers minimizes `Q`.  In formula form the two minimizer facts are
+
+$$
+  F(\mu)\le F(\nu) \quad\hbox{for every probability }\nu,
+$$
+
+and
+
+$$
+  F(\nu)\le F(\mu) \Longrightarrow Q(\mu)\le Q(\nu).
+$$
+
+The Standard Reduction must prove from these two facts that, after the accepted
+normalization,
+
+$$
+  \operatorname{supp}\mu\subseteq \{-1\}\cup[0,1]
+  \quad\hbox{and}\quad
+  \mu(\{-1\})\ge {1\over 2}.
+$$
+
+Then for every
+
+$$
+  x\in(-\sqrt2,0),\qquad x\ne -1,
+$$
+
+write
+
+$$
+  p=\mu(\{-1\}), \qquad \mu=p\delta_{-1}+(1-p)\rho,
+  \qquad \operatorname{supp}\rho\subseteq[0,1].
+$$
+
+For `y in [0,1]` and `x in (-sqrt 2,0)` one has
+
+$$
+  |x-y|\le 1-x.
+$$
+
+Therefore
+
+$$
+\begin{aligned}
+  U_\mu(x)
+  &=p\log {1\over |x+1|}
+    +(1-p)\int_{[0,1]}\log {1\over |x-y|}\,d\rho(y) \\
+  &\ge p\log {1\over |x+1|}
+    +(1-p)\log {1\over 1-x}.
+\end{aligned}
+$$
+
+Since `p >= 1/2`, the right side is bounded below by
+
+$$
+  {1\over2}\log {1\over |x+1|(1-x)}.
+$$
+
+If `-1 < x < 0`, then
+
+$$
+  |x+1|(1-x)=(1+x)(1-x)=1-x^2<1.
+$$
+
+If `-sqrt 2 < x < -1`, then
+
+$$
+  |x+1|(1-x)=(-x-1)(1-x)=x^2-1<1.
+$$
+
+Thus
+
+$$
+  |x+1|(1-x)<1,
+  \qquad
+  U_\mu(x)>0.
+$$
+
+So
+
+$$
+  (-\sqrt2,0)\setminus\{-1\}\subseteq E_\mu.
+$$
+
+The point `{-1}` has Lebesgue measure zero, hence
+
+$$
+  \lambda(E_\mu)\ge \lambda((-\sqrt2,0))=\sqrt2.
+$$
+
+This last displayed argument is already the easy downstream part.  The hard
+upstream part is proving the normalized support and endpoint mass inequality.
+That proof must proceed as follows.
+
+#### 1. Positive component selection
+
+Let `C=(a,b)` be the positive component selected from `E_mu`.  The component
+selection theorem must prove
+
+$$
+  (-1,0)\subseteq C,
+  \qquad
+  C=(a,b),
+  \qquad
+  b>0,
+$$
+
+and the required maximality condition: if the component can be enlarged to the
+right without increasing the objective, then `C` was not selected correctly.
+This is the theorem currently missing under the name "real positive-component
+selection".
+
+#### 2. Component replacement
+
+Decompose the measure into the part inside and outside `C`:
+
+$$
+  \mu=\mu_C+\mu_{C^c},
+  \qquad
+  m=\mu_C(\mathbb R)>0.
+$$
+
+Let
+
+$$
+  c={1\over m}\int_C y\,d\mu_C(y)
+$$
+
+be the barycenter.  Define the replacement measure
+
+$$
+  \nu=\mu_{C^c}+m\delta_c.
+$$
+
+For every `x notin C`, the function
+
+$$
+  y\mapsto \log {1\over |x-y|}
+$$
+
+is convex on `C`.  Jensen gives
+
+$$
+  m\log {1\over |x-c|}
+  \le
+  \int_C \log {1\over |x-y|}\,d\mu_C(y).
+$$
+
+Therefore
+
+$$
+  U_\nu(x)\le U_\mu(x)
+  \qquad (x\notin C),
+$$
+
+up to the explicitly controlled diagonal/tail exceptional sets.  Since
+`C subset E_mu`, the inside of `C` is already counted by the original positive
+set.  Consequently
+
+$$
+  F(\nu)\le F(\mu).
+$$
+
+In Lean this is exactly the route through
+`componentReplacement_objective_le_of_forall_small_tailMass_exception`, followed
+by the exact small-eta limiting bridge.
+
+#### 3. Secondary rigidity
+
+The second moment of the replacement is
+
+$$
+  Q(\nu)=Q(\mu)-\int_C y^2\,d\mu_C(y)+m c^2.
+$$
+
+Because
+
+$$
+  \int_C (y-c)^2\,d\mu_C(y)
+  =\int_C y^2\,d\mu_C(y)-m c^2\ge 0,
+$$
+
+we get
+
+$$
+  Q(\nu)\le Q(\mu).
+$$
+
+The primary minimality of `mu` and `F(nu) <= F(mu)` imply that `nu` is also a
+primary minimizer.  The secondary minimality of `mu` then gives
+
+$$
+  Q(\mu)\le Q(\nu).
+$$
+
+Hence
+
+$$
+  Q(\nu)=Q(\mu),
+  \qquad
+  \int_C (y-c)^2\,d\mu_C(y)=0.
+$$
+
+Thus
+
+$$
+  \mu_C=m\delta_c.
+$$
+
+After the selected normalization and endpoint-identification theorem, this must
+become
+
+$$
+  c=-1,
+  \qquad
+  \mu_C=m\delta_{-1}.
+$$
+
+This is the missing bridge from real replacement rigidity to endpoint
+atomization.
+
+#### 4. Boundary average and endpoint mass
+
+Let
+
+$$
+  p=\mu(\{-1\}),
+  \qquad
+  C=(a,b),
+  \qquad
+  b>0.
+$$
+
+The Tao boundary variation must prove
+
+$$
+  1\le (b+1)p+(1-b)(1-p).
+$$
+
+Algebra gives
+
+$$
+\begin{aligned}
+  1
+  &\le (b+1)p+(1-b)(1-p) \\
+  &=1-b+2bp.
+\end{aligned}
+$$
+
+Since `b > 0`, this implies
+
+$$
+  b\le 2bp,
+  \qquad
+  p\ge {1\over2}.
+$$
+
+This is the only source of the endpoint mass lower bound.  It cannot be replaced
+by a provider hypothesis in the final theorem.
+
+#### 5. Normalized support
+
+The atomization theorem gives no mass from `mu` inside `C` except at `-1`.
+The zero-neighborhood/support-uniqueness bridge must prove
+
+$$
+  \operatorname{supp}\mu\cap C\subseteq\{-1\}.
+$$
+
+The component selection and normalization must place all remaining support to
+the right, giving
+
+$$
+  \operatorname{supp}\mu\subseteq\{-1\}\cup[0,1].
+$$
+
+Combining this support statement with `p >= 1/2` gives
+`NormalizedEndpointPotential (unitIntervalLogPotential mu)`, and the first part
+of this section gives the baseline lower bound.
+
 ### Final theorem shape
 
 The intended endpoint is a theorem of this form.
