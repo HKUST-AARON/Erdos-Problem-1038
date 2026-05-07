@@ -8611,6 +8611,43 @@ theorem PositiveComponent.right_pos_of_endpoint_lower_bound_intersects_baseline_
     hmax hbaseline hδ hzero hright
 
 /--
+Endpoint-data connected-component selection with right positivity.  This
+combines the endpoint-lower-bound connected-component constructor with the
+maximality/right-neighbourhood bridge, producing the selected component in the
+shape needed downstream.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_connectedComponentIn_zero_right
+    {μ : ProbabilityMeasure UnitInterval1038} {p δ : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hbddBelow :
+      BddBelow
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ))))
+    (hbddAbove :
+      BddAbove
+        (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ))
+          (-(1 / 2 : ℝ))))
+    (hδ : 0 < δ)
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ,
+      C.IntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases exists_positiveComponent_baseline_of_endpoint_lower_bound_connectedComponentIn_bdd
+      (μ := μ) (p := p) hp hendpoint hopen hbddBelow hbddAbove with
+    ⟨C, hmax, hbaseline, hinter⟩
+  have hright_pos :
+      0 < C.right :=
+    C.right_pos_of_endpoint_lower_bound_intersects_baseline_intervalMaximal_zero_right
+      hp hendpoint hmax hinter hδ hzero hright
+  exact ⟨C, hmax, hbaseline, hright_pos⟩
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
