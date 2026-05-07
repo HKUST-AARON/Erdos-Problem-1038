@@ -1154,7 +1154,12 @@ def compact_g2_executable_solver_template_payload() -> dict[str, Any]:
             "P_coefficients": {
                 "names": ["P_0", "P_1", "..."],
                 "degree_rule": "deg P <= deg Q - 3 for compact g=2",
-                "regular_branch_note": "off-cut F(c)=0 and positive mass require deg Q >= 4",
+                "regular_branch_note": (
+                    "off-cut F(c)=0 and positive mass require deg Q >= 4; "
+                    "the minimal d=4, P=z-c standard pole branch has a sign "
+                    "obstruction, so the next regular search should allow "
+                    "deg P>=2 and deg Q>=5"
+                ),
                 "initial_values": "TODO: numeric list",
             },
             "neck_and_boundary": {
@@ -1451,12 +1456,17 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
 
     derived_constraints = {
         "minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass": 4,
+        "minimum_Q_degree_after_minimal_d4_smoke_obstruction": 5,
         "reason": (
             "For compact g=2, deg P <= deg Q - 3.  If c is off-cut and not a "
             "Q-pole, F(c)=P(c)R(c)/Q(c)=0 forces P(c)=0.  A cubic Q gives "
             "deg P <= 0, hence P is constant; P(c)=0 then forces P=0 and "
             "zero mass.  Therefore a regular positive-mass branch chart with "
-            "F(c)=0 requires deg Q >= 4 unless c is a routed degeneration."
+            "F(c)=0 requires deg Q >= 4 unless c is a routed degeneration.  "
+            "The minimal d=4 branch has P=z-c; for the standard two-cut pole "
+            "placement, positive residues force c between the two middle-gap "
+            "poles, which makes the two cut-density signs split.  Thus the "
+            "next non-toy regular search must allow deg P>=2, hence deg Q>=5."
         ),
     }
 
@@ -1475,7 +1485,7 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         "derived_constraints": derived_constraints,
         "missing_executable_blocks": missing_executable_blocks,
         "next_action": (
-            "implement executable_solver with deg(Q)>=4 unknown_layout, residual_maps, "
+            "implement executable_solver with deg(Q)>=5 unknown_layout, residual_maps, "
             "initial_guess, inequality_checks, acceptance_tests, and chart_json_export"
             if not can_generate_chart
             else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
@@ -1610,6 +1620,50 @@ def search_compact_d4_smoke_candidates(
             "Smoke search only. Passing records are not proof-grade; failures identify "
             "which regularity condition blocks this minimal d=4 P(c)=0 family."
         ),
+    }
+
+
+def compact_d4_smoke_sign_obstruction() -> dict[str, Any]:
+    """Analytic sign obstruction for the minimal d=4 P(z)=z-c smoke family."""
+    return {
+        "model": "minimal d=4 P=z-c sign obstruction",
+        "assumptions": {
+            "branch_endpoints": "a1 < b1 < a2 < b2",
+            "q_poles": "p0 < a1 < b1 < p1 < p2 < a2 < b2 < p3",
+            "Q": "monic degree four with roots p0,p1,p2,p3",
+            "R_branch": "R~z^2 at +infinity, so R is positive on exteriors and negative on the middle gap",
+            "P": "P(z)=z-c",
+        },
+        "residue_sign_rule": {
+            "sign_R_over_Qprime_at_poles": {
+                "p0_left_exterior": "-",
+                "p1_middle_gap_left": "-",
+                "p2_middle_gap_right": "+",
+                "p3_right_exterior": "+",
+            },
+            "positive_residues_require": [
+                "P(p0)<0",
+                "P(p1)<0",
+                "P(p2)>0",
+                "P(p3)>0",
+            ],
+            "equivalent_for_P_equals_z_minus_c": "p1 < c < p2",
+        },
+        "cut_density_sign_rule_when_p1_less_c_less_p2": {
+            "Q_sign_on_left_cut": "-",
+            "Q_sign_on_right_cut": "-",
+            "P_sign_on_left_cut": "-",
+            "P_sign_on_right_cut": "+",
+            "raw_density_factor_P_absR_over_Q_left_cut": "+",
+            "raw_density_factor_P_absR_over_Q_right_cut": "-",
+        },
+        "conclusion": (
+            "The minimal d=4 family P=z-c cannot simultaneously have all pole "
+            "residues positive and a consistent raw density sign on both cuts. "
+            "If c is outside [p1,p2], at least one residue sign is wrong; if "
+            "p1<c<p2, the two cut-density signs split."
+        ),
+        "proof_status": "paper sign check; independent of random search",
     }
 
 
@@ -4435,6 +4489,11 @@ def main() -> int:
         help="random-search a minimal non-proof d=4 P(c)=0 compact chart smoke family",
     )
     parser.add_argument(
+        "--audit-compact-d4-smoke-sign",
+        action="store_true",
+        help="print the analytic sign obstruction for the minimal d=4 P=z-c smoke family",
+    )
+    parser.add_argument(
         "--generate-compact-chart",
         action="store_true",
         help="generate a proof-grade compact chart only if executable_solver is complete",
@@ -4648,6 +4707,24 @@ def main() -> int:
             print(f"  first found = {audit['first_found']}")
         else:
             print(f"  best preview = {audit['best_records'][:3]}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_compact_d4_smoke_sign:
+        audit = compact_d4_smoke_sign_obstruction()
+        print("Gate 1 d=4 smoke sign obstruction")
+        print(f"  model = {audit['model']}")
+        print(f"  positive residues require = {audit['residue_sign_rule']['positive_residues_require']}")
+        print(f"  P=z-c condition = {audit['residue_sign_rule']['equivalent_for_P_equals_z_minus_c']}")
+        print(
+            "  cut density signs = "
+            f"left {audit['cut_density_sign_rule_when_p1_less_c_less_p2']['raw_density_factor_P_absR_over_Q_left_cut']}, "
+            f"right {audit['cut_density_sign_rule_when_p1_less_c_less_p2']['raw_density_factor_P_absR_over_Q_right_cut']}"
+        )
+        print(f"  conclusion = {audit['conclusion']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

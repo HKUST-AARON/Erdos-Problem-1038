@@ -151,7 +151,7 @@
           "P_1",
           "..."
         ],
-        "regular_branch_note": "off-cut F(c)=0 and positive mass require deg Q >= 4"
+        "regular_branch_note": "off-cut F(c)=0 and positive mass require deg Q >= 4; the minimal d=4, P=z-c standard pole branch has a sign obstruction, so the next regular search should allow deg P>=2 and deg Q>=5"
       },
       "Q_poles": {
         "constraints": [

@@ -1,0 +1,35 @@
+{
+  "assumptions": {
+    "P": "P(z)=z-c",
+    "Q": "monic degree four with roots p0,p1,p2,p3",
+    "R_branch": "R~z^2 at +infinity, so R is positive on exteriors and negative on the middle gap",
+    "branch_endpoints": "a1 < b1 < a2 < b2",
+    "q_poles": "p0 < a1 < b1 < p1 < p2 < a2 < b2 < p3"
+  },
+  "conclusion": "The minimal d=4 family P=z-c cannot simultaneously have all pole residues positive and a consistent raw density sign on both cuts. If c is outside [p1,p2], at least one residue sign is wrong; if p1<c<p2, the two cut-density signs split.",
+  "cut_density_sign_rule_when_p1_less_c_less_p2": {
+    "P_sign_on_left_cut": "-",
+    "P_sign_on_right_cut": "+",
+    "Q_sign_on_left_cut": "-",
+    "Q_sign_on_right_cut": "-",
+    "raw_density_factor_P_absR_over_Q_left_cut": "+",
+    "raw_density_factor_P_absR_over_Q_right_cut": "-"
+  },
+  "model": "minimal d=4 P=z-c sign obstruction",
+  "proof_status": "paper sign check; independent of random search",
+  "residue_sign_rule": {
+    "equivalent_for_P_equals_z_minus_c": "p1 < c < p2",
+    "positive_residues_require": [
+      "P(p0)<0",
+      "P(p1)<0",
+      "P(p2)>0",
+      "P(p3)>0"
+    ],
+    "sign_R_over_Qprime_at_poles": {
+      "p0_left_exterior": "-",
+      "p1_middle_gap_left": "-",
+      "p2_middle_gap_right": "+",
+      "p3_right_exterior": "+"
+    }
+  }
+}

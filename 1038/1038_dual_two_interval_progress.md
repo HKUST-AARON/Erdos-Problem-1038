@@ -18580,6 +18580,112 @@ So the current honest status is:
 }
 \]
 
-The best next route is to implement the actual \(d\ge4\) compact chart residual
+The best next route is to implement the actual \(d\ge5\) compact chart residual
 maps in the executable solver template, rather than adding more schema or
 searching more hand-built toy families.
+
+## Gate 1 minimal \(d=4\) smoke sign obstruction
+
+The failure of the minimal family above is not just numerical.  It has a short
+sign proof.
+
+Assume the standard two-cut ordering
+
+\[
+\alpha_1<\beta_1<\alpha_2<\beta_2
+\]
+
+and the minimal \(d=4\) pole placement
+
+\[
+p_0<\alpha_1<\beta_1<p_1<p_2<\alpha_2<\beta_2<p_3,
+\]
+
+with monic
+
+\[
+Q(z)=\prod_{j=0}^3(z-p_j).
+\]
+
+Use the branch convention \(R(z)\sim z^2\) at \(+\infty\).  Then \(R\) is
+positive on the two exterior gaps and negative on the middle gap.  Also
+\(Q'(p_j)\) has signs
+
+\[
+\operatorname{sgn}Q'(p_0)=-,\quad
+\operatorname{sgn}Q'(p_1)=+,\quad
+\operatorname{sgn}Q'(p_2)=-,\quad
+\operatorname{sgn}Q'(p_3)=+.
+\]
+
+Hence
+
+\[
+\operatorname{sgn}\frac{R(p_j)}{Q'(p_j)}
+=(-,-,+,+).
+\]
+
+For the minimal smoke family
+
+\[
+P(z)=z-c,
+\]
+
+positive pole residues
+
+\[
+\operatorname{Res}_{p_j}\frac{P(z)R(z)}{Q(z)}>0
+\]
+
+therefore require
+
+\[
+P(p_0)<0,\qquad P(p_1)<0,\qquad P(p_2)>0,\qquad P(p_3)>0.
+\]
+
+Equivalently,
+
+\[
+\boxed{p_1<c<p_2.}
+\]
+
+But on both cuts \(Q<0\).  If \(p_1<c<p_2\), then \(P<0\) on the left cut
+and \(P>0\) on the right cut.  Thus the raw cut-density factor
+
+\[
+\frac{P(x)|R_+(x)|}{Q(x)}
+\]
+
+has opposite signs on the two cuts:
+
+\[
+\text{left cut positive},\qquad
+\text{right cut negative}.
+\]
+
+So the minimal \(d=4\) family \(P=z-c\) cannot simultaneously satisfy positive
+pole residues and consistent cut-density sign.  If \(c\notin(p_1,p_2)\), then
+at least one residue has the wrong sign; if \(c\in(p_1,p_2)\), the density
+signs split.  This exactly explains the random smoke-search blockers.
+
+The audit command
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-d4-smoke-sign \
+  --write-json 1038/gate1_d4_smoke_sign_obstruction.json
+```
+
+records this sign obstruction.
+
+Consequently, the next candidate chart cannot have the minimal form
+\(P=z-c\).  Since \(F(c)=0\) still forces \(P(c)=0\), the next executable
+solver must allow at least
+
+\[
+\boxed{\deg P\ge2,\qquad \deg Q\ge5}
+\]
+
+or use a different nondegenerate chart branch with additional real degrees of
+freedom.  This is now the sharpest computational next step: implement the
+actual \(d\ge5\) residual map, not another \(d=4\) toy search.

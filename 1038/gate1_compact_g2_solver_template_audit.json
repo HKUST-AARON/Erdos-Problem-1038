@@ -4,8 +4,9 @@
   ],
   "can_generate_chart": false,
   "derived_constraints": {
+    "minimum_Q_degree_after_minimal_d4_smoke_obstruction": 5,
     "minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass": 4,
-    "reason": "For compact g=2, deg P <= deg Q - 3.  If c is off-cut and not a Q-pole, F(c)=P(c)R(c)/Q(c)=0 forces P(c)=0.  A cubic Q gives deg P <= 0, hence P is constant; P(c)=0 then forces P=0 and zero mass.  Therefore a regular positive-mass branch chart with F(c)=0 requires deg Q >= 4 unless c is a routed degeneration."
+    "reason": "For compact g=2, deg P <= deg Q - 3.  If c is off-cut and not a Q-pole, F(c)=P(c)R(c)/Q(c)=0 forces P(c)=0.  A cubic Q gives deg P <= 0, hence P is constant; P(c)=0 then forces P=0 and zero mass.  Therefore a regular positive-mass branch chart with F(c)=0 requires deg Q >= 4 unless c is a routed degeneration.  The minimal d=4 branch has P=z-c; for the standard two-cut pole placement, positive residues force c between the two middle-gap poles, which makes the two cut-density signs split.  Thus the next non-toy regular search must allow deg P>=2, hence deg Q>=5."
   },
   "missing_executable_blocks": [
     {
@@ -46,7 +47,7 @@
   ],
   "missing_residual_maps": [],
   "missing_solver_fields": [],
-  "next_action": "implement executable_solver with deg(Q)>=4 unknown_layout, residual_maps, initial_guess, inequality_checks, acceptance_tests, and chart_json_export",
+  "next_action": "implement executable_solver with deg(Q)>=5 unknown_layout, residual_maps, initial_guess, inequality_checks, acceptance_tests, and chart_json_export",
   "path": "1038/gate1_compact_g2_executable_solver_template.json",
   "required_residual_maps": [
     "finite_gap_representation",
