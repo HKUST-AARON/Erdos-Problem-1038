@@ -8549,6 +8549,34 @@ theorem exists_positiveComponent_baseline_right_nonneg_of_endpoint_lower_bound
     exact le_rfl
 
 /--
+Endpoint lower bound plus interval maximality forces baseline placement for any
+selected component that intersects the baseline; a right positive neighbourhood
+then gives strict right-endpoint positivity.  This is the useful upstream
+version of the previous maximality bridge: the baseline containment is derived,
+not provided.
+-/
+theorem PositiveComponent.right_pos_of_endpoint_lower_bound_intersects_baseline_intervalMaximal_zero_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {p δ : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hmax : C.IntervalMaximal)
+    (hinter :
+      (Ioo (-1 : ℝ) 0 ∩ C.interval).Nonempty)
+    (hδ : 0 < δ)
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    0 < C.right := by
+  have hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval :=
+    hmax (-1) 0 (by norm_num)
+      (normalized_endpoint_lower_bound_baseline_neg_one_zero_positive hp hendpoint)
+      hinter
+  exact C.right_pos_of_intervalMaximal_baseline_zero_right
+    hmax hbaseline hδ hzero hright
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
