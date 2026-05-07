@@ -937,11 +937,26 @@ Useful corrections already recorded:
   at sampled resolution.  The command now reports such runs as
   `fixed_windows`; in the dense symmetric run the sampled window endpoints are
   \(-0.36,-0.35\) with minimum product margin about \(6.1\cdot10^{-8}\).  The
-  right-omitted and nonsymmetric diagnostics show the same phenomenon with the
-  fixed anchor again in the middle gap.  This is not a Gate 1 proof, but it
-  changes the next check on a real compact chart: first test whether its actual
-  anchor \(c\) lies in an interval-certified LRLR \(\rho\)-window.  If not, the route moves to affine
-  \(b-\Lambda\rho\) contact verification.
+  adjacent failing samples are also localized: at \(c=-0.3625\) and
+  \(c=-0.3475\), only two sampled middle-gap LRLR branches have the wrong
+  sign, with free roots near the anchor boundary.  The right-omitted and
+  nonsymmetric diagnostics show the same phenomenon with the fixed anchor
+  again in the middle gap.  This is not a Gate 1 proof, but it changes the
+  next check on a real compact chart: first test whether its actual anchor
+  \(c\) lies in an interval-certified LRLR \(\rho\)-window.  If not, the route
+  moves to affine \(b-\Lambda\rho\) contact verification.
+- Correction: the sampled LRLR \(\rho\)-window is not proof-stable.  The new
+  command `--audit-lrlr-anchor-projective --anchor-c C` computes the exact
+  zero angles of \(I_{\rm gap}\) and \(L_\rho\) on the two-dimensional LRLR
+  kernel and classifies their cubic roots.  For \(c=-0.355\) in the symmetric
+  diagnostic model, both \(I_{\rm gap}=0\) zero angles and both \(L_\rho=0\)
+  zero angles lie inside the LRLR-order branch, with free roots
+  \(-0.35783\) and \(-0.35500\) respectively.  Thus the product changes sign
+  on a tiny LRLR arc.  High-resolution checks at \(c=-0.36,-0.3575,-0.355\),
+  and \(-0.35\) all show the same issue.  The bare homogeneous \(\rho\)-row
+  should therefore be treated as a no-go for LRLR; the next viable route is
+  affine \(b-\Lambda\rho\) / compact contact verification or an additional
+  true chart row.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

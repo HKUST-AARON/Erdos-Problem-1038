@@ -16539,7 +16539,7 @@ theorem queue.
     returns a split sign, the next branch is compact affine contact
     verification rather than more schema work.
 
-    LRLR anchor-window sweep.
+    LRLR anchor-window sweep and projective correction.
 
     The LRLR \(\rho\)-row has the actual form
 
@@ -16550,7 +16550,7 @@ theorem queue.
     Thus, before a proof-grade compact chart is available, one useful
     diagnostic is to ask whether any off-cut anchor \(c\) can make
     \(I_{\rm gap}(F)L_\rho(F)\) have a fixed projective sign on the sampled
-    LRLR kernel.  The extractor now has this pre-chart command:
+    LRLR kernel.  The extractor has this pre-chart sweep command:
 
     ```bash
     python3 1038/gate1_repaired_data_extractor.py \
@@ -16585,9 +16585,18 @@ theorem queue.
     endpoint values and the minimum projective-product margin.  In this dense
     symmetric run the fixed window has sample endpoints \(-0.36\) and
     \(-0.35\), fixed sign \(+1\), and sampled minimum
-    \(|I_{\rm gap}L_\rho|\approx6.1\cdot10^{-8}\).  Repeating the same test
-    with the omitted pole on the right exterior, \(p=3\), finds the symmetric
-    narrow window near \(c\approx0.35\).  On the nonsymmetric diagnostic model
+    \(|I_{\rm gap}L_\rho|\approx6.1\cdot10^{-8}\).  The window audit also
+    records the adjacent failing anchors.  At the sampled left boundary
+    \(c=-0.3625\), only two LRLR samples are negative; the nearest one has
+    angle \(3.7920\), free root \(-0.36139\) in the middle gap, and product
+    \(-4.88\cdot10^{-8}\).  At the sampled right boundary \(c=-0.3475\), the
+    controlling failing sample has angle \(0.66268\), free root \(-0.34820\),
+    and product \(-6.98\cdot10^{-8}\).  Thus an interval proof of this
+    diagnostic window should focus first on the two projective boundary
+    branches where the free middle-gap root crosses the anchor neighborhood.
+    Repeating the same test with the omitted pole on the right exterior,
+    \(p=3\), finds the symmetric narrow window near \(c\approx0.35\).  On the
+    nonsymmetric diagnostic model
 
     \[
     \Gamma=(-3,-1.2,0.7,2.5),\qquad p=3.5,
@@ -16596,16 +16605,50 @@ theorem queue.
     the fixed anchor again appears only in the middle gap, here near
     \(c\approx0.03499835\).
 
-    These are not proof-grade chart computations.  They do, however, sharpen
-    the LRLR strategy: the homogeneous \(\rho\)-row route is still plausible,
-    but it is an anchor-window statement in the middle gap, not a generic
-    off-row sign theorem.  A real `CompactG2MovingChartEquations` output must
-    therefore report the actual anchor \(c\), and the first LRLR acceptance
-    check should be whether that \(c\) lies in a fixed-sign \(\rho\)-window for
-    an accepted exterior omitted-pole gauge.  If the true \(c\) lies outside
-    this window or the interval-certified sweep splits signs, the proof must
-    switch to the affine \(b-\Lambda\rho\) row and compact affine contact
-    verification.
+    A later projective zero-angle audit shows that the apparent sampled window
+    is not proof-stable.  The extractor now also has the single-anchor command
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --audit-lrlr-anchor-projective --anchor-c C
+    ```
+
+    It computes the two zero angles of the linear form \(I_{\rm gap}\) and the
+    two zero angles of \(L_\rho\) on the LRLR two-dimensional kernel, then
+    classifies the corresponding cubic roots.  For the symmetric model and
+    \(c=-0.355\), the audit gives:
+
+    \[
+    \begin{array}{c|c|c}
+    \text{row} & \theta & \text{free middle-gap root} \\ \hline
+    I_{\rm gap} & 0.65360,\ 3.79520 & -0.35783\\
+    L_\rho & 0.65623,\ 3.79783 & -0.35500
+    \end{array}
+    \]
+
+    All four zero angles are inside the LRLR-order branch.  Therefore
+    \(I_{\rm gap}(F)L_\rho(F)\) necessarily changes sign on a very small LRLR
+    projective arc.  High-resolution runs at \(c=-0.36,-0.3575,-0.355,-0.35\)
+    all find a small negative LRLR arc even when the coarser anchor sweep
+    reports a fixed window.  The previous sampled middle-gap window should
+    therefore be treated as a false positive caused by insufficient angular
+    resolution, not as evidence that the homogeneous \(\rho\)-row closes
+    LRLR.
+
+    Current conclusion:
+
+    \[
+    \boxed{
+    \text{the bare homogeneous }\rho\text{-row does not close the LRLR kernel.}
+    }
+    \tag{G1LRLRRhoNoGo}
+    \]
+
+    A proof-grade compact chart may still use additional affine data, but the
+    next LRLR route should no longer be "find a good \(c\)" for the
+    homogeneous row alone.  It should be either the affine
+    \(b-\Lambda\rho\)-row contact verification on the compact \(\Lambda\)
+    range, or a new true chart row beyond \(L_\rho\).
 
     The conditional PV equation is not used in this reduction.
 

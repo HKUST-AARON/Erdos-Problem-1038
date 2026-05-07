@@ -2172,11 +2172,23 @@ def lrlr_anchor_sweep_audit(
             region_sign_counts: dict[str, dict[str, int]] = {}
             min_abs_product = math.inf
             min_abs_row = math.inf
+            min_abs_product_sample: dict[str, Any] | None = None
             for sample in lrlr_samples:
                 coeff = np.array(sample["coefficients_ascending"], dtype=float)
                 row_value = poly_eval(coeff, c_value) / denom
                 product = float(sample["connection_integral"]) * row_value
-                min_abs_product = min(min_abs_product, abs(product))
+                abs_product = abs(product)
+                if abs_product < min_abs_product:
+                    min_abs_product = abs_product
+                    min_abs_product_sample = {
+                        "angle": float(sample["angle"]),
+                        "free_root": sample["free_root"],
+                        "free_root_region": sample["free_root_region"],
+                        "connection_integral": sample["connection_integral"],
+                        "row_value": row_value,
+                        "projective_product": product,
+                        "projective_sign": sign_label(product),
+                    }
                 min_abs_row = min(min_abs_row, abs(row_value))
                 sign = str(sign_label(product))
                 sign_counts[sign] = sign_counts.get(sign, 0) + 1
@@ -2196,6 +2208,7 @@ def lrlr_anchor_sweep_audit(
                 "fixed_sign": next(iter(nonzero_signs)) if fixed else None,
                 "min_abs_projective_product": None if math.isinf(min_abs_product) else min_abs_product,
                 "min_abs_row_value": None if math.isinf(min_abs_row) else min_abs_row,
+                "min_abs_projective_product_sample": min_abs_product_sample,
             }
             c_records.append(record)
             if fixed:
@@ -2223,12 +2236,14 @@ def lrlr_anchor_sweep_audit(
     for interval, records in records_by_interval.items():
         ordered = sorted(records, key=lambda item: float(item["c"]))
         run: list[dict[str, Any]] = []
-        for record in ordered + [{"fixed_nonzero": False}]:
+        left_neighbor: dict[str, Any] | None = None
+        for record in ordered + [{"fixed_nonzero": False, "sentinel": True}]:
             if record.get("fixed_nonzero"):
                 run.append(record)
                 continue
             if run:
                 signs = sorted({str(item["fixed_sign"]) for item in run})
+                right_neighbor = None if record.get("sentinel") else record
                 fixed_windows.append(
                     {
                         "interval": interval,
@@ -2240,9 +2255,31 @@ def lrlr_anchor_sweep_audit(
                             float(item["min_abs_projective_product"]) for item in run
                         ),
                         "min_abs_row_value": min(float(item["min_abs_row_value"]) for item in run),
+                        "left_neighbor": None
+                        if left_neighbor is None
+                        else {
+                            "c": float(left_neighbor["c"]),
+                            "sign_counts": left_neighbor["sign_counts"],
+                            "region_sign_counts": left_neighbor["region_sign_counts"],
+                            "min_abs_projective_product_sample": left_neighbor[
+                                "min_abs_projective_product_sample"
+                            ],
+                        },
+                        "right_neighbor": None
+                        if right_neighbor is None
+                        else {
+                            "c": float(right_neighbor["c"]),
+                            "sign_counts": right_neighbor["sign_counts"],
+                            "region_sign_counts": right_neighbor["region_sign_counts"],
+                            "min_abs_projective_product_sample": right_neighbor[
+                                "min_abs_projective_product_sample"
+                            ],
+                        },
                     }
                 )
                 run = []
+            if not record.get("sentinel"):
+                left_neighbor = record
 
     return {
         "model": "LRLR anchor rho-row sweep",
@@ -2260,6 +2297,164 @@ def lrlr_anchor_sweep_audit(
         "fixed_anchors_preview": fixed_records[:10],
         "skipped": skipped[:20],
         "anchors": c_records,
+    }
+
+
+def lrlr_anchor_projective_audit(
+    c_value: float,
+    gammas: list[float] | None = None,
+    omitted_pole: float = -3.0,
+    samples: int = 720,
+    nodes: int = 160,
+) -> dict[str, Any]:
+    """Projective zero-angle audit for one LRLR anchor row."""
+    if gammas is None:
+        gammas = [-2.0, -1.0, 1.0, 2.0]
+    a1, b1, a2, b2 = sorted(gammas)
+    split_R_value(omitted_pole, gammas)
+    if b1 < omitted_pole < a2:
+        raise ValueError("ordinary LRLR projective audit requires an exterior omitted pole")
+    if abs(c_value - omitted_pole) < 1.0e-10:
+        raise ValueError("anchor hits omitted pole")
+    R_c = split_R_value(c_value, gammas)
+    denom_c = ((c_value - omitted_pole) ** 2) * R_c
+
+    def omega_gap_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_R_value(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def omega_cut_value(poly: Array, x: float) -> float:
+        denom = ((x - omitted_pole) ** 2) * split_cut_R_abs(x, gammas)
+        return poly_eval(poly, x) / denom
+
+    def integrate_cut(poly: Array, left: float, right: float) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_cut_value(p, x),
+            left + 1.0e-8,
+            right - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def integrate_gap(poly: Array) -> float:
+        return integrate_real_interval(
+            lambda x, p=poly: omega_gap_value(p, x),
+            b1 + 1.0e-8,
+            a2 - 1.0e-8,
+            nodes=nodes,
+        )
+
+    def root_region(root: float) -> str:
+        tol = 1.0e-7
+        if root < a1 - tol:
+            return "left_exterior"
+        if a1 + tol < root < b1 - tol:
+            return "left_cut"
+        if b1 + tol < root < a2 - tol:
+            return "middle_gap"
+        if a2 + tol < root < b2 - tol:
+            return "right_cut"
+        if root > b2 + tol:
+            return "right_exterior"
+        return "endpoint"
+
+    def classify(coeff: Array) -> dict[str, Any]:
+        roots_complex = np.roots(list(reversed(coeff)))
+        real_roots = sorted(float(root.real) for root in roots_complex if abs(root.imag) < 1.0e-7)
+        lrlr_order = (
+            len(real_roots) == 3
+            and sum(a1 < r < b1 for r in real_roots) == 1
+            and sum(a2 < r < b2 for r in real_roots) == 1
+        )
+        free_roots = [r for r in real_roots if not (a1 < r < b1 or a2 < r < b2)]
+        free_root = free_roots[0] if lrlr_order and len(free_roots) == 1 else None
+        return {
+            "real_roots": real_roots,
+            "lrlr_order": lrlr_order,
+            "free_root": free_root,
+            "free_root_region": root_region(free_root) if free_root is not None else "not_lrlr",
+        }
+
+    basis = [monomial(k) for k in range(4)]
+    M = np.array(
+        [
+            [integrate_cut(poly, a1, b1) for poly in basis],
+            [integrate_cut(poly, a2, b2) for poly in basis],
+        ],
+        dtype=float,
+    )
+    _u, singular_values, vh = np.linalg.svd(M)
+    kernel_basis = vh[-2:, :]
+    gap_form = np.array([integrate_gap(kernel_basis[i]) for i in range(2)], dtype=float)
+    rho_form = np.array([poly_eval(kernel_basis[i], c_value) / denom_c for i in range(2)], dtype=float)
+
+    def zero_angles(form: Array) -> list[float]:
+        # form dot (cos a, sin a)=0, modulo pi.
+        base = math.atan2(-float(form[0]), float(form[1]))
+        return sorted({float((base + k * math.pi) % (2.0 * math.pi)) for k in range(2)})
+
+    zero_records = []
+    for row_name, form in [("I_gap", gap_form), ("L_rho", rho_form)]:
+        for angle in zero_angles(form):
+            coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
+            record = {
+                "row": row_name,
+                "angle": angle,
+                "row_value": float(np.dot(form, [math.cos(angle), math.sin(angle)])),
+                "classification": classify(coeff),
+            }
+            zero_records.append(record)
+
+    sample_records = []
+    sign_counts: dict[str, int] = {}
+    min_abs_product = math.inf
+    min_abs_product_sample: dict[str, Any] | None = None
+    for angle in np.linspace(0.0, 2.0 * math.pi, samples + 1)[:-1]:
+        coeff = math.cos(angle) * kernel_basis[0] + math.sin(angle) * kernel_basis[1]
+        classification = classify(coeff)
+        gap_value = float(np.dot(gap_form, [math.cos(angle), math.sin(angle)]))
+        rho_value = float(np.dot(rho_form, [math.cos(angle), math.sin(angle)]))
+        product = gap_value * rho_value
+        if classification["lrlr_order"]:
+            sign = str(sign_label(product))
+            sign_counts[sign] = sign_counts.get(sign, 0) + 1
+            if abs(product) < min_abs_product:
+                min_abs_product = abs(product)
+                min_abs_product_sample = {
+                    "angle": float(angle),
+                    "gap_value": gap_value,
+                    "rho_value": rho_value,
+                    "projective_product": product,
+                    "classification": classification,
+                }
+        sample_records.append(
+            {
+                "angle": float(angle),
+                "gap_value": gap_value,
+                "rho_value": rho_value,
+                "projective_product": product,
+                "projective_sign": sign_label(product),
+                "classification": classification,
+            }
+        )
+    nonzero_signs = {sign for sign, count in sign_counts.items() if sign != "0" and count}
+    return {
+        "model": "LRLR anchor projective zero-angle audit",
+        "gammas": gammas,
+        "omitted_pole": omitted_pole,
+        "c": c_value,
+        "R_c": R_c,
+        "nodes": nodes,
+        "samples_count": samples,
+        "singular_values": singular_values.tolist(),
+        "kernel_basis": kernel_basis.tolist(),
+        "gap_form_on_kernel": gap_form.tolist(),
+        "rho_form_on_kernel": rho_form.tolist(),
+        "zero_angle_records": zero_records,
+        "lrlr_projective_sign_counts": sign_counts,
+        "lrlr_projective_sign_fixed_nonzero": bool(sign_counts) and len(nonzero_signs) == 1,
+        "min_abs_projective_product": None if math.isinf(min_abs_product) else min_abs_product,
+        "min_abs_projective_product_sample": min_abs_product_sample,
+        "samples": sample_records,
     }
 
 
@@ -3100,11 +3295,17 @@ def main() -> int:
         action="store_true",
         help="sweep off-cut anchor c rows against the bare LRLR kernel",
     )
+    parser.add_argument(
+        "--audit-lrlr-anchor-projective",
+        action="store_true",
+        help="audit zero angles of I_gap and the anchor rho row on the LRLR projective kernel",
+    )
     parser.add_argument("--connection-gammas", help="four branch endpoints for connection audit")
     parser.add_argument("--connection-omitted-pole", type=float, default=-3.0)
     parser.add_argument("--connection-nodes", type=int, default=200)
     parser.add_argument("--connection-samples", type=int, default=30)
     parser.add_argument("--anchor-samples", type=int, default=41)
+    parser.add_argument("--anchor-c", type=float)
     parser.add_argument("--anchor-min", type=float)
     parser.add_argument("--anchor-max", type=float)
     parser.add_argument("--lambda-min", type=float, default=-10.0)
@@ -3538,7 +3739,15 @@ def main() -> int:
         print(f"  tested anchors = {audit['tested_anchor_count']}")
         print(f"  fixed anchors = {audit['fixed_anchor_count']}")
         print(f"  by interval = {audit['by_interval']}")
-        print(f"  fixed windows = {audit['fixed_windows'][:5]}")
+        print(f"  fixed window count = {len(audit['fixed_windows'])}")
+        for window in audit["fixed_windows"][:5]:
+            print(
+                "  fixed window = "
+                f"[{window['left_sample']:.12g}, {window['right_sample']:.12g}], "
+                f"interval = {window['interval']}, signs = {window['fixed_signs']}, "
+                f"samples = {window['sample_count']}, "
+                f"min |product| = {window['min_abs_projective_product']:.6e}"
+            )
         for record in audit["fixed_anchors_preview"][:5]:
             print(
                 "  fixed c = "
@@ -3546,6 +3755,41 @@ def main() -> int:
                 f"sign = {record['fixed_sign']}, "
                 f"min |product| = {record['min_abs_projective_product']:.6e}"
             )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_lrlr_anchor_projective:
+        if args.anchor_c is None:
+            parser.error("--audit-lrlr-anchor-projective requires --anchor-c")
+        gammas = parse_float_list(args.connection_gammas) if args.connection_gammas else None
+        audit = lrlr_anchor_projective_audit(
+            c_value=float(args.anchor_c),
+            gammas=gammas,
+            omitted_pole=args.connection_omitted_pole,
+            samples=args.connection_samples,
+            nodes=args.connection_nodes,
+        )
+        print("Gate 1 LRLR anchor projective audit")
+        print(f"  model = {audit['model']}")
+        print(f"  gammas = {audit['gammas']}")
+        print(f"  omitted pole = {audit['omitted_pole']}")
+        print(f"  c = {audit['c']}")
+        print(f"  zero angles:")
+        for record in audit["zero_angle_records"]:
+            cls = record["classification"]
+            print(
+                "    "
+                f"{record['row']} angle={record['angle']:.12g}, "
+                f"LRLR={cls['lrlr_order']}, free={cls['free_root']}, "
+                f"region={cls['free_root_region']}, roots={cls['real_roots']}"
+            )
+        print(f"  LRLR sign counts = {audit['lrlr_projective_sign_counts']}")
+        print(f"  fixed nonzero = {audit['lrlr_projective_sign_fixed_nonzero']}")
+        print(f"  min |product| = {audit['min_abs_projective_product']}")
+        print(f"  controlling sample = {audit['min_abs_projective_product_sample']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)
