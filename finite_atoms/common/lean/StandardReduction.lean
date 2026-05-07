@@ -21390,16 +21390,32 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_boundary_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_left_zero_neighborhood_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanRightGapAtomizationDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, hright_gap, hcomponent_atomized⟩
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_average_of_spanning_augmented_right_gap_component_atomized
+      μ hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+      hcomponent_atomized
+  have hleft_aug :
+      Set.Ioo (-(1 : ℝ) - ε) (-1) ⊆
+        unitIntervalAugmentedPositiveSet μ := by
+    intro x hx
+    exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap,
+    ⟨C, ε, hε, hmax, hleft_aug, hendpoint_unit_pos,
+      hbaseline, hright_pos, hboundary,
       component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
         hcomponent_atomized⟩
 
