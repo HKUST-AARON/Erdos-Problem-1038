@@ -4274,6 +4274,39 @@ theorem exists_positiveComponent_augmentedMaximal_of_span_positive_disjoint_supp
         μ hpositive_disjoint_support)
       hδ hspan_pos hnoDiag
 
+theorem exists_positiveComponent_augmentedMaximal_of_span_positive_support_policies_auto_bdd_midpoint
+    {μ : ProbabilityMeasure UnitInterval1038} {δ : ℝ}
+    (hpositive_disjoint_support :
+      Disjoint (PositiveSet (unitIntervalLogPotential μ))
+        (realMeasure μ).support)
+    (hδ : 0 < δ)
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y)
+    (haug_support :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (realMeasure μ).support) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  refine
+    exists_positiveComponent_augmentedMaximal_of_span_positive_disjoint_support_auto_bdd_midpoint
+      (μ := μ) (δ := δ)
+      hpositive_disjoint_support hδ hspan_pos ?_
+  intro C hmax hbaseline hright l r hlr haug hinter
+  have hsupport := haug_support C hmax hbaseline hright l r hlr haug hinter
+  rw [Set.disjoint_left]
+  intro x hx hxdiag
+  exact hsupport.le_bot
+    ⟨hx, diagonalAtomSet_subset_realMeasure_support μ hxdiag⟩
+
 /--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
