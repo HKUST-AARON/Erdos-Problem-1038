@@ -81,6 +81,279 @@ The finite-atom lower-bound route can use the normalized endpoint interface once
 Standard Reduction supplies it.  The finite certificates do not by themselves
 prove the full standard reduction.
 
+## Proof-grade Standard Reduction target
+
+This is the Lean-facing proof text for the old Standard Reduction block.  It is
+not a new assumption layer.  Each item below must eventually become a theorem in
+`finite_atoms/common/lean/StandardReduction.lean`.  The final theorem must not
+take `hPackageFromVariation`, `hEndpointFromVariation`,
+`TaoVariationalReductionInput`, or `TaoEndpointReductionInput` as inputs.
+
+### Final theorem shape
+
+The intended endpoint is a theorem of this form.
+
+```lean
+theorem unitInterval_standardReduction_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu) :
+    NormalizedEndpointPotential (unitIntervalLogPotential mu) := by
+  -- construct the selected component, replacement, rigidity, boundary average,
+  -- and endpoint package internally; do not import a provider theorem.
+```
+
+A stronger final form may directly conclude the baseline lower bound.
+
+```lean
+theorem unitInterval_standardReduction_baseline_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu) :
+    ENNReal.ofReal (Real.sqrt 2) <=
+      volume (PositiveSet (unitIntervalLogPotential mu)) := by
+  exact normalizedEndpointPotential_baseline_volume_lower_bound
+    (unitInterval_standardReduction_from_secondaryMinimizer hPrimary hSecondary)
+```
+
+The actual names can differ.  The logical shape cannot differ: the theorem must
+start with a real secondary minimizer and produce endpoint-normalized data
+without an external variation provider.
+
+### Step 1: select the real positive component
+
+Prove that the secondary minimizer has a positive component with the exact
+baseline placement and interval data needed by the existing endpoint-package
+bridges.
+
+```lean
+theorem selected_positiveComponent_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu) :
+    exists C : PositiveComponent mu,
+    exists xMinus xPlus : Real,
+      C.interval = Set.Ioo xMinus xPlus /\
+      Set.Ioo (-1 : Real) 0 <= C.interval /\
+      0 < xPlus /\
+      AugmentedIntervalMaximal mu C := by
+  -- open positive set -> connected component -> interval representation
+  -- baseline positivity supplies `Set.Ioo (-1) 0 <= C.interval`
+  -- maximality supplies the augmented endpoint bookkeeping
+```
+
+This is the first hard mouth.  It is a topology theorem about the ordinary or
+augmented positive set.  It must not use finite-atom route information.
+
+### Step 2: prove the right-boundary average
+
+From the selected maximal component, prove the Tao boundary inequality that
+later gives endpoint mass at least `1 / 2`.
+
+```lean
+theorem boundary_average_from_selected_positiveComponent
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    {xMinus xPlus endpointMass : Real}
+    (hC_interval : C.interval = Set.Ioo xMinus xPlus)
+    (hBaseline : Set.Ioo (-1 : Real) 0 <= C.interval)
+    (hxPlus : 0 < xPlus)
+    (hMax : AugmentedIntervalMaximal mu C)
+    (hEndpointMass :
+      realMeasure mu ({-1} : Set Real) = ENNReal.ofReal endpointMass) :
+    1 <= (xPlus + 1) * endpointMass +
+      (1 - xPlus) * (1 - endpointMass) := by
+  -- maximal right endpoint gives a nonpositive boundary potential statement
+  -- boundary-distance estimates convert it into the displayed average
+```
+
+This is the second hard mouth.  Existing downstream algebra can already turn
+this inequality into `1 / 2 <= endpointMass`, but the source of the inequality
+must be proved here.
+
+### Step 3: construct the barycenter replacement
+
+Construct the actual component replacement object from the selected component.
+This step must build the replacement measure, not assume it.
+
+```lean
+theorem componentReplacement_from_selected_positiveComponent
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (hMassPos : 0 < componentMass mu C)
+    (hMassFinite : componentMass mu C < top) :
+    exists R : ComponentReplacement mu C,
+      R.mass_pos = hMassPos /\
+      R.mass_ne_top = hMassFinite := by
+  -- define the component block, normalize it, take its barycenter, replace the
+  -- block by a Dirac mass at the barycenter, and prove the result is again a
+  -- probability measure on UnitInterval1038
+```
+
+The output should be strong enough to feed the existing replacement-probability
+and potential-equality bridges.
+
+### Step 4: prove primary objective nonincrease for the real replacement
+
+Use Jensen outside the component plus the existing small-exception/tail machinery
+to prove that the replacement does not increase the truncated positive-set
+objective.
+
+```lean
+theorem componentReplacement_truncatedObjective_nonincrease_from_variation
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hJensen :
+      forall x : Real,
+        StrictOutsideComponent C x ->
+        componentReplacementPotential C x <= unitIntervalLogPotential mu x) :
+    unitIntervalTruncatedPositiveSetObjective
+        (componentReplacementProbability mu C R) <=
+      unitIntervalTruncatedPositiveSetObjective mu := by
+  -- apply the already-proved small-exception comparison theorem
+  -- instantiate the exceptional sets from threshold-tail bad-set machinery
+  -- take eta -> 0 only through the existing exact bridge
+```
+
+No support-as-exception argument is allowed here.  Diagonal/pole exceptions must
+be finite, null, or arbitrarily small with an explicit limiting theorem.
+
+### Step 5: derive secondary rigidity and atomization
+
+Use primary nonincrease, secondary minimality, and the concrete second-moment
+objective to force equality, then convert equality into Dirac atomization of the
+component block.
+
+```lean
+theorem component_atomization_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    {C : PositiveComponent mu}
+    (R : ComponentReplacement mu C)
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu)
+    (hPrimaryReplacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability mu C R) <=
+        unitIntervalTruncatedPositiveSetObjective mu) :
+    componentBlock mu C = componentMass mu C • Measure.dirac (-1) := by
+  -- primary minimality makes the replacement also primary-minimizing
+  -- secondary minimality plus replacement second-moment nonincrease gives equality
+  -- equality in the variance/barycenter replacement gives normalized Dirac
+  -- boundary/component identification moves the barycenter to `-1`
+```
+
+If the proof naturally splits, the accepted intermediate endpoints are:
+
+```lean
+normalizedComponentBlock mu C = Measure.dirac (componentBarycenter mu C)
+componentBarycenter mu C = -1
+normalizedComponentBlock mu C = Measure.dirac (-1)
+componentBlock mu C = componentMass mu C • Measure.dirac (-1)
+```
+
+### Step 6: assemble the endpoint package
+
+Once Steps 1--5 are proved, use the existing downstream bridges.  This assembly
+should be short and should not introduce a new provider structure.
+
+```lean
+theorem taoVariationComponentPackage_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu) :
+    TaoVariationComponentPackage (unitIntervalLogPotential mu) := by
+  rcases selected_positiveComponent_from_secondaryMinimizer hPrimary hSecondary
+    with <C, xMinus, xPlus, hC_interval, hBaseline, hxPlus, hMax>
+  have hBoundary := boundary_average_from_selected_positiveComponent
+    hC_interval hBaseline hxPlus hMax ?hEndpointMass
+  rcases componentReplacement_from_selected_positiveComponent ?hMassPos ?hMassFinite
+    with <R, hR>
+  have hPrimaryReplacement :=
+    componentReplacement_truncatedObjective_nonincrease_from_variation R ?hJensen
+  have hAtom := component_atomization_from_secondaryMinimizer
+    R hPrimary hSecondary hPrimaryReplacement
+  -- feed `hBoundary`, `hAtom`, and existing remainder/support bridges into the
+  -- current strongest package constructor
+```
+
+Then the final endpoint theorem is just:
+
+```lean
+theorem unitInterval_standardReduction_from_secondaryMinimizer
+    {mu : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective mu <=
+          unitIntervalTruncatedPositiveSetObjective nu)
+    (hSecondary :
+      forall nu : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective nu <=
+            unitIntervalTruncatedPositiveSetObjective mu ->
+        unitIntervalSecondMomentObjective mu <=
+          unitIntervalSecondMomentObjective nu) :
+    NormalizedEndpointPotential (unitIntervalLogPotential mu) := by
+  exact tao_endpoint_from_component_variation_package_ennreal
+    (taoVariationComponentPackage_from_secondaryMinimizer hPrimary hSecondary)
+```
+
+### Lean acceptance rules
+
+- Every theorem must state whether it uses `PositiveSet` or an augmented positive
+  set.
+- Every objective inequality must state whether it is for the ordinary objective
+  or `unitIntervalTruncatedPositiveSetObjective`.
+- Every exceptional set must be finite, null, or arbitrarily small with an
+  explicit limiting theorem; the full support of `mu` cannot be used as an
+  exception.
+- Every boundary point used in a log kernel must carry either an off-diagonal
+  proof or an integrability/tail-finiteness proof.
+- Every use of support must specify whether it is topological support of
+  `realMeasure mu`, almost-everywhere support, or the subtype support in
+  `UnitInterval1038`.
+- The old provider theorems may remain as compatibility wrappers, but the final
+  Standard Reduction theorem must not depend on them.
+
 ## Next proof order
 
 Do not add more endpoint-wrapper theorems unless they remove a genuinely new
