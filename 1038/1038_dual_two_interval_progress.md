@@ -18221,3 +18221,76 @@ computational/proof-producing rather than another contract-definition pass.
 The required next artifact is a real proof-grade
 `gate1_compact_g2_chart.json` satisfying this spec, followed by the repaired
 data extractor and LRLR residual/off-row pipeline.
+
+## Gate 1 chart-generation attempt audit
+
+I attempted to execute the next chart-generation step rather than add another
+contract layer.  The result is a hard stop on proof-grade JSON generation:
+the repository still has no numerical compact \(g=2\) chart solver that turns
+the ready equation-spec contract into actual values
+
+\[
+P,\ Q,\ \Gamma,\ c,\ u,\ v,\ a,\ b,\ \kappa,\ Z_0 .
+\]
+
+The current command
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-blockers \
+  --scan-jsons 1038 \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json
+```
+
+still reports
+
+```text
+scan gate1 chart ready = 0
+proof-grade chart ready = False
+solver should run = False
+solver stop reason =
+  CompactG2MovingChartEquations is not yet present as executable equations;
+  do not synthesize a proof-grade chart from old two-interval diagnostics.
+```
+
+This is not a Python dependency failure.  The equation spec is a
+proof/provenance contract; it is not yet an executable nonlinear system with a
+residual map, initial guesses, normalization scalar, and certified acceptance
+checks.  Therefore a file named `gate1_compact_g2_chart.json` cannot honestly
+be written with `proof_grade=true` from the current repository state.
+
+I also ran the current LRLR numerical pipeline on smoke/candidate data to check
+whether the missing chart data was likely to be a superficial obstacle.
+The synthetic chart pipeline runs, but gives
+
+```text
+rho fixed choices = 0
+affine fixed choices = 0
+```
+
+and the full-pair choices have split LRLR projective signs.  A structural
+\(d=4\) candidate with \(P(c)=0\) can make the full-pair endpoint constants
+one-signed when \(c\) lies in an exterior component, but the LRLR
+\(\rho\)-row still splits and the sampled affine row has no fixed
+\(\Lambda\)-window.  A small sweep over representative
+\((c,u,v,a,b)\) values also found
+
+```text
+trials 80 found 0
+```
+
+for fixed affine LRLR windows.
+
+Thus the current computation confirms the earlier paper audit:
+
+\[
+\boxed{
+\text{do not mark a toy or hand-picked chart as proof-grade.}
+}
+\]
+
+The next route is forced.  One must either implement the actual
+`CompactG2MovingChartEquations` solver producing the numeric chart fields, or
+abandon single-row LRLR closure and prove the full compact affine
+contact/KKT verification.  The homogeneous \(\rho\)-row alone is no longer a
+credible LRLR closing route.

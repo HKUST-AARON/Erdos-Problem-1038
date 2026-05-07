@@ -1,7 +1,12 @@
 {
   "blockers": [
     {
-      "evidence": "no chart JSON supplied",
+      "evidence": [
+        "P",
+        "Q",
+        "gammas",
+        "rows_or_row_gauge"
+      ],
       "name": "extractor base fields",
       "required": [
         "P",
@@ -12,7 +17,13 @@
       "status": "blocked"
     },
     {
-      "evidence": "no chart JSON supplied",
+      "evidence": [
+        "c",
+        "u",
+        "v",
+        "a",
+        "b"
+      ],
       "name": "LRLR real row fields",
       "required": [
         "row_gauge=full_pair_pole_gauge",
@@ -25,7 +36,15 @@
       "status": "blocked"
     },
     {
-      "evidence": "no chart JSON supplied",
+      "evidence": [
+        "c",
+        "u",
+        "v",
+        "a",
+        "b",
+        "kappa",
+        "Z0"
+      ],
       "name": "global Gate 1 fields",
       "required": [
         "kappa",
@@ -54,8 +73,49 @@
       "status": "blocked"
     }
   ],
-  "chart_path": null,
-  "contract": null,
+  "chart_path": "1038/gate1_compact_g2_equation_spec_template.json",
+  "contract": {
+    "blocking_errors": [
+      "missing base chart fields P,Q,gammas",
+      "provide exactly one of rows or row_gauge"
+    ],
+    "extractor_ready": false,
+    "gammas": null,
+    "global_gate1_contract_ready": false,
+    "lrlr_ready": false,
+    "missing_required_fields": {
+      "extractor": [
+        "P",
+        "Q",
+        "gammas",
+        "rows_or_row_gauge"
+      ],
+      "global_gate1": [
+        "c",
+        "u",
+        "v",
+        "a",
+        "b",
+        "kappa",
+        "Z0"
+      ],
+      "lrlr": [
+        "c",
+        "u",
+        "v",
+        "a",
+        "b"
+      ]
+    },
+    "omitted_q_pole_index": null,
+    "omitted_q_pole_location": null,
+    "path": "1038/gate1_compact_g2_equation_spec_template.json",
+    "q_roots": null,
+    "row_gauge_kind": null,
+    "row_source": null,
+    "status": "computed",
+    "warnings": []
+  },
   "field_states": {
     "extractor": {
       "missing": [
@@ -64,7 +124,7 @@
         "gammas"
       ],
       "present": false,
-      "todo_like": null
+      "todo_like": false
     },
     "global": {
       "missing": [
@@ -72,7 +132,7 @@
         "Z0"
       ],
       "present": false,
-      "todo_like": null
+      "todo_like": false
     },
     "lrlr": {
       "missing": [
@@ -83,14 +143,14 @@
         "b"
       ],
       "present": false,
-      "todo_like": null
+      "todo_like": false
     },
     "provenance": {
       "missing": [
         "equation_provenance"
       ],
       "present": false,
-      "todo_like": null
+      "todo_like": false
     }
   },
   "model": "Gate 1 compact chart blocker audit",
