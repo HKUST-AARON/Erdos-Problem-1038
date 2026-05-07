@@ -515,6 +515,157 @@ def chart_contract_audit(path: Path) -> dict[str, Any]:
     }
 
 
+def compact_chart_numeric_condition_audit(path: Path, density_samples: int = 25) -> dict[str, Any]:
+    """Numerically audit finite-gap regularity conditions for a chart JSON."""
+    contract = chart_contract_audit(path)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "path": str(path),
+            "status": "unreadable_json",
+            "contract": contract,
+            "regular_chart_candidate": False,
+            "blocking_errors": [str(exc)],
+        }
+    if not isinstance(payload, dict):
+        return {
+            "path": str(path),
+            "status": "json_non_object",
+            "contract": contract,
+            "regular_chart_candidate": False,
+            "blocking_errors": ["top-level JSON is not an object"],
+        }
+    if contract["blocking_errors"]:
+        return {
+            "path": str(path),
+            "status": "contract_blocked",
+            "contract": contract,
+            "regular_chart_candidate": False,
+            "blocking_errors": contract["blocking_errors"],
+        }
+
+    P = np.array([float(x) for x in payload["P"]], dtype=float)
+    Q = np.array([float(x) for x in payload["Q"]], dtype=float)
+    gammas = [float(x) for x in payload["gammas"]]
+    q_roots = q_roots_real(Q)
+    a1, b1, a2, b2 = sorted(gammas)
+    degree_Q = len(trim(Q)) - 1
+    degree_P = len(trim(P, tol=1.0e-12)) - 1
+    max_degree_P = degree_Q - 3
+    Q_deriv = poly_derivative(Q)
+
+    pole_records = []
+    residue_sign_counts: dict[str, int] = {}
+    for root in q_roots:
+        if a1 < root < b1 or a2 < root < b2:
+            location = "cut"
+        elif b1 < root < a2:
+            location = "middle_gap"
+        elif root < a1:
+            location = "left_exterior"
+        elif root > b2:
+            location = "right_exterior"
+        else:
+            location = "endpoint"
+        residue = poly_eval(P, root) * real_R_value(root, gammas) / poly_eval(Q_deriv, root)
+        sign = sign_label(residue)
+        residue_sign_counts[str(sign)] = residue_sign_counts.get(str(sign), 0) + 1
+        pole_records.append(
+            {
+                "root": root,
+                "location": location,
+                "residue": residue,
+                "residue_sign": sign,
+            }
+        )
+
+    cut_density_records = []
+    density_sign_counts: dict[str, int] = {}
+    if density_samples < 3:
+        density_samples = 3
+    for name, left, right in [("left_cut", a1, b1), ("right_cut", a2, b2)]:
+        for x in np.linspace(left, right, density_samples + 2)[1:-1]:
+            value = poly_eval(P, float(x)) * split_cut_R_abs(float(x), gammas) / poly_eval(Q, float(x))
+            sign = sign_label(value)
+            density_sign_counts[str(sign)] = density_sign_counts.get(str(sign), 0) + 1
+            cut_density_records.append(
+                {
+                    "component": name,
+                    "x": float(x),
+                    "raw_density_factor": value,
+                    "sign": sign,
+                }
+            )
+
+    anchor_record = None
+    if "c" in payload:
+        c_value = float(payload["c"])
+        try:
+            anchor_record = {
+                "c": c_value,
+                "F_c": poly_eval(P, c_value) * real_R_value(c_value, gammas) / poly_eval(Q, c_value),
+                "P_c": poly_eval(P, c_value),
+                "Q_c": poly_eval(Q, c_value),
+                "R_c": real_R_value(c_value, gammas),
+            }
+        except Exception as exc:  # noqa: BLE001
+            anchor_record = {"c": c_value, "error": str(exc)}
+
+    boundary_separation_errors = []
+    for key in ["c", "u", "v"]:
+        if key not in payload:
+            continue
+        value = float(payload[key])
+        if a1 <= value <= b1 or a2 <= value <= b2:
+            boundary_separation_errors.append(f"{key} lies on a branch cut")
+        for root in q_roots:
+            if abs(value - root) < 1.0e-8:
+                boundary_separation_errors.append(f"{key} collides with Q-pole {root}")
+    z0 = payload.get("Z0")
+    if z0 is not None and not (
+        isinstance(z0, list)
+        and len(z0) == 2
+        and all(isinstance(item, list) and len(item) == 2 for item in z0)
+    ):
+        boundary_separation_errors.append("Z0 must be two interval pairs")
+
+    checks = {
+        "degree_P_allowed": degree_P <= max_degree_P,
+        "all_q_poles_off_cut": all(record["location"] not in {"cut", "endpoint"} for record in pole_records),
+        "all_residues_nonzero": all(record["residue_sign"] != 0 for record in pole_records),
+        "cut_density_raw_sign_nonzero": all(record["sign"] != 0 for record in cut_density_records),
+        "boundary_separated": not boundary_separation_errors,
+        "anchor_F_c_zero": (
+            anchor_record is not None
+            and "F_c" in anchor_record
+            and abs(float(anchor_record["F_c"])) <= 1.0e-8
+        ),
+    }
+    blockers = [name for name, ok in checks.items() if not ok]
+    return {
+        "path": str(path),
+        "status": "computed",
+        "contract": contract,
+        "degree_Q": degree_Q,
+        "degree_P": degree_P,
+        "max_degree_P_for_g2_decay": max_degree_P,
+        "q_roots": q_roots,
+        "pole_records": pole_records,
+        "residue_sign_counts": residue_sign_counts,
+        "density_samples_per_cut": density_samples,
+        "cut_density_raw_sign_counts": density_sign_counts,
+        "anchor": anchor_record,
+        "boundary_separation_errors": boundary_separation_errors,
+        "checks": checks,
+        "regular_chart_candidate": not blockers,
+        "blocking_errors": blockers,
+        "interpretation": (
+            "numeric regularity smoke audit only; interval-certified margins are still required"
+        ),
+    }
+
+
 def scan_jsons_for_gate1(root: Path) -> dict[str, Any]:
     records = [diagnose_json_file(path) for path in sorted(root.rglob("*.json"))]
     by_kind: dict[str, int] = {}
@@ -4162,6 +4313,11 @@ def main() -> int:
         help="audit whether the compact chart spec is executable as a numeric solver",
     )
     parser.add_argument(
+        "--audit-compact-chart-numeric",
+        action="store_true",
+        help="audit numeric finite-gap regularity conditions for a candidate chart",
+    )
+    parser.add_argument(
         "--generate-compact-chart",
         action="store_true",
         help="generate a proof-grade compact chart only if executable_solver is complete",
@@ -4241,6 +4397,7 @@ def main() -> int:
     parser.add_argument("--lambda-max", type=float, default=10.0)
     parser.add_argument("--lambda-samples", type=int, default=41)
     parser.add_argument("--lambda-value", type=float)
+    parser.add_argument("--density-samples", type=int, default=25)
     parser.add_argument("--affine-u", type=float)
     parser.add_argument("--affine-v", type=float)
     parser.add_argument("--affine-a", type=float)
@@ -4324,6 +4481,31 @@ def main() -> int:
             print(f"  block = {block['name']}, status = {block['status']}")
             print(f"    required = {block['required']}")
         print(f"  next = {audit['next_action']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_compact_chart_numeric:
+        if not args.chart_json:
+            parser.error("--audit-compact-chart-numeric requires --chart-json")
+        audit = compact_chart_numeric_condition_audit(
+            Path(args.chart_json),
+            density_samples=args.density_samples,
+        )
+        print("Gate 1 compact g=2 numeric chart audit")
+        print(f"  path = {audit['path']}")
+        print(f"  status = {audit['status']}")
+        print(f"  regular chart candidate = {audit['regular_chart_candidate']}")
+        print(f"  degree P/Q = {audit.get('degree_P')} / {audit.get('degree_Q')}")
+        print(f"  blockers = {audit['blocking_errors']}")
+        if "residue_sign_counts" in audit:
+            print(f"  residue signs = {audit['residue_sign_counts']}")
+        if "cut_density_raw_sign_counts" in audit:
+            print(f"  raw cut-density signs = {audit['cut_density_raw_sign_counts']}")
+        if "anchor" in audit:
+            print(f"  anchor = {audit['anchor']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(audit, handle, indent=2, sort_keys=True)

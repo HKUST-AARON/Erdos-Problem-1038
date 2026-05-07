@@ -18423,3 +18423,45 @@ The next real mathematical/computational step is therefore not another schema
 change.  It is to fill the `executable_solver.residual_maps` with actual
 callable residual equations for the endpoint-neck and period/filling blocks,
 then supply a numerical initial guess and strict inequality/acceptance tests.
+
+## Gate 1 numeric chart acceptance audit
+
+The extractor now also has a candidate-chart numerical regularity audit:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-numeric \
+  --chart-json PATH
+```
+
+This audit is not an interval proof.  It is the first acceptance layer for a
+future solver output.  It checks:
+
+* the compact \(g=2\) decay bound \(\deg P\le\deg Q-3\);
+* real simple \(Q\)-poles and whether they lie off the cuts;
+* nonzero pole residues for \(F=P R/Q\);
+* sampled nonzero raw cut-density signs;
+* separation of \(c,u,v\) from cuts and \(Q\)-poles;
+* the branch condition \(F(c)=0\) at tolerance \(10^{-8}\).
+
+Running this on the synthetic toy chart gives:
+
+```text
+regular chart candidate = False
+degree P/Q = 1 / 3
+blockers = ['degree_P_allowed', 'anchor_F_c_zero']
+```
+
+This is the desired behavior: the toy chart is schema-valid but fails the
+actual compact \(g=2\) numerical conditions.  In particular, it has
+\(\deg Q=3\), so the compact \(g=2\) decay contract requires \(P\) to be
+constant, while the toy chart has \(\deg P=1\); it also fails \(F(c)=0\).
+
+Thus the current executable pipeline now has three gates:
+
+1. schema/contract audit;
+2. executable solver audit;
+3. numeric chart acceptance audit.
+
+Only a candidate passing all three should be sent to repaired extraction and
+LRLR contact verification.
