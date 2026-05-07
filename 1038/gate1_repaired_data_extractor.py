@@ -1100,6 +1100,130 @@ def compact_equation_spec_audit(path: Path) -> dict[str, Any]:
     }
 
 
+def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
+    """Check whether the ready equation spec is executable as a numeric solver.
+
+    The equation-spec audit only checks that the paper contract is complete.
+    This audit is stricter: it requires machine-readable residual maps,
+    unknown layouts, starting boxes, and acceptance tests before a
+    proof-grade chart JSON can be generated.
+    """
+    spec_audit = compact_equation_spec_audit(spec_path)
+    try:
+        payload = json.loads(spec_path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "path": str(spec_path),
+            "status": "unreadable_json",
+            "spec_audit": spec_audit,
+            "can_generate_chart": False,
+            "blocking_errors": [str(exc)],
+            "missing_executable_blocks": [],
+            "next_action": "repair the equation spec JSON, then rerun this audit",
+        }
+    if not isinstance(payload, dict):
+        return {
+            "path": str(spec_path),
+            "status": "json_non_object",
+            "spec_audit": spec_audit,
+            "can_generate_chart": False,
+            "blocking_errors": ["top-level JSON is not an object"],
+            "missing_executable_blocks": [],
+            "next_action": "repair the equation spec JSON, then rerun this audit",
+        }
+
+    executable = payload.get("executable_solver")
+    required_solver_fields = [
+        "unknown_layout",
+        "initial_guess",
+        "residual_maps",
+        "normalizations",
+        "inequality_checks",
+        "acceptance_tests",
+        "chart_json_export",
+    ]
+    missing_solver_fields: list[str]
+    solver_field_ready: dict[str, bool] = {}
+    if isinstance(executable, dict):
+        missing_solver_fields = [key for key in required_solver_fields if key not in executable]
+        for key in required_solver_fields:
+            solver_field_ready[key] = key in executable and not _todo_like(executable.get(key))
+    else:
+        missing_solver_fields = required_solver_fields
+        solver_field_ready = {key: False for key in required_solver_fields}
+
+    required_residual_maps = [
+        "finite_gap_representation",
+        "mass_decay_normalization",
+        "endpoint_neck_equations",
+        "period_filling_convention",
+        "Z0_boundary_row_selection",
+    ]
+    residual_maps = executable.get("residual_maps") if isinstance(executable, dict) else None
+    missing_residual_maps: list[str]
+    if isinstance(residual_maps, dict):
+        missing_residual_maps = [
+            key for key in required_residual_maps if key not in residual_maps
+        ]
+    else:
+        missing_residual_maps = required_residual_maps
+
+    missing_executable_blocks = []
+    if not isinstance(executable, dict):
+        missing_executable_blocks.append(
+            {
+                "name": "executable_solver",
+                "required": required_solver_fields,
+                "status": "missing",
+            }
+        )
+    for key in required_solver_fields:
+        if not solver_field_ready[key]:
+            missing_executable_blocks.append(
+                {
+                    "name": f"executable_solver.{key}",
+                    "required": "machine-readable non-TODO numeric solver data",
+                    "status": "missing_or_non_executable",
+                }
+            )
+    for key in missing_residual_maps:
+        missing_executable_blocks.append(
+            {
+                "name": f"residual_map.{key}",
+                "required": "callable or algebraic residual equations, not prose strings",
+                "status": "missing",
+            }
+        )
+
+    blocking_errors = []
+    if not spec_audit.get("solver_ready"):
+        blocking_errors.append("paper equation spec is not ready")
+    if missing_executable_blocks:
+        blocking_errors.append("missing executable compact-chart solver blocks")
+
+    can_generate_chart = not blocking_errors
+    return {
+        "path": str(spec_path),
+        "status": "computed",
+        "spec_solver_ready": bool(spec_audit.get("solver_ready")),
+        "can_generate_chart": can_generate_chart,
+        "blocking_errors": blocking_errors,
+        "required_solver_fields": required_solver_fields,
+        "solver_field_ready": solver_field_ready,
+        "missing_solver_fields": missing_solver_fields,
+        "required_residual_maps": required_residual_maps,
+        "missing_residual_maps": missing_residual_maps,
+        "missing_executable_blocks": missing_executable_blocks,
+        "next_action": (
+            "implement executable_solver with numeric unknown_layout, residual_maps, "
+            "initial_guess, inequality_checks, acceptance_tests, and chart_json_export"
+            if not can_generate_chart
+            else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
+        ),
+        "spec_audit": spec_audit,
+    }
+
+
 def compact_chart_blocker_audit(
     chart_path: Path | None = None,
     scan_root: Path | None = None,
@@ -3901,6 +4025,11 @@ def main() -> int:
         action="store_true",
         help="audit a CompactG2MovingChartEquations spec for solver readiness",
     )
+    parser.add_argument(
+        "--audit-compact-chart-solver",
+        action="store_true",
+        help="audit whether the compact chart spec is executable as a numeric solver",
+    )
     parser.add_argument("--run-chart-pipeline", action="store_true", help="run contract, repaired extraction, gauge choice, and LRLR audits")
     parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
@@ -4026,6 +4155,27 @@ def main() -> int:
                 f"{block['name']}, ready = {block['ready']}, "
                 f"todo_like = {block['todo_like']}, status = {block.get('status')}"
             )
+        print(f"  next = {audit['next_action']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_compact_chart_solver:
+        if not args.chart_json:
+            parser.error("--audit-compact-chart-solver requires --chart-json")
+        audit = compact_chart_solver_audit(Path(args.chart_json))
+        print("Gate 1 compact g=2 executable solver audit")
+        print(f"  path = {audit['path']}")
+        print(f"  spec solver ready = {audit['spec_solver_ready']}")
+        print(f"  can generate chart = {audit['can_generate_chart']}")
+        print(f"  errors = {audit['blocking_errors']}")
+        print(f"  missing solver fields = {audit['missing_solver_fields']}")
+        print(f"  missing residual maps = {audit['missing_residual_maps']}")
+        for block in audit["missing_executable_blocks"]:
+            print(f"  block = {block['name']}, status = {block['status']}")
+            print(f"    required = {block['required']}")
         print(f"  next = {audit['next_action']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:

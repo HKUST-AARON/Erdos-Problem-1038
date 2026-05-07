@@ -18294,3 +18294,56 @@ The next route is forced.  One must either implement the actual
 abandon single-row LRLR closure and prove the full compact affine
 contact/KKT verification.  The homogeneous \(\rho\)-row alone is no longer a
 credible LRLR closing route.
+
+## Gate 1 executable solver audit
+
+The previous equation-spec audit used the phrase `solver ready` for a
+paper-contract check.  That was too weak for generating a proof-grade chart.
+The extractor now has the stricter executable audit
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-solver \
+  --chart-json 1038/gate1_compact_g2_equation_spec_template.json \
+  --write-json 1038/gate1_compact_g2_solver_audit.json
+```
+
+It distinguishes two layers:
+
+1. the paper equation spec is complete;
+2. the numerical solver is actually executable.
+
+The current output is
+
+```text
+spec solver ready = True
+can generate chart = False
+errors = ['missing executable compact-chart solver blocks']
+missing solver fields =
+  ['unknown_layout', 'initial_guess', 'residual_maps', 'normalizations',
+   'inequality_checks', 'acceptance_tests', 'chart_json_export']
+missing residual maps =
+  ['finite_gap_representation', 'mass_decay_normalization',
+   'endpoint_neck_equations', 'period_filling_convention',
+   'Z0_boundary_row_selection']
+```
+
+This is now the exact executable blocker.  A future chart generator must add
+an `executable_solver` block, not just more prose, with:
+
+* a numeric unknown layout;
+* initial guesses or certified boxes;
+* algebraic residual maps for the finite-gap, mass/decay, endpoint-neck,
+  period/filling, and boundary-row equations;
+* inequality checks for interlacing, residue positivity, density positivity,
+  and boundary separation;
+* acceptance tests for residual size, conditioning, and exported
+  `gate1_compact_g2_chart.json` fields.
+
+Until that executable layer exists, the correct status remains:
+
+\[
+\boxed{
+\text{paper spec ready, executable chart solver not ready.}
+}
+\]
