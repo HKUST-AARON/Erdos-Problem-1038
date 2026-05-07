@@ -9581,6 +9581,51 @@ theorem unitIntervalTruncatedPositiveSet_interval_subset_of_threshold_tailMass
     (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
     (htail x hx)
 
+/--
+Selected component from a uniform ordinary lower bound on the baseline interval
+and at `0`.  This is the threshold-margin version of the component-selection
+path: a future variation argument can supply a single positive margin
+`threshold`, and the singular-tail estimates then produce the truncated
+baseline/zero inputs automatically.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_threshold_baseline_and_zero_tail
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε threshold : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hbaseline_pos :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        threshold < unitIntervalLogPotential μ x)
+    (hzero_pos : threshold < unitIntervalLogPotential μ 0)
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ))
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hbaseline_tail :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2))
+    (hzero_tail :
+      singularTailMass truncε μ 0 < ENNReal.ofReal (threshold / 2))
+    (hright_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_trunc :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ :=
+    unitIntervalTruncatedPositiveSet_interval_subset_of_threshold_tailMass
+      htruncε hthreshold hbaseline_pos hbaseline_no_diag hbaseline_tail
+  have hzero_trunc : 0 ∈ unitIntervalTruncatedPositiveSet μ :=
+    mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+      htruncε hthreshold hzero_pos hzero_no_diag hzero_tail
+  exact exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_offDiagonal_parts
+    μ hlog_int hbaseline_trunc hzero_trunc
+    hbaseline_no_diag hzero_no_diag hright_no_diag
+
 theorem unitInterval_threshold_subset_truncatedPositiveSet_union_diagonal_union_tailBad
     (μ : ProbabilityMeasure UnitInterval1038) (level : ℕ)
     {truncε : ℝ} (htruncε : 0 < truncε) :
