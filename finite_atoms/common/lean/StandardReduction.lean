@@ -29289,5 +29289,113 @@ noncomputable def unitInterval_standardReduction_from_baseline_closedRight_not_s
       hpositive_not_support hδ₀ hbaseline hright_closed haug_support
       hRegularEndpointClosureData)
 
+theorem selectedComponent_provider_from_baseline_zero_not_support_endpointAtom_closure_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support)
+    (hbaseline :
+      Set.Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (haug_support :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Set.Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Set.Ioo l r) (realMeasure μ).support)
+    (hRegularEndpointClosureData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          C.right ∉ closure
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    ∃ C : PositiveComponent μ,
+    ∃ R : ComponentReplacement μ C,
+    ∃ ε δ : ℝ,
+      0 < ε ∧
+      0 < δ ∧
+      0 < C.right ∧
+      C.AugmentedIntervalMaximal ∧
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ ∧
+      Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅ ∧
+      (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+        realMeasure μ U = 0) := by
+  have hcont_zero : ContinuousAt (unitIntervalLogPotential μ) 0 :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      (hpositive_not_support 0 hzero)
+  rcases exists_Icc_zero_right_subset_positive_of_continuousAt_zero
+      hcont_zero hzero with
+    ⟨δ₀, hδ₀, hright_closed⟩
+  exact
+    selectedComponent_provider_from_baseline_closedRight_not_support_endpointAtom_closure_regular_data
+      hpositive_not_support hδ₀ hbaseline hright_closed haug_support
+      hRegularEndpointClosureData
+
+noncomputable def unitInterval_standardReduction_from_baseline_zero_not_support_endpointAtom_closure_regular_data
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hpositive_not_support :
+      ∀ x : ℝ, 0 < unitIntervalLogPotential μ x →
+        x ∉ (realMeasure μ).support)
+    (hbaseline :
+      Set.Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (haug_support :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Set.Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Set.Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Set.Ioo l r) (realMeasure μ).support)
+    (hRegularEndpointClosureData :
+      ∀ C : PositiveComponent μ,
+        C.AugmentedIntervalMaximal →
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∃ ε : ℝ,
+          0 < ε ∧
+          0 < (μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1} ∧
+          Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+            unitIntervalAugmentedPositiveSet μ ∧
+          C.right ∉ closure
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) ∧
+          (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+            realMeasure μ U = 0)) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) :=
+  unitInterval_standardReduction_from_secondaryMinimizer_of_provider
+    hPrimary hSecondary
+    (selectedComponent_provider_from_baseline_zero_not_support_endpointAtom_closure_regular_data
+      hpositive_not_support hbaseline hzero haug_support
+      hRegularEndpointClosureData)
+
 end StandardReduction
 end Erdos1038
