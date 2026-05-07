@@ -8463,6 +8463,37 @@ theorem exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_ze
       hδ hbaseline hright hzero)
     hspan_no_diag
 
+/--
+Component constructor from truncated baseline positivity plus positivity at
+`0`.  The right neighbourhood is produced by openness of the truncated positive
+set; the only remaining interval-specific input is the off-diagonal policy for
+the produced span.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ)
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ)
+    (hspan_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (-1 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  rcases unitIntervalTruncatedPositiveSet_exists_right_neighborhood_of_zero
+      μ hzero with
+    ⟨δ, hδ, hright⟩
+  rcases exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_neighborhood
+      μ hlog_int hδ hbaseline hright hzero
+      (hspan_no_diag δ hδ hright) with
+    ⟨C, hinterval, hbaseline_C, hright_C⟩
+  exact ⟨C, hbaseline_C, hright_C⟩
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
