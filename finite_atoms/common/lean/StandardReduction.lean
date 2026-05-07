@@ -16460,6 +16460,31 @@ theorem boundary_distance_upper_of_support_subset_endpoint_or_right
       hsupport_right)
 
 /--
+Distance upper bound from component-block endpoint atomization.
+-/
+theorem boundary_distance_upper_of_spanning_augmented_componentBlock_atomized
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    (∫ t, |C.right - t| ∂realMeasure μ) ≤
+      (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_distance_upper_of_support_subset_endpoint_or_right μ hright_pos
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_componentBlock_atomized
+      hε hmax hbaseline hspan_aug hdirac)
+
+/--
 Distance upper bound at the intrinsic right boundary from the augmented
 pole-as-win span.  This removes the intermediate requirement that the whole
 spanning interval has already been transferred back to the ordinary positive
@@ -16909,6 +16934,32 @@ theorem realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_norma
     hε hmax hbaseline hspan_aug
     (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
       R hdirac)
+
+/--
+Distance upper bound from normalized endpoint atomization.
+-/
+theorem boundary_distance_upper_of_spanning_augmented_normalized_atomized
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hdirac : normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    (∫ t, |C.right - t| ∂realMeasure μ) ≤
+      (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_distance_upper_of_support_subset_endpoint_or_right μ hright_pos
+    (realMeasure_support_subset_endpoint_or_right_of_spanning_augmented_normalized_atomized
+      R hε hmax hbaseline hspan_aug hdirac)
 
 /--
 Endpoint-remainder version of the right-region support consequence.  After
