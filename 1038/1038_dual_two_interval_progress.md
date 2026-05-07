@@ -15470,6 +15470,43 @@ theorem queue.
     passes the inward derivative sign test needs the split-connection
     integral.
 
+    Root-budget refinement.
+
+    The five survivor types have an even sharper structure.  On a component
+    with two active contacts:
+
+    - type \(LR\) forces at least one zero of \(G_F'\), hence at least one root
+      of the cubic numerator \(F\), between the two endpoints;
+    - type \(LI\) or \(IR\) forces the interior contact root \(F=0\), and also
+      a Rolle root between the endpoint contact and the interior contact.
+
+    Hence the forced numerator-root budgets are
+
+    \[
+    (LR,LR):2,
+    \qquad
+    (LR,LI),(LR,IR),(LI,LR),(IR,LR):3.
+    \tag{G1EndpointRootBudget}
+    \]
+
+    Since \(F\) is cubic, the four mixed endpoint/interior survivor types use
+    the entire root budget.  If one of them occurs in the regular case, the
+    three roots of \(F\) are forced to lie exactly in the prescribed component
+    subintervals, with no additional root available.  The pure \((LR,LR)\)
+    type leaves one root unaccounted for.  Thus the remaining proof can split
+    into:
+
+    \[
+    \begin{array}{c|c}
+    \text{type} & \text{remaining sign input}\\ \hline
+    (LR,LR) & \text{location/sign of the third cubic root plus connection row}\\
+    \text{mixed }LR/LI,LR/IR,LI/LR,IR/LR
+      & \text{root-order and endpoint inward-sign compatibility}
+    \end{array}
+    \]
+
+    This is narrower than the previous endpoint-heavy statement.
+
     Endpoint-heavy toy audit.
 
     The extractor now includes
@@ -15506,6 +15543,49 @@ theorem queue.
     satisfying the required inward one-sided derivative signs on both
     components.  Only if this lemma fails does one need the connection
     integral (G1SplitConnectionTarget).
+
+    Inward-sign automaton check.
+
+    A symbolic sign automaton for cubic roots shows that
+    `EndpointHeavyInwardSignLemma` is not likely to be true as a standalone
+    unconditional statement.  Model the derivative as
+
+    \[
+    G_F'=\sigma_\nu F
+    \quad\text{on component }\nu\in\{L,R\},
+    \qquad
+    \sigma_\nu\in\{\pm1\}.
+    \]
+
+    The inward endpoint signs and interior-contact local-minimum signs impose
+    only sign constraints on this cubic across the ordered intervals.  For
+    every choice of \((\sigma_L,\sigma_R)\), at least some of the five survivor
+    patterns are compatible with a cubic root order.  For example, when
+    \((\sigma_L,\sigma_R)=(+,+)\), the sign automaton permits
+
+    \[
+    (LR,LR),\quad(LR,IR),\quad(LI,LR),
+    \]
+
+    while excluding the other two mixed types.  With opposite component signs,
+    the allowed mixed types change rather than disappear.
+
+    Thus inward derivative signs alone do not close the endpoint-heavy
+    obstruction.  They reduce the possibilities, but the remaining patterns
+    still need the missing cross-component datum.  The correct next theorem is
+    therefore a combined endpoint/connection statement:
+
+    \[
+    \boxed{
+    \textbf{EndpointHeavyConnectionSignLemma.}
+    }
+    \]
+
+    It should take one of the sign-compatible endpoint-heavy root orders and
+    prove that the cross-component connection integral has the wrong sign, or
+    equivalently that the off-row/contact determinant has the required
+    orientation.  This replaces the over-strong standalone
+    `EndpointHeavyInwardSignLemma`.
 
     The conditional PV equation is not used in this reduction.
 

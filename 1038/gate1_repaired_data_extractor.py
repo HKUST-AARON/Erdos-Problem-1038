@@ -562,6 +562,10 @@ def endpoint_heavy_split_pattern_audit() -> dict[str, Any]:
 
     records = []
     for pattern in patterns:
+        root_budget_by_component = []
+        for component in pattern:
+            interior_count = sum(1 for marker in component if marker == "I")
+            root_budget_by_component.append(1 + interior_count)
         xs = [
             contact_x(component_index, marker)
             for component_index, component in enumerate(pattern)
@@ -595,6 +599,8 @@ def endpoint_heavy_split_pattern_audit() -> dict[str, Any]:
             {
                 "pattern": pattern,
                 "contact_points": xs,
+                "forced_numerator_roots_by_component": root_budget_by_component,
+                "forced_numerator_roots_total": sum(root_budget_by_component),
                 "primitive_coefficients_ascending": primitive.tolist(),
                 "derivative_coefficients_ascending": derivative.tolist(),
                 "sample_min_on_components": float(np.min(values)),
@@ -611,6 +617,10 @@ def endpoint_heavy_split_pattern_audit() -> dict[str, Any]:
         "patterns_with_all_endpoint_inward_signs_ok": [
             record["pattern"] for record in records if record["all_endpoint_inward_signs_ok"]
         ],
+        "forced_numerator_root_budgets": {
+            str(record["pattern"]): record["forced_numerator_roots_total"]
+            for record in records
+        },
     }
 
 
@@ -1053,7 +1063,8 @@ def main() -> int:
             print(
                 "  pattern = "
                 f"{record['pattern']}, sample min = {record['sample_min_on_components']:.12e}, "
-                f"inward signs = {record['all_endpoint_inward_signs_ok']}"
+                f"inward signs = {record['all_endpoint_inward_signs_ok']}, "
+                f"forced roots = {record['forced_numerator_roots_total']}"
             )
         print(
             "  nonnegative sampled patterns = "

@@ -742,6 +742,18 @@ Useful corrections already recorded:
   nonzero cubic numerator can realize those five endpoint-heavy contact
   patterns with the required one-sided inward signs.  Only if this fails should
   the split-connection integral be used.
+- Root-budget refinement: \(LR\) on a component forces one numerator root;
+  \(LI\) or \(IR\) forces two.  Thus \((LR,LR)\) forces two roots, while the
+  four mixed survivor types force all three roots of the cubic.  The mixed
+  types should next be attacked by root-order/inward-sign compatibility; only
+  \((LR,LR)\) still has a free third root and likely needs the connection row.
+- A symbolic sign automaton shows inward endpoint signs alone do not kill all
+  survivor types.  For each possible component multiplier sign
+  \(G'=\sigma_\nu F\), some endpoint-heavy cubic root orders remain feasible.
+  Therefore the standalone `EndpointHeavyInwardSignLemma` is too strong.  The
+  correct next target is `EndpointHeavyConnectionSignLemma`: combine the
+  surviving inward-sign/root-order cases with the cross-component connection
+  integral or off-row determinant orientation.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
