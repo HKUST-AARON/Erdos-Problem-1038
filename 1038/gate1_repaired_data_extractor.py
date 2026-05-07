@@ -317,7 +317,18 @@ def diagnose_json_file(path: Path) -> dict[str, Any]:
             "gamma_count": len(payload.get("gammas", [])) if isinstance(payload.get("gammas"), list) else None,
             "optional_fields_present": {
                 key: key in payload
-                for key in ["kappa", "Z0", "u", "c", "v", "contact_points", "right_exterior_grid"]
+                for key in [
+                    "kappa",
+                    "Z0",
+                    "u",
+                    "c",
+                    "v",
+                    "a",
+                    "b",
+                    "row_gauge",
+                    "contact_points",
+                    "right_exterior_grid",
+                ]
             },
             "reason": (
                 None
@@ -2326,7 +2337,8 @@ def run_chart_json(path: Path) -> dict[str, Any]:
         "repaired": repaired,
         "period_endpoint_quotient": period_residual,
         "optional_fields_present": {
-            key: key in source for key in ["kappa", "Z0", "u", "c", "v", "contact_points"]
+            key: key in source
+            for key in ["kappa", "Z0", "u", "c", "v", "a", "b", "row_gauge", "contact_points"]
         },
     }
     if "c" in source:
