@@ -8476,6 +8476,31 @@ theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_and_
     hcont_zero hzero
 
 /--
+Endpoint lower bound alone selects the baseline component with nonnegative
+right endpoint.  Strict positivity of the right endpoint is a separate
+right-side/zero variation input; the endpoint lower bound by itself only forces
+the open baseline `(-1,0)`.
+-/
+theorem exists_positiveComponent_baseline_right_nonneg_of_endpoint_lower_bound
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 ≤ C.right := by
+  let C : PositiveComponent μ :=
+    PositiveComponent.of_interval_subset_positiveSet
+      (by norm_num : (-1 : ℝ) < 0)
+      (normalized_endpoint_lower_bound_baseline_neg_one_zero_positive
+        hp hendpoint)
+  refine ⟨C, ?_, ?_⟩
+  · intro x hx
+    exact hx
+  · dsimp [C, PositiveComponent.of_interval_subset_positiveSet]
+    exact le_rfl
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
