@@ -12342,6 +12342,60 @@ theorem queue.
     Schiffer columns.  This is the next proof obligation; it is not replaced
     by \(Q_{\rm eff}\), abstract Farkas, or quotient rank.
 
+    2026-05-07 route audit: what can still be tried.
+
+    The review statement that Gate 1 is blocked is correct if it means
+    "blocked as an unconditional proof."  Two qualifications are important.
+    First, the no-atom branch is not automatically proved away; it is reduced
+    to the finite collinearity test above and must still be checked from the
+    repaired columns.  Second, the quotient obstruction kills only
+    endpoint-period quotient and Schur-only arguments.  It does not kill a
+    proof using actual \(Z_0\)-values and contacts.
+
+    The live Gate 1 attempts are therefore ordered as follows.
+
+    1.  **Primary route: \(Z_0\)-dual majorant.**  Prove
+        MovingSchifferMajorantSignTheorem by constructing
+        \(\theta_\Lambda,\theta_\lambda\in\mathcal D_Z\), deriving the
+        \(P_\theta\)-alternation/contact pattern on the two components of
+        \(Z_0\), and checking the strict boundary/anchor residuals.  This is
+        the only first-order route that uses the information lost in
+        \(\mathcal Q_{\rm ep}\).
+
+    2.  **Finite no-atom check.**  Compute \(b_S,\rho_S,b_\Pi,\rho_\Pi\) from
+        the repaired moving Schiffer columns.  If \(b_S\notin\mathbb R\rho_S\)
+        the no-atom branch is absent; if \(b_S=\Lambda\rho_S\), the scalar
+        \(b_\Pi-\Lambda\rho_\Pi\) must be strictly negative.  Failure gives a
+        concrete finite obstruction rather than a formal proof.
+
+    3.  **Numerical margin oracle.**  Before trying to write a theorem, build
+        a diagnostic solver for
+        \[
+        M_\eta(\Lambda)=
+        \sup_{\theta\in\mathcal D_Z}
+        \bigl(G_\theta^{(b)}-\Lambda G_\theta^{(c)}\bigr)
+        \]
+        and the homogeneous margins.  This must use
+        \(H_\gamma^{\rm rep}\) and the actual \(AX_\gamma=-r_\gamma\) rows,
+        not the fixed-\(Q\) collapsed endpoint table.  A positive numerical
+        margin suggests the majorant theorem; a negative margin supplies a
+        candidate obstruction.
+
+    4.  **Explicit product route.**  Try to prove a signed
+        determinant/product formula for the \(P_\theta\)-alternation system.
+        This cannot be a quotient-rank proof; it must include the moving
+        correction columns, the equality row \(\rho\), and the actual
+        contact/evaluation rows on \(Z_0\).
+
+    5.  **Second-variation route.**  Use \(Q_{\rm eff}\) only for the no-atom
+        or off-cut finite subcase.  The \(Z_0\)-atomic branch is not directly
+        killed by finite \(Q_{\rm eff}\) because the point-row Riesz load has
+        positive logarithmic blow-up.  Any second-variation attack on the
+        atomic branch needs a new mechanism, not the old finite lift.
+
+    These are attempts, not completed gates.  Gate 2 may be used only after
+    one of the Gate 1 attempts produces reduced LP feasibility.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

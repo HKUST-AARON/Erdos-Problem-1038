@@ -302,6 +302,14 @@ Useful corrections already recorded:
   strict affine and homogeneous residuals, equivalently prove the
   \(P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma H_\gamma^{\rm rep}\)
   alternation/sign table for the repaired moving Schiffer columns.
+- viable Gate 1 attempts are now ordered as follows: first attack the
+  \(Z_0\)-dual majorant / \(P_\theta\)-alternation theorem; in parallel compute
+  the finite no-atom collinearity test \(b_S=\Lambda\rho_S\) and
+  \(b_\Pi-\Lambda\rho_\Pi\); use a numerical margin oracle only with the
+  repaired moving-chart columns \(H_\gamma^{\rm rep}\); attempt an explicit
+  signed product formula only if it includes the moving correction columns and
+  \(Z_0\)-contact rows; reserve \(Q_{\rm eff}\) for no-atom/off-cut finite
+  subcases, since nonzero \(Z_0\)-atoms have positive point-row blow-up.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
