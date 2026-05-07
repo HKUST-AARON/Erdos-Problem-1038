@@ -11041,6 +11041,44 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_da
       μ hlog_int htruncε hbaseline_local hzero
       hbaseline_no_diag hzero_no_diag hright_no_diag
 
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_zero_threshold_tail
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε threshold : ℝ}
+    (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)))
+    (hzero_pos : threshold < unitIntervalLogPotential μ 0)
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hzero_tail :
+      singularTailMass truncε μ 0 < ENNReal.ofReal (threshold / 2))
+    (hright_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ :=
+    mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
+      htruncε hthreshold hzero_pos hzero_no_diag hzero_tail
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_zero
+      μ hlog_int htruncε hbaseline_local hzero hzero_no_diag hright_no_diag
+
 /--
 Threshold-zero selected-component constructor with baseline off-diagonal derived
 from the local compact baseline data.  This is the current narrowest local
