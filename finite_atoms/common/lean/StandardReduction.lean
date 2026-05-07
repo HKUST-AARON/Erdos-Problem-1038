@@ -2133,6 +2133,19 @@ theorem realMeasure_log_abs_sub_integrable_of_ae_lower_bound
       le_trans hlog_upper hK_upper⟩
   simpa [Real.norm_eq_abs] using habs_le
 
+theorem realMeasure_log_inv_abs_sub_integrable_of_ae_lower_bound
+    (μ : ProbabilityMeasure UnitInterval1038) {x ε : ℝ}
+    (hε : 0 < ε)
+    (hdist_lower : ∀ᵐ t ∂realMeasure μ, ε ≤ |x - t|) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|)) (realMeasure μ) := by
+  have hlog_abs :
+      Integrable (fun t : ℝ => Real.log |x - t|) (realMeasure μ) :=
+    realMeasure_log_abs_sub_integrable_of_ae_lower_bound μ hε hdist_lower
+  refine hlog_abs.neg.congr ?_
+  filter_upwards [hdist_lower] with t hdist
+  have hpos : 0 < |x - t| := lt_of_lt_of_le hε hdist
+  simp
+
 theorem realMeasure_endpointRemainder_support_in_support
     (μ : ProbabilityMeasure UnitInterval1038) (Support : Set ℝ)
     (hSupport : ∀ᵐ t ∂realMeasure μ, t ∈ Support) :
@@ -11882,6 +11895,45 @@ theorem endpointRemainder_logKernel_integrable_of_baseline_punctured_atomized_co
     exact endpointRemainder_logKernel_integrable_of_mem_atomized_component
       hdirac hx_component
 
+theorem endpointRemainder_logKernel_integrable_of_mem_support_unique_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {x : ℝ}
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)
+    (hxC : x ∈ C.interval)
+    (hx_ne : x ≠ -1) :
+    Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+      ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  have hx_not_support : x ∉ (realMeasure μ).support := by
+    intro hxSupport
+    exact hx_ne (hunique x hxSupport hxC)
+  rcases realMeasure_ae_separated_of_not_mem_support μ hx_not_support with
+    ⟨ε, hε, hdist⟩
+  exact (realMeasure_log_inv_abs_sub_integrable_of_ae_lower_bound
+    μ hε hdist).restrict
+
+theorem endpointRemainder_logKernel_integrable_of_baseline_punctured_support_unique_component
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval) :
+    ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ) := by
+  intro x hx
+  rcases hx with ⟨hxBase, hxNotEndpointSet⟩
+  by_cases hx_left : x < -1
+  · exact endpointRemainder_logKernel_integrable_of_left_outside hx_left
+  · have hx_ne_endpoint : x ≠ -1 := by
+      simpa using hxNotEndpointSet
+    have hx_ge_endpoint : (-1 : ℝ) ≤ x := le_of_not_gt hx_left
+    have hx_gt_endpoint : (-1 : ℝ) < x :=
+      lt_of_le_of_ne hx_ge_endpoint (Ne.symm hx_ne_endpoint)
+    have hx_component : x ∈ C.interval :=
+      hbaseline ⟨hx_gt_endpoint, hxBase.2⟩
+    exact endpointRemainder_logKernel_integrable_of_mem_support_unique_component
+      hunique hx_component hx_ne_endpoint
+
 theorem componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
     {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
     (R : ComponentReplacement μ C)
@@ -12155,6 +12207,40 @@ def taoVariationComponentPackage_of_canonicalEndpointMass_support_unique_data
     (unitInterval_endpoint_atom_toReal_nonneg μ)
     (unitInterval_endpoint_atom_remainderMass_nonneg μ)
     hkernel_integrable hunique
+
+/--
+Baseline version of the canonical real-support support-uniqueness constructor.
+Once the selected component contains the baseline interval and the variation
+argument proves real-support uniqueness inside the component, endpoint-remainder
+kernel integrability on `BaselinePunctured` is generated internally.
+-/
+def taoVariationComponentPackage_of_canonicalEndpointMass_support_unique_baseline_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) *
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+        (1 - xPlus) *
+          (1 -
+            (((μ : Measure UnitInterval1038)
+              {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)))
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_canonicalEndpointMass_support_unique_data
+    μ mean_choice reflected translation C xMinus xPlus hcomponent_interval
+    hbaseline hright_endpoint_positive hboundary_average
+    (endpointRemainder_logKernel_integrable_of_baseline_punctured_support_unique_component
+      hunique hbaseline)
+    hunique
 
 /-- Variant of `taoVariationComponentPackage_of_realSupport_component_atomization_data`
 where the support bound is filled automatically from the real pushforward of the
