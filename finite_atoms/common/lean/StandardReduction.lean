@@ -3740,6 +3740,38 @@ theorem exists_positiveComponent_augmentedMaximal_of_positive_spanning_interval
       hbddBelow hbddAbove hnoDiag
 
 /--
+The selected connected component of the logarithmic positive set is bounded
+below by the global positive-set window.
+-/
+theorem unitInterval_positiveSet_connectedComponentIn_bddBelow
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    BddBelow
+      (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x) := by
+  refine ⟨-2, ?_⟩
+  intro y hy
+  have hypos : y ∈ PositiveSet (unitIntervalLogPotential μ) :=
+    connectedComponentIn_subset
+      (PositiveSet (unitIntervalLogPotential μ)) x hy
+  have hywin := unitIntervalLogPotential_positiveSet_subset_Ioo_neg_two_two μ hypos
+  exact le_of_lt hywin.1
+
+/--
+The selected connected component of the logarithmic positive set is bounded
+above by the global positive-set window.
+-/
+theorem unitInterval_positiveSet_connectedComponentIn_bddAbove
+    (μ : ProbabilityMeasure UnitInterval1038) (x : ℝ) :
+    BddAbove
+      (connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x) := by
+  refine ⟨2, ?_⟩
+  intro y hy
+  have hypos : y ∈ PositiveSet (unitIntervalLogPotential μ) :=
+    connectedComponentIn_subset
+      (PositiveSet (unitIntervalLogPotential μ)) x hy
+  have hywin := unitIntervalLogPotential_positiveSet_subset_Ioo_neg_two_two μ hypos
+  exact le_of_lt hywin.2
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
