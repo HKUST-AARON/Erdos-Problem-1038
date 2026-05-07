@@ -18689,3 +18689,74 @@ solver must allow at least
 or use a different nondegenerate chart branch with additional real degrees of
 freedom.  This is now the sharpest computational next step: implement the
 actual \(d\ge5\) residual map, not another \(d=4\) toy search.
+
+## Gate 1 \(d=5\) quadratic sign obstruction
+
+The next nominal branch after the \(d=4\) obstruction is
+
+\[
+\deg Q=5,\qquad \deg P\le2,\qquad P(c)=0.
+\]
+
+Thus, in the nondegenerate case,
+
+\[
+P(z)=\lambda (z-c)(z-s)
+\]
+
+for some second real root \(s\), up to scale.  Before doing numerical solving,
+one can ask whether the residue and density signs are even order-feasible.
+
+The extractor now has the exhaustive order-sign audit:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-d5-quadratic-sign \
+  --write-json 1038/gate1_d5_quadratic_sign_obstruction.json
+```
+
+It enumerates all distributions of five real \(Q\)-poles among the three
+off-cut gaps and all order slots for the two real roots of \(P\).  For each
+ordering it checks whether one can simultaneously have:
+
+1. all residues
+   \[
+   \operatorname{Res}_{p_j}\frac{P(z)R(z)}{Q(z)}
+   \]
+   positive;
+2. the raw cut-density factor \(P(x)|R_+(x)|/Q(x)\) with the same nonzero sign
+   on both cuts.
+
+The result is:
+
+```text
+checked order cases = 756
+feasible count = 0
+```
+
+So \(d=5,\deg P=2\) is also eliminated at the sign-order level.  This is a
+strictly stronger obstruction than the random search: it does not depend on
+sampled numerical values.
+
+Consequently, under the off-cut \(F(c)=0\) branch and the compact \(g=2\)
+decay rule
+
+\[
+\deg P\le \deg Q-3,
+\]
+
+the next live nondegenerate branch must allow
+
+\[
+\boxed{\deg P\ge3,\qquad \deg Q\ge6.}
+\]
+
+The executable solver audits have been updated accordingly:
+
+```text
+next = implement executable_solver with deg(Q)>=6 ...
+```
+
+This does not close Gate 1, but it removes the two lowest-degree compact chart
+search targets and prevents further time being spent on \(d=4\) or quadratic
+\(d=5\) toy charts.

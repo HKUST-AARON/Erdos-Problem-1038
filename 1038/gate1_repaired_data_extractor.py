@@ -1158,7 +1158,9 @@ def compact_g2_executable_solver_template_payload() -> dict[str, Any]:
                     "off-cut F(c)=0 and positive mass require deg Q >= 4; "
                     "the minimal d=4, P=z-c standard pole branch has a sign "
                     "obstruction, so the next regular search should allow "
-                    "deg P>=2 and deg Q>=5"
+                    "deg P>=2 and deg Q>=5; the d=5 quadratic order-sign "
+                    "audit is also infeasible, so the next live branch is "
+                    "deg P>=3 and deg Q>=6"
                 ),
                 "initial_values": "TODO: numeric list",
             },
@@ -1457,6 +1459,7 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
     derived_constraints = {
         "minimum_Q_degree_if_offcut_F_c_zero_and_positive_mass": 4,
         "minimum_Q_degree_after_minimal_d4_smoke_obstruction": 5,
+        "minimum_Q_degree_after_d5_quadratic_sign_obstruction": 6,
         "reason": (
             "For compact g=2, deg P <= deg Q - 3.  If c is off-cut and not a "
             "Q-pole, F(c)=P(c)R(c)/Q(c)=0 forces P(c)=0.  A cubic Q gives "
@@ -1466,7 +1469,10 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
             "The minimal d=4 branch has P=z-c; for the standard two-cut pole "
             "placement, positive residues force c between the two middle-gap "
             "poles, which makes the two cut-density signs split.  Thus the "
-            "next non-toy regular search must allow deg P>=2, hence deg Q>=5."
+            "next non-toy regular search must allow deg P>=2, hence deg Q>=5.  "
+            "A finite order-sign enumeration for d=5 quadratic P has no "
+            "feasible residue-positive, density-consistent ordering, so the "
+            "next live branch must allow deg P>=3, hence deg Q>=6."
         ),
     }
 
@@ -1485,7 +1491,7 @@ def compact_chart_solver_audit(spec_path: Path) -> dict[str, Any]:
         "derived_constraints": derived_constraints,
         "missing_executable_blocks": missing_executable_blocks,
         "next_action": (
-            "implement executable_solver with deg(Q)>=5 unknown_layout, residual_maps, "
+            "implement executable_solver with deg(Q)>=6 unknown_layout, residual_maps, "
             "initial_guess, inequality_checks, acceptance_tests, and chart_json_export"
             if not can_generate_chart
             else "generate gate1_compact_g2_chart.json and run --run-chart-pipeline"
@@ -1664,6 +1670,120 @@ def compact_d4_smoke_sign_obstruction() -> dict[str, Any]:
             "p1<c<p2, the two cut-density signs split."
         ),
         "proof_status": "paper sign check; independent of random search",
+    }
+
+
+def compact_d5_quadratic_sign_obstruction() -> dict[str, Any]:
+    """Exhaustive order-sign obstruction for d=5, deg(P)=2 with P(c)=0."""
+
+    def qprime_sign(index: int, degree: int = 5) -> int:
+        return 1 if ((degree - 1 - index) % 2 == 0) else -1
+
+    def p_sign_at_entity(entity_index: int, root_slots: tuple[int, int]) -> int:
+        roots_to_left = sum(1 for slot in root_slots if slot <= entity_index)
+        return -1 if roots_to_left == 1 else 1
+
+    feasible: list[dict[str, Any]] = []
+    checked_cases = 0
+    by_pole_counts: list[dict[str, Any]] = []
+    # Counts of the five Q-poles in the three off-cut gaps:
+    # left exterior, middle gap, right exterior.
+    for left_count in range(6):
+        for middle_count in range(6 - left_count):
+            right_count = 5 - left_count - middle_count
+            entities: list[tuple[str, str | int, str | None]] = []
+            q_locations: list[str] = []
+            q_index = 0
+            for _ in range(left_count):
+                entities.append(("q", q_index, "L"))
+                q_locations.append("L")
+                q_index += 1
+            entities.append(("cut", "C1", None))
+            for _ in range(middle_count):
+                entities.append(("q", q_index, "M"))
+                q_locations.append("M")
+                q_index += 1
+            entities.append(("cut", "C2", None))
+            for _ in range(right_count):
+                entities.append(("q", q_index, "R"))
+                q_locations.append("R")
+                q_index += 1
+
+            count_feasible = 0
+            # Two real roots of P occupy slots between ordered entities.  Equal
+            # slots model a double root.  Roots on cut interiors are excluded;
+            # slots are off-cut gaps/endpoints in this order model.
+            for first_slot in range(len(entities) + 1):
+                for second_slot in range(first_slot, len(entities) + 1):
+                    checked_cases += 1
+                    root_slots = (first_slot, second_slot)
+                    required_at_poles = []
+                    actual_at_poles = []
+                    for entity_index, entity in enumerate(entities):
+                        kind, raw_index, location = entity
+                        if kind != "q":
+                            continue
+                        pole_index = int(raw_index)
+                        assert location is not None
+                        r_sign = -1 if location == "M" else 1
+                        required_at_poles.append(qprime_sign(pole_index) * r_sign)
+                        actual_at_poles.append(p_sign_at_entity(entity_index, root_slots))
+                    for scale in [1, -1]:
+                        if [scale * sign for sign in actual_at_poles] != required_at_poles:
+                            continue
+                        cut_density_signs = []
+                        for entity_index, entity in enumerate(entities):
+                            kind, raw_name, _location = entity
+                            if kind != "cut":
+                                continue
+                            poles_to_right = sum(
+                                1 for later in entities[entity_index + 1 :] if later[0] == "q"
+                            )
+                            q_cut_sign = 1 if poles_to_right % 2 == 0 else -1
+                            cut_density_signs.append(
+                                scale * p_sign_at_entity(entity_index, root_slots) * q_cut_sign
+                            )
+                        if len(cut_density_signs) == 2 and cut_density_signs[0] == cut_density_signs[1]:
+                            count_feasible += 1
+                            feasible.append(
+                                {
+                                    "pole_counts_LMR": [left_count, middle_count, right_count],
+                                    "q_locations": q_locations,
+                                    "root_slots": list(root_slots),
+                                    "scale": scale,
+                                    "required_pole_signs": required_at_poles,
+                                    "actual_pole_signs_before_scale": actual_at_poles,
+                                    "cut_density_signs": cut_density_signs,
+                                }
+                            )
+            by_pole_counts.append(
+                {
+                    "pole_counts_LMR": [left_count, middle_count, right_count],
+                    "q_locations": q_locations,
+                    "feasible_count": count_feasible,
+                }
+            )
+
+    return {
+        "model": "d=5 quadratic P sign-feasibility obstruction",
+        "assumptions": {
+            "branch_endpoints": "a1 < b1 < a2 < b2",
+            "q_poles": "five real simple Q-poles in the three off-cut gaps",
+            "Q": "monic degree five",
+            "R_branch": "R~z^2 at +infinity; R is positive on exteriors and negative on the middle gap",
+            "P": "real quadratic with one prescribed off-cut root c; the second root is arbitrary off-cut in the order model",
+        },
+        "checked_order_cases": checked_cases,
+        "feasible_count": len(feasible),
+        "by_pole_counts": by_pole_counts,
+        "feasible_examples": feasible[:10],
+        "conclusion": (
+            "No ordering of five off-cut Q-poles and two real off-cut P-roots "
+            "can make all pole residues positive while keeping the two cut-density "
+            "signs consistent.  Therefore the next nondegenerate compact branch "
+            "must allow deg(P)>=3, hence deg(Q)>=6 under deg(P)<=deg(Q)-3."
+        ),
+        "proof_status": "finite exhaustive order-sign enumeration",
     }
 
 
@@ -4494,6 +4614,11 @@ def main() -> int:
         help="print the analytic sign obstruction for the minimal d=4 P=z-c smoke family",
     )
     parser.add_argument(
+        "--audit-compact-d5-quadratic-sign",
+        action="store_true",
+        help="exhaustively audit order signs for d=5 quadratic P smoke branches",
+    )
+    parser.add_argument(
         "--generate-compact-chart",
         action="store_true",
         help="generate a proof-grade compact chart only if executable_solver is complete",
@@ -4724,6 +4849,19 @@ def main() -> int:
             f"left {audit['cut_density_sign_rule_when_p1_less_c_less_p2']['raw_density_factor_P_absR_over_Q_left_cut']}, "
             f"right {audit['cut_density_sign_rule_when_p1_less_c_less_p2']['raw_density_factor_P_absR_over_Q_right_cut']}"
         )
+        print(f"  conclusion = {audit['conclusion']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
+    if args.audit_compact_d5_quadratic_sign:
+        audit = compact_d5_quadratic_sign_obstruction()
+        print("Gate 1 d=5 quadratic sign obstruction")
+        print(f"  model = {audit['model']}")
+        print(f"  checked order cases = {audit['checked_order_cases']}")
+        print(f"  feasible count = {audit['feasible_count']}")
         print(f"  conclusion = {audit['conclusion']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
