@@ -14801,10 +14801,12 @@ theorem PositiveComponent.right_not_mem_augmented_of_spanning_positive_continuou
     (hspan_pos :
       Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
         PositiveSet (unitIntervalLogPotential μ))
-    (hnot_support : C.right ∉ (realMeasure μ).support)
-    (hcont : ContinuousAt (unitIntervalLogPotential μ) C.right) :
+    (hnot_support : C.right ∉ (realMeasure μ).support) :
     C.right ∉ unitIntervalAugmentedPositiveSet μ := by
   intro hright_aug
+  have hcont : ContinuousAt (unitIntervalLogPotential μ) C.right :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hnot_support
   have hright_not_diag :
       C.right ∉ diagonalAtomSet μ :=
     notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support
@@ -21625,7 +21627,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   have hright_not_aug :
       C.right ∉ unitIntervalAugmentedPositiveSet μ :=
     C.right_not_mem_augmented_of_spanning_positive_continuous_not_support
-      hε hright_pos hmax hbaseline hspan_pos hright_not_support hright_cont
+      hε hright_pos hmax hbaseline hspan_pos hright_not_support
   exact
     ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
       hendpoint_unit_pos, hbaseline, hright_not_aug,
