@@ -4008,6 +4008,38 @@ theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_support_di
       haug (hsupport l r hlr haug hinter))
     hinter
 
+theorem PositiveComponent.no_augmented_interval_crosses_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.AugmentedIntervalMaximal)
+    {l r : ℝ}
+    (hl : l < C.right)
+    (hr : C.right < r)
+    (haug : Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ)
+    (hinter : (Ioo l r ∩ C.interval).Nonempty) :
+    False := by
+  have hsubset : Ioo l r ⊆ C.interval :=
+    hmax l r (lt_trans hl hr) haug hinter
+  have hright_mem : C.right ∈ C.interval :=
+    hsubset ⟨hl, hr⟩
+  rw [C.interval_eq] at hright_mem
+  exact (lt_irrefl C.right) hright_mem.2
+
+theorem PositiveComponent.no_positive_interval_crosses_right
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    {l r : ℝ}
+    (hl : l < C.right)
+    (hr : C.right < r)
+    (hpos : Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hinter : (Ioo l r ∩ C.interval).Nonempty) :
+    False := by
+  have hsubset : Ioo l r ⊆ C.interval :=
+    hmax l r (lt_trans hl hr) hpos hinter
+  have hright_mem : C.right ∈ C.interval :=
+    hsubset ⟨hl, hr⟩
+  rw [C.interval_eq] at hright_mem
+  exact (lt_irrefl C.right) hright_mem.2
+
 /--
 Baseline connected-component selection in the augmented-maximal form, under a
 local no-diagonal condition for augmented competing intervals.  This combines
