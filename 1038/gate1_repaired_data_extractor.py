@@ -25,6 +25,7 @@ import argparse
 import json
 import math
 from dataclasses import dataclass
+from itertools import combinations
 from pathlib import Path
 from typing import Any
 
@@ -358,6 +359,65 @@ def scan_jsons_for_gate1(root: Path) -> dict[str, Any]:
         "old_two_interval_diagnostics": old,
         "malformed_gate1_chart_count": len(malformed),
         "malformed_gate1_charts": malformed,
+    }
+
+
+def q_roots_real(Q: Array, tol: float = 1.0e-8) -> list[float]:
+    roots = np.roots(list(reversed(trim(Q))))
+    real_roots = []
+    for root in roots:
+        if abs(root.imag) > tol:
+            raise ValueError(f"Q has non-real root {root}")
+        real_roots.append(float(root.real))
+    return sorted(real_roots)
+
+
+def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, Any]:
+    """Enumerate square subgauges of pole eval/deriv rows on the correction image."""
+    del P  # P is part of the chart contract but not needed for this row-rank audit.
+    D = poly_from_roots(gammas)
+    d = len(trim(Q)) - 1
+    basis = canonical_correction_basis(D, d)
+    roots = q_roots_real(Q)
+    rows: list[Row] = []
+    for index, root in enumerate(roots):
+        rows.append(Row("eval", root, name=f"Qpole_{index}_eval"))
+        rows.append(Row("deriv", root, order=1, name=f"Qpole_{index}_deriv"))
+    ncols = len(basis)
+    full_rank = []
+    singular = 0
+    min_abs_det = math.inf
+    max_abs_det = 0.0
+    for combo in combinations(range(len(rows)), ncols):
+        matrix = np.array([[rows[i].apply(col) for col in basis] for i in combo], dtype=float)
+        det = float(np.linalg.det(matrix))
+        abs_det = abs(det)
+        min_abs_det = min(min_abs_det, abs_det)
+        max_abs_det = max(max_abs_det, abs_det)
+        if sign_label(det) == 0:
+            singular += 1
+            continue
+        full_rank.append(
+            {
+                "row_indices": list(combo),
+                "row_names": [rows[i].to_json()["name"] for i in combo],
+                "det": det,
+                "det_sign": sign_label(det),
+            }
+        )
+    return {
+        "degree_Q": d,
+        "gammas": gammas,
+        "q_roots": roots,
+        "candidate_rows": [row.to_json() for row in rows],
+        "correction_columns": ncols,
+        "total_subsets": math.comb(len(rows), ncols) if len(rows) >= ncols else 0,
+        "full_rank_subsets": len(full_rank),
+        "singular_subsets": singular,
+        "min_abs_det": None if math.isinf(min_abs_det) else min_abs_det,
+        "max_abs_det": max_abs_det,
+        "first_full_rank_subset": full_rank[0] if full_rank else None,
+        "full_rank_subsets_preview": full_rank[:10],
     }
 
 
@@ -778,6 +838,7 @@ def main() -> int:
     parser.add_argument("--toy-g2", action="store_true", help="run a synthetic g=2 smoke test")
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
+    parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
     parser.add_argument("--chart-json", help="run extractor on a proof-grade chart JSON")
     parser.add_argument("--P", help="ascending coefficients, comma-separated")
     parser.add_argument("--Q", help="ascending coefficients, comma-separated")
@@ -785,6 +846,38 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.audit_pole_row_subsets:
+        if args.chart_json:
+            P, Q, gammas, _rows, _source = load_chart_json(Path(args.chart_json))
+        elif args.toy_g2:
+            P, Q, gammas, _rows = toy_g2_inputs()
+        else:
+            if not (args.P and args.Q and args.gammas):
+                parser.error("provide --toy-g2, --chart-json, or all of --P --Q --gammas")
+            P = np.array(parse_float_list(args.P), dtype=float)
+            Q = np.array(parse_float_list(args.Q), dtype=float)
+            gammas = parse_float_list(args.gammas)
+        audit = pole_row_subset_audit(P, Q, gammas)
+        print("Gate 1 pole-row subset audit")
+        print(f"  deg Q = {audit['degree_Q']}")
+        print(f"  Q roots = {audit['q_roots']}")
+        print(f"  candidate rows = {len(audit['candidate_rows'])}")
+        print(f"  correction columns = {audit['correction_columns']}")
+        print(f"  total square subsets = {audit['total_subsets']}")
+        print(f"  full-rank subsets = {audit['full_rank_subsets']}")
+        print(f"  singular subsets = {audit['singular_subsets']}")
+        print(f"  min |det| = {audit['min_abs_det']}")
+        print(f"  max |det| = {audit['max_abs_det']}")
+        if audit["first_full_rank_subset"]:
+            first = audit["first_full_rank_subset"]
+            print(f"  first full-rank subset = {first['row_names']}")
+            print(f"  first det = {first['det']:.12e}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.scan_jsons:
         scan = scan_jsons_for_gate1(Path(args.scan_jsons))

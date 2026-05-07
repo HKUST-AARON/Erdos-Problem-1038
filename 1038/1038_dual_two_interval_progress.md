@@ -14876,6 +14876,72 @@ theorem queue.
     row list, rather than compressing rows by arbitrary numerical linear
     algebra.
 
+    Pole-row subset audit tool.
+
+    The extractor now has
+
+    \[
+    \texttt{--audit-pole-row-subsets}
+    \]
+
+    to enumerate square subgauges of the overcomplete pole row list.  For a
+    supplied chart, or for the synthetic \(g=2\) smoke chart, it takes the real
+    roots \(p_k\) of \(Q\), forms the candidate rows
+
+    \[
+    H\mapsto H(p_k),\qquad H\mapsto H'(p_k),
+    \]
+
+    applies them to the canonical correction columns
+
+    \[
+    Dz^m,\qquad 0\le m\le2d-3,
+    \]
+
+    and enumerates all square row subsets of size \(2d-2\).  This is not a
+    Gate 1 sign certificate; it is a gauge-search diagnostic for
+    TPSquareMovingChartGaugeLemma.
+
+    On the synthetic cubic \(Q\) chart, the command
+
+    \[
+    \texttt{python3 1038/gate1\_repaired\_data\_extractor.py --toy-g2
+    --audit-pole-row-subsets}
+    \]
+
+    reports
+
+    \[
+    d=3,\qquad 6\text{ candidate pole rows},\qquad 4\text{ correction columns},
+    \]
+
+    and all
+
+    \[
+    \binom64=15
+    \]
+
+    square subsets are full rank, with determinant magnitudes ranging from
+
+    \[
+    7.019243915694513\cdot10^5
+    \quad\text{to}\quad
+    5.104535926940518\cdot10^8.
+    \tag{G1PoleRowSubsetToy}
+    \]
+
+    The first full-rank subset is
+
+    \[
+    H(p_1),\ H'(p_1),\ H(p_2),\ H'(p_2).
+    \]
+
+    This smoke result supports the computational feasibility of selecting a
+    square pole-row gauge, but it also reinforces the proof distinction:
+    full rank is easy; the remaining proof-grade condition is that the chosen
+    square subset has a fixed ordered Cauchy/confluent determinant orientation
+    in the actual regular chart.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

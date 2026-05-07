@@ -612,6 +612,13 @@ Useful corrections already recorded:
   `TPSquareMovingChartGaugeLemma`: choose exactly \(2d-2\) rows that both span
   the normalization image and remain ordered Cauchy / confluent Cauchy /
   positive-average rows with fixed orientation.
+- The extractor now has `--audit-pole-row-subsets` to enumerate square
+  subgauges from the overcomplete pole eval/deriv row list.  On the synthetic
+  cubic \(Q\) chart there are 6 pole rows, 4 correction columns, and all
+  \(\binom64=15\) square subsets are full rank, with determinant magnitudes
+  from \(7.019243915694513\cdot10^5\) to
+  \(5.104535926940518\cdot10^8\).  This is only a rank/gauge diagnostic, but
+  it gives the next computational handle for `TPSquareMovingChartGaugeLemma`.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
