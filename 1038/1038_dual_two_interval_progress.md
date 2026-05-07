@@ -15353,6 +15353,51 @@ theorem queue.
 
     This target is exactly what the bare polynomial model lacks.
 
+    Contact-count refinement.
+
+    The split-set obstruction above must also respect that Gate 1 contacts are
+    contacts of a nonnegative majorant, not arbitrary zeros.  If
+
+    \[
+    G_F(s)=\int_s^\infty \omega_F
+    \]
+
+    is nonnegative on \(Z_0\), then every interior contact \(x\in\operatorname
+    {int}Z_0\) is a local minimum and hence
+
+    \[
+    G_F'(x)=0
+    \quad\Longleftrightarrow\quad
+    F(x)=0.
+    \]
+
+    Therefore four interior contacts are impossible for a nonzero cubic
+    \(F\).  More generally, for four active contacts split as \(k_L+k_R=4\)
+    across the two components, a crude derivative-zero lower bound is
+
+    \[
+    \max(i_L,k_L-1)_+ + \max(i_R,k_R-1)_+,
+    \]
+
+    where \(i_L,i_R\) are the numbers of interior contacts in each component
+    and \(k-1\) is the Rolle contribution from \(k\) contact values in one
+    component.  This count only reaches four automatically when sufficiently
+    many contacts are interior.  The minimal \(2+2\) endpoint pattern can still
+    force only two derivative zeros, so it is not excluded by the cubic degree.
+
+    Hence the remaining split obstruction has now narrowed further:
+
+    \[
+    \boxed{
+    \text{it is an endpoint-heavy }2+2\text{ contact pattern.}
+    }
+    \]
+
+    The next sign lemma should therefore be stated for endpoint contacts and
+    one-sided derivative signs, not for arbitrary interior contact quadruples.
+    In particular, an all-interior \(2+2\) pattern is already impossible, while
+    endpoint-heavy patterns require the connection integral/off-row sign.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

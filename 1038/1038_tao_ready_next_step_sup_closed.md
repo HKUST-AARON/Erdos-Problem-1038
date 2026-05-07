@@ -712,6 +712,13 @@ Useful corrections already recorded:
   under the constraints that the within-component integrals over
   \([x_1,x_2]\) and \([x_3,x_4]\) vanish.  Proving this sign fixed and nonzero
   would close the \(2+2\) contact obstruction.
+- Contact counting narrows this further.  Gate 1 contacts are contacts of a
+  nonnegative majorant.  Every interior contact forces \(G'=0\), hence the
+  cubic numerator \(F\) vanishes there.  Four interior contacts are therefore
+  impossible.  The only split patterns not killed by the cubic degree are
+  endpoint-heavy \(2+2\) patterns with one-sided derivative signs.  The next
+  sign lemma should be stated for those endpoint-heavy contact patterns, not
+  for arbitrary four interior contacts.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
