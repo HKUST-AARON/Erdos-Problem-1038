@@ -12396,6 +12396,93 @@ theorem queue.
     These are attempts, not completed gates.  Gate 2 may be used only after
     one of the Gate 1 attempts produces reduced LP feasibility.
 
+    2026-05-07 mainline continuation: certified majorant oracle.
+
+    The existing two-interval diagnostic scripts solve a corrected
+    one-cut/two-interval ansatz and check its sign chart.  They do not output
+    the repaired Gate 1 data
+
+    \[
+    H_\gamma^{\rm rep},\quad AX_\gamma=-r_\gamma,\quad
+    V_S,\rho_S,b_S,V_\Pi,\rho_\Pi,b_\Pi.
+    \]
+
+    Therefore those scripts cannot, by themselves, certify
+    MovingSchifferMajorantSignTheorem.  A proof-grade numerical or symbolic
+    continuation must first extract the repaired moving-Schiffer data.  Once
+    that data is available, the remaining verification is finite and has the
+    following soundness theorem.
+
+    \[
+    \boxed{\textbf{CertifiedMajorantOracleSoundness}.}
+    }
+    \]
+
+    Suppose the repaired moving chart supplies interval enclosures for:
+
+    1.  \(V_S(x),V_\Pi(x)\) on each component of \(Z_0\);
+    2.  \(\rho_S,\rho_\Pi,b_S,b_\Pi\);
+    3.  \(P_\theta=\kappa Q^2-\sum_\gamma\theta_\gamma
+        H_\gamma^{\rm rep}\) and \(Q^2R\) on those components;
+    4.  a finite cover of the projective affine parameter
+        \((\Lambda:1)\in\mathbb RP^1\), including the point at infinity for
+        the homogeneous limit.
+
+    Assume that on every box of this cover the oracle constructs interval
+    coefficients \(\theta\) satisfying:
+
+    \[
+    G_\theta(x)=\theta\cdot V_S(x)-V_\Pi(x)\ge0
+    \quad(x\in Z_0),
+    \tag{G1OracleMajorant}
+    \]
+
+    with nonnegativity certified either by direct interval lower bounds on
+    \(G_\theta\), or by a \(P_\theta/(Q^2R)\)-sign table plus endpoint/contact
+    lower bounds; and also
+
+    \[
+    G_\theta^{(b)}-\Lambda G_\theta^{(c)}>0
+    \tag{G1OracleAffineGap}
+    \]
+
+    throughout the finite-\(\Lambda\) part of the box, while the projective
+    infinity boxes certify the homogeneous alternatives
+
+    \[
+    \inf_{\theta\in\mathcal D_Z}G_\theta^{(c)}<0,
+    \qquad
+    \sup_{\theta\in\mathcal D_Z}G_\theta^{(c)}>0.
+    \tag{G1OracleHomGap}
+    \]
+
+    Then MovingSchifferMajorantSignTheorem holds in the regular non-pinched
+    chart, except for boxes where a certified denominator separation,
+    contact separation, density positivity, or chart-rank interval fails; each
+    such failed box is a Gate 3 boundary candidate, not an interior Gate 1
+    pass.
+
+    Proof.  The interval inequalities (G1OracleMajorant) place every produced
+    \(\theta\) in the dual cone \(\mathcal D_Z\).  For each finite
+    \(\Lambda\), (G1OracleAffineGap) is exactly
+    \(M_\eta(\Lambda)>0\) with a witnessed feasible dual point.  For the
+    projective infinity directions, (G1OracleHomGap) is exactly
+    (G1HomMarginTarget).  Gate1ConeEnvelopeAssembly then excludes every
+    \(Z_0\)-atomic Farkas certificate.  The no-atom certificates are handled
+    separately by Gate1NoAtomCertificateExclusion.  Hence finite-dimensional
+    Farkas leaves no certificate, so the reduced LP is feasible.  The only
+    exceptions are boxes where the interval hypotheses required to interpret
+    the repaired chart fail; by definition these are chart-rank, contact,
+    endpoint/pole collision, or density-boundary cases routed to Gate 3.
+    \(\square\)
+
+    This theorem is the current mainline bridge.  It does not prove the
+    margins by itself; it states exactly what a rigorous computation or
+    signed alternation proof must certify.  The next concrete task is to
+    derive the repaired moving-Schiffer data extractor for \(H_\gamma^{\rm rep}\)
+    and \(AX_\gamma=-r_\gamma\).  Without that extractor, any numerical
+    margin calculation is testing the wrong object.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

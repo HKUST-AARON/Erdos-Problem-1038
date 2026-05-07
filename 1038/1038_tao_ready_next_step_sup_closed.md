@@ -310,6 +310,14 @@ Useful corrections already recorded:
   signed product formula only if it includes the moving correction columns and
   \(Z_0\)-contact rows; reserve \(Q_{\rm eff}\) for no-atom/off-cut finite
   subcases, since nonzero \(Z_0\)-atoms have positive point-row blow-up.
+- the existing two-interval diagnostic scripts are not Gate 1 oracles: they do
+  not output \(H_\gamma^{\rm rep}\), \(AX_\gamma=-r_\gamma\), \(V_S,\rho_S,b_S\).
+  A proof-grade oracle must first extract this repaired moving-Schiffer data;
+  then it may certify \(G_\theta\ge0\) on \(Z_0\) and the strict affine /
+  homogeneous residual margins by interval sign tables for
+  \(P_\theta/(Q^2R)\).  This certified oracle would prove
+  `MovingSchifferMajorantSignTheorem`; failed denominator/contact/chart boxes
+  route to Gate 3.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
