@@ -17924,6 +17924,48 @@ theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality
       R hdirac_bary hunique
   simpa [hbary_endpoint] using hdirac_bary
 
+/--
+Endpoint atomization from secondary minimality and zero-neighbourhood support
+exclusion.  This is the same rigidity statement as
+`normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality`, but uses
+the local zero-neighbourhood condition directly instead of requiring a
+pre-built support-uniqueness hypothesis.
+-/
+theorem normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_zero_neighborhood
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C)
+    (hmass_unit :
+      componentReplacementMeasure C (Icc (-1 : ℝ) 1) = 1)
+    (hsupport :
+      ∀ᵐ x ∂componentReplacementMeasure C, x ∈ Icc (-1 : ℝ) 1)
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hprimary_replacement :
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C hmass_unit) ≤
+        unitIntervalTruncatedPositiveSetObjective μ)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    normalizedComponentBlock C = Measure.dirac (-1 : ℝ) := by
+  have hcomponent_open : IsOpen C.interval := by
+    simpa [PositiveComponent.interval_eq] using
+      (isOpen_Ioo : IsOpen (Set.Ioo C.left C.right))
+  exact normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality
+    R hmass_unit hsupport hPrimary hSecondary hprimary_replacement
+    (unique_support_in_component_of_support_neighborhood_zero
+      hcomponent_open
+      (realMeasure_support_open_neighborhood_pos μ)
+      hzero)
+
 /-!
 ## Coupling the variance selector to barycenter rigidity
 
