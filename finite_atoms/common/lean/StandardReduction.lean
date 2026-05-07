@@ -8743,6 +8743,30 @@ theorem exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_cont
       hzero
 
 /--
+Endpoint-data component selection in the interval-witness shape consumed by
+the downstream variation package constructors.
+-/
+theorem exists_positiveComponent_interval_baseline_right_pos_of_endpoint_lower_bound_continuous
+    {μ : ProbabilityMeasure UnitInterval1038} {p : ℝ}
+    (hp : (1 / 2 : ℝ) ≤ p)
+    (hendpoint :
+      HasNormalizedEndpointLowerBound (unitIntervalLogPotential μ) p)
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+    ∃ xMinus xPlus : ℝ,
+      C.IntervalMaximal ∧
+      C.interval = Ioo xMinus xPlus ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < xPlus := by
+  rcases exists_positiveComponent_baseline_right_pos_of_endpoint_lower_bound_continuous
+      hp hendpoint hcont hzero with
+    ⟨C, hmax, hbaseline, hright⟩
+  exact
+    ⟨C, C.left, C.right, hmax, PositiveComponent.interval_eq C,
+      hbaseline, hright⟩
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
