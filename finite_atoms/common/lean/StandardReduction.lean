@@ -12076,6 +12076,46 @@ def taoVariationComponentPackage_of_realSupport_component_atomization_data
       μ hunit_endpoint_mass)
     hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
 
+/--
+Real-support specialization of the support-uniqueness package constructor.
+It fills the support set with `(realMeasure μ).support`, and fills both the
+a.e. support and bounded-support obligations automatically.
+-/
+def taoVariationComponentPackage_of_realSupport_support_unique_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (mean_choice : TaoVariationMeanChoice)
+    (reflected : Bool)
+    (translation : ℝ)
+    (C : PositiveComponent μ)
+    (endpointMass xMinus xPlus : ℝ)
+    (hcomponent_interval : C.interval = Ioo xMinus xPlus)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_endpoint_positive : 0 < xPlus)
+    (hboundary_average :
+      1 ≤ (xPlus + 1) * endpointMass +
+        (1 - xPlus) * (1 - endpointMass))
+    (hunit_endpoint_mass :
+      (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1} =
+          ENNReal.ofReal endpointMass)
+    (hendpoint_mass_nonneg : 0 ≤ endpointMass)
+    (hremainder_mass_nonneg : 0 ≤ 1 - endpointMass)
+    (hkernel_integrable : ∀ x : ℝ, x ∈ BaselinePunctured →
+      Integrable (fun t : ℝ => Real.log (1 / |x - t|))
+        ((realMeasure μ).restrict ({-1} : Set ℝ)ᶜ))
+    (hunique :
+      ∀ t : ℝ, t ∈ (realMeasure μ).support → t ∈ C.interval → t = -1) :
+    TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+  taoVariationComponentPackage_of_component_replacement_support_unique_data
+    μ mean_choice reflected translation C (realMeasure μ).support
+    endpointMass xMinus xPlus hcomponent_interval hbaseline
+    (realMeasure_support_subset_unitInterval μ)
+    (realMeasure_ae_mem_support μ)
+    hunique hright_endpoint_positive hboundary_average
+    (realMeasure_endpoint_atom_eq_of_unitInterval_endpoint_atom_eq
+      μ hunit_endpoint_mass)
+    hendpoint_mass_nonneg hremainder_mass_nonneg hkernel_integrable
+
 /-- Variant of `taoVariationComponentPackage_of_realSupport_component_atomization_data`
 where the support bound is filled automatically from the real pushforward of the
 unit-interval measure.  The remaining explicit inputs are the genuinely
