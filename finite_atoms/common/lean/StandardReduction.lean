@@ -11858,6 +11858,64 @@ theorem exists_positiveComponent_baseline_right_pos_of_separated_baseline_compac
       μ hlog_int htruncε hbaseline_compact hδ
       hright_cont hright_pos hright_no_diag hright_tail
 
+theorem exists_positiveComponent_baseline_right_pos_of_span_compact_support_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε) (hδ : 0 < δ)
+    (hspan_support :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          Disjoint (Icc a b) (realMeasure μ).support)
+    (hspan_pos :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y)
+    (hspan_tail :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_subset_span :
+      Ioo (-1 : ℝ) 0 ⊆ Ioc (-1 : ℝ) δ := by
+    intro x hx
+    exact ⟨hx.1, le_of_lt (lt_trans hx.2 hδ)⟩
+  have hright_subset_span :
+      Icc (0 : ℝ) δ ⊆ Ioc (-1 : ℝ) δ := by
+    intro x hx
+    exact ⟨lt_of_lt_of_le (by norm_num) hx.1, hx.2⟩
+  have hbaseline_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) := by
+    intro a b hsubset
+    have hsubset_span : Icc a b ⊆ Ioc (-1 : ℝ) δ :=
+      fun x hx => hbaseline_subset_span (hsubset hx)
+    exact ⟨hspan_support a b hsubset_span,
+      hspan_pos a b hsubset_span,
+      hspan_tail a b hsubset_span⟩
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_compact_support_data_and_closed_right_compact_support_data
+      μ hlog_int htruncε hbaseline_compact hδ
+      (hspan_support 0 δ hright_subset_span)
+      (hspan_pos 0 δ hright_subset_span)
+      (hspan_tail 0 δ hright_subset_span)
+
 /--
 Span-compact-data version of selected-component construction.  A single
 compact-subinterval data source on the span `Ioc (-1) δ` supplies the baseline
