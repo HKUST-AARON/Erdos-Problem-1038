@@ -9311,6 +9311,30 @@ theorem mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
   refine ⟨n, ?_⟩
   linarith
 
+/--
+Pointwise interval bridge from ordinary logarithmic positivity to truncated
+positivity.  The only analytic loss is explicit: every point in the interval
+must be off the diagonal atom set and have a truncation scale whose singular
+tail is smaller than half of the ordinary potential value.
+-/
+theorem unitIntervalTruncatedPositiveSet_interval_subset_of_pos_logPotential_tailMass
+    {μ : ProbabilityMeasure UnitInterval1038} {l r : ℝ}
+    (hpos :
+      Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hno_diag : Disjoint (Ioo l r) (diagonalAtomSet μ))
+    (htail :
+      ∀ x : ℝ, x ∈ Ioo l r →
+        ∃ n : ℕ,
+          singularTailMass (unitIntervalPositiveTruncationScale n) μ x <
+            ENNReal.ofReal (unitIntervalLogPotential μ x / 2)) :
+    Ioo l r ⊆ unitIntervalTruncatedPositiveSet μ := by
+  intro x hx
+  rcases htail x hx with ⟨n, htail_n⟩
+  exact mem_unitIntervalTruncatedPositiveSet_of_pos_logPotential_tailMass
+    (hpos hx)
+    (fun hxdiag => hno_diag.le_bot ⟨hx, hxdiag⟩)
+    htail_n
+
 theorem mem_unitIntervalTruncatedPositiveSet_of_threshold_tailMass
     {μ : ProbabilityMeasure UnitInterval1038} {x truncε threshold : ℝ}
     (htruncε : 0 < truncε) (hthreshold : 0 < threshold)
