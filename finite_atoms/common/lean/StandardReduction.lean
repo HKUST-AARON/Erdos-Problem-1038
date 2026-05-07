@@ -11664,6 +11664,33 @@ theorem exists_componentReplacement_positiveSetObjective_nonincrease_of_support_
   exact componentReplacement_objective_le_of_singularTail_small_exceptions
     R hε
 
+/--
+Support-point version of truncated primary-objective nonincrease for the
+canonical barycenter replacement.  The remaining hypothesis is the unavoidable
+comparison from the ordinary positive-set objective of `μ` back to the
+truncated primary objective used for minimization.
+-/
+theorem exists_componentReplacement_truncatedObjective_nonincrease_of_support_mem_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {t : ℝ}
+    (htSupport : t ∈ (realMeasure μ).support)
+    (htInterval : t ∈ C.interval)
+    (horiginal_positive_le_truncated :
+      unitIntervalPositiveSetObjective μ ≤
+        unitIntervalTruncatedPositiveSetObjective μ) :
+    ∃ R : ComponentReplacement μ C,
+      unitIntervalTruncatedPositiveSetObjective
+          (componentReplacementProbability C
+            (componentReplacementMeasure_mass_unit_of_barycenter_mem_Icc
+              (componentBarycenter_mem_Icc R))) ≤
+        unitIntervalTruncatedPositiveSetObjective μ := by
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C
+      (componentMass_pos_of_support_mem_interval htSupport htInterval)
+  exact ⟨R,
+    componentReplacementProbability_truncatedObjective_le_of_tailMass_small_exception_comparisons
+      R horiginal_positive_le_truncated⟩
+
 theorem realMeasure_mem_support_of_singleton_pos
     {μ : ProbabilityMeasure UnitInterval1038} {x : ℝ}
     (hpos : 0 < realMeasure μ ({x} : Set ℝ)) :
