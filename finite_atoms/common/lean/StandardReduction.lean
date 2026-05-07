@@ -8767,6 +8767,26 @@ theorem exists_positiveComponent_interval_baseline_right_pos_of_endpoint_lower_b
       hbaseline, hright⟩
 
 /--
+Endpoint-package component selection.  This is the same selected-component
+bridge as above, but with the endpoint lower bound read from the packaged
+`NormalizedEndpointPotential`.
+-/
+theorem NormalizedEndpointPotential.exists_positiveComponent_interval_baseline_right_pos
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hendpoint : NormalizedEndpointPotential (unitIntervalLogPotential μ))
+    (hcont : Continuous (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0) :
+    ∃ C : PositiveComponent μ,
+    ∃ xMinus xPlus : ℝ,
+      C.IntervalMaximal ∧
+      C.interval = Ioo xMinus xPlus ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < xPlus := by
+  exact
+    exists_positiveComponent_interval_baseline_right_pos_of_endpoint_lower_bound_continuous
+      hendpoint.halfMass hendpoint.endpointLowerBound hcont hzero
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
