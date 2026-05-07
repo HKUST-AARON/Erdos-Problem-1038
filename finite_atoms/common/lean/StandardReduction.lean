@@ -4315,6 +4315,20 @@ theorem PositiveComponent.spanning_augmented_subset_interval_of_augmentedInterva
     hspan_aug
     hinter
 
+theorem PositiveComponent.right_not_mem_augmented_of_augmented_gap
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {δ : ℝ} (hδ : 0 < δ)
+    (haug_gap :
+      Icc C.right (C.right + δ) ∩ unitIntervalAugmentedPositiveSet μ = ∅) :
+    C.right ∉ unitIntervalAugmentedPositiveSet μ := by
+  intro hmem
+  have hright_mem :
+      C.right ∈ Icc C.right (C.right + δ) ∩
+          unitIntervalAugmentedPositiveSet μ :=
+    ⟨⟨le_rfl, by linarith⟩, hmem⟩
+  rw [haug_gap] at hright_mem
+  exact False.elim hright_mem
+
 theorem PositiveComponent.right_gap_union_of_augmented_gap_not_mem_support
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
     {δ₀ : ℝ} (hδ₀ : 0 < δ₀)
