@@ -17175,6 +17175,34 @@ theorem boundary_average_of_spanning_augmented_right_gap_normalized_atomized
       R hnormalized_atomized)
 
 /--
+Tao boundary-average inequality from augmented span, off-support boundary, and
+normalized component atomization.
+-/
+theorem boundary_average_of_spanning_augmented_not_support_normalized_atomized
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    (R : ComponentReplacement μ C) {ε : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hnot_support : C.right ∉ (realMeasure μ).support)
+    (hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ)) :
+    1 ≤ (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_average_of_spanning_augmented_not_support_componentBlock_atomized
+    μ hright_pos hε hmax hbaseline hspan_aug hnot_support
+    (componentBlock_eq_smul_dirac_of_normalizedComponentBlock_eq_dirac
+      R hnormalized_atomized)
+
+/--
 Normalized endpoint atomization also produces a genuine endpoint atom of the
 original subtype probability measure.
 -/
