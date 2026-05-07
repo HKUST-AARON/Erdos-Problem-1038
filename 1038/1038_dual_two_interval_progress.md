@@ -14975,6 +14975,39 @@ theorem queue.
     selection, or prove a row-order/sign normalization that makes the relevant
     Schur minors Cauchy-sign-compatible.
 
+    The same audit gives a more useful positive clue.  If the square subset is
+    restricted to complete confluent pole pairs
+
+    \[
+    H(p_i),\ H'(p_i)
+    \]
+
+    and one omits one full pole pair, then for the synthetic cubic chart there
+    are exactly \(3\) such subsets, and all \(3\) have the same orientation:
+
+    \[
+    \#\{\text{full confluent pair subsets}\}=3,
+    \qquad
+    \operatorname{sgn}\det A=+1\quad\text{for all three}.
+    \tag{G1FullPairGaugeToy}
+    \]
+
+    This is still only a toy diagnostic, but it suggests a sharper candidate
+    for the TP-compatible square gauge:
+
+    \[
+    \boxed{
+    \text{choose }d-1\text{ complete confluent pole pairs from the }d
+    \text{ real }Q\text{-poles.}
+    }
+    \]
+
+    The next proof target should therefore be a full-pair version of
+    `TPSquareMovingChartGaugeLemma`: prove that at least one omitted pole pair
+    gives a regular chart, and that the full augmented Schur minors retain the
+    ordered confluent-Cauchy sign.  This is narrower than arbitrary row subset
+    selection and matches the observed toy orientation.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

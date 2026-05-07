@@ -392,6 +392,7 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
     kind_pattern_counts: dict[str, int] = {}
     kind_pattern_sign_counts: dict[str, dict[str, int]] = {}
     named_pattern_sign_counts: dict[str, dict[str, int]] = {}
+    full_pair_subsets = []
     for combo in combinations(range(len(rows)), ncols):
         matrix = np.array([[rows[i].apply(col) for col in basis] for i in combo], dtype=float)
         det = float(np.linalg.det(matrix))
@@ -416,6 +417,22 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         if det_sign == 0:
             singular += 1
             continue
+        selected_pairs = {
+            i // 2 for i in combo if i % 2 == 0 and i + 1 in combo
+        }
+        is_full_pair_subset = len(selected_pairs) * 2 == len(combo)
+        if is_full_pair_subset:
+            full_pair_subsets.append(
+                {
+                    "pole_indices": sorted(selected_pairs),
+                    "omitted_pole_indices": [
+                        index for index in range(len(roots)) if index not in selected_pairs
+                    ],
+                    "row_names": row_names,
+                    "det": det,
+                    "det_sign": det_sign,
+                }
+            )
         full_rank.append(
             {
                 "row_indices": list(combo),
@@ -428,6 +445,7 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
     nonzero_signs = sorted(
         int(sign) for sign, count in det_sign_counts.items() if sign != "0" and count
     )
+    full_pair_signs = sorted({item["det_sign"] for item in full_pair_subsets})
     return {
         "degree_Q": d,
         "gammas": gammas,
@@ -447,6 +465,10 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         "row_kind_pattern_counts": kind_pattern_counts,
         "row_kind_pattern_sign_counts": kind_pattern_sign_counts,
         "named_pattern_sign_counts_preview": dict(list(named_pattern_sign_counts.items())[:10]),
+        "full_confluent_pair_subsets": full_pair_subsets,
+        "full_confluent_pair_subset_count": len(full_pair_subsets),
+        "full_confluent_pair_subset_signs": full_pair_signs,
+        "all_full_confluent_pair_subsets_same_orientation": len(full_pair_signs) <= 1,
     }
 
 
@@ -905,6 +927,18 @@ def main() -> int:
         )
         print(f"  row-kind patterns = {audit['row_kind_pattern_counts']}")
         print(f"  row-kind pattern signs = {audit['row_kind_pattern_sign_counts']}")
+        print(
+            "  full confluent pole-pair subsets = "
+            f"{audit['full_confluent_pair_subset_count']}"
+        )
+        print(
+            "  full confluent pole-pair signs = "
+            f"{audit['full_confluent_pair_subset_signs']}"
+        )
+        print(
+            "  full confluent pole-pair same orientation = "
+            f"{audit['all_full_confluent_pair_subsets_same_orientation']}"
+        )
         if audit["first_full_rank_subset"]:
             first = audit["first_full_rank_subset"]
             print(f"  first full-rank subset = {first['row_names']}")

@@ -626,6 +626,13 @@ Useful corrections already recorded:
   is not a TP-compatible gauge criterion.  `TPSquareMovingChartGaugeLemma` must
   choose a canonical ordered row subset, or prove a sign normalization for the
   relevant Schur minors; arbitrary full-rank row selection is not proof-grade.
+- A sharper toy clue is positive: among the square subgauges made of complete
+  confluent pole pairs `H(p_i), H'(p_i)` while omitting one full pole pair,
+  all 3 cubic candidates have the same determinant sign.  The most likely
+  next gauge target is therefore a full-pair
+  `TPSquareMovingChartGaugeLemma`: select \(d-1\) complete confluent pole
+  pairs from the \(d\) real \(Q\)-poles, then prove one omitted-pair choice is
+  regular and its full augmented Schur minors are ordered-Cauchy compatible.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
