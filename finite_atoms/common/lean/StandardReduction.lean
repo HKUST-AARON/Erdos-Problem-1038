@@ -9763,6 +9763,51 @@ theorem unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
     hx htruncε (hlocal x hx)
 
 /--
+Selected component from local compact baseline data plus truncated positivity at
+`0`.  This feeds the whole-baseline local compact bridge directly into the
+right-positive component constructor with split off-diagonal checks.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_data_and_zero
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε : ℝ} (htruncε : 0 < truncε)
+    (hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          Disjoint (Icc a b) (diagonalAtomSet μ) ∧
+          (∀ threshold : ℝ, 0 < threshold →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold / 2)))
+    (hzero : 0 ∈ unitIntervalTruncatedPositiveSet μ)
+    (hbaseline_no_diag :
+      Disjoint (Ioo (-1 : ℝ) 0) (diagonalAtomSet μ))
+    (hzero_no_diag : 0 ∉ diagonalAtomSet μ)
+    (hright_no_diag :
+      ∀ δ : ℝ, 0 < δ →
+        Ioo (0 : ℝ) δ ⊆ unitIntervalTruncatedPositiveSet μ →
+        Disjoint (Ioo (0 : ℝ) δ) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ unitIntervalTruncatedPositiveSet μ :=
+    unitIntervalTruncatedPositiveSet_baseline_subset_of_local_compact_data
+      htruncε hbaseline_local
+  exact
+    exists_positiveComponent_baseline_right_pos_of_truncated_baseline_and_zero_offDiagonal_parts
+      μ hlog_int hbaseline hzero
+      hbaseline_no_diag hzero_no_diag hright_no_diag
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
