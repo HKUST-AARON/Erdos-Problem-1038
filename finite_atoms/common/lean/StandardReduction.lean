@@ -8329,6 +8329,26 @@ theorem exists_positiveComponent_baseline_right_pos_of_positive_spanning
     exact hδ
 
 /--
+Closed-right ordinary-positive span constructor.  If the potential is positive
+on the span `(-1, δ]`, then it is in particular positive on `(-1, δ)`, so the
+existing ordinary-positive spanning constructor gives the selected component.
+This is the cleanest endpoint for the positive-component-selection part of the
+standard-reduction pipeline.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_Ioc_positive_spanning
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hspan :
+      Ioc (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_baseline_right_pos_of_positive_spanning
+      hδ (fun _x hx => hspan ⟨hx.1, le_of_lt hx.2⟩)
+
+/--
 Combine baseline positivity with a right neighbourhood of `0` into a single
 ordinary positive interval spanning across `0`.  This is the analytic-input
 shape needed by the direct spanning-interval component constructor.
