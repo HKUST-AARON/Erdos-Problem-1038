@@ -15008,6 +15008,66 @@ theorem queue.
     ordered confluent-Cauchy sign.  This is narrower than arbitrary row subset
     selection and matches the observed toy orientation.
 
+    Full-pair pole gauge determinant.
+
+    The positive clue above is explained by an explicit determinant identity.
+    Let \(p_{i_1}<\cdots<p_{i_n}\) be the selected \(Q\)-poles, with
+    \(n=d-1\), and take the square row list
+
+    \[
+    H(p_{i_1}),H'(p_{i_1}),\ldots,H(p_{i_n}),H'(p_{i_n})
+    \]
+
+    on the correction columns
+
+    \[
+    Dz^m,\qquad 0\le m\le 2n-1.
+    \]
+
+    Then the chart determinant is
+
+    \[
+    \boxed{
+    \det A_{\rm pair}
+    =
+    \prod_{r=1}^n D(p_{i_r})^2
+    \prod_{1\le r<s\le n}(p_{i_s}-p_{i_r})^4.
+    }
+    \tag{G1FullPairGaugeDet}
+    \]
+
+    Indeed, at each selected pole \(p\),
+
+    \[
+    (Dz^m)'(p)=D'(p)p^m+D(p)m p^{m-1}.
+    \]
+
+    Subtracting \((D'(p)/D(p))\) times the evaluation row from the derivative
+    row, and then factoring \(D(p)\) from both rows, reduces the matrix to the
+    confluent Vandermonde matrix of the monomials \(1,z,\ldots,z^{2n-1}\).
+    The confluent Vandermonde determinant is
+
+    \[
+    \prod_{r<s}(p_{i_s}-p_{i_r})^4.
+    \]
+
+    Hence (G1FullPairGaugeDet) is strictly positive whenever the selected
+    \(p_i\)'s are real, simple, distinct, and avoid the branch endpoints.
+
+    The extractor now checks this identity numerically for full-pair subsets.
+    On the synthetic cubic smoke chart the maximum relative error between the
+    direct determinant and (G1FullPairGaugeDet) is
+
+    \[
+    3.12\cdot 10^{-15}.
+    \]
+
+    This closes the \(A\)-matrix orientation part of the full-pair gauge
+    candidate.  It still does not close Gate 1: the remaining sign-compatible
+    task is to prove the full augmented Schur minors, after adding endpoint,
+    period, off-row, and contact rows, inherit the corresponding ordered
+    Cauchy/confluent-Cauchy signs.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

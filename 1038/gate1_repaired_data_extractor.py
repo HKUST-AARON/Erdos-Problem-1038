@@ -422,6 +422,12 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         }
         is_full_pair_subset = len(selected_pairs) * 2 == len(combo)
         if is_full_pair_subset:
+            selected_roots = [roots[index] for index in sorted(selected_pairs)]
+            formula_det = 1.0
+            for root in selected_roots:
+                formula_det *= poly_eval(D, root) ** 2
+            for left, right in combinations(selected_roots, 2):
+                formula_det *= (right - left) ** 4
             full_pair_subsets.append(
                 {
                     "pole_indices": sorted(selected_pairs),
@@ -431,6 +437,10 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
                     "row_names": row_names,
                     "det": det,
                     "det_sign": det_sign,
+                    "full_pair_formula_det": formula_det,
+                    "full_pair_formula_relative_error": (
+                        abs(det - formula_det) / max(1.0, abs(formula_det))
+                    ),
                 }
             )
         full_rank.append(
@@ -446,6 +456,11 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         int(sign) for sign, count in det_sign_counts.items() if sign != "0" and count
     )
     full_pair_signs = sorted({item["det_sign"] for item in full_pair_subsets})
+    max_full_pair_formula_relative_error = (
+        max(item["full_pair_formula_relative_error"] for item in full_pair_subsets)
+        if full_pair_subsets
+        else None
+    )
     return {
         "degree_Q": d,
         "gammas": gammas,
@@ -469,6 +484,7 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         "full_confluent_pair_subset_count": len(full_pair_subsets),
         "full_confluent_pair_subset_signs": full_pair_signs,
         "all_full_confluent_pair_subsets_same_orientation": len(full_pair_signs) <= 1,
+        "max_full_confluent_pair_formula_relative_error": max_full_pair_formula_relative_error,
     }
 
 
@@ -938,6 +954,10 @@ def main() -> int:
         print(
             "  full confluent pole-pair same orientation = "
             f"{audit['all_full_confluent_pair_subsets_same_orientation']}"
+        )
+        print(
+            "  max full confluent pole-pair formula relative error = "
+            f"{audit['max_full_confluent_pair_formula_relative_error']}"
         )
         if audit["first_full_rank_subset"]:
             first = audit["first_full_rank_subset"]

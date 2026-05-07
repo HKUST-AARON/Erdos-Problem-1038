@@ -633,6 +633,20 @@ Useful corrections already recorded:
   `TPSquareMovingChartGaugeLemma`: select \(d-1\) complete confluent pole
   pairs from the \(d\) real \(Q\)-poles, then prove one omitted-pair choice is
   regular and its full augmented Schur minors are ordered-Cauchy compatible.
+- The \(A\)-matrix determinant for this full-pair gauge is now explicit.  For
+  selected poles \(p_{i_1}<\cdots<p_{i_n}\), \(n=d-1\),
+  \[
+  \det A_{\rm pair}
+  =
+  \prod_r D(p_{i_r})^2
+  \prod_{r<s}(p_{i_s}-p_{i_r})^4>0.
+  \]
+  This follows by subtracting \((D'(p)/D(p))\) times each evaluation row from
+  its derivative row and reducing to the confluent Vandermonde determinant.
+  The extractor checks this identity on the toy cubic chart to relative error
+  \(3.12\cdot10^{-15}\).  The remaining Gate 1 gauge task is therefore not
+  \(\det A\), but the augmented Schur-minor signs after endpoint/period/contact
+  rows are appended.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
