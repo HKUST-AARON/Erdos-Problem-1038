@@ -18439,7 +18439,7 @@ future solver output.  It checks:
 
 * the compact \(g=2\) decay bound \(\deg P\le\deg Q-3\);
 * real simple \(Q\)-poles and whether they lie off the cuts;
-* nonzero pole residues for \(F=P R/Q\);
+* positive pole residues for \(F=P R/Q\);
 * sampled nonzero raw cut-density signs;
 * separation of \(c,u,v\) from cuts and \(Q\)-poles;
 * the branch condition \(F(c)=0\) at tolerance \(10^{-8}\).

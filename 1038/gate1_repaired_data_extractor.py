@@ -633,7 +633,7 @@ def compact_chart_numeric_condition_audit(path: Path, density_samples: int = 25)
     checks = {
         "degree_P_allowed": degree_P <= max_degree_P,
         "all_q_poles_off_cut": all(record["location"] not in {"cut", "endpoint"} for record in pole_records),
-        "all_residues_nonzero": all(record["residue_sign"] != 0 for record in pole_records),
+        "all_residues_positive": all(record["residue"] > 1.0e-10 for record in pole_records),
         "cut_density_raw_sign_nonzero": all(record["sign"] != 0 for record in cut_density_records),
         "boundary_separated": not boundary_separation_errors,
         "anchor_F_c_zero": (
