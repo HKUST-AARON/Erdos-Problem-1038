@@ -2681,6 +2681,12 @@ theorem disjoint_Ioo_diagonalAtomSet_of_disjoint_realMeasure_support
     Disjoint (Ioo a b) (diagonalAtomSet μ) :=
   disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
 
+theorem disjoint_Ioc_diagonalAtomSet_of_disjoint_realMeasure_support
+    {μ : ProbabilityMeasure UnitInterval1038} {a b : ℝ}
+    (hsupport : Disjoint (Ioc a b) (realMeasure μ).support) :
+    Disjoint (Ioc a b) (diagonalAtomSet μ) :=
+  disjoint_diagonalAtomSet_of_disjoint_realMeasure_support hsupport
+
 theorem subset_positiveSet_of_subset_augmented_disjoint_realMeasure_support
     {μ : ProbabilityMeasure UnitInterval1038} {s : Set ℝ}
     (haug : s ⊆ unitIntervalAugmentedPositiveSet μ)
@@ -27489,6 +27495,46 @@ noncomputable def unitInterval_standardReduction_from_replacement_openGap_zeroNe
           (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
         ∅ :=
     (Classical.choose_spec gap).2
+  exact
+    unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
+      hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
+      hbaseline hright_gap hzero
+
+noncomputable def unitInterval_standardReduction_from_secondaryMinimizer_of_provider
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    (hProvider :
+      Σ C : PositiveComponent μ,
+      Σ R : ComponentReplacement μ C,
+      Σ ε : ℝ,
+      Σ δ : ℝ,
+        PLift (0 < ε ∧
+        0 < δ ∧
+        0 < C.right ∧
+        C.AugmentedIntervalMaximal ∧
+        Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+          unitIntervalAugmentedPositiveSet μ ∧
+        Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+        Set.Icc C.right (C.right + δ) ∩
+            (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+          ∅ ∧
+        (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+          realMeasure μ U = 0))) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  rcases hProvider with
+    ⟨C, R, ε, δ, hpack⟩
+  rcases hpack.down with
+    ⟨hε, hδ, hright_pos, hmax, hspan_aug, hbaseline, hright_gap, hzero⟩
   exact
     unitInterval_standardReduction_from_replacement_rightGap_zeroNeighborhood
       hPrimary hSecondary R hε hright_pos hδ hmax hspan_aug
