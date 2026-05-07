@@ -908,6 +908,13 @@ Useful corrections already recorded:
   accepts the two exterior omitted poles and rejects the middle-gap pole; both
   accepted toy branches still split signs.  This is a pipeline acceptance
   tool for the future compact chart, not a proof.
+- New contract command: `--audit-chart-contract`.  It separates
+  `extractor_ready`, `lrlr_ready`, and `global_gate1_contract_ready`.  The
+  current old two-interval JSONs fail at the base contract; a complete
+  synthetic chart passes all levels; and partial charts report exactly which
+  fields are missing.  The next compact-chart handoff is therefore:
+  contract audit, then full-pair gauge-choice audit, then LRLR rho/affine row
+  interpretation.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

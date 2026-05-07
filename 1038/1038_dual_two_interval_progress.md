@@ -16424,6 +16424,35 @@ theorem queue.
     and both LRLR residual rows can be checked by a single command, without
     manually rewriting the chart JSON for each gauge choice.
 
+    Chart contract audit.
+
+    The extractor now also has a machine-checkable contract gate:
+
+    ```bash
+    python3 1038/gate1_repaired_data_extractor.py \
+      --chart-json PATH --audit-chart-contract
+    ```
+
+    It distinguishes three levels:
+
+    1.  `extractor_ready`: \(P,Q,\Gamma\) and exactly one of `rows` or
+        `row_gauge` are present;
+    2.  `lrlr_ready`: the chart uses the full-pair `row_gauge` and also
+        supplies \(c,u,v,a,b\);
+    3.  `global_gate1_contract_ready`: the LRLR-ready fields are present and
+        the chart also supplies \(\kappa\) and \(Z_0\).
+
+    On a synthetic complete chart this audit reports all three flags true.  If
+    \(\kappa\) and \(Z_0\) are deleted, it reports `extractor_ready=True`,
+    `lrlr_ready=True`, but `global_gate1_contract_ready=False`.  If both
+    `rows` and `row_gauge` are supplied, it marks the file non-ready and
+    records the blocking error.  On a fresh old two-interval diagnostic JSON,
+    it reports missing \(P,Q,\Gamma\), missing \(c,u,v,a,b\), and missing
+    \(\kappa,Z_0\).  Thus the next compact-chart handoff is now
+    machine-checkable: a candidate file should first pass
+    `--audit-chart-contract`, then `--audit-full-pair-gauge-choices`, and only
+    then the LRLR residual signs should be interpreted.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

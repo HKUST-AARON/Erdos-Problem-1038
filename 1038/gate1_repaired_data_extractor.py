@@ -362,6 +362,159 @@ def diagnose_json_file(path: Path) -> dict[str, Any]:
     }
 
 
+def chart_contract_audit(path: Path) -> dict[str, Any]:
+    """Check whether a JSON file satisfies the current Gate 1 chart contract."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "path": str(path),
+            "status": "unreadable_json",
+            "extractor_ready": False,
+            "lrlr_ready": False,
+            "global_gate1_contract_ready": False,
+            "blocking_errors": [str(exc)],
+            "missing_required_fields": [],
+            "warnings": [],
+        }
+    if not isinstance(payload, dict):
+        return {
+            "path": str(path),
+            "status": "json_non_object",
+            "extractor_ready": False,
+            "lrlr_ready": False,
+            "global_gate1_contract_ready": False,
+            "blocking_errors": ["top-level JSON is not an object"],
+            "missing_required_fields": [],
+            "warnings": [],
+        }
+
+    missing = [key for key in ["P", "Q", "gammas"] if key not in payload]
+    errors: list[str] = []
+    warnings: list[str] = []
+    if missing:
+        errors.append("missing base chart fields P,Q,gammas")
+    has_rows = "rows" in payload
+    has_row_gauge = "row_gauge" in payload
+    if has_rows == has_row_gauge:
+        errors.append("provide exactly one of rows or row_gauge")
+    if has_rows and not isinstance(payload.get("rows"), list):
+        errors.append("rows must be a list")
+
+    P: Array | None = None
+    Q: Array | None = None
+    gammas: list[float] | None = None
+    q_roots: list[float] | None = None
+    if "P" in payload:
+        try:
+            P = np.array([float(x) for x in payload["P"]], dtype=float)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"P must be a numeric coefficient list: {exc}")
+    if "Q" in payload:
+        try:
+            Q = np.array([float(x) for x in payload["Q"]], dtype=float)
+            q_roots = q_roots_real(Q)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"Q must have real simple numeric roots: {exc}")
+    if "gammas" in payload:
+        try:
+            gammas = [float(x) for x in payload["gammas"]]
+            if len(gammas) != 4:
+                errors.append("gammas must contain exactly four branch endpoints")
+            elif sorted(gammas) != gammas:
+                warnings.append("gammas are not sorted; extractor will sort for interval tests")
+            if len(set(gammas)) != len(gammas):
+                errors.append("gammas must be distinct")
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"gammas must be a numeric list: {exc}")
+
+    row_gauge_kind = None
+    omitted_index = None
+    omitted_location = None
+    if has_row_gauge:
+        gauge = payload.get("row_gauge")
+        if not isinstance(gauge, dict):
+            errors.append("row_gauge must be an object")
+        else:
+            row_gauge_kind = str(gauge.get("kind"))
+            if row_gauge_kind != "full_pair_pole_gauge":
+                errors.append("row_gauge.kind must be full_pair_pole_gauge for current Gate 1 LRLR contract")
+            if "omit_q_pole_index" not in gauge:
+                errors.append("row_gauge requires omit_q_pole_index")
+            elif q_roots is not None and gammas is not None and len(gammas) == 4:
+                try:
+                    omitted_index = int(gauge["omit_q_pole_index"])
+                    if not 0 <= omitted_index < len(q_roots):
+                        errors.append("omit_q_pole_index outside Q-pole range")
+                    else:
+                        root = q_roots[omitted_index]
+                        a1, b1, a2, b2 = sorted(gammas)
+                        if a1 < root < b1 or a2 < root < b2:
+                            omitted_location = "cut"
+                        elif b1 < root < a2:
+                            omitted_location = "middle_gap"
+                            warnings.append("omitted Q-pole lies in connection gap; ordinary LRLR audit skips it")
+                        elif root > b2:
+                            omitted_location = "right_exterior"
+                        elif root < a1:
+                            omitted_location = "left_exterior"
+                        else:
+                            omitted_location = "endpoint"
+                            warnings.append("omitted Q-pole is at/near an endpoint")
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"invalid omit_q_pole_index: {exc}")
+
+    lrlr_required = ["c", "u", "v", "a", "b"]
+    global_required = lrlr_required + ["kappa", "Z0"]
+    missing_lrlr = [key for key in lrlr_required if key not in payload]
+    missing_global = [key for key in global_required if key not in payload]
+    for key in ["c", "u", "v", "a", "b", "kappa"]:
+        if key in payload:
+            try:
+                float(payload[key])
+            except Exception as exc:  # noqa: BLE001
+                errors.append(f"{key} must be numeric: {exc}")
+
+    if gammas is not None and len(gammas) == 4:
+        b2 = max(gammas)
+        for key in ["u", "v"]:
+            if key in payload:
+                try:
+                    if float(payload[key]) <= b2:
+                        warnings.append(f"{key} is not in the right exterior; current affine audit will skip it")
+                except Exception:
+                    pass
+
+    extractor_ready = not errors and not missing and has_rows != has_row_gauge
+    lrlr_ready = (
+        extractor_ready
+        and has_row_gauge
+        and row_gauge_kind == "full_pair_pole_gauge"
+        and not missing_lrlr
+    )
+    global_ready = lrlr_ready and not missing_global
+    return {
+        "path": str(path),
+        "status": "computed",
+        "extractor_ready": extractor_ready,
+        "lrlr_ready": lrlr_ready,
+        "global_gate1_contract_ready": global_ready,
+        "missing_required_fields": {
+            "extractor": missing + ([] if has_rows or has_row_gauge else ["rows_or_row_gauge"]),
+            "lrlr": missing_lrlr,
+            "global_gate1": missing_global,
+        },
+        "blocking_errors": errors,
+        "warnings": warnings,
+        "row_source": "row_gauge" if has_row_gauge else ("rows" if has_rows else None),
+        "row_gauge_kind": row_gauge_kind,
+        "omitted_q_pole_index": omitted_index,
+        "omitted_q_pole_location": omitted_location,
+        "q_roots": q_roots,
+        "gammas": gammas,
+    }
+
+
 def scan_jsons_for_gate1(root: Path) -> dict[str, Any]:
     records = [diagnose_json_file(path) for path in sorted(root.rglob("*.json"))]
     by_kind: dict[str, int] = {}
@@ -2557,6 +2710,7 @@ def main() -> int:
     parser.add_argument("--toy-g2", action="store_true", help="run a synthetic g=2 smoke test")
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
+    parser.add_argument("--audit-chart-contract", action="store_true", help="check the current Gate 1 chart JSON contract")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
     parser.add_argument(
         "--audit-full-pair-gauge-choices",
@@ -2617,6 +2771,29 @@ def main() -> int:
     parser.add_argument("--rows", help="row specs: eval:x,deriv:x:1,...")
     parser.add_argument("--write-json", help="write extractor output")
     args = parser.parse_args()
+
+    if args.audit_chart_contract:
+        if not args.chart_json:
+            parser.error("--audit-chart-contract requires --chart-json")
+        audit = chart_contract_audit(Path(args.chart_json))
+        print("Gate 1 chart contract audit")
+        print(f"  path = {audit['path']}")
+        print(f"  extractor ready = {audit['extractor_ready']}")
+        print(f"  LRLR ready = {audit['lrlr_ready']}")
+        print(f"  global Gate 1 contract ready = {audit['global_gate1_contract_ready']}")
+        print(f"  missing = {audit['missing_required_fields']}")
+        print(f"  errors = {audit['blocking_errors']}")
+        print(f"  warnings = {audit['warnings']}")
+        print(f"  row source = {audit['row_source']}, gauge kind = {audit['row_gauge_kind']}")
+        print(
+            "  omitted pole index/location = "
+            f"{audit['omitted_q_pole_index']} / {audit['omitted_q_pole_location']}"
+        )
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
 
     if args.audit_lrlr_residual_offrow:
         if not args.chart_json:
