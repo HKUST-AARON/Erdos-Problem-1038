@@ -14022,6 +14022,73 @@ theorem queue.
     \tag{G1CorrectedNextAfterSingularFiveBlock}
     \]
 
+    Computation start: repaired data extractor core.
+
+    The numerical route has now started with the required first object, not
+    with the old fixed-\(Q\) table.  The new script
+
+    \[
+    \texttt{1038/gate1\_repaired\_data\_extractor.py}
+    \]
+
+    implements the canonical linear-algebra extractor:
+
+    \[
+    B_m^{can}=Dz^m,\qquad
+    A_{row,m}=row(B_m^{can}),\qquad
+    r_\gamma=row\!\left(-\frac12PQD_\gamma\right),
+    \]
+
+    solves
+
+    \[
+    AX_\gamma=-r_\gamma,
+    \]
+
+    and outputs
+
+    \[
+    H_\gamma^{rep}
+    =
+    -\frac12PQD_\gamma+\sum_m(X_\gamma)_mB_m^{can}.
+    \]
+
+    The smoke test
+
+    \[
+    \texttt{python3 1038/gate1\_repaired\_data\_extractor.py --toy-g2}
+    \]
+
+    uses a synthetic regular \(g=2\) chart and verifies the extractor algebra:
+
+    \[
+    \det A=5.394710695371\cdot10^7,\qquad
+    \kappa(A)=6.851468981911\cdot10^2,
+    \]
+
+    \[
+    \max_\gamma |AX_\gamma+r_\gamma|
+    =
+    6.821210263297\cdot10^{-13},
+    \qquad
+    \max_{\gamma,row}|row(H_\gamma^{rep})|
+    =
+    7.691625114603\cdot10^{-13}.
+    \tag{G1ExtractorSmoke}
+    \]
+
+    This is not a Gate 1 certificate.  It proves only that the extractor core
+    implements (G1ExtractorSolve)--(G1ExtractorH) correctly once a regular
+    moving chart \(P,Q,D,\ell\) is supplied.  The existing
+    \(\texttt{solve\_two\_interval\_finite\_gap.py}\) script remains a local
+    one-cut/two-interval branch diagnostic; it does not supply the compact
+    non-pinched \(g=2\) data \((P,Q,D,\Gamma,\ell)\), and therefore cannot by
+    itself run the Gate 1 repaired oracle.
+
+    The next computational step is to provide a real compact \(g=2\) chart
+    input to this extractor, then compute \(C_\gamma=H_\gamma^{rep}/(Q^2R)\),
+    \(V_S,\rho_S,b_S\), and the endpoint/off-row determinant smoke tests.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

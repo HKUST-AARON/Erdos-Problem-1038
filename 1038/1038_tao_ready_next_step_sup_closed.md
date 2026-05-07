@@ -487,6 +487,18 @@ Useful corrections already recorded:
   positive-circuit negativity must instead come from a direct majorant/envelope
   construction or a second-variation/effective Hessian input; it cannot come
   from the naive first-order five-column determinant.
+- Computation has started with the required repaired-data object.  The new
+  script `1038/gate1_repaired_data_extractor.py` implements the canonical
+  extractor \(B_m=Dz^m\), \(A_{row,m}=row(B_m)\),
+  \(r_\gamma=row(-\frac12PQD_\gamma)\), solves \(AX_\gamma=-r_\gamma\), and
+  returns \(H_\gamma^{rep}\).  A synthetic regular \(g=2\) smoke test gives
+  \(\det A=5.394710695371\cdot10^7\), \(\kappa(A)=6.851468981911\cdot10^2\),
+  \(\max|AX+r|=6.821210263297\cdot10^{-13}\), and max repaired row residual
+  \(7.691625114603\cdot10^{-13}\).  This verifies the extractor algebra only;
+  it is not a Gate 1 certificate.  The next computation needs actual compact
+  \(g=2\) chart input \((P,Q,D,\Gamma,\ell)\), because the existing
+  `solve_two_interval_finite_gap.py` is still a local branch diagnostic and
+  does not output the repaired Gate 1 data.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
