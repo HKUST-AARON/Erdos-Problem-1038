@@ -3593,6 +3593,30 @@ def PositiveComponent.AugmentedIntervalMaximal
       Ioo l r ⊆ C.interval
 
 /--
+Upgrade ordinary interval maximality to augmented interval maximality when the
+augmented competing intervals carry no diagonal-atom exception.  This isolates
+the remaining pole-as-win issue: ordinary component topology handles the
+positive part, while diagonal atoms must be ruled out or absorbed separately.
+-/
+theorem PositiveComponent.augmentedIntervalMaximal_of_intervalMaximal_no_diagonal
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    (hmax : C.IntervalMaximal)
+    (hnoDiag :
+      ∀ l r : ℝ, l < r →
+        Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+        (Ioo l r ∩ C.interval).Nonempty →
+        Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    C.AugmentedIntervalMaximal := by
+  intro l r hlr haug hinter
+  apply hmax l r hlr ?_ hinter
+  intro y hy
+  have hyaug : y ∈ unitIntervalAugmentedPositiveSet μ := haug hy
+  rcases hyaug with hpos | hdiag
+  · exact hpos
+  · exfalso
+    exact (hnoDiag l r hlr haug hinter).le_bot ⟨hy, hdiag⟩
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
