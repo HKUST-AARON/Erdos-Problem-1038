@@ -8316,7 +8316,7 @@ shape needed by the direct spanning-interval component constructor.
 -/
 theorem positive_spanning_interval_of_baseline_and_zero_neighborhood
     {μ : ProbabilityMeasure UnitInterval1038}
-    {δ : ℝ} (hδ : 0 < δ)
+    {δ : ℝ} (_hδ : 0 < δ)
     (hbaseline :
       Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
     (hright :
@@ -8352,6 +8352,44 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_and_zero_neighbo
   exact exists_positiveComponent_baseline_right_pos_of_positive_spanning hδ
     (positive_spanning_interval_of_baseline_and_zero_neighborhood
       hδ hbaseline hright hzero)
+
+/--
+Augmented-maximal selected-component constructor from baseline positivity plus a
+positive right neighbourhood of `0`.  This is the direct selected-component API
+for the next standard-reduction step: the remaining analytic inputs are
+openness of the ordinary positive set, the no-diagonal policy for augmented
+competitors, and positivity on the two sides of `0`.
+-/
+theorem exists_positiveComponent_augmentedMaximal_of_baseline_and_zero_neighborhood_auto_bdd
+    {μ : ProbabilityMeasure UnitInterval1038} {x δ : ℝ}
+    (hopen : IsOpen (PositiveSet (unitIntervalLogPotential μ)))
+    (hxbase : x ∈ Ioo (-1 : ℝ) 0)
+    (hδ : 0 < δ)
+    (hbaseline :
+      Ioo (-1 : ℝ) 0 ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hright :
+      Ioo (0 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ))
+    (hzero : 0 < unitIntervalLogPotential μ 0)
+    (hnoDiag :
+      ∀ C : PositiveComponent μ,
+        C.IntervalMaximal →
+        Ioo (-1 : ℝ) 0 ⊆ C.interval →
+        0 < C.right →
+        ∀ l r : ℝ, l < r →
+          Ioo l r ⊆ unitIntervalAugmentedPositiveSet μ →
+          (Ioo l r ∩ C.interval).Nonempty →
+          Disjoint (Ioo l r) (diagonalAtomSet μ)) :
+    ∃ C : PositiveComponent μ,
+      C.AugmentedIntervalMaximal ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  exact
+    exists_positiveComponent_augmentedMaximal_of_positive_spanning_interval_auto_bdd
+      (μ := μ) (x := x) (δ := δ)
+      hopen hxbase hδ
+      (positive_spanning_interval_of_baseline_and_zero_neighborhood
+        hδ hbaseline hright hzero)
+      hnoDiag
 
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
