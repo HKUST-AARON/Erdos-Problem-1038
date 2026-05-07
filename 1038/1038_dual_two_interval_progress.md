@@ -17547,3 +17547,70 @@ bridges were the one-cut upper construction, the corrected lower-genus branch,
 the pinching/degeneration lemma, the high-genus local-neck reduction, the
 regularity-removal interface, and the normalized minimizer reduction.  Gates
 3--7 above are the ledger closure of those bridges.
+
+## Gate 1 compact chart blocker audit
+
+The current best path is no longer another toy LRLR probe.  The extractor now
+has an explicit blocker command:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-blockers --scan-jsons 1038 \
+  --write-json 1038/gate1_compact_chart_blocker_audit.json
+```
+
+The run reports:
+
+```text
+scan gate1 chart ready = 0
+old diagnostics = 4
+proof-grade chart ready = False
+solver should run = False
+```
+
+The old two-interval diagnostic files are therefore still not Gate 1 chart
+inputs.  The blocker audit separates five layers:
+
+1. extractor base fields \(P,Q,\Gamma\) and exactly one of `rows` or
+   `row_gauge`;
+2. LRLR real-row fields: full-pair `row_gauge`, \(c,u,v,a,b\);
+3. global Gate 1 fields: \(\kappa,Z_0\);
+4. the compact moving-chart equations;
+5. equation provenance without TODO placeholders.
+
+The first three layers are schema/JSON obligations.  A synthetic toy chart can
+make those three layers ready, but the audit still marks
+
+```text
+compact moving-chart equations = blocked
+equation provenance = blocked
+```
+
+The chart pipeline has also been tightened: `--run-chart-pipeline` now requires
+`proof_grade=true` and a non-TODO `equation_provenance` before setting
+`proof_interpretation_allowed=True`.  This is intentional: a solver must not
+synthesize proof-grade chart data from old diagnostics or from a toy chart.
+The next mathematical input is precisely
+`CompactG2MovingChartEquations`: the unknown vector, pole-pair/gauge
+equations, zero-mass or normalization row, period/filling equation fixing
+\(\kappa\), and the rule selecting \(Z_0,u,c,v,a,b\).
+
+Thus the current stop/go judgment is:
+
+\[
+\boxed{
+\text{GO only on writing CompactG2MovingChartEquations row-by-row.}
+}
+\]
+
+Once that equation system is fixed, the next executable step is to generate a
+proof-grade chart JSON and rerun
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --chart-json 1038/gate1_compact_g2_chart.json \
+  --run-chart-pipeline
+```
+
+Until then, the LRLR \(\rho\)-row and affine-row audits remain smoke/diagnostic
+evidence, not Gate 1 proof.

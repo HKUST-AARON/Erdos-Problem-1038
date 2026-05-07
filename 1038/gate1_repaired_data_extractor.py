@@ -823,6 +823,149 @@ def compact_g2_chart_template_payload(toy: bool = False) -> dict[str, Any]:
     }
 
 
+def _todo_like(value: Any) -> bool:
+    if isinstance(value, str):
+        return "TODO" in value or not value.strip()
+    if isinstance(value, list):
+        return any(_todo_like(item) for item in value)
+    if isinstance(value, dict):
+        return any(_todo_like(item) for item in value.values())
+    return False
+
+
+def compact_chart_blocker_audit(
+    chart_path: Path | None = None,
+    scan_root: Path | None = None,
+) -> dict[str, Any]:
+    """Report the exact blockers before a proof-grade compact g=2 chart exists.
+
+    This is intentionally an audit, not a solver.  Its job is to prevent the
+    old two-interval diagnostics or synthetic smoke charts from being treated
+    as Gate 1 proof data.
+    """
+    chart_payload: dict[str, Any] | None = None
+    contract: dict[str, Any] | None = None
+    if chart_path is not None:
+        contract = chart_contract_audit(chart_path)
+        try:
+            loaded = json.loads(chart_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                chart_payload = loaded
+        except Exception:
+            chart_payload = None
+
+    scan: dict[str, Any] | None = scan_jsons_for_gate1(scan_root) if scan_root is not None else None
+
+    def field_state(keys: list[str]) -> dict[str, Any]:
+        if chart_payload is None:
+            return {"present": False, "missing": keys, "todo_like": None}
+        missing = [key for key in keys if key not in chart_payload]
+        present_values = {key: chart_payload.get(key) for key in keys if key in chart_payload}
+        return {
+            "present": not missing,
+            "missing": missing,
+            "todo_like": _todo_like(present_values),
+        }
+
+    equation_provenance = (
+        chart_payload.get("equation_provenance")
+        if isinstance(chart_payload, dict)
+        else None
+    )
+    provenance_ready = isinstance(equation_provenance, dict) and not _todo_like(
+        equation_provenance
+    )
+
+    blocks = [
+        {
+            "name": "extractor base fields",
+            "required": ["P", "Q", "gammas", "rows_or_row_gauge"],
+            "status": "ready"
+            if contract and contract.get("extractor_ready")
+            else "blocked",
+            "evidence": contract.get("missing_required_fields", {}).get("extractor")
+            if contract
+            else "no chart JSON supplied",
+        },
+        {
+            "name": "LRLR real row fields",
+            "required": ["row_gauge=full_pair_pole_gauge", "c", "u", "v", "a", "b"],
+            "status": "ready" if contract and contract.get("lrlr_ready") else "blocked",
+            "evidence": contract.get("missing_required_fields", {}).get("lrlr")
+            if contract
+            else "no chart JSON supplied",
+        },
+        {
+            "name": "global Gate 1 fields",
+            "required": ["kappa", "Z0"],
+            "status": "ready"
+            if contract and contract.get("global_gate1_contract_ready")
+            else "blocked",
+            "evidence": contract.get("missing_required_fields", {}).get("global_gate1")
+            if contract
+            else "no chart JSON supplied",
+        },
+        {
+            "name": "compact moving-chart equations",
+            "required": [
+                "unknown vector for compact non-pinched g=2 chart",
+                "pole-pair/gauge equations",
+                "zero-mass or normalization equation",
+                "period/filling equation fixing kappa",
+                "rules selecting Z0,u,c,v,a,b",
+            ],
+            "status": "blocked",
+            "evidence": (
+                "not implemented in this extractor; must be supplied by "
+                "CompactG2MovingChartEquations before solver output is proof-grade"
+            ),
+        },
+        {
+            "name": "equation provenance",
+            "required": ["equation_provenance without TODO placeholders"],
+            "status": "ready" if provenance_ready else "blocked",
+            "evidence": equation_provenance
+            if equation_provenance is not None
+            else "no equation_provenance field",
+        },
+    ]
+
+    chart_ready_count = scan.get("gate1_chart_ready_count") if scan else None
+    old_diagnostics = scan.get("old_two_interval_diagnostic_count") if scan else None
+    proof_grade_chart_ready = bool(
+        contract
+        and contract.get("global_gate1_contract_ready")
+        and provenance_ready
+        and all(block["status"] == "ready" for block in blocks[:3])
+    )
+    return {
+        "model": "Gate 1 compact chart blocker audit",
+        "chart_path": str(chart_path) if chart_path else None,
+        "scan_root": str(scan_root) if scan_root else None,
+        "scan_gate1_chart_ready_count": chart_ready_count,
+        "scan_old_two_interval_diagnostic_count": old_diagnostics,
+        "proof_grade_chart_ready": proof_grade_chart_ready,
+        "solver_should_run": False,
+        "solver_stop_reason": (
+            "CompactG2MovingChartEquations is not yet present as executable equations; "
+            "do not synthesize a proof-grade chart from old two-interval diagnostics."
+        ),
+        "contract": contract,
+        "field_states": {
+            "extractor": field_state(["P", "Q", "gammas"]),
+            "lrlr": field_state(["c", "u", "v", "a", "b"]),
+            "global": field_state(["kappa", "Z0"]),
+            "provenance": field_state(["equation_provenance"]),
+        },
+        "blockers": blocks,
+        "next_action": (
+            "write CompactG2MovingChartEquations row-by-row, especially the "
+            "period/filling equation and the rule fixing kappa,Z0,u,c,v,a,b; "
+            "then generate a chart JSON and rerun --run-chart-pipeline"
+        ),
+    }
+
+
 def full_pair_gauge_choice_audit(
     P: Array,
     Q: Array,
@@ -3339,6 +3482,18 @@ def run_gate1_chart_pipeline(
 ) -> dict[str, Any]:
     """Run the current Gate 1 chart handoff pipeline on a candidate chart."""
     contract = chart_contract_audit(path)
+    source_payload: dict[str, Any] = {}
+    try:
+        loaded_payload = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(loaded_payload, dict):
+            source_payload = loaded_payload
+    except Exception:
+        source_payload = {}
+    proof_grade_declared = source_payload.get("proof_grade") is True
+    equation_provenance = source_payload.get("equation_provenance")
+    equation_provenance_ready = isinstance(equation_provenance, dict) and not _todo_like(
+        equation_provenance
+    )
     blockers: list[str] = []
     repaired_payload: dict[str, Any] | None = None
     full_pair_payload: dict[str, Any] | None = None
@@ -3372,6 +3527,10 @@ def run_gate1_chart_pipeline(
 
     if not contract["global_gate1_contract_ready"]:
         blockers.append("chart lacks global Gate 1 fields kappa and/or Z0")
+    if not proof_grade_declared:
+        blockers.append("chart does not declare proof_grade=true")
+    if not equation_provenance_ready:
+        blockers.append("chart lacks non-TODO equation_provenance")
 
     accepted_choices = full_pair_payload.get("accepted_choices", []) if full_pair_payload else []
     rho_fixed_choices = [
@@ -3414,10 +3573,14 @@ def run_gate1_chart_pipeline(
             "accepted_choices": full_pair_payload["accepted_choices"],
             "pole_row_subset_summary": full_pair_payload["pole_row_subset_summary"],
         },
+        "proof_grade_declared": proof_grade_declared,
+        "equation_provenance_ready": equation_provenance_ready,
         "rho_fixed_choice_count": len(rho_fixed_choices),
         "affine_fixed_choice_count": len(affine_fixed_choices),
         "proof_interpretation_allowed": (
             contract["global_gate1_contract_ready"]
+            and proof_grade_declared
+            and equation_provenance_ready
             and repaired_payload is not None
             and full_pair_payload is not None
         ),
@@ -3456,6 +3619,11 @@ def main() -> int:
     parser.add_argument("--audit-two-interval-json", help="audit old two-interval JSON for Gate 1 readiness")
     parser.add_argument("--scan-jsons", help="scan a directory for Gate 1 chart JSON candidates")
     parser.add_argument("--audit-chart-contract", action="store_true", help="check the current Gate 1 chart JSON contract")
+    parser.add_argument(
+        "--audit-compact-chart-blockers",
+        action="store_true",
+        help="report the exact blockers before a proof-grade compact g=2 chart can be generated",
+    )
     parser.add_argument("--run-chart-pipeline", action="store_true", help="run contract, repaired extraction, gauge choice, and LRLR audits")
     parser.add_argument("--write-chart-template", action="store_true", help="write the current compact g=2 chart JSON template")
     parser.add_argument("--audit-pole-row-subsets", action="store_true", help="enumerate square pole-row subgauges")
@@ -3578,6 +3746,30 @@ def main() -> int:
             print(f"  wrote {args.write_json}")
         return 0
 
+    if args.audit_compact_chart_blockers:
+        audit = compact_chart_blocker_audit(
+            chart_path=Path(args.chart_json) if args.chart_json else None,
+            scan_root=Path(args.scan_jsons) if args.scan_jsons else None,
+        )
+        print("Gate 1 compact chart blocker audit")
+        print(f"  chart = {audit['chart_path']}")
+        print(f"  scan root = {audit['scan_root']}")
+        print(f"  scan gate1 chart ready = {audit['scan_gate1_chart_ready_count']}")
+        print(f"  old diagnostics = {audit['scan_old_two_interval_diagnostic_count']}")
+        print(f"  proof-grade chart ready = {audit['proof_grade_chart_ready']}")
+        print(f"  solver should run = {audit['solver_should_run']}")
+        print(f"  solver stop reason = {audit['solver_stop_reason']}")
+        for block in audit["blockers"]:
+            print(f"  block: {block['name']} = {block['status']}")
+            print(f"    required = {block['required']}")
+            print(f"    evidence = {block['evidence']}")
+        print(f"  next = {audit['next_action']}")
+        if args.write_json:
+            with open(args.write_json, "w", encoding="utf-8") as handle:
+                json.dump(audit, handle, indent=2, sort_keys=True)
+            print(f"  wrote {args.write_json}")
+        return 0
+
     if args.run_chart_pipeline:
         if not args.chart_json:
             parser.error("--run-chart-pipeline requires --chart-json")
@@ -3596,6 +3788,11 @@ def main() -> int:
             f"extractor:{payload['contract']['extractor_ready']} "
             f"LRLR:{payload['contract']['lrlr_ready']} "
             f"global:{payload['contract']['global_gate1_contract_ready']}"
+        )
+        print(
+            "  proof metadata = "
+            f"proof_grade:{payload['proof_grade_declared']} "
+            f"provenance:{payload['equation_provenance_ready']}"
         )
         print(f"  proof interpretation allowed = {payload['proof_interpretation_allowed']}")
         print(f"  repaired summary = {payload['repaired_summary']}")

@@ -5370,3 +5370,35 @@ Separate the two messages:
 
 Do not write "Erdős 1038 solved."  Do not merge the \(1.814600\) finite
 certificate with the exact-value claim.
+
+## 9. Current Gate 1 Executor Status
+
+The extractor has a new blocker audit:
+
+```bash
+python3 1038/gate1_repaired_data_extractor.py \
+  --audit-compact-chart-blockers --scan-jsons 1038 \
+  --write-json 1038/gate1_compact_chart_blocker_audit.json
+```
+
+It currently reports `gate1 chart ready = 0`, four old two-interval
+diagnostic JSONs, and `proof-grade chart ready = False`.  It also refuses to
+run a compact \(g=2\) solver because `CompactG2MovingChartEquations` is not yet
+present as executable equations.
+
+The important correction is that the software now distinguishes:
+
+- extractor/schema readiness;
+- LRLR real-row readiness;
+- global Gate 1 contract readiness;
+- actual compact moving-chart equations and provenance.
+
+A toy chart can satisfy the first three schema layers, but it still fails the
+last two layers.  The chart pipeline now also requires `proof_grade=true` and
+non-TODO `equation_provenance` before allowing proof interpretation.  Therefore
+toy LRLR outputs remain smoke tests only.  The next most likely route is not
+more toy-row searching; it is to write
+`CompactG2MovingChartEquations` row-by-row, especially the period/filling
+equation fixing \(\kappa\) and the rule fixing \(Z_0,u,c,v,a,b\).  Only after
+that should `gate1_compact_g2_chart.json` be generated and passed to
+`--run-chart-pipeline`.

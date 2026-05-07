@@ -1,0 +1,104 @@
+{
+  "blockers": [
+    {
+      "evidence": "no chart JSON supplied",
+      "name": "extractor base fields",
+      "required": [
+        "P",
+        "Q",
+        "gammas",
+        "rows_or_row_gauge"
+      ],
+      "status": "blocked"
+    },
+    {
+      "evidence": "no chart JSON supplied",
+      "name": "LRLR real row fields",
+      "required": [
+        "row_gauge=full_pair_pole_gauge",
+        "c",
+        "u",
+        "v",
+        "a",
+        "b"
+      ],
+      "status": "blocked"
+    },
+    {
+      "evidence": "no chart JSON supplied",
+      "name": "global Gate 1 fields",
+      "required": [
+        "kappa",
+        "Z0"
+      ],
+      "status": "blocked"
+    },
+    {
+      "evidence": "not implemented in this extractor; must be supplied by CompactG2MovingChartEquations before solver output is proof-grade",
+      "name": "compact moving-chart equations",
+      "required": [
+        "unknown vector for compact non-pinched g=2 chart",
+        "pole-pair/gauge equations",
+        "zero-mass or normalization equation",
+        "period/filling equation fixing kappa",
+        "rules selecting Z0,u,c,v,a,b"
+      ],
+      "status": "blocked"
+    },
+    {
+      "evidence": "no equation_provenance field",
+      "name": "equation provenance",
+      "required": [
+        "equation_provenance without TODO placeholders"
+      ],
+      "status": "blocked"
+    }
+  ],
+  "chart_path": null,
+  "contract": null,
+  "field_states": {
+    "extractor": {
+      "missing": [
+        "P",
+        "Q",
+        "gammas"
+      ],
+      "present": false,
+      "todo_like": null
+    },
+    "global": {
+      "missing": [
+        "kappa",
+        "Z0"
+      ],
+      "present": false,
+      "todo_like": null
+    },
+    "lrlr": {
+      "missing": [
+        "c",
+        "u",
+        "v",
+        "a",
+        "b"
+      ],
+      "present": false,
+      "todo_like": null
+    },
+    "provenance": {
+      "missing": [
+        "equation_provenance"
+      ],
+      "present": false,
+      "todo_like": null
+    }
+  },
+  "model": "Gate 1 compact chart blocker audit",
+  "next_action": "write CompactG2MovingChartEquations row-by-row, especially the period/filling equation and the rule fixing kappa,Z0,u,c,v,a,b; then generate a chart JSON and rerun --run-chart-pipeline",
+  "proof_grade_chart_ready": false,
+  "scan_gate1_chart_ready_count": 0,
+  "scan_old_two_interval_diagnostic_count": 4,
+  "scan_root": "1038",
+  "solver_should_run": false,
+  "solver_stop_reason": "CompactG2MovingChartEquations is not yet present as executable equations; do not synthesize a proof-grade chart from old two-interval diagnostics."
+}
