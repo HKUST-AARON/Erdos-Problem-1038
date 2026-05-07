@@ -3123,6 +3123,32 @@ theorem positiveSet_connectedComponentIn_intervalMaximal
     connectedComponentIn_eq hycomp
   simpa [hcomp_eq] using hI_sub_y
 
+/--
+Any positive open interval containing the selected point lies inside that
+point's connected component in the positive set.  This is the baseline-entry
+step for component selection: once `x ∈ (-1,0)` is chosen and the baseline
+interval is known positive, the whole baseline interval belongs to the selected
+connected component.
+-/
+theorem positiveSet_interval_subset_connectedComponentIn_of_mem
+    {U : ℝ → ℝ} {x l r : ℝ}
+    (hxI : x ∈ Ioo l r)
+    (hpos : Ioo l r ⊆ PositiveSet U) :
+    Ioo l r ⊆ connectedComponentIn (PositiveSet U) x :=
+  isPreconnected_Ioo.subset_connectedComponentIn hxI hpos
+
+/--
+Baseline specialization of
+`positiveSet_interval_subset_connectedComponentIn_of_mem`.
+-/
+theorem positiveSet_baseline_subset_connectedComponentIn_of_mem
+    {U : ℝ → ℝ} {x : ℝ}
+    (hx : x ∈ Ioo (-1 : ℝ) 0)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ PositiveSet U) :
+    Ioo (-1 : ℝ) 0 ⊆ connectedComponentIn (PositiveSet U) x :=
+  positiveSet_interval_subset_connectedComponentIn_of_mem
+    (U := U) hx hbaseline
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
