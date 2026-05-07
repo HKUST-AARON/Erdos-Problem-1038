@@ -21594,7 +21594,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
           0 < (μ : Measure UnitInterval1038)
             {t : UnitInterval1038 | (t : ℝ) = -1} ∧
           Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -21618,7 +21617,11 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundarySpanningPositiveContinuousNotSupportDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
-      hendpoint_unit_pos, hbaseline, hright_cont, hright_not_support, hzero⟩
+      hendpoint_unit_pos, hbaseline, hright_not_support, hzero⟩
+  have hright_cont :
+      ContinuousAt (unitIntervalLogPotential μ) C.right :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hright_not_support
   have hright_not_aug :
       C.right ∉ unitIntervalAugmentedPositiveSet μ :=
     C.right_not_mem_augmented_of_spanning_positive_continuous_not_support
@@ -21650,7 +21653,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
           0 < (μ : Measure UnitInterval1038)
             {t : UnitInterval1038 | (t : ℝ) = -1} ∧
           Set.Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -21674,7 +21676,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryAugmentedSpanContinuousNotSupportDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_cont, hright_not_support, hzero⟩
+      hendpoint_unit_pos, hbaseline, hright_not_support, hzero⟩
   have hspan_interval :
       Set.Ioo (-(1 : ℝ) - ε) C.right ⊆ C.interval :=
     C.spanning_augmented_subset_interval_of_augmentedIntervalMaximal
@@ -21686,7 +21688,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     exact C.pointwise_positive (hspan_interval hx)
   exact
     ⟨C, ε, hε, hright_pos, hmax, hspan_pos,
-      hendpoint_unit_pos, hbaseline, hright_cont, hright_not_support, hzero⟩
+      hendpoint_unit_pos, hbaseline, hright_not_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_intrinsic_boundary_excluded_data
     (hAugmentedMaximalComponentUnitEndpointAtomIntrinsicBoundaryExcludedDataFromVariation :
@@ -22632,7 +22634,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
               unitIntervalAugmentedPositiveSet μ =
             ∅ ∧
           C.right ∉ diagonalAtomSet μ ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -22657,7 +22658,11 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hright_not_diag,
-      hright_cont, hnot_support, hzero⟩
+      hnot_support, hzero⟩
+  have hright_cont :
+      ContinuousAt (unitIntervalLogPotential μ) C.right :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hnot_support
   have hnot_aug :
       C.right ∉ unitIntervalAugmentedPositiveSet μ :=
     not_mem_unitIntervalAugmentedPositiveSet_of_open_right_gap
@@ -22692,7 +22697,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
           Set.Ioo C.right (C.right + δ) ∩
               unitIntervalAugmentedPositiveSet μ =
             ∅ ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -22716,12 +22720,12 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, haug_gap, hright_cont, hnot_support, hzero⟩
+      hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
   exact
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap,
       notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support,
-      hright_cont, hnot_support, hzero⟩
+      hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_closure_excluded_not_support_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanClosureExcludedNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation :
@@ -23034,7 +23038,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
               unitIntervalAugmentedPositiveSet μ =
             ∅ ∧
           C.right ∉ diagonalAtomSet μ ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -23058,7 +23061,11 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases hAugmentedMaximalComponentReplacementAugmentedSpanOpenAugmentedGapOffDiagonalContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hbaseline, haug_gap, hright_not_diag, hright_cont, hnot_support, hzero⟩
+      hbaseline, haug_gap, hright_not_diag, hnot_support, hzero⟩
+  have hright_cont :
+      ContinuousAt (unitIntervalLogPotential μ) C.right :=
+    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
+      hnot_support
   have hnot_aug :
       C.right ∉ unitIntervalAugmentedPositiveSet μ :=
     not_mem_unitIntervalAugmentedPositiveSet_of_open_right_gap
@@ -23092,7 +23099,6 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
           Set.Ioo C.right (C.right + δ) ∩
               unitIntervalAugmentedPositiveSet μ =
             ∅ ∧
-          ContinuousAt (unitIntervalLogPotential μ) C.right ∧
           C.right ∉ (realMeasure μ).support ∧
           (∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
             realMeasure μ U = 0)) :
@@ -23116,12 +23122,12 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
   rcases hAugmentedMaximalComponentReplacementAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hbaseline, haug_gap, hright_cont, hnot_support, hzero⟩
+      hbaseline, haug_gap, hnot_support, hzero⟩
   exact
     ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hbaseline, haug_gap,
       notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support,
-      hright_cont, hnot_support, hzero⟩
+      hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_replacement_augmented_span_closure_excluded_not_support_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentReplacementAugmentedSpanClosureExcludedNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation :
