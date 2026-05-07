@@ -30946,6 +30946,24 @@ noncomputable def unitInterval_standardReduction_from_span_augmentedSupportExclu
     (selectedComponent_provider_from_span_augmentedSupportExcluded_endpointAtom_regular_data
       haug_not_support hδ₀ hspan_pos hRegularEndpointData)
 
+theorem not_augmentedSupportExcluded_of_unit_endpoint_atom_pos
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1}) :
+    ¬ (∀ x : ℝ, x ∈ unitIntervalAugmentedPositiveSet μ →
+        x ∉ (realMeasure μ).support) := by
+  intro haug_not_support
+  have hendpoint_real_pos : 0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hsupport : (-1 : ℝ) ∈ (realMeasure μ).support :=
+    realMeasure_mem_support_of_singleton_pos hendpoint_real_pos
+  have haug : (-1 : ℝ) ∈ unitIntervalAugmentedPositiveSet μ :=
+    unitInterval_diagonalAtomSet_subset_augmented μ
+      (by simpa [diagonalAtomSet] using hendpoint_unit_pos)
+  exact haug_not_support (-1) haug hsupport
+
 theorem selectedComponent_provider_from_span_augmentedSupportExcluded_endpointAtom_closure_regular_data
     {μ : ProbabilityMeasure UnitInterval1038} {δ₀ : ℝ}
     (haug_not_support :
