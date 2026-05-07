@@ -19431,9 +19431,8 @@ The only remaining alternatives are:
   case to Gate 3.
 
 All five failure types are routed to Gate 3, Gate 5, or the normalized
-finite-gap exhaustion branch.  If `ZeroBoundaryKKTObstructionLemma` is proved,
-then in the regular branch (none of these failures) we conclude
-\(U_\mu(0)>0\).
+finite-gap exhaustion branch.  After the log-row dictionary check is supplied,
+the regular branch (none of these failures) gives \(U_\mu(0)>0\).
 
 By openness of the regular positive set, there exists \(\delta>0\) such
 that \(U_\mu(y)>0\) for all \(y\in(-1,\delta]\).  This proves the
