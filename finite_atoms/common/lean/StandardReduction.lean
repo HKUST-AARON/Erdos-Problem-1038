@@ -23786,19 +23786,16 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_replacement_rigidity_zero_neighborhood_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanAugmentedGapNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, δ₀, hε, hright_pos, hδ₀, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
-  rcases C.right_gap_union_of_augmented_gap_not_mem_support
-      hδ₀ haug_gap hnot_support with
-    ⟨δ, hδ, hright_gap⟩
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_not_mem_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapNotMemReplacementRigidityZeroNeighborhoodDataFromVariation :
@@ -23844,19 +23841,16 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_right_gap_replacement_rigidity_zero_neighborhood_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapNotMemReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, δ₀, hε, hright_pos, hδ₀, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_aug, hnot_support, hzero⟩
-  rcases C.right_gap_union_of_open_augmented_gap_not_mem
-      hδ₀ haug_gap hnot_aug hnot_support with
-    ⟨δ, hδ, hright_gap⟩
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, hright_gap, hzero⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_off_diagonal_continuous_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapOffDiagonalContinuousReplacementRigidityZeroNeighborhoodDataFromVariation :
@@ -23901,26 +23895,16 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_not_mem_replacement_rigidity_zero_neighborhood_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapOffDiagonalContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
       μ hPrimary hSecondary with
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
-  have hright_cont :
-      ContinuousAt (unitIntervalLogPotential μ) C.right :=
-    unitIntervalLogPotential_continuousAt_of_not_mem_realMeasure_support μ
-      hnot_support
-  have hright_not_diag : C.right ∉ diagonalAtomSet μ :=
-    notMem_diagonalAtomSet_of_not_mem_realMeasure_support hnot_support
-  have hnot_aug :
-      C.right ∉ unitIntervalAugmentedPositiveSet μ :=
-    not_mem_unitIntervalAugmentedPositiveSet_of_open_right_gap
-      hδ haug_gap hright_not_diag hright_cont
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, haug_gap, hnot_aug, hnot_support, hzero⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_continuous_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation :
@@ -23965,7 +23949,7 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
         ENNReal.ofReal (Real.sqrt 2) ≤
           volume (PositiveSet (unitIntervalLogPotential μ)) := by
   refine
-    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_open_augmented_gap_off_diagonal_continuous_replacement_rigidity_zero_neighborhood_data
+    unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_not_support_boundary_data
       ?_
   intro μ hPrimary hSecondary
   rcases hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanOpenAugmentedGapContinuousReplacementRigidityZeroNeighborhoodDataFromVariation
@@ -23973,8 +23957,8 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
     ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
   exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
+    ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
+      hendpoint_unit_pos, hbaseline, hnot_support, hzero⟩
 
 theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized_endpoint_baseline_from_augmented_maximal_component_unit_endpoint_atom_augmented_span_closure_excluded_not_support_replacement_rigidity_zero_neighborhood_data
     (hAugmentedMaximalComponentUnitEndpointAtomAugmentedSpanClosureExcludedNotSupportReplacementRigidityZeroNeighborhoodDataFromVariation :
