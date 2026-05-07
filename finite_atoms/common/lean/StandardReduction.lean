@@ -15579,6 +15579,29 @@ theorem realMeasure_support_subset_endpoint_union_nonnegative_of_component_neigh
       intro t htSupport htInterval
       exact hunique t htSupport (by simpa [PositiveComponent.interval_eq] using htInterval))
 
+theorem realMeasure_support_disjoint_baseline_of_component_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    Disjoint (Ioo (-1 : ℝ) 0) (realMeasure μ).support := by
+  exact disjoint_baseline_of_support_subset_endpoint_union_nonnegative
+    (realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+      hbaseline hzero)
+
+theorem realMeasure_support_disjoint_baseline_Icc_of_component_neighborhood_zero
+    {μ : ProbabilityMeasure UnitInterval1038} {C : PositiveComponent μ}
+    {a b : ℝ}
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0)
+    (hsubset : Icc a b ⊆ Ioo (-1 : ℝ) 0) :
+    Disjoint (Icc a b) (realMeasure μ).support := by
+  exact disjoint_baseline_Icc_of_support_subset_endpoint_union_nonnegative
+    (realMeasure_support_subset_endpoint_union_nonnegative_of_component_neighborhood_zero
+      hbaseline hzero)
+    hsubset
+
 /--
 Concrete normalized-support form from endpoint atomization of the selected
 component block.
