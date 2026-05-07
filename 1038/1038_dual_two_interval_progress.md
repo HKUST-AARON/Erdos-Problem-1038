@@ -12660,6 +12660,115 @@ theorem queue.
     or prove a signed \(P_\theta\)-alternation theorem from the extracted
     columns.
 
+    Finite-contact alternation reduction.
+
+    We can now remove another layer of infinitary language from
+    MovingSchifferMajorantSignTheorem.  The cone \(\mathcal D_Z\) is defined
+    by the continuum of inequalities \(G_\theta(x)\ge0\), but an extremal
+    failure or extremal proof is witnessed by finitely many contacts.
+
+    Let
+
+    \[
+    \mathcal D_Z
+    =
+    \{\theta\in\mathbb R^4:\theta\cdot V_S(x)-V_\Pi(x)\ge0
+    \ \text{for all }x\in Z_0\}.
+    \]
+
+    For a fixed finite \(\Lambda\), define the affine residual functional
+
+    \[
+    L_\Lambda(\theta)=G_\theta^{(b)}-\Lambda G_\theta^{(c)}.
+    \]
+
+    If \(M_\eta(\Lambda)=\sup_{\theta\in\mathcal D_Z}L_\Lambda(\theta)\) is
+    finite and not attained, then after normalizing a maximizing sequence in
+    projective \(\theta\)-space one obtains either a nonzero recession
+    direction in \(\mathcal D_Z\), or a boundary/contact degeneration.  The
+    former is exactly the positive-lift recession obstruction already recorded;
+    the latter routes to Gate 3.  Thus an interior proof or obstruction may be
+    studied at an extremal \(\theta_*\in\mathcal D_Z\).
+
+    At an extremal \(\theta_*\), choose a minimal active contact set
+
+    \[
+    X=\{x_1,\ldots,x_m\}\subset Z_0,
+    \qquad
+    G_{\theta_*}(x_i)=0,
+    \]
+
+    whose normal cone contains the affine objective row.  By conic
+    Carathéodory in \(\mathbb R^4\), one may take \(m\le4\) for the affine
+    branch after the boundary/anchor row has been fixed; for the homogeneous
+    projective branch the corresponding raw circuit uses at most five
+    contacts.  Equivalently, there are nonnegative weights \(w_i\), not all
+    zero, such that the KKT normal-cone equation reads
+
+    \[
+    \nabla_\theta L_\Lambda
+    =
+    \sum_{i=1}^m w_i V_S(x_i)
+    \]
+
+    in the affine case, with the corresponding homogeneous/projective version
+    at \(\Lambda=\infty\).  If an active contact lies in the interior of a
+    component of \(Z_0\), then the contact is stationary:
+
+    \[
+    G_{\theta_*}'(x_i)=0.
+    \]
+
+    Using \(Q^2R\,G_{\theta_*}'=P_{\theta_*}\), every interior contact gives
+
+    \[
+    P_{\theta_*}(x_i)=0.
+    \]
+
+    If the contact is an endpoint contact, the stationarity condition is
+    replaced by the one-sided sign condition for
+    \(P_{\theta_*}/(Q^2R)\).  If two contacts collide, if a stationary contact
+    hits a branch endpoint or pole, or if the sign of \(Q^2R\) is not
+    separated on the component, the case is a Gate 3 boundary/contact
+    degeneration.
+
+    Hence the remaining sign theorem is finite:
+
+    \[
+    \boxed{\textbf{FiniteContactMajorantReduction}.}
+    }
+    \]
+
+    To prove MovingSchifferMajorantSignTheorem in the regular interior it is
+    enough to handle all nondegenerate contact patterns with:
+
+    1.  at most four affine contacts, or at most five homogeneous/projective
+        contacts;
+    2.  equations \(G_\theta(x_i)=0\) and, for interior contacts,
+        \(P_\theta(x_i)=0\);
+    3.  the componentwise sign table for \(P_\theta/(Q^2R)\) between contacts;
+    4.  the strict residual inequality \(L_\Lambda(\theta)>0\), or the
+        homogeneous alternatives for \(G_\theta^{(c)}\).
+
+    Proof.  The normal-cone statement is the KKT condition for maximizing a
+    linear functional over the closed convex cone \(\mathcal D_Z\) after the
+    recession and boundary cases have been separated.  The active constraint
+    gradients are the vectors \(V_S(x)\); Carathéodory reduces the active set
+    to at most the ambient dimension, with one extra point in the homogeneous
+    projective circuit.  Interior contact stationarity follows because a
+    nonnegative \(C^1\) function attaining a zero minimum in the interior has
+    derivative zero.  The derivative identity gives
+    \(P_\theta(x_i)=0\).  The sign table between consecutive contacts is
+    exactly the assertion that \(G_\theta\) cannot cross below zero.  This
+    proves the reduction.  \(\square\)
+
+    The practical consequence is important: the next computation need not
+    scan all atomic measures on \(Z_0\).  It must enumerate finite contact
+    patterns, solve the corresponding \(G=0\), \(P=0\) system using the
+    extracted \(H_\gamma^{rep}\), and certify the residual sign.  A failure of
+    any nondegenerate pattern gives a concrete Gate 1 obstruction; a
+    degeneracy routes to Gate 3.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

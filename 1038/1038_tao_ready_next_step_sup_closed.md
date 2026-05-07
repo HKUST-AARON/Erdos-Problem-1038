@@ -328,6 +328,13 @@ Useful corrections already recorded:
   \(b_\gamma=aV_\gamma(u)+bV_\gamma(v)\).  The extractor proves the repaired
   columns satisfy the moving-chart rows; it still leaves the
   \(P_\theta\)-majorant sign theorem as the active hard mouth.
+- `FiniteContactMajorantReduction` now reduces that hard mouth to finite
+  contact patterns: at most four contacts for finite affine \(\Lambda\), at
+  most five for the homogeneous/projective circuit, with equations
+  \(G_\theta(x_i)=0\), interior stationarity \(P_\theta(x_i)=0\), a sign table
+  for \(P_\theta/(Q^2R)\) between contacts, and the strict residual check.
+  Contact collisions, endpoint/pole hits, or denominator sign loss route to
+  Gate 3.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 
