@@ -24031,12 +24031,9 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       μ hPrimary hSecondary with
     ⟨C, ε, hε, hright_pos, hmax, hspan_aug,
       hendpoint_unit_pos, hbaseline, hclosure, hnot_support, hzero⟩
-  rcases C.exists_right_Icc_disjoint_augmented_of_not_mem_closure
-      hclosure with
-    ⟨δ, hδ, haug_gap⟩
-  exact
-    ⟨C, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hendpoint_unit_pos, hbaseline, haug_gap, hnot_support, hzero⟩
+  exact False.elim
+    (C.not_mem_closure_contradicts_spanning_augmented
+      hε hright_pos hspan_aug hclosure)
 
 /--
 Replacement-package version of the augmented-span/right-gap replacement
@@ -24529,12 +24526,9 @@ theorem unitIntervalTruncatedPositiveSetObjective_exists_secondMoment_normalized
       μ hPrimary hSecondary with
     ⟨C, R, ε, hε, hright_pos, hmax, hspan_aug,
       hbaseline, hclosure, hnot_support, hzero⟩
-  rcases C.exists_right_Icc_disjoint_augmented_of_not_mem_closure
-      hclosure with
-    ⟨δ, hδ, haug_gap⟩
-  exact
-    ⟨C, R, ε, δ, hε, hright_pos, hδ, hmax, hspan_aug,
-      hbaseline, haug_gap, hnot_support, hzero⟩
+  exact False.elim
+    (C.not_mem_closure_contradicts_spanning_augmented
+      hε hright_pos hspan_aug hclosure)
 
 /-!
 ### Remaining mathematical input for `hEndpointFromVariation`
