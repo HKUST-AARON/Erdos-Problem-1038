@@ -14827,6 +14827,38 @@ theorem boundary_average_of_spanning_augmented_right_gap_zero_neighborhood
       hdistance_upper
 
 /--
+Tao boundary-average inequality from augmented span/right gap and component
+atomization.  Atomization supplies the zero-neighbourhood condition internally.
+-/
+theorem boundary_average_of_spanning_augmented_right_gap_component_atomized
+    (μ : ProbabilityMeasure UnitInterval1038) {C : PositiveComponent μ}
+    {ε δ : ℝ}
+    (hright_pos : 0 < C.right)
+    (hε : 0 < ε)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hbaseline : Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hspan_aug : Ioo (-(1 : ℝ) - ε) C.right ⊆
+      unitIntervalAugmentedPositiveSet μ)
+    (hright_gap :
+      Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hcomponent_atomized :
+      componentBlock C = componentMass C • Measure.dirac (-1 : ℝ)) :
+    1 ≤ (C.right + 1) *
+        (((μ : Measure UnitInterval1038)
+          {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+      (1 - C.right) *
+        (1 -
+          (((μ : Measure UnitInterval1038)
+            {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+  boundary_average_of_spanning_augmented_right_gap_zero_neighborhood
+    μ hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+    (component_neighborhood_zero_of_componentBlock_eq_smul_dirac_endpoint
+      hcomponent_atomized)
+
+/--
 Distance upper bound from augmented span and direct support uniqueness inside
 the selected component.
 -/
