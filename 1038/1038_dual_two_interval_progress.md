@@ -15068,6 +15068,182 @@ theorem queue.
     period, off-row, and contact rows, inherit the corresponding ordered
     Cauchy/confluent-Cauchy signs.
 
+    Full-pair repaired endpoint formula.
+
+    The same full-pair gauge also removes the opaque \(BA^{-1}r_\gamma\) term
+    from the repaired endpoint columns.  Let
+
+    \[
+    M(z)=\prod_{r=1}^{d-1}(z-p_{i_r})
+    \]
+
+    be the selected pole factor.  The repaired endpoint numerator for
+    \(\gamma\in\Gamma\) is
+
+    \[
+    \boxed{
+    H_\gamma^{\rm rep}(z)
+    =
+    -\frac12\,
+    \frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}\,
+    M(z)^2D_\gamma(z).
+    }
+    \tag{G1FullPairRepairedEndpoint}
+    \]
+
+    Proof.  The full-pair repair requires \(H_\gamma^{\rm rep}\) to have a
+    double zero at each selected \(p_{i_r}\).  Hence
+
+    \[
+    H_\gamma^{\rm rep}=M^2T_\gamma,\qquad \deg T_\gamma\le |\Gamma|-1.
+    \]
+
+    Also \(H_\gamma^{\rm rep}-H_\gamma^{\rm raw}\in D\mathbb R[z]_{\le2d-3}\).
+    Evaluating at the four branch endpoints gives
+
+    \[
+    M(\eta)^2T_\gamma(\eta)=H_\gamma^{\rm raw}(\eta).
+    \]
+
+    Since
+
+    \[
+    H_\gamma^{\rm raw}(\eta)=0\quad(\eta\ne\gamma),
+    \qquad
+    H_\gamma^{\rm raw}(\gamma)
+    =
+    -\frac12P(\gamma)Q(\gamma)D_\gamma(\gamma),
+    \]
+
+    the degree-\(|\Gamma|-1\) interpolation polynomial is
+
+    \[
+    T_\gamma(z)
+    =
+    -\frac12
+    \frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}
+    D_\gamma(z),
+    \]
+
+    which proves (G1FullPairRepairedEndpoint).
+
+    Numerically, the extractor checks (G1FullPairRepairedEndpoint) for every
+    full-pair toy subgauge and every endpoint.  The maximum relative error is
+
+    \[
+    1.09\cdot10^{-14}.
+    \]
+
+    This is a substantial simplification of the Gate 1 sign problem.  Under a
+    full-pair pole gauge, the repaired endpoint Cauchy columns become explicit:
+
+    \[
+    C_\gamma^{\rm rep}(z)
+    =
+    -\frac12
+    \frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}
+    \frac{D_\gamma(z)}{N(z)^2R(z)},
+    \qquad
+    Q(z)=M(z)N(z).
+    \]
+
+    Thus the selected-pole double factor \(M^2\) cancels from
+    \(H_\gamma^{\rm rep}/Q^2R\).  The remaining denominator is only the square
+    of the omitted pole factor \(N\), together with \(R\).  The next sign
+    calculation should therefore be made on this explicit kernel, not on the
+    abstract Schur-complement columns.
+
+    In the synthetic cubic smoke chart, the endpoint constants
+
+    \[
+    a_\gamma(M):=
+    -\frac12\frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}
+    \]
+
+    are positive for every endpoint and every omitted-pole choice.  This is
+    not a proof-grade regular-chart theorem, but it shows the precise sign
+    condition needed in the actual chart:
+
+    \[
+    -P(\gamma)Q(\gamma)>0\qquad(\gamma\in\Gamma).
+    \tag{G1EndpointConstantSign}
+    \]
+
+    Under this endpoint sign convention, the four repaired endpoint columns
+    span exactly the same oriented space as
+
+    \[
+    \frac{D_\gamma(z)}{N(z)^2R(z)},\qquad \gamma\in\Gamma,
+    \]
+
+    up to positive column scalings.  Since the \(D_\gamma\)'s form the
+    Lagrange basis of cubic polynomials at the four branch endpoints, the
+    endpoint part of Gate 1 is reduced to a weighted cubic-polynomial
+    antiderivative system with common kernel
+
+    \[
+    \frac{1}{N(z)^2R(z)}.
+    \]
+
+    This is the next realistic proof target:
+
+    \[
+    \boxed{
+    \textbf{WeightedCubicAntiderivativeECTLemma.}
+    }
+    \]
+
+    It should prove that the potentials
+
+    \[
+    V_\gamma(s)
+    =
+    a_\gamma(M)
+    \int_s^\infty
+    \frac{D_\gamma(t)}{N(t)^2R(t)}\,dt
+    \]
+
+    have the endpoint/off-row ECT signs needed for the homogeneous margins and
+    compact affine contact verification.  This is much narrower than the
+    original repaired-Schur-column ECT statement.
+
+    Right-exterior weighted-cubic ECT.
+
+    One component of the preceding lemma is immediate.  On the right exterior
+    interval \((\beta_2,\infty)\), fix the branch of \(R\) and the omitted pole
+    factor \(N\).  For any nonzero cubic polynomial \(F\), define
+
+    \[
+    G_F(s)=\int_s^\infty \frac{F(t)}{N(t)^2R(t)}\,dt.
+    \]
+
+    Since
+
+    \[
+    G_F'(s)=-\frac{F(s)}{N(s)^2R(s)}
+    \]
+
+    and \(N^2R\) has no zero on the right exterior component, \(G_F'\) has at
+    most three zeros unless \(F\equiv0\).  Moreover
+
+    \[
+    \lim_{s\to+\infty}G_F(s)=0.
+    \]
+
+    If \(G_F\) had four distinct zeros in \((\beta_2,\infty)\), then these
+    four zeros together with the zero at \(+\infty\) would force at least four
+    zeros of \(G_F'\) by Rolle's theorem, impossible for a nonzero cubic
+    \(F\).  Therefore every nontrivial linear combination of the four
+    right-exterior potentials has at most three zeros on the right exterior
+    component.
+
+    Thus the full-pair gauge gives a genuine Chebyshev system on the right
+    exterior component, assuming the endpoint constants have common positive
+    orientation.  The remaining split-set difficulty is not this exterior
+    component; it is the global two-component contact accounting and the
+    off-row/contact determinant signs when contacts lie in more than one
+    component.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

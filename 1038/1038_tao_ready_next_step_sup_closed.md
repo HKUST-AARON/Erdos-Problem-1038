@@ -647,6 +647,45 @@ Useful corrections already recorded:
   \(3.12\cdot10^{-15}\).  The remaining Gate 1 gauge task is therefore not
   \(\det A\), but the augmented Schur-minor signs after endpoint/period/contact
   rows are appended.
+- The full-pair gauge also gives an explicit repaired endpoint formula.  If
+  \(M(z)\) is the selected pole factor, then
+  \[
+  H_\gamma^{\rm rep}(z)
+  =
+  -\frac12
+  \frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}
+  M(z)^2D_\gamma(z).
+  \]
+  The proof is Hermite/interpolation: the repaired column has double zeros at
+  the selected poles and agrees with the raw endpoint column modulo
+  \(D\mathbb R[z]_{\le2d-3}\), so endpoint interpolation fixes it.  The toy
+  audit verifies this formula to relative error \(1.09\cdot10^{-14}\).
+  Consequently
+  \[
+  C_\gamma^{\rm rep}(z)
+  =
+  -\frac12
+  \frac{P(\gamma)Q(\gamma)}{M(\gamma)^2}
+  \frac{D_\gamma(z)}{N(z)^2R(z)},\quad Q=MN.
+  \]
+  This turns the repaired-column sign problem into an explicit omitted-pole
+  Cauchy-kernel problem.
+- In the toy cubic chart, the constants
+  \(-\frac12P(\gamma)Q(\gamma)/M(\gamma)^2\) are positive for every endpoint
+  and every omitted-pole choice.  The actual chart must prove the endpoint sign
+  convention \(-P(\gamma)Q(\gamma)>0\).  Under that convention, the endpoint
+  columns differ only by positive scalings from
+  \(D_\gamma(z)/(N(z)^2R(z))\).  The next proof target is therefore the narrower
+  `WeightedCubicAntiderivativeECTLemma` for potentials
+  \[
+  \int_s^\infty \frac{D_\gamma(t)}{N(t)^2R(t)}\,dt.
+  \]
+- The right-exterior part of this weighted-cubic ECT is already formal: for
+  \(G_F(s)=\int_s^\infty F(t)/(N(t)^2R(t))\,dt\) with \(F\) cubic,
+  \(G_F'\) has at most three zeros and \(G_F(\infty)=0\).  Four right-exterior
+  zeros would force at least four derivative zeros, contradiction.  The
+  remaining hard part is the split-set/global contact accounting and off-row
+  determinant signs, not the right-exterior component alone.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

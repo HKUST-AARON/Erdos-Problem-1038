@@ -374,7 +374,6 @@ def q_roots_real(Q: Array, tol: float = 1.0e-8) -> list[float]:
 
 def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, Any]:
     """Enumerate square subgauges of pole eval/deriv rows on the correction image."""
-    del P  # P is part of the chart contract but not needed for this row-rank audit.
     D = poly_from_roots(gammas)
     d = len(trim(Q)) - 1
     basis = canonical_correction_basis(D, d)
@@ -424,10 +423,40 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         if is_full_pair_subset:
             selected_roots = [roots[index] for index in sorted(selected_pairs)]
             formula_det = 1.0
+            selected_M = np.array([1.0])
             for root in selected_roots:
                 formula_det *= poly_eval(D, root) ** 2
+                selected_M = poly_mul(selected_M, np.array([-root, 1.0]))
             for left, right in combinations(selected_roots, 2):
                 formula_det *= (right - left) ** 4
+            repaired_formula_errors: dict[str, float] = {}
+            repaired_endpoint_constants: dict[str, float] = {}
+            repaired_formula_max_relative_error = 0.0
+            repaired = extract_repaired_data(P, Q, gammas, [rows[i] for i in combo])
+            selected_M_squared = poly_mul(selected_M, selected_M)
+            for gamma in gammas:
+                D_gamma = divide_by_linear(D, gamma)
+                coeff = (
+                    -0.5
+                    * poly_eval(P, gamma)
+                    * poly_eval(Q, gamma)
+                    / (poly_eval(selected_M, gamma) ** 2)
+                )
+                repaired_endpoint_constants[f"{gamma:.17g}"] = float(coeff)
+                formula_h = poly_scale(poly_mul(selected_M_squared, D_gamma), coeff)
+                endpoint = repaired["endpoints"][f"{gamma:.17g}"]
+                direct_h = np.array(endpoint["h_rep_coefficients_ascending"], dtype=float)
+                width = max(len(formula_h), len(direct_h))
+                formula_padded = np.pad(formula_h, (0, width - len(formula_h)))
+                direct_padded = np.pad(direct_h, (0, width - len(direct_h)))
+                relative_error = float(
+                    np.linalg.norm(direct_padded - formula_padded)
+                    / max(1.0, np.linalg.norm(formula_padded))
+                )
+                repaired_formula_errors[f"{gamma:.17g}"] = relative_error
+                repaired_formula_max_relative_error = max(
+                    repaired_formula_max_relative_error, relative_error
+                )
             full_pair_subsets.append(
                 {
                     "pole_indices": sorted(selected_pairs),
@@ -441,6 +470,15 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
                     "full_pair_formula_relative_error": (
                         abs(det - formula_det) / max(1.0, abs(formula_det))
                     ),
+                    "repaired_endpoint_formula_relative_errors": repaired_formula_errors,
+                    "repaired_endpoint_formula_max_relative_error": (
+                        repaired_formula_max_relative_error
+                    ),
+                    "repaired_endpoint_constants": repaired_endpoint_constants,
+                    "repaired_endpoint_constant_signs": {
+                        key: sign_label(value)
+                        for key, value in repaired_endpoint_constants.items()
+                    },
                 }
             )
         full_rank.append(
@@ -458,6 +496,11 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
     full_pair_signs = sorted({item["det_sign"] for item in full_pair_subsets})
     max_full_pair_formula_relative_error = (
         max(item["full_pair_formula_relative_error"] for item in full_pair_subsets)
+        if full_pair_subsets
+        else None
+    )
+    max_full_pair_repaired_formula_relative_error = (
+        max(item["repaired_endpoint_formula_max_relative_error"] for item in full_pair_subsets)
         if full_pair_subsets
         else None
     )
@@ -485,6 +528,9 @@ def pole_row_subset_audit(P: Array, Q: Array, gammas: list[float]) -> dict[str, 
         "full_confluent_pair_subset_signs": full_pair_signs,
         "all_full_confluent_pair_subsets_same_orientation": len(full_pair_signs) <= 1,
         "max_full_confluent_pair_formula_relative_error": max_full_pair_formula_relative_error,
+        "max_full_confluent_pair_repaired_formula_relative_error": (
+            max_full_pair_repaired_formula_relative_error
+        ),
     }
 
 
@@ -959,6 +1005,16 @@ def main() -> int:
             "  max full confluent pole-pair formula relative error = "
             f"{audit['max_full_confluent_pair_formula_relative_error']}"
         )
+        print(
+            "  max full confluent pole-pair repaired formula relative error = "
+            f"{audit['max_full_confluent_pair_repaired_formula_relative_error']}"
+        )
+        if audit["full_confluent_pair_subsets"]:
+            first_pair = audit["full_confluent_pair_subsets"][0]
+            print(
+                "  first full confluent pole-pair endpoint constant signs = "
+                f"{first_pair['repaired_endpoint_constant_signs']}"
+            )
         if audit["first_full_rank_subset"]:
             first = audit["first_full_rank_subset"]
             print(f"  first full-rank subset = {first['row_names']}")
