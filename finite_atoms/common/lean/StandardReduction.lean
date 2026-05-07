@@ -8284,6 +8284,31 @@ theorem exists_positiveComponent_baseline_right_pos_of_truncated_spanning
   · rw [hright]
     exact hδ
 
+/--
+Direct ordinary-positive spanning interval constructor.  This bypasses global
+openness of `PositiveSet (unitIntervalLogPotential μ)`: if an actual open
+interval `(-1, δ)` with `δ > 0` is already known to be positive, then it
+packages as a `PositiveComponent` containing the baseline and with positive
+right endpoint.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_positive_spanning
+    {μ : ProbabilityMeasure UnitInterval1038}
+    {δ : ℝ} (hδ : 0 < δ)
+    (hspan :
+      Ioo (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ C : PositiveComponent μ,
+      C.interval = Ioo (-1 : ℝ) δ ∧
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  let C : PositiveComponent μ :=
+    PositiveComponent.of_interval_subset_positiveSet (by linarith : (-1 : ℝ) < δ)
+      hspan
+  refine ⟨C, rfl, ?_, ?_⟩
+  · intro x hx
+    exact ⟨hx.1, lt_trans hx.2 hδ⟩
+  · dsimp [C, PositiveComponent.of_interval_subset_positiveSet]
+    exact hδ
+
 theorem unitIntervalTruncatedPositiveSetObjective_le_positiveSetObjective_of_logKernel_integrable
     (μ : ProbabilityMeasure UnitInterval1038)
     (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
