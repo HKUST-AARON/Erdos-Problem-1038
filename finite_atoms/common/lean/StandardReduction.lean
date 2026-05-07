@@ -10514,6 +10514,70 @@ theorem exists_positiveComponent_baseline_right_pos_of_span_compact_data
       (hspan_tail 0 δ hright_subset_span)
 
 /--
+Span-global-data version of selected-component construction.  Continuity,
+positivity, off-diagonal disjointness, and tail control are supplied on the
+whole span `Ioc (-1) δ`; compact-subinterval data is obtained by restriction.
+-/
+theorem exists_positiveComponent_baseline_right_pos_of_span_global_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε) (hδ : 0 < δ)
+    (hspan_cont :
+      ContinuousOn (unitIntervalLogPotential μ) (Ioc (-1 : ℝ) δ))
+    (hspan_pos :
+      ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+        0 < unitIntervalLogPotential μ y)
+    (hspan_no_diag :
+      Disjoint (Ioc (-1 : ℝ) δ) (diagonalAtomSet μ))
+    (hspan_tail :
+      ∀ threshold' : ℝ, 0 < threshold' →
+        ∀ y : ℝ, y ∈ Ioc (-1 : ℝ) δ →
+          singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hspan_cont_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ContinuousOn (unitIntervalLogPotential μ) (Icc a b) := by
+    intro a b hsubset
+    exact hspan_cont.mono hsubset
+  have hspan_pos_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y := by
+    intro a b hsubset y hy
+    exact hspan_pos y (hsubset hy)
+  have hspan_no_diag_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          Disjoint (Icc a b) (diagonalAtomSet μ) := by
+    intro a b hsubset
+    rw [Set.disjoint_left]
+    intro y hy hdiag
+    rw [Set.disjoint_left] at hspan_no_diag
+    exact hspan_no_diag (hsubset hy) hdiag
+  have hspan_tail_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioc (-1 : ℝ) δ →
+          ∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2) := by
+    intro a b hsubset threshold' hthreshold hthreshold_le y hy
+    exact hspan_tail threshold' hthreshold y (hsubset hy)
+  exact
+    exists_positiveComponent_baseline_right_pos_of_span_compact_data
+      μ hlog_int htruncε hδ
+      hspan_cont_compact hspan_pos_compact
+      hspan_no_diag_compact hspan_tail_compact
+
+/--
 Selected component from a uniform ordinary lower bound on the baseline interval
 and at `0`.  This is the threshold-margin version of the component-selection
 path: a future variation argument can supply a single positive margin
