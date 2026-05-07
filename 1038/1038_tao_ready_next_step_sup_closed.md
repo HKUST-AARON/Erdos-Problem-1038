@@ -605,6 +605,13 @@ Useful corrections already recorded:
   `SquareMovingChartGaugeLemma`: choose exactly \(2d-2\) independent rows for
   \(A\), and show every omitted pole/residue/period condition is a state
   output, quotient direction, or open regularity inequality routed to Gate 3.
+- The square-gauge lemma must be sign-compatible, not merely algebraic.  The
+  earlier normalization construction allows an arbitrary basis of
+  \(\operatorname{im}\mathcal N\), but arbitrary row compression destroys the
+  ordered Cauchy determinant signs.  The next target is therefore
+  `TPSquareMovingChartGaugeLemma`: choose exactly \(2d-2\) rows that both span
+  the normalization image and remain ordered Cauchy / confluent Cauchy /
+  positive-average rows with fixed orientation.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

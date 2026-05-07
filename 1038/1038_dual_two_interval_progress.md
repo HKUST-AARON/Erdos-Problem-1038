@@ -14821,6 +14821,61 @@ theorem queue.
     Only after this lemma is fixed can CompactG2MovingChartEquations be
     implemented without guessing.
 
+    Algebraic square gauge versus sign-compatible square gauge.
+
+    The earlier normalization construction already contains an algebraic
+    square-gauge existence statement: remove redundant normalization rows and
+    choose a correction subspace \(\mathcal H_{\rm norm}\) on which
+
+    \[
+    \mathcal N:\mathcal H_{\rm norm}\to\operatorname{im}\mathcal N
+    \]
+
+    is an isomorphism.  This is enough to define repaired columns as abstract
+    Schur-complement columns.  It is not enough for the Gate 1 sign theorem.
+
+    The reason is that a generic basis of \(\operatorname{im}\mathcal N\) is a
+    generic linear combination of Cauchy/confluent rows.  Such a basis may be
+    perfectly invertible while destroying every ordered determinant sign.  The
+    total-positivity transfer requires the rows of \(A\) themselves to be
+    ordered Cauchy rows, confluent Cauchy rows, positive averages, or positive
+    rescalings thereof.  Gaussian elimination, QR row selection, or arbitrary
+    basis compression cannot be used in a proof of the circuit orientation
+    unless the transition matrix is known to be totally positive with fixed
+    sign.
+
+    Therefore SquareMovingChartGaugeLemma must be strengthened to:
+
+    \[
+    \boxed{
+    \textbf{TPSquareMovingChartGaugeLemma.}
+    }
+    \]
+
+    It must choose exactly \(2d-2\) normalization rows satisfying all three
+    requirements:
+
+    1.  they span \(\operatorname{im}\mathcal N\) on
+        \(D\mathbb R[z]_{\le2d-3}\);
+    2.  the resulting \(A_{\ell,X}\) is invertible in the regular chart;
+    3.  the selected row list is TP-compatible: ordered Cauchy/confluent rows
+        or positive averages with a fixed orientation.
+
+    This separates two facts that were previously conflated:
+
+    \[
+    \text{abstract repaired columns exist}
+    \quad\not\Rightarrow\quad
+    \text{their Schur minors have a sign.}
+    \]
+
+    For computation, an arbitrary independent row subset can still be useful
+    to generate candidate repaired data.  For proof, the selected subset must
+    be TP-compatible.  The next calculation should therefore search for a
+    natural TP-compatible square subset of the overcomplete pole/mass/period
+    row list, rather than compressing rows by arbitrary numerical linear
+    algebra.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.
