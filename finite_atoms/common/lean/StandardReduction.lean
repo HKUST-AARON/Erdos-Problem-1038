@@ -3099,6 +3099,30 @@ theorem exists_positiveComponent_of_interval_subset_positiveSet
     ∃ C : PositiveComponent μ, C.left = l ∧ C.right = r := by
   refine ⟨PositiveComponent.of_interval_subset_positiveSet hlr hpos, rfl, rfl⟩
 
+/--
+The connected component of the positive set is maximal with respect to
+positive open intervals.  This is the pure topological core of the selected
+component construction: once the real variation argument identifies the point
+whose positive component is selected, interval maximality no longer has to be
+provided as an external hypothesis.
+-/
+theorem positiveSet_connectedComponentIn_intervalMaximal
+    {U : ℝ → ℝ} {x : ℝ} :
+    ∀ l r : ℝ, l < r →
+      Ioo l r ⊆ PositiveSet U →
+      (Ioo l r ∩ connectedComponentIn (PositiveSet U) x).Nonempty →
+        Ioo l r ⊆ connectedComponentIn (PositiveSet U) x := by
+  intro l r hlr hpos hinter
+  rcases hinter with ⟨y, hyI, hycomp⟩
+  have hI_sub_y :
+      Ioo l r ⊆ connectedComponentIn (PositiveSet U) y :=
+    isPreconnected_Ioo.subset_connectedComponentIn hyI hpos
+  have hcomp_eq :
+      connectedComponentIn (PositiveSet U) x =
+        connectedComponentIn (PositiveSet U) y :=
+    connectedComponentIn_eq hycomp
+  simpa [hcomp_eq] using hI_sub_y
+
 def PositiveComponent.interval
     {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ) : Set ℝ :=
   Ioo C.left C.right
@@ -3198,6 +3222,24 @@ def PositiveComponent.IntervalMaximal
     Ioo l r ⊆ PositiveSet (unitIntervalLogPotential μ) →
     (Ioo l r ∩ C.interval).Nonempty →
       Ioo l r ⊆ C.interval
+
+/--
+If a packaged positive component is represented by the connected component of
+the positive set, its interval-maximality is automatic.  This is the
+`PositiveComponent`-level exit from the topological connected-component
+construction.
+-/
+theorem PositiveComponent.intervalMaximal_of_interval_eq_connectedComponentIn
+    {μ : ProbabilityMeasure UnitInterval1038} (C : PositiveComponent μ)
+    {x : ℝ}
+    (hC :
+      C.interval =
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x) :
+    C.IntervalMaximal := by
+  intro l r hlr hpos hinter
+  rw [hC] at hinter ⊢
+  exact positiveSet_connectedComponentIn_intervalMaximal
+    (U := unitIntervalLogPotential μ) l r hlr hpos hinter
 
 /--
 The local component-selection bridge for the endpoint `-1`.
