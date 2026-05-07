@@ -11671,6 +11671,58 @@ theorem exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_su
             hright_support)
           hright_pos).choose_spec.2)
 
+theorem exists_positiveComponent_baseline_right_pos_of_baseline_compact_support_data_and_closed_right_compact_support_data
+    (μ : ProbabilityMeasure UnitInterval1038)
+    (hlog_int : ∀ x : ℝ, x ∉ diagonalAtomSet μ →
+      Integrable
+        (fun t : UnitInterval1038 => Real.log (1 / |x - (t : ℝ)|))
+        (μ : Measure UnitInterval1038))
+    {truncε δ : ℝ}
+    (htruncε : 0 < truncε)
+    (hbaseline_compact :
+      ∀ a b : ℝ,
+        Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)))
+    (hδ : 0 < δ)
+    (hright_support :
+      Disjoint (Icc (0 : ℝ) δ) (realMeasure μ).support)
+    (hright_pos :
+      ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+        0 < unitIntervalLogPotential μ x)
+    (hright_tail :
+      ∀ threshold : ℝ, 0 < threshold →
+        (∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          threshold < unitIntervalLogPotential μ x) →
+        ∀ x : ℝ, x ∈ Icc (0 : ℝ) δ →
+          singularTailMass truncε μ x < ENNReal.ofReal (threshold / 2)) :
+    ∃ C : PositiveComponent μ,
+      Ioo (-1 : ℝ) 0 ⊆ C.interval ∧
+      0 < C.right := by
+  have hbaseline_local :
+      ∀ x : ℝ, x ∈ Ioo (-1 : ℝ) 0 →
+        ∀ a b : ℝ,
+          x ∈ Icc a b →
+          Icc a b ⊆ Ioo (-1 : ℝ) 0 →
+          Disjoint (Icc a b) (realMeasure μ).support ∧
+          (∀ y : ℝ, y ∈ Icc a b → 0 < unitIntervalLogPotential μ y) ∧
+          (∀ threshold' : ℝ, 0 < threshold' →
+            (∀ y : ℝ, y ∈ Icc a b →
+              threshold' < unitIntervalLogPotential μ y) →
+            ∀ y : ℝ, y ∈ Icc a b →
+              singularTailMass truncε μ y < ENNReal.ofReal (threshold' / 2)) := by
+    intro _x _hx a b _hxab hsubset
+    exact hbaseline_compact a b hsubset
+  exact
+    exists_positiveComponent_baseline_right_pos_of_baseline_local_compact_support_data_and_closed_right_compact_support_data
+      μ hlog_int htruncε hbaseline_local hδ
+      hright_support hright_pos hright_tail
+
 /--
 Compact-subinterval baseline version of selected-component construction.
 The baseline input is now stated once for every compact subinterval of
