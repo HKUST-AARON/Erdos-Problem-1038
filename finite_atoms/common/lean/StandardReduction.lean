@@ -25957,5 +25957,89 @@ theorem support_unique_in_component_of_normalizedComponentBlock_eq_dirac_barycen
     support_unique_in_component_of_normalizedComponentBlock_eq_dirac_endpoint
       R hendpoint
 
+/-!
+## Fixed-minimizer endpoint bridge
+
+The high-level existential theorems above still hide the selected minimizer
+inside an existence proof.  The next bridge is the fixed-`μ` form needed by the
+standard-reduction ledger: once the genuine variation step supplies the
+selected component, endpoint atom, augmented span/right gap, and local
+zero-neighbourhood exclusion for that same secondary minimizer, the endpoint
+normalization package is assembled directly.
+-/
+
+noncomputable def unitInterval_standardReduction_from_endpointAtom_rightGap_zeroNeighborhood
+    {μ : ProbabilityMeasure UnitInterval1038}
+    (hPrimary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        unitIntervalTruncatedPositiveSetObjective μ ≤
+          unitIntervalTruncatedPositiveSetObjective ν)
+    (hSecondary :
+      ∀ ν : ProbabilityMeasure UnitInterval1038,
+        (∀ η : ProbabilityMeasure UnitInterval1038,
+          unitIntervalTruncatedPositiveSetObjective ν ≤
+            unitIntervalTruncatedPositiveSetObjective η) →
+        unitIntervalSecondMomentObjective μ ≤
+          unitIntervalSecondMomentObjective ν)
+    {C : PositiveComponent μ} {ε δ : ℝ}
+    (hε : 0 < ε)
+    (hright_pos : 0 < C.right)
+    (hδ : 0 < δ)
+    (hmax : C.AugmentedIntervalMaximal)
+    (hspan_aug :
+      Set.Ioo (-(1 : ℝ) - ε) C.right ⊆
+        unitIntervalAugmentedPositiveSet μ)
+    (hendpoint_unit_pos :
+      0 < (μ : Measure UnitInterval1038)
+        {t : UnitInterval1038 | (t : ℝ) = -1})
+    (hbaseline : Set.Ioo (-1 : ℝ) 0 ⊆ C.interval)
+    (hright_gap :
+      Set.Icc C.right (C.right + δ) ∩
+          (unitIntervalAugmentedPositiveSet μ ∪ (realMeasure μ).support) =
+        ∅)
+    (hzero : ∀ U : Set ℝ, IsOpen U → U ⊆ C.interval → -1 ∉ U →
+      realMeasure μ U = 0) :
+    NormalizedEndpointPotential (unitIntervalLogPotential μ) := by
+  have hendpoint_real_pos : 0 < realMeasure μ ({-1} : Set ℝ) :=
+    realMeasure_endpoint_atom_pos_of_unitInterval_endpoint_atom_pos μ
+      hendpoint_unit_pos
+  have hendpoint_mem : (-1 : ℝ) ∈ C.interval :=
+    C.endpoint_mem_of_augmentedIntervalMaximal_endpointAtom_augmented
+      hε hmax hbaseline
+      (by
+        intro x hx
+        exact hspan_aug ⟨hx.1, lt_trans hx.2 (by linarith [hright_pos])⟩)
+      hendpoint_unit_pos
+  have hmass_pos : 0 < componentMass C :=
+    componentMass_pos_of_support_mem_interval
+      (realMeasure_mem_support_of_singleton_pos hendpoint_real_pos)
+      hendpoint_mem
+  let R : ComponentReplacement μ C :=
+    ComponentReplacement.of_mass_pos C hmass_pos
+  have hnormalized_atomized :
+      normalizedComponentBlock C = Measure.dirac (-1 : ℝ) :=
+    normalizedComponentBlock_eq_dirac_endpoint_of_secondary_minimality_smallException_zero_neighborhood
+      R hε hPrimary hSecondary
+      (fun η hη => singularTail_exists_small_strictOutside_exception C ε η hη)
+      hzero
+  have hboundary :
+      1 ≤ (C.right + 1) *
+              (((μ : Measure UnitInterval1038)
+                {t : UnitInterval1038 | (t : ℝ) = -1}).toReal) +
+            (1 - C.right) *
+              (1 -
+                (((μ : Measure UnitInterval1038)
+                  {t : UnitInterval1038 | (t : ℝ) = -1}).toReal)) :=
+    boundary_average_of_spanning_augmented_right_gap_normalized_atomized
+      μ R hright_pos hε hδ hmax hbaseline hspan_aug hright_gap
+      hnormalized_atomized
+  let Pack : TaoVariationComponentPackage (unitIntervalLogPotential μ) :=
+    taoVariationComponentPackage_of_canonicalEndpointMass_normalized_atomization_baseline_data
+      μ TaoVariationMeanChoice.nonnegativeMean false 0 C R C.left C.right
+      (by
+        rw [C.interval_eq])
+      hbaseline hright_pos hboundary hnormalized_atomized
+  exact Pack.toNormalizedEndpointPotential
+
 end StandardReduction
 end Erdos1038
