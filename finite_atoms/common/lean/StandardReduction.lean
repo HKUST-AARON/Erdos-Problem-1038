@@ -3661,6 +3661,38 @@ theorem exists_positiveComponent_baseline_right_pos_augmentedMaximal_of_connecte
   exact ⟨C, haug, hbaseline_C, hright⟩
 
 /--
+A positive interval crossing `0` supplies the right-positive witness for the
+selected connected component based at any baseline point in the same interval.
+This removes the need to provide `xRight ∈ connectedComponentIn ...` by hand.
+-/
+theorem right_witness_connectedComponentIn_of_positive_spanning_interval
+    {μ : ProbabilityMeasure UnitInterval1038} {x δ : ℝ}
+    (hxspan : x ∈ Ioo (-1 : ℝ) δ)
+    (hδ : 0 < δ)
+    (hspan :
+      Ioo (-1 : ℝ) δ ⊆ PositiveSet (unitIntervalLogPotential μ)) :
+    ∃ xRight : ℝ,
+      0 < xRight ∧
+      xRight ∈
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x := by
+  let xRight : ℝ := δ / 2
+  have hxRight_pos : 0 < xRight := by
+    dsimp [xRight]
+    linarith
+  have hxRight_span : xRight ∈ Ioo (-1 : ℝ) δ := by
+    constructor
+    · dsimp [xRight]
+      linarith
+    · dsimp [xRight]
+      linarith
+  have hsubset :
+      Ioo (-1 : ℝ) δ ⊆
+        connectedComponentIn (PositiveSet (unitIntervalLogPotential μ)) x :=
+    positiveSet_interval_subset_connectedComponentIn_of_mem
+      (U := unitIntervalLogPotential μ) hxspan hspan
+  exact ⟨xRight, hxRight_pos, hsubset hxRight_span⟩
+
+/--
 An augmented-maximal selected component is maximal for ordinary positive
 intervals.  This is the bridge from the pole-as-win component selection used in
 the real-valued formalization back to the ordinary positive-component API.
