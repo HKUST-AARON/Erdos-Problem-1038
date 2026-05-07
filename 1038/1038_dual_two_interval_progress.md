@@ -14316,6 +14316,54 @@ theorem queue.
     \(b_S,b_\Pi\).  The remaining missing numerical layers are the other
     off-cut components and the compact contact/envelope optimization.
 
+    Right-exterior off-row determinant smoke test.
+
+    The same right-exterior data path now checks the first homogeneous-margin
+    determinant pattern.  If four right-exterior contact points
+
+    \[
+    x_1<x_2<x_3<x_4,\qquad x_i>\beta_2
+    \]
+
+    are supplied, it forms
+
+    \[
+    E=(V_S(x_i)^T)_{i=1}^4
+    \]
+
+    and replaces each row in turn by \(\rho_S^T\).  It reports the signs of
+
+    \[
+    \frac{\det E_{i\to\rho}}{\det E}.
+    \tag{G1RightExteriorOffRowDet}
+    \]
+
+    On the synthetic chart with contact points
+
+    \[
+    2.02,\quad 2.2,\quad 2.5,\quad 3.0,
+    \]
+
+    the smoke output is
+
+    \[
+    \det E=-3.344745723982\cdot10^1,
+    \]
+
+    and
+
+    \[
+    \operatorname{sgn}\left(\frac{\det E_{i\to\rho}}{\det E}\right)
+    =
+    (-,+,-,+).
+    \tag{G1RightExteriorOffRowSmoke}
+    \]
+
+    Thus the executable can now detect the off-row alternation required by the
+    endpoint-cone separation test in any right-exterior four-contact sample.
+    This remains only a smoke test until a real compact non-pinched \(g=2\)
+    chart is supplied.
+
     The conditional PV equation is not used in this reduction.
 
     Gate 2: Proposition 4.1 interface.

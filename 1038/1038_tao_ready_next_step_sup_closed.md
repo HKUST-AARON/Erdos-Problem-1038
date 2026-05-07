@@ -537,6 +537,13 @@ Useful corrections already recorded:
   skips none, and gives \(\max_j|b_j|=7.071555885807\cdot10^2\).  Middle-gap
   and left-exterior potential rows are still intentionally uncomputed until
   their boundary-value convention is fixed.
+- The right-exterior path now also computes the first off-row determinant
+  smoke test.  With four synthetic right-exterior contacts
+  \(2.02,2.2,2.5,3.0\), it forms \(E=(V_S(x_i)^T)\), replaces each row by
+  \(\rho_S^T\), and reports \(\det E=-3.344745723982\cdot10^1\) with relative
+  cofactor signs \((- ,+,-,+)\).  This confirms the executable can test the
+  endpoint/off-row alternation hard mouth once real chart data are supplied;
+  it is not a Gate 1 certificate.
 
 ## 7. Update Discipline and Pure Mathematical Next Steps
 

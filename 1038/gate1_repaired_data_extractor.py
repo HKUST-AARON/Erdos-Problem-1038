@@ -458,6 +458,70 @@ def right_exterior_potential_payload(
     }
 
 
+def sign_label(value: float, tol: float = 1.0e-10) -> int:
+    if value > tol:
+        return 1
+    if value < -tol:
+        return -1
+    return 0
+
+
+def right_exterior_offrow_determinant_payload(
+    potentials: dict[str, Any],
+    rho_payload: dict[str, Any] | None,
+    gammas: list[float],
+) -> dict[str, Any] | None:
+    if rho_payload is None:
+        return None
+    values = potentials.get("values", {})
+    contact_names = sorted(name for name in values if name.startswith("contact_"))
+    if len(contact_names) < 4:
+        return {
+            "status": "insufficient_contacts",
+            "available_contact_rows": contact_names,
+            "required": 4,
+        }
+    selected = contact_names[:4]
+    gamma_keys = [f"{gamma:.17g}" for gamma in gammas]
+    matrix = np.array(
+        [[float(values[name][gamma_key]) for gamma_key in gamma_keys] for name in selected],
+        dtype=float,
+    )
+    rho_row = np.array([float(rho_payload["rho_S"][gamma_key]) for gamma_key in gamma_keys], dtype=float)
+    det_E = float(np.linalg.det(matrix))
+    cofactors: list[dict[str, Any]] = []
+    cofactor_signs: list[int] = []
+    for index in range(4):
+        replaced = matrix.copy()
+        replaced[index, :] = rho_row
+        det_i = float(np.linalg.det(replaced))
+        sign_i = sign_label(det_i / det_E) if sign_label(det_E) != 0 else 0
+        cofactor_signs.append(sign_i)
+        cofactors.append(
+            {
+                "row_index": index,
+                "contact": selected[index],
+                "det_replace_row_by_rho": det_i,
+                "relative_sign": sign_i,
+            }
+        )
+    alternates = all(
+        cofactor_signs[i] != 0 and cofactor_signs[i + 1] == -cofactor_signs[i]
+        for i in range(3)
+    )
+    return {
+        "status": "computed",
+        "component": "right_exterior",
+        "selected_contacts": selected,
+        "gamma_order": gamma_keys,
+        "det_E": det_E,
+        "det_E_sign": sign_label(det_E),
+        "cofactors": cofactors,
+        "relative_signs": cofactor_signs,
+        "alternating_relative_signs": alternates,
+    }
+
+
 def run_chart_json(path: Path) -> dict[str, Any]:
     P, Q, gammas, rows, source = load_chart_json(path)
     repaired = extract_repaired_data(P, Q, gammas, rows)
@@ -475,6 +539,12 @@ def run_chart_json(path: Path) -> dict[str, Any]:
         result["anchor_rho"] = anchor_rho_payload(repaired, float(source["c"]))
     if any(key in source for key in ["u", "v", "contact_points"]):
         result["right_exterior_potentials"] = right_exterior_potential_payload(repaired, source)
+    if "right_exterior_potentials" in result:
+        result["right_exterior_offrow_determinants"] = right_exterior_offrow_determinant_payload(
+            result["right_exterior_potentials"],
+            result.get("anchor_rho"),
+            [float(x) for x in repaired["gammas"]],
+        )
     return result
 
 
@@ -567,6 +637,13 @@ def main() -> int:
             if potentials.get("b") is not None:
                 max_abs_b = max(abs(value) for value in potentials["b"].values())
                 print(f"  max |b| = {max_abs_b:.12e}")
+        if payload.get("right_exterior_offrow_determinants"):
+            det_payload = payload["right_exterior_offrow_determinants"]
+            print(f"  right-exterior offrow status = {det_payload['status']}")
+            if det_payload["status"] == "computed":
+                print(f"  det(E) = {det_payload['det_E']:.12e}")
+                print(f"  relative signs = {det_payload['relative_signs']}")
+                print(f"  alternating = {det_payload['alternating_relative_signs']}")
         if args.write_json:
             with open(args.write_json, "w", encoding="utf-8") as handle:
                 json.dump(payload, handle, indent=2, sort_keys=True)
